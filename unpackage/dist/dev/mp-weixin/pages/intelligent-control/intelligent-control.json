@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "智能控制",
+  "enablePullDownRefresh": false,
+  "navigationBarBackgroundColor": "#EEEEEE",
+  "usingComponents": {
+    "uni-popup": "/uni_modules/uni-popup/components/uni-popup/uni-popup",
+    "modal": "/components/x-modal/x-modal"
+  }
+}

@@ -1,0 +1,9 @@
+{
+    "id": "customize-popup",
+    "name": "customizePopup 弹框",
+    "version": "1.0.1",
+    "description": "Popup 组件，支持底部按钮自定义内容、中间内容自定义",
+    "keywords": [
+        "弹框、popup、uniapp-popup"
+    ]
+}

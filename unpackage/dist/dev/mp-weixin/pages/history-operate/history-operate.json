@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "历史操作",
+  "enablePullDownRefresh": false,
+  "navigationBarBackgroundColor": "#FFFFFF",
+  "usingComponents": {
+    "date-picke": "/components/uni/DatePicke/DatePicke"
+  }
+}

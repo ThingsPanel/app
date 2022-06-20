@@ -1,0 +1,84 @@
+
+.tp-box{
+	width: 100%;
+	min-height: 100vh;
+	background: #F8F8F8;
+}
+.tp-datetime-select{
+	width: 100%;
+	border-top: 1rpx solid #E2E2E2;
+	background: #FFFFFF;
+	top: 88rpx;
+	left: 0;
+	z-index: 9999;
+	background: #FFFFFF;
+}
+.tp-datetime-select>view>text{
+	font-size: 30rpx;
+	font-weight: bold;
+	color: ##333333;
+}
+.tp-datetime-select>view>view.iconfont{
+	color: #333333;
+	font-size: 26rpx;
+}
+.tp-panel{
+	width: 100%;
+	background: #FFFFFF;
+	border-radius: 20rpx;
+}
+.tp-log-title{
+	color: #333333;
+	font-size: 32rpx;
+	font-weight: bold;
+}
+.tp-log-title>text{
+	color: #999999;
+	font-size: 22rpx;
+	font-weight: normal;
+}
+.tp-log-item{
+	height: 100rpx;
+	position: relative;
+	z-index: 1;
+}
+.tp-log-item::before{
+	content: '';
+	height: 140rpx;
+	border-left: 1rpx solid #F2F2F3;
+	position: absolute;
+	top: -10;
+	left: 110rpx;
+	z-index: -1;
+}
+.tp-log-item>view.tp-time{
+	width: 80rpx;
+	color: #434343;
+	font-size: 28rpx;
+}
+.tp-log-item>view.tp-circle{
+	width: 20rpx;
+	height: 20rpx;
+	background: #E2E2E2;
+	border-radius: 50%;
+}
+.tp-log-item>view.tp-circle.tp-active{
+	background: #32BAC0;
+}
+.tp-log-item>view:nth-child(3){
+	font-size: 28rpx;
+	font-weight: 400;
+	color: #434343;
+}
+.tp-log-item>view:last-child{
+	width: 50rpx;
+	height: 50rpx;
+}
+.tp-log-item>view:last-child>image{
+	width: 50rpx;
+	height: 50rpx;
+}
+.tp-tmp{
+	height: 35rpx;
+}
+

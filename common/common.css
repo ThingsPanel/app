@@ -1,0 +1,28 @@
+.noLogin {
+	/* background-color: #f7f7f7; */
+}
+.fishlogo{
+	padding-top: 388rpx;
+	width: 252rpx;
+	height: 122rpx;
+	margin: 0 auto;
+}
+.fishlogo img {
+	width: 252rpx;
+	height: 122rpx;
+}
+
+.authLogin {
+	margin-top: 133rpx;
+}
+.authLogin button{
+	width: 282rpx;
+	height: 77rpx;
+	background: #246FDD;
+	box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
+	border-radius: 39rpx;
+	font-size: 28rpx;
+	font-family: Source Han Sans CN;
+	font-weight: bold;
+	color: #FFFFFF;
+}
