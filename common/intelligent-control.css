@@ -1,0 +1,141 @@
+.moreitem {
+		width: 268rpx;
+		height: auto;
+		background: #fff;
+		position: absolute;
+		top: 80rpx;
+		display: block;
+		border-radius: 20rpx;
+		z-index: 99999;
+		box-shadow: 0px 7rpx 15rpx 1rpx rgba(172, 172, 172, 0.46);
+		border-radius: 4rpx;
+		right: 0rpx;
+	}
+
+	.item_i {
+		height: 50rpx;
+		line-height: 50rpx;
+		padding: 23rpx;
+		text-align: center;
+		font-size: 26rpx;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #333333;
+	}
+
+	.tp-box {
+		width: 100%;
+		min-height: 100vh;
+		/* background: #EEEEEE; */
+		/* opacity: 0.7; */
+	}
+
+	.tp-control {
+		width: 92%;
+		height: 50rpx;
+		/* top: 80rpx; */
+		left: 50%;
+		margin-left: -46%;
+		border-bottom: 1rpx solid #d4d4d4;
+		/* background: #EEEEEE; */
+		z-index: 999;
+	}
+
+	.tp-tmp {
+		height: 80rpx;
+	}
+
+	.tp-tab {
+		font-size: 28rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+
+	.tp-tab>view.tp-active {
+		font-size: 34rpx;
+		font-weight: bold;
+		color: #1D1D1D;
+		position: relative;
+	}
+
+	.tp-tab>view.tp-active::after {
+		content: '';
+		width: 66rpx;
+		height: 6rpx;
+		border-radius: 6rpx;
+		background: #1D1D1D;
+		position: absolute;
+		left: 50%;
+		bottom: -15rpx;
+		margin-left: -33rpx;
+	}
+
+	.tp-strategy-select {}
+
+	.tp-strategy-select>text {
+		font-size: 28rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+
+	.tp-strategy-select>view {
+		color: #333333;
+		font-size: 30rpx;
+	}
+
+	.tp-strategy-add-btn {
+		width: 690rpx;
+		height: 78rpx;
+		background: #FFFFFF;
+		opacity: 0.88;
+		border-radius: 4rpx;
+		margin-top: 45rpx;
+	}
+
+	.tp-strategy-add-btn>text {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #1D1D1D;
+	}
+
+	.tp-panel {}
+
+	.tp-strategy-item {
+		background: #FFFFFF;
+		border-radius: 10rpx;
+	}
+
+	.tp-strategy-item>view:first-child {
+		font-size: 30rpx;
+		font-weight: bold;
+		color: #333333;
+	}
+
+	.tp-strategy-item>view:nth-child(2) {
+		font-size: 26rpx;
+		font-weight: 400;
+		color: #666666;
+		line-height: 38rpx;
+	}
+
+	.tp-strategy-item>view:last-child {
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #343436;
+	}
+
+	.tp-strategy-item>view:last-child>view {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #343436;
+	}
+
+	.tp-strategy-item>view:last-child>view:nth-child(2) {
+		color: #CCCCCC;
+	}
+
+	.tp-strategy-item>view:last-child>view>view.iconfont {
+		font-size: 32rpx;
+		font-weight: 500;
+		color: #343436;
+	}

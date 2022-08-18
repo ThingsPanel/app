@@ -1,0 +1,192 @@
+{
+	"pages": [
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/fishery-monitor/fishery-monitor",
+			"style": {
+				"navigationBarTitleText": "猪场监测",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/intelligent-control/intelligent-control",
+			"style": {
+				"navigationBarTitleText": "智能控制",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#EEEEEE"
+			}
+		},
+		{
+			"path": "pages/ucenter/ucenter",
+			"style": {
+				"navigationBarTitleText": "个人中心",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#EEEEEE"
+			}
+		},
+		{
+			"path": "pages/accounts/accounts",
+			"style": {
+				"navigationBarTitleText": "基本资料",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}, {
+			"path": "pages/accounts/realname",
+			"style": {
+				"navigationBarTitleText": "修改姓名",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FAFAFA",
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{ // 设置
+							"color": "#333333",
+							"colorPressed": "#009933",
+							"float": "right",
+							"fontWeight": "normal",
+							"fontSize": "14px",
+							"text": "保存",
+							"width": "40px"
+						}]
+					}
+				}
+			}
+		}, {
+			"path": "pages/accounts/phone",
+			"style": {
+				"navigationBarTitleText": "修改手机",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FAFAFA",
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{ // 设置
+							"color": "#333333",
+							"colorPressed": "#009933",
+							"float": "right",
+							"fontWeight": "normal",
+							"fontSize": "14px",
+							"text": "保存",
+							"width": "40px"
+						}]
+					}
+				}
+			}
+		}, {
+			"path": "pages/accounts/email",
+			"style": {
+				"navigationBarTitleText": "修改邮箱",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FAFAFA",
+				"app-plus": {
+					"scrollIndicator": "none",
+					"bounce": "none",
+					"titleNView": {
+						"buttons": [{ // 设置
+							"color": "#333333",
+							"colorPressed": "#009933",
+							"float": "right",
+							"fontWeight": "normal",
+							"fontSize": "14px",
+							"text": "保存",
+							"width": "40px"
+						}]
+					}
+				}
+			}
+		}, {
+			"path": "pages/change-pwd/change-pwd",
+			"style": {
+				"navigationBarTitleText": "修改密码",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FAFAFA"
+			}
+		}, {
+			"path": "pages/history-operate/history-operate",
+			"style": {
+				"navigationBarTitleText": "历史操作",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}, {
+			"path": "pages/device/device",
+			"style": {
+				"navigationBarTitleText": "我的设备",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}, {
+			"path": "pages/alert-strategy/edit-strategy",
+			"style": {
+				"navigationBarTitleText": "编辑告警策略",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}, {
+			"path": "pages/alert-strategy/alert-strategy",
+			"style": {
+				"navigationBarTitleText": "新增告警策略",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}, {
+			"path": "pages/alert-control/add-control",
+			"style": {
+				"navigationBarTitleText": "新增控制策略",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
+			"path": "pages/alert-control/edit-control",
+			"style": {
+				"navigationBarTitleText": "编辑控制策略",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "ThingsPanel",
+		"navigationBarBackgroundColor": "#EEEEEE",
+		"backgroundColor": "#EEEEEE"
+	},
+	"tabBar": {
+		"color": "#908F92",
+		"selectedColor": "#207AF5",
+		"height": "52px",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "white",
+		"list": [{
+				"pagePath": "pages/fishery-monitor/fishery-monitor",
+				"text": "猪场监控",
+				"iconPath": "static/tabbar/pig.png",
+				"selectedIconPath": "static/tabbar/pig_on.png"
+			},
+			{
+				"pagePath": "pages/intelligent-control/intelligent-control",
+				"text": "智能控制",
+				"iconPath": "static/tabbar/intelligentControl.png",
+				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
+			},
+			{
+				"pagePath": "pages/ucenter/ucenter",
+				"text": "我的账户",
+				"iconPath": "static/tabbar/ucenter.png",
+				"selectedIconPath": "static/tabbar/ucenterSel.png"
+			}
+		]
+	}
+}

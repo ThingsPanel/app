@@ -1,0 +1,58 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/fishery-monitor/fishery-monitor",
+    "pages/intelligent-control/intelligent-control",
+    "pages/ucenter/ucenter",
+    "pages/accounts/accounts",
+    "pages/accounts/realname",
+    "pages/accounts/phone",
+    "pages/accounts/email",
+    "pages/change-pwd/change-pwd",
+    "pages/history-operate/history-operate",
+    "pages/device/device",
+    "pages/alert-strategy/edit-strategy",
+    "pages/alert-strategy/alert-strategy",
+    "pages/alert-control/add-control",
+    "pages/alert-control/edit-control"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "ThingsPanel",
+    "navigationBarBackgroundColor": "#EEEEEE",
+    "backgroundColor": "#EEEEEE"
+  },
+  "tabBar": {
+    "color": "#908F92",
+    "selectedColor": "#207AF5",
+    "height": "52px",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/fishery-monitor/fishery-monitor",
+        "text": "猪场监控",
+        "iconPath": "static/tabbar/pig.png",
+        "selectedIconPath": "static/tabbar/pig_on.png"
+      },
+      {
+        "pagePath": "pages/intelligent-control/intelligent-control",
+        "text": "智能控制",
+        "iconPath": "static/tabbar/intelligentControl.png",
+        "selectedIconPath": "static/tabbar/intelligentControlSel.png"
+      },
+      {
+        "pagePath": "pages/ucenter/ucenter",
+        "text": "我的账户",
+        "iconPath": "static/tabbar/ucenter.png",
+        "selectedIconPath": "static/tabbar/ucenterSel.png"
+      }
+    ]
+  },
+  "usingComponents": {
+    "need-login": "/components/login/needLogin",
+    "authorize": "/components/login/authorize",
+    "cys-toast": "/components/aui-toast/aui-toast"
+  }
+}

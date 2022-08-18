@@ -1,0 +1,78 @@
+
+.quitLogin {
+		width: 690rpx;
+		height: 86rpx;
+		line-height: 86rpx;
+		background: #207AF5;
+		border-radius: 10rpx;
+		margin: 0 auto;
+		margin-top: 56rpx;
+		font-size: 32rpx;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #FFFFFF;
+		text-align: center;
+	}
+
+	.tp-box {
+		width: 100%;
+		min-height: 100vh;
+		/* background: #FFFFFF; */
+	}
+
+	.tp-panel {
+		background: #FFFFFF;
+	}
+
+	.tp-uinfo {}
+
+	.tp-uinfo>image {
+		width: 124rpx;
+		height: 124rpx;
+		border: 100%;
+	}
+
+	.tp-uinfo>view:nth-child(2) {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #1D1D1D;
+	}
+
+	.tp-uinfo>view:nth-child(2)>view {
+		font-size: 36rpx;
+	}
+
+	.tp-uinfo>view:last-child {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #7C7C7C;
+	}
+
+	.tp-panel-item {
+		height: 94rpx;
+	}
+
+	.tp-panel-item-hover {
+		background: #FAFAFA;
+	}
+
+	.tp-panel-item>view:first-child {
+		font-size: 38rpx;
+		color: #343436;
+	}
+
+	.tp-panel-item>view:last-child {
+		height: 94rpx;
+		border-bottom: 1rpx solid #EDEDED;
+	}
+
+	.tp-panel-item>view:last-child>view:first-child {
+		font-size: 30rpx;
+		font-weight: 500;
+		color: #666666;
+	}
+
+	.tp-panel-item>view:last-child>view:last-child {
+		color: #999999;
+		font-size: 30rpx;
+	}
