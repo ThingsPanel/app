@@ -2,7 +2,11 @@
 	<view>
 		<view class="authorizeBtn">
 			<view class="authorizetitle"><img src="../../static/icon/fisheryLogo.png"/></view>
+<<<<<<< HEAD
 			<view class="authorizeInfo">请点击下方【获取授权】使用智慧猪场</view>
+=======
+			<view class="authorizeInfo">请点击下方【获取授权】使用启源渔业</view>
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 			<button @click="toCancel" class="cancel">取消授权</button>
 			<!-- #ifdef MP-WEIXIN -->
 			<button @click="getuserinfo">获取授权</button>

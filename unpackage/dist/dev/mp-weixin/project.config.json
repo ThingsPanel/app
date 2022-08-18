@@ -1,6 +1,7 @@
 {
   "description": "项目配置文件。",
   "packOptions": {
+<<<<<<< HEAD
     "ignore": [],
     "include": []
   },
@@ -20,5 +21,33 @@
   "editorSetting": {
     "tabIndent": "insertSpaces",
     "tabSize": 2
+=======
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "",
+  "appid": "wx19ac4446d3f91149",
+  "projectname": "ThingsPanelFishery",
+  "condition": {
+    "search": {
+      "current": -1,
+      "list": []
+    },
+    "conversation": {
+      "current": -1,
+      "list": []
+    },
+    "game": {
+      "current": -1,
+      "list": []
+    },
+    "miniprogram": {
+      "current": -1,
+      "list": []
+    }
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
   }
 }

@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 	
+=======
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 .addyt {
 	width: 200rpx;
 	height: 50rpx;
@@ -106,7 +109,11 @@
 	border-radius: 20rpx;
 	margin-bottom: 24rpx;
 }
+<<<<<<< HEAD
 .switch image{
+=======
+.switch img{
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	width: 100rpx;
 	height: 48rpx;
 }
@@ -124,7 +131,11 @@
 	color: #999999;
 	margin-top: 19rpx;
 }
+<<<<<<< HEAD
 .iconfontImg  image{
+=======
+.iconfontImg  img{
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	width: 101rpx;
 	height: 101rpx;
 }
@@ -153,6 +164,7 @@
 	font-weight: bold;
 	color: #0F0F0F;
 }
+<<<<<<< HEAD
 .tp-fishery-select .iconmore{
 	display: flex;
 }
@@ -168,6 +180,9 @@
 	color: #0F0F0F;
 	margin-left: 17rpx;
 }
+=======
+
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 .tp-fishery-select>view.iconfont {
 	font-size: 36rpx;
 }
@@ -177,7 +192,10 @@
 	border-radius: 20rpx;
 	display: inline-flex;
 	margin-top: 26rpx;
+<<<<<<< HEAD
 	margin-right: 15rpx;
+=======
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 }
 
 .tp_panel_first {
@@ -189,6 +207,7 @@
 .tp-grid-three {}
 
 .tp-grid-three>view.tp-panel {
+<<<<<<< HEAD
 	/* width: 330rpx;
 	height: 137rpx;
 	background: #E5EFFF; */
@@ -205,6 +224,14 @@
 	border-radius: 10rpx;
 	margin-right: 29rpx;
 }
+=======
+	width: 330rpx;
+	height: 137rpx;
+	background: #E5EFFF;
+
+}
+
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 .tp-grid-three>view..tp_panel_first {
 	background: #207AF5;
 	margin-right: 29rpx;
@@ -233,11 +260,19 @@
 	color: #333333;
 }
 
+<<<<<<< HEAD
 /* .tp-grid-three>view.tp-panel>view:last-child {
 	width: 60rpx;
 	height: 62rpx;
 }
  */
+=======
+.tp-grid-three>view.tp-panel>view:last-child {
+	width: 60rpx;
+	height: 62rpx;
+}
+
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 .tp-grid-three>view.tp-panel>view:last-child>image {
 	width: 60rpx;
 	height: 62rpx;
@@ -326,11 +361,19 @@
 .tp-log-item::before {
 	content: '';
 	height: 80rpx;
+<<<<<<< HEAD
 	border-left: 2rpx solid #F2F2F3;
 	position: absolute;
 	top: 20rpx;
 	bottom: -80rpx;
 	left: 227rpx;
+=======
+	border-left: 1rpx solid #F2F2F3;
+	position: absolute;
+	top: 20rpx;
+	bottom: -80rpx;
+	left: 17rpx;
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	z-index: -1;
 }
 
@@ -349,7 +392,11 @@
 }
 
 .tp-log-item>view.tp-circle.tp-active {
+<<<<<<< HEAD
 	background: #207AF5;
+=======
+	background: #32BAC0;
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 }
 
 .tp-log-item>view:nth-child(3) {
@@ -371,6 +418,7 @@
 .tp-tmp {
 	height: 50rpx;
 }
+<<<<<<< HEAD
 
 /* 日志详情 */
 .logInfo{
@@ -468,3 +516,5 @@
 	position: absolute;
 	top: 0
 }
+=======
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05

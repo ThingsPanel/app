@@ -27,7 +27,13 @@
 		</block>
 		
 		<view class="tp-tmp"></view>		
+<<<<<<< HEAD
 		<DatePicke :startYear="startYear" :endYear="endYear" :val="selectedTime" @confirm="onConfirm" ref="DatePicke"></DatePicke>
+=======
+		
+		<DatePicke :startYear="startYear" :endYear="endYear" :val="selectedTime" @confirm="onConfirm" ref="DatePicke"></DatePicke>
+		
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	</view>
 </template>
 

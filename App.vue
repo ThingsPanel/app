@@ -13,7 +13,11 @@
 </script>
 
 <style>
+<<<<<<< HEAD
 	/* 引入公共样式 */
+=======
+	/* 引入公共样式111 */
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	@import './common/uni.css';
 	/* 引入字体库样式 */
 	@import './common/icon.css';

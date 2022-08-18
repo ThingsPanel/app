@@ -1,7 +1,12 @@
 {
   "pages": [
+<<<<<<< HEAD
     "pages/login/login",
     "pages/fishery-monitor/fishery-monitor",
+=======
+    "pages/fishery-monitor/fishery-monitor",
+    "pages/login/login",
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
     "pages/intelligent-control/intelligent-control",
     "pages/ucenter/ucenter",
     "pages/accounts/accounts",
@@ -24,17 +29,28 @@
     "backgroundColor": "#EEEEEE"
   },
   "tabBar": {
+<<<<<<< HEAD
     "color": "#908F92",
     "selectedColor": "#207AF5",
+=======
+    "color": "#999999",
+    "selectedColor": "#333333",
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
     "height": "52px",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/fishery-monitor/fishery-monitor",
+<<<<<<< HEAD
         "text": "猪场监控",
         "iconPath": "static/tabbar/pig.png",
         "selectedIconPath": "static/tabbar/pig_on.png"
+=======
+        "text": "渔场监控",
+        "iconPath": "static/tabbar/fisheryMonitor.png",
+        "selectedIconPath": "static/tabbar/fisheryMonitorSel.png"
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
       },
       {
         "pagePath": "pages/intelligent-control/intelligent-control",
@@ -54,5 +70,10 @@
     "need-login": "/components/login/needLogin",
     "authorize": "/components/login/authorize",
     "cys-toast": "/components/aui-toast/aui-toast"
+<<<<<<< HEAD
   }
+=======
+  },
+  "sitemapLocation": "sitemap.json"
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 }

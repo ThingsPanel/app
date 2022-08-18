@@ -6,8 +6,11 @@ import http from './interface'
  * 
  */
 export const apiRequest = (url, data, method) => {
+<<<<<<< HEAD
 	console.log('store==', this.$store)
 	console.log('87978978')
+=======
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	//设置请求前拦截器
 	http.interceptor.request = (config) => {
 		let token = uni.getStorageSync("access_token")
@@ -22,6 +25,7 @@ export const apiRequest = (url, data, method) => {
 		if (statusCode === 401) {
 			uni.showModal({
 				title: '提示',
+<<<<<<< HEAD
 				content: '请登陆!',
 				showCancel: false,
 				success: function(res) {
@@ -29,10 +33,24 @@ export const apiRequest = (url, data, method) => {
 						uni.clearStorageSync() //清空所有缓存
 						uni.reLaunch({
 							url: '/pages/login/login'
+=======
+				content: '您的token已过期,请重新登陆!',
+				showCancel: false,
+				success: function(res) {
+					if (res.confirm) {
+						uni.removeStorageSync('access_token')
+						// uni.clearStorageSync() //清空所有缓存
+						uni.reLaunch({
+							url: '/pages/fishery-monitor/fishery-monitor.vue'
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 						})
 					}
 				},
 			})
+<<<<<<< HEAD
+=======
+			
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 		}
 		// 统一处理错误请求
 		return response.data;

@@ -5,7 +5,11 @@
 
 export default {
 	config: {
+<<<<<<< HEAD
 		baseUrl: "http://dev.thingspanel.cn:9999",  //测试地址
+=======
+		baseUrl: "https://qiyuan.jiyikeji.cn/api",  //测试地址
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 		header: {
 			'content-type': 'application/json',
 		},

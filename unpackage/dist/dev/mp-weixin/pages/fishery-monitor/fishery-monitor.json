@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "渔场监测",
+  "enablePullDownRefresh": false,
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "uni-popup": "/uni_modules/uni-popup/components/uni-popup/uni-popup"
+  }
+}

@@ -1,0 +1,26 @@
+
+.tp-box{
+	width: 100%;
+	min-height: 100vh;
+	background: #FFFFFF;
+}
+.tp-panel{
+}
+.tp-panel>view{
+	border-bottom: 1rpx solid #E1E1E1;
+}
+.tp-panel>view>input{
+	color: #666666;
+	font-size: 30rpx;
+}
+.tp-tips{
+	font-size: 26rpx;
+	line-height: 44rpx;
+	color: #999999;
+}
+.tp-plc{
+	font-size: 30rpx;
+	font-weight: 500;
+	color: #999999;
+}
+

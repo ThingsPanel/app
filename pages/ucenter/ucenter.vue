@@ -1,7 +1,23 @@
 <template>
 	<view>
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col tp-pd-l-r-30">
+<<<<<<< HEAD
 			<view>
+=======
+
+			<view class="tp-mg-t-b-20"></view>
+			<!-- 未登录 -->
+			<view class="noLogin" v-if="isLogin">
+				<view class="fishlogo"><img src="/static/icon/fisheryLogo.png"></view>
+				<view class="authLogin">
+					<!-- 获取微信绑定的手机号 -->
+					<button open-type="getPhoneNumber" @getphonenumber="getPhoneNumber"
+						v-if="isGetPhone">获取手机号并登录</button>
+					<button @click="toLogin" v-else>点击登录</button>
+				</view>
+			</view>
+			<view v-else>
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 				<view class="tp-panel tp-uinfo tp-flex tp-flex-col tp-flex-j-c tp-flex-a-c tp-mg-t-50">
 					<image :src="uhead" class="tp-mg-t-20" v-if="!$login.isLoginType().isLogin" @click="isLogin=true">
 					</image>
@@ -58,8 +74,17 @@
 				</view>
 			</view>
 		</view>
+<<<<<<< HEAD
 		<!-- 消息提示框 -->
 		<cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
+=======
+		<!-- 授权登录 -->
+		<uni-popup ref="authPopup" type="bottom">
+			<authorize @getuserinfo="getAuth" @cancel="toCloseLogin"></authorize>
+		</uni-popup>
+		<!-- 消息提示框 -->
+		<cys-toast ref="toast" :msg="toast.msg" :direction="row" location="top"></cys-toast>
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 	</view>
 </template>
 
@@ -94,7 +119,17 @@
 			})
 		},
 		onShow() {
+<<<<<<< HEAD
 			this.getUserInfo()
+=======
+			if (this.$login.isLoginType().isLogin) {
+				this.uhead = JSON.parse(uni.getStorageSync('userWxInfo')).avatarUrl
+				this.getUserInfo()
+			}
+			if (this.$login.isLoginType().isAuth) {
+				this.isGetPhone = true
+			}
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 		},
 		onLoad() {
 			
@@ -105,6 +140,7 @@
 				uni.showLoading({
 					title: '加载中'
 				});
+<<<<<<< HEAD
 				this.API.apiRequest('/api/auth/logout', {}, 'post').then(res => {
 					if (res.code == 200) {
 						uni.removeStorageSync('access_token')
@@ -112,6 +148,14 @@
 						uni.removeStorageSync('ywId')
 						uni.reLaunch({
 							url: '../login/login'
+=======
+				this.API.apiRequest('/auth/logout', {}, 'post').then(res => {
+					if (res.code == 200) {
+						uni.removeStorageSync('access_token')
+						uni.removeStorageSync('wx_code')
+						uni.reLaunch({
+							url: '../fishery-monitor/fishery-monitor'
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 						})
 					}
 					uni.hideLoading()
@@ -122,7 +166,11 @@
 				uni.showLoading({
 					title: '加载中'
 				});
+<<<<<<< HEAD
 				this.API.apiRequest('/api/auth/me', {}, 'post').then(res => {
+=======
+				this.API.apiRequest('/auth/me', {}, 'post').then(res => {
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 					if (res.code == 200) {
 						this.userWxInfo = res.data
 					}
@@ -231,8 +279,16 @@
 					desc: '登录',
 					success(infoRes) {
 						const userInfo = infoRes.userInfo;
+<<<<<<< HEAD
 						uni.setStorageSync('isAuth', '1')
 						that.$refs.authPopup.close()
+=======
+						uni.setStorageSync('userWxInfo', JSON.stringify(userInfo))
+						uni.setStorageSync('isAuth', '1')
+						that.isGetPhone = true
+						that.$refs.authPopup.close()
+						
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 					},
 					fail: err => {
 						console.log('未授权err==', err);
@@ -244,5 +300,85 @@
 </script>
 
 <style>
+<<<<<<< HEAD
 	@import '@/common/ucenter.css';
+=======
+	.quitLogin {
+		width: 690rpx;
+		height: 86rpx;
+		line-height: 86rpx;
+		background: #343436;
+		border-radius: 10rpx;
+		margin: 0 auto;
+		margin-top: 56rpx;
+		font-size: 32rpx;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #FFFFFF;
+		text-align: center;
+	}
+
+	.tp-box {
+		width: 100%;
+		min-height: 100vh;
+		background: #FFFFFF;
+	}
+
+	.tp-panel {
+		background: #FFFFFF;
+	}
+
+	.tp-uinfo {}
+
+	.tp-uinfo>image {
+		width: 124rpx;
+		height: 124rpx;
+		border: 100%;
+	}
+
+	.tp-uinfo>view:nth-child(2) {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #1D1D1D;
+	}
+
+	.tp-uinfo>view:nth-child(2)>view {
+		font-size: 36rpx;
+	}
+
+	.tp-uinfo>view:last-child {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #7C7C7C;
+	}
+
+	.tp-panel-item {
+		height: 94rpx;
+	}
+
+	.tp-panel-item-hover {
+		background: #FAFAFA;
+	}
+
+	.tp-panel-item>view:first-child {
+		font-size: 38rpx;
+		color: #343436;
+	}
+
+	.tp-panel-item>view:last-child {
+		height: 94rpx;
+		border-bottom: 1rpx solid #EDEDED;
+	}
+
+	.tp-panel-item>view:last-child>view:first-child {
+		font-size: 30rpx;
+		font-weight: 500;
+		color: #666666;
+	}
+
+	.tp-panel-item>view:last-child>view:last-child {
+		color: #999999;
+		font-size: 30rpx;
+	}
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 </style>

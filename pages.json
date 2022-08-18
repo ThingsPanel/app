@@ -1,17 +1,30 @@
 {
+<<<<<<< HEAD
 	"pages": [
 		{
 			"path": "pages/login/login",
 			"style": {
 				"navigationBarTitleText": "登录",
+=======
+	"pages": [{
+			"path": "pages/fishery-monitor/fishery-monitor",
+			"style": {
+				"navigationBarTitleText": "渔场监测",
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
 		},
 		{
+<<<<<<< HEAD
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
 				"navigationBarTitleText": "猪场监测",
+=======
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -27,9 +40,15 @@
 		{
 			"path": "pages/ucenter/ucenter",
 			"style": {
+<<<<<<< HEAD
 				"navigationBarTitleText": "个人中心",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#EEEEEE"
+=======
+				"navigationBarTitleText": "我的账号",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 			}
 		},
 		{
@@ -164,16 +183,27 @@
 		"backgroundColor": "#EEEEEE"
 	},
 	"tabBar": {
+<<<<<<< HEAD
 		"color": "#908F92",
 		"selectedColor": "#207AF5",
+=======
+		"color": "#999999",
+		"selectedColor": "#333333",
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 		"height": "52px",
 		"backgroundColor": "#FFFFFF",
 		"borderStyle": "white",
 		"list": [{
 				"pagePath": "pages/fishery-monitor/fishery-monitor",
+<<<<<<< HEAD
 				"text": "猪场监控",
 				"iconPath": "static/tabbar/pig.png",
 				"selectedIconPath": "static/tabbar/pig_on.png"
+=======
+				"text": "渔场监控",
+				"iconPath": "static/tabbar/fisheryMonitor.png",
+				"selectedIconPath": "static/tabbar/fisheryMonitorSel.png"
+>>>>>>> 3e9a48e158bc1df266cd9f74bc1c602a8cb76f05
 			},
 			{
 				"pagePath": "pages/intelligent-control/intelligent-control",
