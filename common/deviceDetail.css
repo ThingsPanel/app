@@ -1,0 +1,244 @@
+.control {
+	margin-top: 35rpx;
+}
+
+.control_t {
+	margin-left: 51rpx;
+}
+.send{
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	margin-top: 20rpx;
+	padding-right: 40rpx;
+}
+.send button{
+	background: #207AF5;
+	border-radius: 10rpx;
+	border: none;
+	font-size: 28rpx;
+	text-align: center;
+	color: #fff;
+	height: 60rpx;
+	line-height: 60rpx;
+	margin-left: 10rpx;
+
+}
+.sendNum{
+	border-radius: 10rpx;
+	border: 1px solid #D7D7D7;
+	width: 200rpx;
+	height: 60rpx;
+	line-height: 60rpx;
+	padding-left: 10rpx;
+	margin-right: 80rpx;
+}
+.control_l {}
+
+.control_l .control_l_item {
+	width: 690rpx;
+	height: 124rpx;
+	background: #FFFFFF;
+	border-radius: 20rpx;
+	margin: 0 auto;
+	margin-top: 14rpx;
+	margin-bottom: 10rpx;
+	display: flex;
+	align-items: center;
+}
+.control_l .control_l_item .control_l_item_l{
+	display: flex;
+	flex: 1;
+}
+.control_l .control_l_item .control_l_item_l .sp_item_title{
+	font-size: 28rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 500;
+	color: #434343;
+	margin-top: 20rpx;
+}
+.control_l .control_l_item .control_l_item_l .sp_item_status{
+	font-size: 22rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 400;
+	color: #999999;
+	margin-top: 20rpx;
+}
+.control_l .control_l_item .control_l_item_l .iconfontImg image{
+	width: 101rpx;
+	height: 101rpx;
+	margin-top: 14rpx;
+	margin-left: 20rpx;
+}
+.control_l_item_r .control_l_item_r_switch image{
+	width: 100rpx;
+	height: 48rpx;
+	margin-top: 40rpx;
+	margin-right: 43rpx;
+}
+.warning {
+	margin-top: 35rpx;
+}
+.warning .warning_t{
+	font-size: 26rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 500;
+	margin-left: 52rpx;
+	color: #898989;
+}
+.warning .warning_c{
+	width: 690rpx;
+	/* height: 124rpx; */
+	background: #FFFFFF;
+	border-radius: 20rpx;
+	margin: 0 auto;
+	margin-top: 14rpx;
+	margin-bottom: 10rpx;
+	display: flex;
+	padding-bottom: 10rpx;
+}
+.warning .warning_c .warning_c_l{
+	flex: 1;
+	display: flex;
+}
+.warning .warning_c .warning_c_l .warning_c_l_img image{
+	width: 101rpx;
+	height: 101rpx;
+	margin-top: 14rpx;
+	margin-left: 20rpx;
+}
+.warning .warning_c .warning_c_l .warning_c_l_i{
+	margin-left: 24rpx;
+	margin-top: 14rpx;
+}
+.warning .warning_c .warning_c_l .warning_c_l_i .warning_c_l_i_t{
+	margin-top: 10rpx;
+	font-size: 28rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 500;
+	color: #434343;
+}
+.warning .warning_c .warning_c_l .warning_c_l_i .warning_c_l_i_c{
+	margin-top: 10rpx;
+	font-size: 22rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 400;
+	color: #E22F40;
+}
+.warning .warning_c .warning_c_r{
+	margin-top: 32rpx;
+	margin-right: 31rpx;
+}
+.warning .warning_c .warning_c_r .warning_c_r_btn{
+	width: 190rpx;
+	height: 62rpx;
+	background: #FBFBFB;
+	border: 2rpx solid #D7D7D7;
+	border-radius: 31rpx;
+	text-align: center;
+	line-height: 62rpx;
+	display: flex;
+	justify-content: center;
+}
+.warning .warning_c .warning_c_r .warning_c_r_btn image{
+	width: 29rpx;
+	height: 27rpx;
+	margin-top: 18rpx;
+	margin-right: 7rpx;
+}
+.warning .warning_c .warning_c_r .warning_c_r_btn span{
+	font-size: 24rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 500;
+	color: #585858;
+}
+.charts {
+	width: 690rpx;
+	height: 427rpx;
+	background-color: #FFFFFF;
+}
+
+.content {
+	background: #F7F7F7;
+	margin-top: 90rpx;
+}
+
+.device {
+	width: 690rpx;
+	height: 150rpx;
+	background: #FFFFFF;
+	border-radius: 10rpx;
+	margin: 0 auto;
+	margin-top: 30rpx;
+	display: flex;
+}
+
+.device_img image {
+	width: 101rpx;
+	height: 101rpx;
+	margin-left: 22rpx;
+	margin-top: 25rpx;
+}
+
+.device_info {
+	margin-left: 20rpx;
+}
+
+.device_info .device_name {
+	margin-top: 26rpx;
+}
+
+.device_info .device_name .name {
+	font-size: 32rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 500;
+	color: #333333;
+}
+
+.device_info .device_name .state {
+	font-size: 22rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 400;
+	margin-left: 32rpx;
+}
+
+.device_info .device_name .green {
+	color: #51C31E;
+}
+
+.device_info .device_name .red {
+	color: #FF0000;
+}
+
+.device_info .updatetime {
+	font-size: 24rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 400;
+	color: #BEC1C6;
+	margin-top: 16rpx;
+	margin-left: 24rpx;
+}
+
+.jiance {
+	margin-top: 35rpx;
+}
+.jiance .jiance_t {
+	margin-left: 52rpx;
+}
+
+.jiance_c {
+	width: 690rpx;
+	height: 488rpx;
+	background: #FFFFFF;
+	border-radius: 10rpx;
+	margin: 0 auto;
+	margin-top: 14rpx;
+}
+.jiance_name{
+	padding-top: 35rpx;
+	margin-left: 31rpx;
+	font-size: 30rpx;
+	font-family: Source Han Sans CN;
+	font-weight: 400;
+	color: #333333;
+}

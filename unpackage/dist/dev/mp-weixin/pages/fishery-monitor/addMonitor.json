@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "添加设备",
+  "enablePullDownRefresh": false,
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav": "/components/customNav/customNav"
+  }
+}

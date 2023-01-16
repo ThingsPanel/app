@@ -1,0 +1,178 @@
+.fishlogo {
+		width: 274rpx;
+		height: 132rpx;
+		margin: 0 auto;
+		margin-top: 223rpx;
+		margin-bottom: 165rpx;
+		padding-top: 0rpx;
+	}
+
+	.fishlogo image {
+		width: 274rpx;
+		height: 132rpx;
+	}
+
+	.tp-login-box {
+		width: 100%;
+	}
+
+	.tp-login-welcome {
+		margin-bottom: 152rpx;
+	}
+
+	/* .tp-login-welcome>view:first-child {
+		font-size: 42rpx;
+		font-weight: bold;
+		color: #0F0F0F;
+	}
+
+	.tp-login-welcome>view:last-child {
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #999999;
+	} */
+
+	.tp-login-box>.tp-ipt {
+		width: 549rpx;
+		margin: 0 auto;
+		border-bottom: 1px solid #8E96AC;
+		margin-bottom: 66rpx;
+		padding-right: 10rpx;
+		display: flex;
+	}
+
+	.tp-login-box>.tp-ipt>view.iconfont {
+		font-size: 28rpx;
+		color: #3A3A3A;
+		font-weight: bold;
+	}
+
+	.tp-login-box>.tp-ipt>input {
+		width: 100%;
+		color: #3A3A3A;
+		font-size: 28rpx;
+	}
+
+	.tp-remember-password {}
+
+	.tp-remember-password>label {
+		font-size: 28rpx;
+		font-weight: 500;
+		color: #3A3A3A;
+	}
+
+	.tp-remember-password>label>checkbox {
+		transform: scale(0.6);
+	}
+
+	.btn {
+		display: flex;
+		justify-content: space-between;
+		margin: 0 50rpx;
+		margin-top: 129rpx;
+	}
+
+	.tp-btn {
+		width: 282rpx;
+		height: 77rpx;
+		background: #246FDD;
+		box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
+		border-radius: 39rpx;
+		line-height: 77rpx;
+		font-size: 34rpx;
+		font-family: Source Han Sans CN;
+		font-weight: bold;
+		color: #FFFFFF;
+		margin: 0 auto;
+
+	}
+
+	.cancel_btn {
+		width: 282rpx;
+		height: 77rpx;
+		line-height: 77rpx;
+		background: #F2F2F2;
+		border-radius: 8rpx;
+		font-size: 34rpx;
+		font-family: Source Han Sans CN;
+		font-weight: bold;
+		color: #246FDD;
+		box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
+		margin-right: 27rpx;
+		border-radius: 39rpx;
+		border: none;
+		margin: 0 auto;
+	}
+
+	.vc-btn-disabled {
+		background: #888888;
+	}
+
+	.tp-getpwd {
+		font-size: 26rpx;
+		font-weight: 500;
+		color: #9999999;
+		margin-top: 25rpx;
+		text-align: center;
+	}
+
+	.tp-plc {
+		font-size: 30rpx;
+		font-weight: 500;
+		color: #999999;
+	}
+
+	.fishTitle {
+		font-size: 56rpx;
+		font-family: Source Han Sans CN;
+		font-weight: bold;
+		color: #0659AA;
+		text-align: center;
+		padding-top: 203rpx;
+	}
+
+	.fishinfo {
+		margin-top: 30rpx;
+		text-align: center;
+	}
+
+	.fishinfo image {
+		width: 200rpx;
+		height: 50rpx;
+		vertical-align: text-bottom;
+		margin-right: 6rpx;
+	}
+
+	.inputicon image {
+		width: 64rpx;
+		height: 64rpx;
+		margin-right: 18rpx;
+	}
+
+	.tp-login-box>.tp-ipt>input::-webkit-input-placeholder {
+		color: #3A3A3A;
+		font-size: 28rpx;
+	}
+
+	.tp-login-box>.tp-ipt>input:-moz-placeholder {
+		color: #3A3A3A;
+		font-size: 28rpx;
+	}
+
+	.tp-login-box>.tp-ipt>input::-moz-placeholder {
+		color: #3A3A3A;
+		font-size: 28rpx;
+	}
+
+	.tp-login-box>.tp-ipt>input:-ms-input-placeholder {
+		color: #3A3A3A;
+		font-size: 28rpx;
+	}
+
+	.inputcode {
+		font-size: 28rpx;
+		font-family: Source Han Sans CN;
+		font-weight: 500;
+		color: #246FDD;
+		width: 230rpx;
+	}

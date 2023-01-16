@@ -1,0 +1,16 @@
+{
+    "id": "echarts-uniapp",
+    "name": "echarts for uniapp",
+    "version": "0.0.1",
+    "description": "echarts适配uni-app",
+    "keywords": [
+        "echarts",
+        "图表"
+    ],
+    "dcloudext": {
+        "category": [
+            "前端组件",
+            "通用组件"
+        ]
+    }
+}

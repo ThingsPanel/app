@@ -1,0 +1,25 @@
+.topNav {
+	background: #ffffff;
+	position: fixed;
+	z-index: 998;
+	width: 750rpx;
+	display: flex;
+	padding: 20rpx 0;
+	.navIcon {
+		// padding-top: -10rpx;
+		padding-left: 23rpx;
+		image {
+			width: 40rpx;
+			height: 40rpx;
+			vertical-align: middle;
+		}
+	}
+	.title {
+		font-size: 34rpx;
+		font-family: Source Han Sans CN;
+		font-weight: bold;
+		color: #333333;
+		flex:1;
+		text-align: center;
+	}
+}
