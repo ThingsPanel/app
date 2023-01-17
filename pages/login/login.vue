@@ -4,10 +4,10 @@
 		<view class="tp-pd-t-b-30"></view>
 
 		<view class="tp-flex tp-login-welcome tp-flex-col tp-mg-t-b-50">
-			<view class="fishTitle">物联网平台</view>
-			<!-- <view class="fishinfo">
+			<view class="fishTitle">极益物联网</view>
+			<view class="fishinfo">
 				<image src='/static/image/logo.png' alt="">
-			</view> -->
+			</view>
 		</view>
 
 		<view

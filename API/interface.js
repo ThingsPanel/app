@@ -10,8 +10,8 @@ if( uni.getStorageSync('serverAddress')) {
 }
 export default {
 	config: {
-		baseUrl: "http://cc.jszjcc.com",  //测试地址
-		// baseUrl: "http://dev.thingspanel.cn:9999",
+		// baseUrl: "http://cc.jszjcc.com",  //测试地址
+		baseUrl: "http://dev.thingspanel.cn:9999",
 		header: {
 			'content-type': 'application/json',
 		},
