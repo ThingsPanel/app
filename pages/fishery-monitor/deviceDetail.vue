@@ -373,21 +373,22 @@
 			},
 			// 改变状态
 			changSwitch(item, index) {
-				console.log("item",item);
+				var state = ''
 				if (item.state == 0) {
-					// item.state = 1
-					this.$set(this.device.controlData[index],state,1);
+					// state = 1
+					this.$set(this.device.controlData[index],'state',1);
 				} else if (item.state == 1) {
-					// item.state = 0
-					this.$set(this.device.controlData[index],state,0);
+					// state = 0
+					this.$set(this.device.controlData[index],'state',0);
 				}
 				// this.$forceUpdate()
 				const params = {
 					device_id: this.device_id,
 					values: {
-						[item.name]: item.state
+						[item.name]: state
 					}
 				}
+				console.log('params==', params)
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
 					if (res.code === 200) {
 						this.getCurrentTime()
@@ -584,7 +585,6 @@
 						}
 					}
 				});
-				console.log('====', this.device)
 			},
 			//获取操作日志
 			getLogData() {

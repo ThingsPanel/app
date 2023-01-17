@@ -24,12 +24,13 @@
 						<view class="device_name">
 							<view class="device_name_l">
 								<view class="item-name">
-									{{item.device_name}}									
+									{{item.device_name}}
 								</view>
 								<view class="item-info">
-									<span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
+									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
-									1000))) <= 30"><i></i>在线</span>
+									1000))) <= 30"><i></i>在线</span> -->
+									<span v-if="item.status == 1"><i></i>在线</span>
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
@@ -38,7 +39,7 @@
 										更新时间：{{item.latest_ts_name}}
 									</view>
 								</view>
-								
+
 							</view>
 							<view class="device_name_r" v-if="item.gateway_name">
 								{{item.gateway_name}}
@@ -316,7 +317,7 @@
 		onLoad(options) {
 			this.$store.commit('zerOingOffser'); //清空日志页码
 			this.$store.commit('zerOingEqupPage'); //清空设备页码
-			
+
 			let systemInfo = wx.getSystemInfoSync();
 			// px转换到rpx的比例
 			let pxToRpxScale = 750 / systemInfo.windowWidth;
@@ -326,11 +327,11 @@
 			// 导航栏的高度
 			let navigationHeight = 44 * pxToRpxScale;
 			this.marginTop = ktxStatusHeight + 'rpx';
-			this.marginConTop = ktxStatusHeight  + 'rpx'
+			this.marginConTop = ktxStatusHeight + 'rpx'
 			this.isLogin = this.$login.isLoginType().isLogin
 			// this.ywData = []
 			// this.showData()
-		
+
 		},
 		onShow() {
 			this.isLogin = this.$login.isLoginType().isLogin
@@ -340,9 +341,9 @@
 		},
 		// 上拉加载更多,onReachBottom上拉触底函数
 		onReachBottom() {
-			if (this.statusType == 'more') {
-				this.toLoadMore();
-			}
+			// if (this.statusType == 'more') {
+			// 	this.toLoadMore();
+			// }
 			if (this.statusEqupType == 'more') {
 				this.toLoadEqupMore()
 			}
@@ -368,7 +369,7 @@
 		// },
 		//
 		methods: {
-			showData(){
+			showData() {
 				if (uni.getStorageSync("currentYw").id) {
 					if (uni.getStorageSync("currentGroup").id) {
 						this.deviceList = []
@@ -475,9 +476,9 @@
 					}
 					// uni.hideLoading()
 				}).finally(() => {});
-				setTimeout(()=>{
+				setTimeout(() => {
 					uni.hideLoading()
-				},1000);
+				}, 1000);
 			},
 			// 获取业务列表
 			getYwData() {
@@ -500,9 +501,9 @@
 				}).finally(() => {
 					// uni.hideLoading()
 				});
-				setTimeout(()=>{
+				setTimeout(() => {
 					uni.hideLoading()
-				},1000);
+				}, 1000);
 			},
 			//获取业务下分组列表
 			getYTData(item) {
@@ -525,8 +526,8 @@
 									d.equipLists = data
 								}
 							})
-							console.log("aaa",this.currentGroup);
-							if(!this.currentGroup){
+							console.log("aaa", this.currentGroup);
+							if (!this.currentGroup) {
 								console.log("currentGroup")
 								this.currentGroup = data[0]
 								this.deviceList = []
@@ -537,7 +538,7 @@
 						}
 					}
 					// setTimeout(()=>{
-						// uni.hideLoading();
+					// uni.hideLoading();
 					// },500);
 				});
 			},
@@ -578,9 +579,9 @@
 						this.$refs.toast.show();
 					}
 				});
-				setTimeout(()=>{
+				setTimeout(() => {
 					uni.hideLoading()
-				},1000)
+				}, 1000)
 			},
 			// 加载更多
 			toLoadMore() {
@@ -623,6 +624,8 @@
 			},
 			// 获取设备列表
 			getDeviceList() {
+				// 清除定时器
+				clearInterval(this.timer)
 				var newData = {};
 				uni.showLoading({
 					title: '加载中'
@@ -660,14 +663,19 @@
 							lastTableData = this.deviceList.concat([]);
 						}
 						this.deviceList = lastTableData;
+						var ids = []
 						this.deviceList.forEach(item => {
 							item.currentIndex = 0
 							if (item.latest_ts && item.latest_ts != null) {
 								item.latest_ts_name = this.formatDate(item.latest_ts)
 							}
 							item.chart_data = {}
-							this.getDetail(item) // 获取组件信息
+							ids.push(item.device_id)
 						})
+						this.getDetailStatus(ids) 
+						this.timer = setInterval(() => {
+							this.getDetailStatus(ids) 
+						}, 5000)
 					} else {
 						this.loadMoreEqupShow = false;
 						this.statusEqupType = 'noMore';
@@ -675,11 +683,27 @@
 						this.$refs.toast.show();
 					}
 				}).finally(() => {
-					
+
 				})
-				setTimeout(()=>{
+				setTimeout(() => {
 					uni.hideLoading()
-				},1000);
+				}, 1000);
+			},
+			// 获取离线在线状态
+			getDetailStatus(ids) {
+				this.API.apiRequest('/api/device/status', {
+					device_id_list: ids
+				}, 'post').then(res => {
+					if (res.code === 200) {
+						for (let key in res.data) {
+							this.deviceList.forEach(item => {
+								if (key == item.device_id) {
+									item.status = res.data[key]
+								}
+							})
+						}
+					}
+				})
 			},
 			// 插件查询
 			getDetail(device) {
@@ -760,9 +784,9 @@
 						this.toast.msg = res.msg;
 						this.$refs.toast.show();
 					}
-					setTimeout(()=>{
+					setTimeout(() => {
 						uni.hideLoading()
-					},1000);
+					}, 1000);
 				})
 			},
 			// 定时获取开关

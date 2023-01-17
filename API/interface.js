@@ -2,7 +2,6 @@
  * 通用uni-app网络请求
  * 基于 Promise 对象实现更简单的 request 使用方式，支持请求和响应拦截
  */
-console.log('baseUrl===', uni.getStorageSync('serverAddress'))
 let baseUrl = ''
 if( uni.getStorageSync('serverAddress')) {
 	baseUrl = uni.getStorageSync('serverAddress')
@@ -11,8 +10,8 @@ if( uni.getStorageSync('serverAddress')) {
 }
 export default {
 	config: {
-		// baseUrl: "http://cc.jszjcc.comss",  //测试地址
-		baseUrl: "http://dev.thingspanel.cn:9999",
+		baseUrl: "http://cc.jszjcc.com",  //测试地址
+		// baseUrl: "http://dev.thingspanel.cn:9999",
 		header: {
 			'content-type': 'application/json',
 		},

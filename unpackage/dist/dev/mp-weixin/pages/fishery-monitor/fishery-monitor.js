@@ -1,9 +1,9 @@
 (global["webpackJsonp"] = global["webpackJsonp"] || []).push([["pages/fishery-monitor/fishery-monitor"],{
 
 /***/ 29:
-/*!*************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/main.js?{"page":"pages%2Ffishery-monitor%2Ffishery-monitor"} ***!
-  \*************************************************************************************************************************/
+/*!*******************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/main.js?{"page":"pages%2Ffishery-monitor%2Ffishery-monitor"} ***!
+  \*******************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -19,9 +19,9 @@ wx.__webpack_require_UNI_MP_PLUGIN__ = __webpack_require__;createPage(_fisheryMo
 /***/ }),
 
 /***/ 30:
-/*!******************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue ***!
-  \******************************************************************************************************/
+/*!************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue ***!
+  \************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -60,9 +60,9 @@ component.options.__file = "pages/fishery-monitor/fishery-monitor.vue"
 /***/ }),
 
 /***/ 31:
-/*!*************************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=template&id=5df5d76c&scoped=true& ***!
-  \*************************************************************************************************************************************************/
+/*!*******************************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=template&id=5df5d76c&scoped=true& ***!
+  \*******************************************************************************************************************/
 /*! exports provided: render, staticRenderFns, recyclableRender, components */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -82,9 +82,9 @@ __webpack_require__.r(__webpack_exports__);
 /***/ }),
 
 /***/ 32:
-/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--16-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-uni-app-loader/page-meta.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=template&id=5df5d76c&scoped=true& ***!
-  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--16-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-uni-app-loader/page-meta.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=template&id=5df5d76c&scoped=true& ***!
+  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! exports provided: render, staticRenderFns, recyclableRender, components */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -128,35 +128,11 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  var l0 = _vm.__map(_vm.deviceList, function(item, index) {
-    var $orig = _vm.__get_orig(item)
-
-    var m0 =
-      item.latest_ts &&
-      _vm.TimeDifference(
-        _vm.formatDate(item.latest_ts),
-        _vm.formatDate(parseInt(new Date().getTime() * 1000))
-      ) <= 30
-    return {
-      $orig: $orig,
-      m0: m0
-    }
-  })
-
   if (!_vm._isMounted) {
     _vm.e0 = function($event) {
       return _vm.$refs.logoPopup.close()
     }
   }
-
-  _vm.$mp.data = Object.assign(
-    {},
-    {
-      $root: {
-        l0: l0
-      }
-    }
-  )
 }
 var recyclableRender = false
 var staticRenderFns = []
@@ -167,9 +143,9 @@ render._withStripped = true
 /***/ }),
 
 /***/ 33:
-/*!*******************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=script&lang=js& ***!
-  \*******************************************************************************************************************************/
+/*!*************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=script&lang=js& ***!
+  \*************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -183,14 +159,15 @@ __webpack_require__.r(__webpack_exports__);
 /***/ }),
 
 /***/ 34:
-/*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=script&lang=js& ***!
-  \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--12-1!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
+
 
 
 
@@ -634,6 +611,7 @@ var _vuex = __webpack_require__(/*! vuex */ 13);function _defineProperty(obj, ke
 //
 //
 //
+//
 var socketOpen = false;var socketMsgQueue = { wid: '', config: { startTs: '0', endTs: '0', latestTime: '10', operator: 'AVG', interval: '15000' } };var Dissolved_Oxygen1, PH1, temperature1; //
 //
 var _default = { data: function data() {return { marginConTop: 0, currentDataIndex: -1, currentD: -1, deviceList: [], currentIndex: 0, currentLog: {}, currentYw: '', topHeight: 0, height: 0, marginTop: 0, isMore: false, ytName: '', isGetPhone: false, fishery: 1000, oxygen: 66, ph: 6.5, logData: [], userInfo: { isAuth: false, isLogin: false }, isLogin: false, wxData: { iv: '', encryptedData: '' }, toast: { msg: '' }, ytData: [], currentDashboardId: '', //当前渔场的id
@@ -655,7 +633,10 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
     var navigationHeight = 44 * pxToRpxScale;this.marginTop = ktxStatusHeight + 'rpx';this.marginConTop = ktxStatusHeight + 'rpx';this.isLogin = this.$login.isLoginType().isLogin; // this.ywData = []
     // this.showData()
   }, onShow: function onShow() {this.isLogin = this.$login.isLoginType().isLogin;this.$store.state.list.equpPage = 1;this.ywData = [];this.showData();}, // 上拉加载更多,onReachBottom上拉触底函数
-  onReachBottom: function onReachBottom() {if (this.statusType == 'more') {this.toLoadMore();}if (this.statusEqupType == 'more') {this.toLoadEqupMore();}}, mounted: function mounted() {var _this2 = this;uni.getSystemInfo({ success: function success(res) {_this2.height = res.screenHeight - 200;} });}, // onLoad(options) {
+  onReachBottom: function onReachBottom() {// if (this.statusType == 'more') {
+    // 	this.toLoadMore();
+    // }
+    if (this.statusEqupType == 'more') {this.toLoadEqupMore();}}, mounted: function mounted() {var _this2 = this;uni.getSystemInfo({ success: function success(res) {_this2.height = res.screenHeight - 200;} });}, // onLoad(options) {
   // 	this.$store.commit('zerOingOffser'); //清空日志页码
   // 	this.$store.commit('zerOingEqupPage'); //清空设备页码
   // },
@@ -689,12 +670,8 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
     toShowNavDrawer: function toShowNavDrawer() {if (this.ywData.length == 0) {this.getYwData();}this.$refs.navDrawer.open();}, // 改变设备开关
     changSwitch: function changSwitch(dev, sw) {var _this3 = this;var stateNum;if (sw.state == 0) {stateNum = 1;} else if (sw.state == 1) {stateNum = 0;}var values = _defineProperty({}, sw.name, stateNum);uni.showLoading({ title: '加载中' });this.API.apiRequest('/api/device/operating_device', { device_id: dev.device_id, values: values }, 'post').then(function (res) {if (res.code === 200) {_this3.toast.msg = '修改状态成功';_this3.$refs.toast.show();_this3.getContorl(dev, sw);} // uni.hideLoading()
       }).finally(function () {});setTimeout(function () {uni.hideLoading();}, 1000);}, // 获取业务列表
-    getYwData: function getYwData() {var _this4 = this;uni.showLoading({ title: '加载中' });this.API.apiRequest('/api/business/index', { page: 1, limit: 100 }, 'post').then(function (res) {if (res.code === 200) {_this4.ywData = res.data.data;_this4.ywData.forEach(function (item) {item.secondShow = false;});_this4.getYTData(res.data.data[0]);uni.setStorageSync('ywName', res.data.data[0].name);uni.setStorageSync('ywId', res.data.data[0].id);}}).finally(function () {
-        // uni.hideLoading()
-      });
-      setTimeout(function () {
-        uni.hideLoading();
-      }, 1000);
+    getYwData: function getYwData() {var _this4 = this;uni.showLoading({ title: '加载中' });this.API.apiRequest('/api/business/index', { page: 1, limit: 100 }, 'post').then(function (res) {if (res.code === 200) {_this4.ywData = res.data.data;_this4.ywData.forEach(function (item) {item.secondShow = false;});_this4.getYTData(res.data.data[0]);uni.setStorageSync('ywName', res.data.data[0].name);uni.setStorageSync('ywId', res.data.data[0].id);}}).finally(function () {// uni.hideLoading()
+      });setTimeout(function () {uni.hideLoading();}, 1000);
     },
     //获取业务下分组列表
     getYTData: function getYTData(item) {var _this5 = this;
@@ -815,6 +792,8 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
     },
     // 获取设备列表
     getDeviceList: function getDeviceList() {var _this7 = this;
+      // 清除定时器
+      clearInterval(this.timer);
       var newData = {};
       uni.showLoading({
         title: '加载中' });
@@ -852,14 +831,19 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
             lastTableData = _this7.deviceList.concat([]);
           }
           _this7.deviceList = lastTableData;
+          var ids = [];
           _this7.deviceList.forEach(function (item) {
             item.currentIndex = 0;
             if (item.latest_ts && item.latest_ts != null) {
               item.latest_ts_name = _this7.formatDate(item.latest_ts);
             }
             item.chart_data = {};
-            _this7.getDetail(item); // 获取组件信息
+            ids.push(item.device_id);
           });
+          _this7.getDetailStatus(ids);
+          _this7.timer = setInterval(function () {
+            _this7.getDetailStatus(ids);
+          }, 5000);
         } else {
           _this7.loadMoreEqupShow = false;
           _this7.statusEqupType = 'noMore';
@@ -873,8 +857,24 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
         uni.hideLoading();
       }, 1000);
     },
+    // 获取离线在线状态
+    getDetailStatus: function getDetailStatus(ids) {var _this8 = this;
+      this.API.apiRequest('/api/device/status', {
+        device_id_list: ids },
+      'post').then(function (res) {
+        if (res.code === 200) {var _loop = function _loop(
+          key) {
+            _this8.deviceList.forEach(function (item) {
+              if (key == item.device_id) {
+                item.status = res.data[key];
+              }
+            });};for (var key in res.data) {_loop(key);
+          }
+        }
+      });
+    },
     // 插件查询
-    getDetail: function getDetail(device) {var _this8 = this;
+    getDetail: function getDetail(device) {var _this9 = this;
       uni.showLoading({
         title: '加载中' });
 
@@ -943,14 +943,14 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
                     va.state = device.values[key];
                   }
                 }
-                _this8.getContorl(device, va);
+                _this9.getContorl(device, va);
               });
             }
-            _this8.$forceUpdate();
+            _this9.$forceUpdate();
           }
         } else {
-          _this8.toast.msg = res.msg;
-          _this8.$refs.toast.show();
+          _this9.toast.msg = res.msg;
+          _this9.$refs.toast.show();
         }
         setTimeout(function () {
           uni.hideLoading();
@@ -958,17 +958,17 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
       });
     },
     // 定时获取开关
-    getContorl: function getContorl(device, con) {var _this9 = this;
+    getContorl: function getContorl(device, con) {var _this10 = this;
       var delayTime = 60 * 1000;
       this.getDevieceKv(device, con);
       // 清除定时器
       clearInterval(this.timer);
       this.timer = setInterval(function () {
-        _this9.getContorl(device, con);
+        _this10.getContorl(device, con);
       }, delayTime);
     },
     // 获取设备的开关状态
-    getDevieceKv: function getDevieceKv(device, con) {var _this10 = this;
+    getDevieceKv: function getDevieceKv(device, con) {var _this11 = this;
       var newArry = [];
       newArry.push(con.name);
       // uni.showLoading({
@@ -986,7 +986,7 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
                 con.state = res.data[0][key];
               }
             }
-            _this10.$forceUpdate();
+            _this11.$forceUpdate();
           }
         }
       });
@@ -1045,9 +1045,9 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
 /***/ }),
 
 /***/ 35:
-/*!***************************************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=style&index=0&id=5df5d76c&scoped=true&lang=css& ***!
-  \***************************************************************************************************************************************************************/
+/*!*********************************************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=style&index=0&id=5df5d76c&scoped=true&lang=css& ***!
+  \*********************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -1061,9 +1061,9 @@ __webpack_require__.r(__webpack_exports__);
 /***/ }),
 
 /***/ 36:
-/*!*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
-  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/css-loader/dist/cjs.js??ref--6-oneOf-1-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-2!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages/fishery-monitor/fishery-monitor.vue?vue&type=style&index=0&id=5df5d76c&scoped=true&lang=css& ***!
-  \*******************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
+/*!*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/css-loader/dist/cjs.js??ref--6-oneOf-1-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-2!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!E:/project/Y-渔业可视化/app/pages/fishery-monitor/fishery-monitor.vue?vue&type=style&index=0&id=5df5d76c&scoped=true&lang=css& ***!
+  \*************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 

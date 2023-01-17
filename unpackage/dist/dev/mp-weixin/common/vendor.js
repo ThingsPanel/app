@@ -762,7 +762,7 @@ function populateParameters(result) {var _result$brand =
 
   var parameters = {
     appId: "__UNI__2C5DEF7",
-    appName: "ThingsPanel物联网平台",
+    appName: "物联网平台",
     appVersion: "1.0.0",
     appVersionCode: "100",
     appLanguage: getAppLanguage(hostLanguage),
@@ -871,7 +871,7 @@ var getAppBaseInfo = {
 
     result = sortObject(Object.assign(result, {
       appId: "__UNI__2C5DEF7",
-      appName: "ThingsPanel物联网平台",
+      appName: "物联网平台",
       appVersion: "1.0.0",
       appVersionCode: "100",
       appLanguage: getAppLanguage(hostLanguage),
@@ -1430,7 +1430,7 @@ function initData(vueOptions, context) {
     try {
       data = data.call(context); // 支持 Vue.prototype 上挂的数据
     } catch (e) {
-      if (Object({"VUE_APP_NAME":"ThingsPanel物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_NAME":"物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data);
       }
     }
@@ -2630,9 +2630,9 @@ function normalizeComponent (
 /***/ }),
 
 /***/ 12:
-/*!***************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/store/index.js ***!
-  \***************************************************************************/
+/*!*********************************************!*\
+  !*** E:/project/Y-渔业可视化/app/store/index.js ***!
+  \*********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3911,9 +3911,9 @@ module.exports = index_cjs;
 /***/ }),
 
 /***/ 14:
-/*!*********************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/store/module/list.js ***!
-  \*********************************************************************************/
+/*!***************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/store/module/list.js ***!
+  \***************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -3962,9 +3962,9 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /***/ }),
 
 /***/ 15:
-/*!*************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/API/index.js ***!
-  \*************************************************************************/
+/*!*******************************************!*\
+  !*** E:/project/Y-渔业可视化/app/API/index.js ***!
+  \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4843,9 +4843,9 @@ if (hadRuntime) {
 /***/ }),
 
 /***/ 19:
-/*!*****************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/API/interface.js ***!
-  \*****************************************************************************/
+/*!***********************************************!*\
+  !*** E:/project/Y-渔业可视化/app/API/interface.js ***!
+  \***********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -4854,7 +4854,6 @@ if (hadRuntime) {
                                                                                                       * 通用uni-app网络请求
                                                                                                       * 基于 Promise 对象实现更简单的 request 使用方式，支持请求和响应拦截
                                                                                                       */
-console.log('baseUrl===', uni.getStorageSync('serverAddress'));
 var baseUrl = '';
 if (uni.getStorageSync('serverAddress')) {
   baseUrl = uni.getStorageSync('serverAddress');
@@ -4863,8 +4862,8 @@ if (uni.getStorageSync('serverAddress')) {
 }var _default =
 {
   config: {
-    // baseUrl: "http://cc.jszjcc.comss",  //测试地址
-    baseUrl: "http://dev.thingspanel.cn:9999",
+    baseUrl: "http://cc.jszjcc.com", //测试地址
+    // baseUrl: "http://dev.thingspanel.cn:9999",
     header: {
       'content-type': 'application/json' },
 
@@ -5002,9 +5001,9 @@ module.exports = g;
 /***/ }),
 
 /***/ 20:
-/*!***************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/store/login.js ***!
-  \***************************************************************************/
+/*!*********************************************!*\
+  !*** E:/project/Y-渔业可视化/app/store/login.js ***!
+  \*********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -5069,9 +5068,9 @@ module.exports = {
 /***/ }),
 
 /***/ 205:
-/*!****************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-icons/components/uni-icons/icons.js ***!
-  \****************************************************************************************************************/
+/*!**********************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-icons/components/uni-icons/icons.js ***!
+  \**********************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6246,9 +6245,9 @@ Object.defineProperty(exports, "__esModule", { value: true });exports.default = 
 /***/ }),
 
 /***/ 227:
-/*!*****************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/index.js ***!
-  \*****************************************************************************************************************************************/
+/*!***********************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/index.js ***!
+  \***********************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6264,9 +6263,9 @@ var _zhHant = _interopRequireDefault(__webpack_require__(/*! ./zh-Hant.json */ 2
 /***/ }),
 
 /***/ 228:
-/*!****************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/en.json ***!
-  \****************************************************************************************************************************************/
+/*!**********************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/en.json ***!
+  \**********************************************************************************************************/
 /*! exports provided: uni-datetime-picker.selectDate, uni-datetime-picker.selectTime, uni-datetime-picker.selectDateTime, uni-datetime-picker.startDate, uni-datetime-picker.endDate, uni-datetime-picker.startTime, uni-datetime-picker.endTime, uni-datetime-picker.ok, uni-datetime-picker.clear, uni-datetime-picker.cancel, uni-datetime-picker.year, uni-datetime-picker.month, uni-calender.MON, uni-calender.TUE, uni-calender.WED, uni-calender.THU, uni-calender.FRI, uni-calender.SAT, uni-calender.SUN, uni-calender.confirm, default */
 /***/ (function(module) {
 
@@ -6275,9 +6274,9 @@ module.exports = JSON.parse("{\"uni-datetime-picker.selectDate\":\"select date\"
 /***/ }),
 
 /***/ 229:
-/*!*********************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/zh-Hans.json ***!
-  \*********************************************************************************************************************************************/
+/*!***************************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/zh-Hans.json ***!
+  \***************************************************************************************************************/
 /*! exports provided: uni-datetime-picker.selectDate, uni-datetime-picker.selectTime, uni-datetime-picker.selectDateTime, uni-datetime-picker.startDate, uni-datetime-picker.endDate, uni-datetime-picker.startTime, uni-datetime-picker.endTime, uni-datetime-picker.ok, uni-datetime-picker.clear, uni-datetime-picker.cancel, uni-datetime-picker.year, uni-datetime-picker.month, uni-calender.SUN, uni-calender.MON, uni-calender.TUE, uni-calender.WED, uni-calender.THU, uni-calender.FRI, uni-calender.SAT, uni-calender.confirm, default */
 /***/ (function(module) {
 
@@ -6286,9 +6285,9 @@ module.exports = JSON.parse("{\"uni-datetime-picker.selectDate\":\"选择日期\
 /***/ }),
 
 /***/ 230:
-/*!*********************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/zh-Hant.json ***!
-  \*********************************************************************************************************************************************/
+/*!***************************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-datetime-picker/components/uni-datetime-picker/i18n/zh-Hant.json ***!
+  \***************************************************************************************************************/
 /*! exports provided: uni-datetime-picker.selectDate, uni-datetime-picker.selectTime, uni-datetime-picker.selectDateTime, uni-datetime-picker.startDate, uni-datetime-picker.endDate, uni-datetime-picker.startTime, uni-datetime-picker.endTime, uni-datetime-picker.ok, uni-datetime-picker.clear, uni-datetime-picker.cancel, uni-datetime-picker.year, uni-datetime-picker.month, uni-calender.SUN, uni-calender.MON, uni-calender.TUE, uni-calender.WED, uni-calender.THU, uni-calender.FRI, uni-calender.SAT, uni-calender.confirm, default */
 /***/ (function(module) {
 
@@ -6297,9 +6296,9 @@ module.exports = JSON.parse("{\"uni-datetime-picker.selectDate\":\"選擇日期\
 /***/ }),
 
 /***/ 238:
-/*!************************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-transition/components/uni-transition/createAnimation.js ***!
-  \************************************************************************************************************************************/
+/*!******************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-transition/components/uni-transition/createAnimation.js ***!
+  \******************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -6437,9 +6436,9 @@ function createAnimation(option, _this) {
 /***/ }),
 
 /***/ 244:
-/*!***********************************************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/uni_modules/uni-datetime-picker/components/uni-datetime-picker/util.js ***!
-  \***********************************************************************************************************************************/
+/*!*****************************************************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/uni_modules/uni-datetime-picker/components/uni-datetime-picker/util.js ***!
+  \*****************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12847,7 +12846,7 @@ function type(obj) {
 
 function flushCallbacks$1(vm) {
     if (vm.__next_tick_callbacks && vm.__next_tick_callbacks.length) {
-        if (Object({"VUE_APP_NAME":"ThingsPanel物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        if (Object({"VUE_APP_NAME":"物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:flushCallbacks[' + vm.__next_tick_callbacks.length + ']');
@@ -12868,14 +12867,14 @@ function nextTick$1(vm, cb) {
     //1.nextTick 之前 已 setData 且 setData 还未回调完成
     //2.nextTick 之前存在 render watcher
     if (!vm.__next_tick_pending && !hasRenderWatcher(vm)) {
-        if(Object({"VUE_APP_NAME":"ThingsPanel物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_NAME":"物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + vm._uid +
                 ']:nextVueTick');
         }
         return nextTick(cb, vm)
     }else{
-        if(Object({"VUE_APP_NAME":"ThingsPanel物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
+        if(Object({"VUE_APP_NAME":"物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG){
             var mpInstance$1 = vm.$scope;
             console.log('[' + (+new Date) + '][' + (mpInstance$1.is || mpInstance$1.route) + '][' + vm._uid +
                 ']:nextMPTick');
@@ -12961,7 +12960,7 @@ var patch = function(oldVnode, vnode) {
     });
     var diffData = this.$shouldDiffData === false ? data : diff(data, mpData);
     if (Object.keys(diffData).length) {
-      if (Object({"VUE_APP_NAME":"ThingsPanel物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
+      if (Object({"VUE_APP_NAME":"物联网平台","VUE_APP_PLATFORM":"mp-weixin","NODE_ENV":"development","BASE_URL":"/"}).VUE_APP_DEBUG) {
         console.log('[' + (+new Date) + '][' + (mpInstance.is || mpInstance.route) + '][' + this._uid +
           ']差量更新',
           JSON.stringify(diffData));
@@ -13372,9 +13371,9 @@ internalMixin(Vue);
 /***/ }),
 
 /***/ 5:
-/*!***********************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/pages.json ***!
-  \***********************************************************************/
+/*!*****************************************!*\
+  !*** E:/project/Y-渔业可视化/app/pages.json ***!
+  \*****************************************/
 /*! no static exports found */
 /***/ (function(module, exports) {
 
@@ -13383,9 +13382,9 @@ internalMixin(Vue);
 /***/ }),
 
 /***/ 67:
-/*!************************************************************************************************!*\
-  !*** E:/project/Y-渔业可视化/ThingsPanelPig0110/ThingsPanelPig/components/u-charts/u-charts.min.js ***!
-  \************************************************************************************************/
+/*!******************************************************************!*\
+  !*** E:/project/Y-渔业可视化/app/components/u-charts/u-charts.min.js ***!
+  \******************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
