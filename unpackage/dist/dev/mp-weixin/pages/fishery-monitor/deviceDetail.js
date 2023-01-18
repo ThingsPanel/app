@@ -445,6 +445,7 @@ var canvaLineB = null;var _default =
 
   },
   onLoad: function onLoad(options) {
+    console.log('options=====', options);
     console.log("getSystemInfoSync", uni.getSystemInfoSync());
     this.$store.commit('zerOingOffser'); //清空日志页码
     this.$store.commit('zerOingEqupPage'); //清空告警页码
@@ -478,7 +479,6 @@ var canvaLineB = null;var _default =
       } else if (item.dataType == 'Integer') {
         item.num = parseInt(item.num);
       }
-      console.log('item===', item);
       if (item.num < item.dataRange.split('-')[1] && item.num >= item.dataRange.split('-')[0]) {
         var params = {
           device_id: this.device_id,
@@ -538,13 +538,14 @@ var canvaLineB = null;var _default =
     },
     // 改变状态
     changSwitch: function changSwitch(item, index) {var _this3 = this;
+      console.log('iem==', item);
       var state = '';
       if (item.state == 0) {
-        // state = 1
-        this.$set(this.device.controlData[index], 'state', 1);
+        state = 1;
+        // this.$set(this.device.controlData[index],'state',1);
       } else if (item.state == 1) {
-        // state = 0
-        this.$set(this.device.controlData[index], 'state', 0);
+        state = 0;
+        // this.$set(this.device.controlData[index],'state',0);
       }
       // this.$forceUpdate()
       var params = {
@@ -553,14 +554,22 @@ var canvaLineB = null;var _default =
         item.name, state) };
 
 
-      console.log('params==', params);
       this.API.apiRequest('/api/device/operating_device', params, 'post').then(function (res) {
         if (res.code === 200) {
+          // item.state = res.data[item.name]
           _this3.getCurrentTime();
           // this.getDeviceHistory() // 获取曲线数据
           _this3.getLogData(); //获取日志
           _this3.getWarningData(); //获取告警信息
-          _this3.getDetail();
+          // this.getDevieceKv(item)
+          var delayTime = 5 * 1000;
+          _this3.getDevieceKv(item);
+          // 清除定时器
+          clearInterval(_this3.timer);
+          _this3.timer = setInterval(function () {
+            _this3.getDevieceKv(item);
+          }, delayTime);
+          _this3.$forceUpdate();
         }
       });
     },
@@ -622,15 +631,12 @@ var canvaLineB = null;var _default =
       'post').then(function (res) {
         if (res.code === 200) {
           var data = res.data.data[0];
-          console.log("controlData", data);
           _this4.device.valuesNew = [];
           _this4.device.controlData = [];
           _this4.device.chartData = [];
           _this4.device.chart_data = JSON.parse(data.chart_data);
-          // 
           if (_this4.device.chart_data.chart.length > 0) {
             _this4.device.chart_data.chart.forEach(function (ch, index) {
-              console.log("ch", ch);
               if (ch.controlType == 'dashboard') {
                 if (ch.mapping && ch.mapping.length > 0) {
                   ch.mapping.forEach(function (map) {
@@ -670,15 +676,15 @@ var canvaLineB = null;var _default =
               }
             });
           }
-          if (_this4.device.valuesNew.length > 0) {
-            _this4.device.valuesNew.forEach(function (va) {
-              for (var key in _this4.device.values) {
-                if (va.name == key) {
-                  va.value = _this4.device.values[key];
-                }
-              }
-            });
-          }
+          // if (this.device.valuesNew.length > 0) {
+          // 	this.device.valuesNew.forEach(va => {
+          // 		for (let key in this.device.values) {
+          // 			if (va.name == key) {
+          // 				va.value = this.device.values[key]
+          // 			}
+          // 		}
+          // 	})
+          // }
           if (_this4.device.chart_data.tsl.properties && _this4.device.chart_data.tsl.properties.length >
           0) {
             _this4.device.chart_data.tsl.properties.forEach(function (d) {
@@ -701,12 +707,12 @@ var canvaLineB = null;var _default =
           // this.showLineB("canvasLineB", this.chartDataB)
           if (_this4.device.controlData.length > 0) {
             _this4.device.controlData.forEach(function (va) {
-              for (var key in _this4.device.values) {
-                if (va.name == key) {
-                  va.state = _this4.device.values[key];
-                }
-              }
-              _this4.getContorl(_this4.device, va);
+              // for (let key in this.device.values) {
+              // 	if (va.name == key) {
+              // 		va.state = this.device.values[key]
+              // 	}
+              // }
+              _this4.getContorl(va);
             });
           }
           _this4.$forceUpdate();
@@ -718,17 +724,17 @@ var canvaLineB = null;var _default =
       });
     },
     // 定时获取开关
-    getContorl: function getContorl(device, con) {var _this5 = this;
-      var delayTime = 60 * 1000;
-      this.getDevieceKv(device, con);
+    getContorl: function getContorl(con) {var _this5 = this;
+      var delayTime = 5 * 1000;
+      this.getDevieceKv(con);
       // 清除定时器
       clearInterval(this.timer);
       this.timer = setInterval(function () {
-        _this5.getContorl(device, con);
+        _this5.getDevieceKv(con);
       }, delayTime);
     },
     // 获取设备的开关状态
-    getDevieceKv: function getDevieceKv(device, con) {var _this6 = this;
+    getDevieceKv: function getDevieceKv(con) {var _this6 = this;
       var newArry = [];
       newArry.push(con.name);
       // uni.showLoading({
@@ -741,11 +747,14 @@ var canvaLineB = null;var _default =
         if (res.code === 200) {
           // uni.hideLoading()
           if (res.data && res.data.length > 0) {
-            for (var key in res.data[0]) {
-              if (con.name == key && res.data[0][key]) {
-                con.state = res.data[0][key];
+            _this6.device.controlData.forEach(function (item) {
+              for (var key in res.data[0]) {
+                if (con.name == key && con.typeName == item.typeName) {
+                  con.state = res.data[0][key];
+                  item.state = res.data[0][key];
+                }
               }
-            }
+            });
             _this6.$forceUpdate();
           }
         }

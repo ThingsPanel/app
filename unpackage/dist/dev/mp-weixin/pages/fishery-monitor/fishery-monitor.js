@@ -664,28 +664,28 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
       // 	}
       // }, 1000)
     }, changeIndex: function changeIndex(item, i, iIndex) {item.currentIndex = iIndex;this.$forceUpdate();}, // 点击设备
-    clickDevice: function clickDevice(data, dataIndex) {var state = '';if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(new Date().getTime() * 1000))) > 30) {state = 0;}if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(new Date().getTime() * 1000))) <= 30) {state = 1;}this.currentDataIndex = dataIndex;uni.navigateTo({ url: './deviceDetail?type=' + data.type + '&device_id=' + data.device_id + '&device_name=' + data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + state });}, // 日志详情
+    clickDevice: function clickDevice(data, dataIndex) {var state = ''; // if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
+      // 		new Date().getTime() *
+      // 		1000))) > 30) {
+      // 	state = 0
+      // }
+      // if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
+      // 		new Date().getTime() *
+      // 		1000))) <= 30) {
+      // 	state = 1
+      // }
+      this.currentDataIndex = dataIndex;uni.navigateTo({ url: './deviceDetail?type=' + data.type + '&device_id=' + data.device_id + '&device_name=' + data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + data.status });}, // 日志详情
     logInfo: function logInfo(log, index) {this.currentLog = log;this.currentIndex = index;this.$refs.logoPopup.open();}, // 点击设备分组
     toClickEquip: function toClickEquip(yw, equip) {uni.setStorageSync('ywId', yw.id);uni.setStorageSync('ywName', yw.name);uni.setStorageSync('currentGroup', equip);this.$store.state.list.equpPage = 1;this.ywData = [];this.showData();this.currentGroup = equip;this.$refs.navDrawer.close();}, // 展示分组
     toShowNavDrawer: function toShowNavDrawer() {if (this.ywData.length == 0) {this.getYwData();}this.$refs.navDrawer.open();}, // 改变设备开关
     changSwitch: function changSwitch(dev, sw) {var _this3 = this;var stateNum;if (sw.state == 0) {stateNum = 1;} else if (sw.state == 1) {stateNum = 0;}var values = _defineProperty({}, sw.name, stateNum);uni.showLoading({ title: '加载中' });this.API.apiRequest('/api/device/operating_device', { device_id: dev.device_id, values: values }, 'post').then(function (res) {if (res.code === 200) {_this3.toast.msg = '修改状态成功';_this3.$refs.toast.show();_this3.getContorl(dev, sw);} // uni.hideLoading()
       }).finally(function () {});setTimeout(function () {uni.hideLoading();}, 1000);}, // 获取业务列表
     getYwData: function getYwData() {var _this4 = this;uni.showLoading({ title: '加载中' });this.API.apiRequest('/api/business/index', { page: 1, limit: 100 }, 'post').then(function (res) {if (res.code === 200) {_this4.ywData = res.data.data;_this4.ywData.forEach(function (item) {item.secondShow = false;});_this4.getYTData(res.data.data[0]);uni.setStorageSync('ywName', res.data.data[0].name);uni.setStorageSync('ywId', res.data.data[0].id);}}).finally(function () {// uni.hideLoading()
-      });setTimeout(function () {uni.hideLoading();}, 1000);
-    },
-    //获取业务下分组列表
-    getYTData: function getYTData(item) {var _this5 = this;
-      uni.setStorageSync('currentYw', item);
-      // uni.showLoading({
+      });setTimeout(function () {uni.hideLoading();}, 1000);}, //获取业务下分组列表
+    getYTData: function getYTData(item) {var _this5 = this;uni.setStorageSync('currentYw', item); // uni.showLoading({
       // 	title: '加载中'
       // });
-      this.API.apiRequest('/api/asset/list/d', {
-        business_id: item.id },
-      'post').then(function (res) {
-        if (res.code === 200) {
-          if (res.data && res.data.length > 0) {
-            item.secondShow = !item.secondShow;
-            var data = res.data;
+      this.API.apiRequest('/api/asset/list/d', { business_id: item.id }, 'post').then(function (res) {if (res.code === 200) {if (res.data && res.data.length > 0) {item.secondShow = !item.secondShow;var data = res.data;
             data.forEach(function (t) {
               t.device_group = t.device_group.replace(/\//g, '');
             });
@@ -868,7 +868,8 @@ var _default = { data: function data() {return { marginConTop: 0, currentDataInd
               if (key == item.device_id) {
                 item.status = res.data[key];
               }
-            });};for (var key in res.data) {_loop(key);
+            });
+            _this8.$forceUpdate();};for (var key in res.data) {_loop(key);
           }
         }
       });

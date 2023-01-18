@@ -18,7 +18,7 @@
 				</view>
 			</view>
 			<view class="jiance" v-for="(chart,index) in device.chartData" :key="chart"
-				v-if="device.chartData.length > 0">
+				v-if="device.chartData && device.chartData.length > 0">
 				<view class="jiance_t" v-if="index == 0">
 					监测
 				</view>
@@ -44,13 +44,13 @@
 				<view class="control_t">
 					控制
 				</view>
-				<view class="control_l" v-if="device.controlData.length > 0">
+				<view class="control_l" v-if="device.controlData && device.controlData.length > 0">
 					<block v-for="(item,index) in device.controlData" :key="index">
 						<view class="control_l_item">
 							<view class="control_l_item_l">
 								<view class="iconfontImg">
-									<image src="/static/icon/device_close.png" v-if="item.value == 0">
-										<image src="/static/icon/device_on.png" v-if="item.value == 1">
+									<image src="/static/icon/device_close.png" v-if="item.state == 0">
+										<image src="/static/icon/device_on.png" v-if="item.state == 1">
 								</view>
 								<view style="margin-left: 24rpx;">
 									<view class="sp_item_title">{{item.typeName}}</view>
@@ -62,8 +62,8 @@
 							</view>
 							<view class="control_l_item_r" v-if="item.type == 'switch'">
 								<view class="control_l_item_r_switch" @click="changSwitch(item,index)">
-									<image src="/static/icon/switch_on.png" v-if="item.state == 1">
-										<image src="/static/icon/switch_close.png" v-if="item.state == 0"></text>
+									<image src="/static/icon/switch_on.png" v-if="item.state == 1"></image>
+									<image src="/static/icon/switch_close.png" v-if="item.state == 0"></image>
 								</view>
 							</view>
 							<view v-else class="send">
@@ -74,8 +74,8 @@
 					</block>
 				</view>
 			</view>
-			<view class="warning" v-if="warningData.length > 0">
-				<view class="warning_t">
+			<view class="warning" v-if="warningData && warningData.length > 0">
+				<view class="warning_t"> 
 					告警
 				</view>
 				<view class="warning_c" v-for="(warn, index) in warningData" :key="index">
@@ -280,6 +280,7 @@
 			}
 		},
 		onLoad(options) {
+			console.log('options=====', options)
 			console.log("getSystemInfoSync",uni.getSystemInfoSync());
 			this.$store.commit('zerOingOffser'); //清空日志页码
 			this.$store.commit('zerOingEqupPage'); //清空告警页码
@@ -313,7 +314,6 @@
 				} else if (item.dataType == 'Integer') {
 					item.num = parseInt(item.num)
 				}
-				console.log('item===', item)
 				if (item.num < item.dataRange.split('-')[1] && item.num >= item.dataRange.split('-')[0]) {
 					const params = {
 						device_id: this.device_id,
@@ -373,13 +373,14 @@
 			},
 			// 改变状态
 			changSwitch(item, index) {
+				console.log('iem==', item)
 				var state = ''
 				if (item.state == 0) {
-					// state = 1
-					this.$set(this.device.controlData[index],'state',1);
+					state = 1
+					// this.$set(this.device.controlData[index],'state',1);
 				} else if (item.state == 1) {
-					// state = 0
-					this.$set(this.device.controlData[index],'state',0);
+					state = 0
+					// this.$set(this.device.controlData[index],'state',0);
 				}
 				// this.$forceUpdate()
 				const params = {
@@ -388,14 +389,22 @@
 						[item.name]: state
 					}
 				}
-				console.log('params==', params)
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
 					if (res.code === 200) {
+						// item.state = res.data[item.name]
 						this.getCurrentTime()
 						// this.getDeviceHistory() // 获取曲线数据
 						this.getLogData() //获取日志
 						this.getWarningData() //获取告警信息
-						this.getDetail()
+						// this.getDevieceKv(item)
+						const delayTime = 5 * 1000
+						this.getDevieceKv(item)
+						// 清除定时器
+						clearInterval(this.timer)
+						this.timer = setInterval(() => {
+							this.getDevieceKv(item)
+						}, delayTime)
+						this.$forceUpdate()
 					}
 				});
 			},
@@ -457,15 +466,12 @@
 				}, 'post').then(res => {
 					if (res.code === 200) {
 						var data = res.data.data[0];
-						console.log("controlData",data);
 						this.device.valuesNew = []
 						this.device.controlData = []
 						this.device.chartData = []
 						this.device.chart_data = JSON.parse(data.chart_data)
-						// 
 						if (this.device.chart_data.chart.length > 0) {
 							this.device.chart_data.chart.forEach((ch, index) => {
-								console.log("ch",ch);
 								if (ch.controlType == 'dashboard') {
 									if (ch.mapping && ch.mapping.length > 0) {
 										ch.mapping.forEach(map => {
@@ -505,15 +511,15 @@
 								}
 							})
 						}
-						if (this.device.valuesNew.length > 0) {
-							this.device.valuesNew.forEach(va => {
-								for (let key in this.device.values) {
-									if (va.name == key) {
-										va.value = this.device.values[key]
-									}
-								}
-							})
-						}
+						// if (this.device.valuesNew.length > 0) {
+						// 	this.device.valuesNew.forEach(va => {
+						// 		for (let key in this.device.values) {
+						// 			if (va.name == key) {
+						// 				va.value = this.device.values[key]
+						// 			}
+						// 		}
+						// 	})
+						// }
 						if (this.device.chart_data.tsl.properties && this.device.chart_data.tsl.properties.length >
 							0) {
 							this.device.chart_data.tsl.properties.forEach(d => {
@@ -536,12 +542,12 @@
 						// this.showLineB("canvasLineB", this.chartDataB)
 						if (this.device.controlData.length > 0) {
 							this.device.controlData.forEach(va => {
-								for (let key in this.device.values) {
-									if (va.name == key) {
-										va.state = this.device.values[key]
-									}
-								}
-								this.getContorl(this.device, va)
+								// for (let key in this.device.values) {
+								// 	if (va.name == key) {
+								// 		va.state = this.device.values[key]
+								// 	}
+								// }
+								this.getContorl(va)
 							})
 						}
 						this.$forceUpdate()
@@ -553,17 +559,17 @@
 				})
 			},
 			// 定时获取开关
-			getContorl(device, con) {
-				const delayTime = 60 * 1000
-				this.getDevieceKv(device, con)
+			getContorl(con) {
+				const delayTime = 5 * 1000
+				this.getDevieceKv(con)
 				// 清除定时器
 				clearInterval(this.timer)
 				this.timer = setInterval(() => {
-					this.getContorl(device, con)
+					this.getDevieceKv(con)
 				}, delayTime)
 			},
 			// 获取设备的开关状态
-			getDevieceKv(device, con) {
+			getDevieceKv(con) {
 				var newArry = []
 				newArry.push(con.name)
 				// uni.showLoading({
@@ -576,11 +582,14 @@
 					if (res.code === 200) {
 						// uni.hideLoading()
 						if (res.data && res.data.length > 0) {
-							for (let key in res.data[0]) {
-								if (con.name == key && res.data[0][key]) {
-									con.state = res.data[0][key]
+							this.device.controlData.forEach(item=>{
+								for (let key in res.data[0]) {
+									if (con.name == key && con.typeName == item.typeName) {
+										con.state = res.data[0][key]
+										item.state = res.data[0][key]
+									}
 								}
-							}
+							})
 							this.$forceUpdate()
 						}
 					}
