@@ -1,6 +1,4 @@
 
-# app
-
 # ThingsPanel-App
 
 
