@@ -52,7 +52,7 @@
 							</view>
 						</view>
 					</view>
-					<!-- <view
+					<view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
 						hover-class="tp-panel-item-hover">
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15" @click="showAddressPopup">
@@ -62,7 +62,7 @@
 								<view class="iconfont iconjiantou1"></view>
 							</view>
 						</view>
-					</view> -->
+					</view>
 				</view>
 				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
 					退出登录
@@ -152,6 +152,7 @@
 				this.API.apiRequest('/api/auth/me', {}, 'post').then(res => {
 					if (res.code == 200) {
 						this.userWxInfo = res.data
+						this.address = uni.getStorageSync('serverAddress')
 					}
 					uni.hideLoading()
 				})
@@ -273,6 +274,7 @@
 						icon: 'none'
 					});
 				}
+			
 				uni.setStorageSync('serverAddress', this.address);
 				this.$refs.serverPopup.close()
 				// uni.redirectTo({url: '../login/login' });
