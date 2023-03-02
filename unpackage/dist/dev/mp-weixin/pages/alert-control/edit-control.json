@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "编辑控制策略",
-  "enablePullDownRefresh": false,
-  "navigationBarBackgroundColor": "#FFFFFF",
-  "usingComponents": {
-    "uni-datetime-picker": "/uni_modules/uni-datetime-picker/components/uni-datetime-picker/uni-datetime-picker",
-    "uni-popup": "/uni_modules/uni-popup/components/uni-popup/uni-popup"
-  }
-}

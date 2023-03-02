@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "个人中心",
-  "enablePullDownRefresh": false,
-  "navigationBarBackgroundColor": "#EEEEEE",
-  "usingComponents": {
-    "uni-popup": "/uni_modules/uni-popup/components/uni-popup/uni-popup"
-  }
-}

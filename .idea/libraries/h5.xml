@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="h5">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/unpackage/dist/build/h5.zip!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

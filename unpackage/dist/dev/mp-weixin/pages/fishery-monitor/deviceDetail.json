@@ -1,9 +1,0 @@
-{
-  "navigationBarTitleText": "设备详情",
-  "enablePullDownRefresh": false,
-  "navigationStyle": "custom",
-  "usingComponents": {
-    "custom-nav": "/components/customNav/customNav",
-    "uni-popup": "/uni_modules/uni-popup/components/uni-popup/uni-popup"
-  }
-}
