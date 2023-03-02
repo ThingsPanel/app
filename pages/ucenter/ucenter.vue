@@ -76,10 +76,10 @@
 			<view class="server">
 				<view class="server-title">
 					服务器地址
-					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup">
+					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup"/>
 				</view>
 				<view class="server-input">
-					<input type="text" placeholder-class="tp-plc" placeholder="请输入服务器地址" v-model="address" />
+					<input type="text" placeholder-class="tp-plc" placeholder="请输入服务器地址" v-model="inputAddress" />
 				</view>
 				<button class="tp-btn tp-mg-t-50" @tap="serverConfirm">确定</button>
 			</view>
@@ -107,7 +107,8 @@
 					msg: ''
 				},
 				userInfo:{},
-				address: ''
+				address: '',
+				inputAddress: ''
 			}
 		},
 		//
@@ -154,6 +155,7 @@
 						this.userWxInfo = res.data
 						this.address = uni.getStorageSync('serverAddress')
 					}
+				}).finally(() => {
 					uni.hideLoading()
 				})
 			},
@@ -268,19 +270,21 @@
 				});
 			},
 			serverConfirm() {
-				if(!this.address){
-					uni.showToast({
-						title: '请输入地址',
-						icon: 'none'
-					});
-				}
+				// if(!this.inputAddress){
+				// 	uni.showToast({
+				// 		title: '请输入地址',
+				// 		icon: 'none'
+				// 	});
+				// }
 			
-				uni.setStorageSync('serverAddress', this.address);
+				uni.setStorageSync('serverAddress', this.inputAddress);
+				this.address = this.inputAddress
 				this.$refs.serverPopup.close()
 				// uni.redirectTo({url: '../login/login' });
 			},
 			showAddressPopup() {
-				this.$refs.serverPopup.open();
+				this.inputAddress = ''
+				this.$refs.serverPopup.open()
 			},
 			closeAddressPopup() {
 				this.$refs.serverPopup.close()
@@ -291,4 +295,10 @@
 
 <style>
 	@import '@/common/ucenter.css';
+	.server-input input{
+		border: 1px solid #e4e4e4;
+		height: 30px;
+		border-radius: 4px;
+		padding: 0 10px;
+	}
 </style>

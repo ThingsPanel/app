@@ -80,6 +80,7 @@
 	.server {
 		border-radius: 5%;
 		padding: 30rpx;
+		width:300px;
 	}
 	
 	.server-title {
