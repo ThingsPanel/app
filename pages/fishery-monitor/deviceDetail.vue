@@ -1,5 +1,5 @@
 <template>
-	<view :style="{ height: pageHeight, background: '#f5f5f5' }">
+	<view :style="{ height: pageHeight, }">
 		<customNav iconColor='#1B1B1B' pageTitle='设备详情' style="padding-top: 50rpx;"></customNav>
 		<view class="content" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%' }">
 			<view class="device">
@@ -17,8 +17,24 @@
 					</view>
 				</view>
 			</view>
+			<!-- 当前值 -->
+			<view class="device_tab" v-if="currentValueData.length > 0">
+				<view v-for="(item,index) in currentValueData" :key="index"
+					@click="changeIndex(index)"
+					:class="currentValueIndex == index ?'device_tab_item active':'device_tab_item'">
+					<view class="tab-label" v-if="item.name">
+						{{item.name}}
+					</view>
+					<view class="tab-value" v-if="item.value">
+						{{item.value}}
+						<view class="value-unit" v-if="item.unit">
+							{{item.unit}}
+						</view>
+					</view>
+				</view>
+			</view>
 			<view class="jiance" v-for="(chart,index) in device.chartData" :key="chart"
-				v-if="device.chartData && device.chartData.length > 0">
+				v-if="device.chartData.length > 0">
 				<view class="jiance_t" v-if="index == 0">
 					监测
 				</view>
@@ -26,31 +42,20 @@
 					<view class="jiance_name">
 						{{chart.name}}
 					</view>
-					<!-- <canvas canvas-id="canvasLineB" id="canvasLineB" class="charts" @touchstart="touchLineB"></canvas> -->
-					<canvas :canvas-id="'canvasLine'+index" :id="'canvasLine'+index" class="charts"></canvas>
+					<qiun-data-charts type="line" :opts="chart.opts" :chartData="chart.chartData" :ontouch="true" />
 				</view>
 			</view>
-			<!-- <view class="jiance">
-				<view class="jiance_t">
-				</view>
-				<view class="jiance_c">
-					<view class="jiance_name">
-						湿度曲线
-					</view>
-					<canvas canvas-id="canvasLineB" id="canvasLineB" class="charts" @touchstart="touchLineB"></canvas>
-				</view>
-			</view> -->
-			<view class="control">
+			<view class="control" v-if="device.controlData.length > 0">
 				<view class="control_t">
 					控制
 				</view>
-				<view class="control_l" v-if="device.controlData && device.controlData.length > 0">
+				<view class="control_l" v-if="device.controlData.length > 0">
 					<block v-for="(item,index) in device.controlData" :key="index">
 						<view class="control_l_item">
 							<view class="control_l_item_l">
 								<view class="iconfontImg">
-									<image src="/static/icon/device_close.png" v-if="item.state == 0">
-										<image src="/static/icon/device_on.png" v-if="item.state == 1">
+									<image src="/static/icon/device_close.png" v-if="item.value == 0">
+										<image src="/static/icon/device_on.png" v-if="item.value == 1">
 								</view>
 								<view style="margin-left: 24rpx;">
 									<view class="sp_item_title">{{item.typeName}}</view>
@@ -62,8 +67,8 @@
 							</view>
 							<view class="control_l_item_r" v-if="item.type == 'switch'">
 								<view class="control_l_item_r_switch" @click="changSwitch(item,index)">
-									<image src="/static/icon/switch_on.png" v-if="item.state == 1"></image>
-									<image src="/static/icon/switch_close.png" v-if="item.state == 0"></image>
+									<image src="/static/icon/switch_on.png" v-if="item.state == 1">
+										<image src="/static/icon/switch_close.png" v-if="item.state == 0"></text>
 								</view>
 							</view>
 							<view v-else class="send">
@@ -74,8 +79,8 @@
 					</block>
 				</view>
 			</view>
-			<view class="warning" v-if="warningData && warningData.length > 0">
-				<view class="warning_t"> 
+			<view class="warning" v-if="warningData.length > 0">
+				<view class="warning_t">
 					告警
 				</view>
 				<view class="warning_c" v-for="(warn, index) in warningData" :key="index">
@@ -92,12 +97,6 @@
 							</view> -->
 						</view>
 					</view>
-					<!-- <view class="warning_c_r">
-						<view class="warning_c_r_btn">
-							<img src="/static/image/horse.png" alt="">
-							<span>{{item.business_name}}</span>
-						</view>
-					</view> -->
 				</view>
 			</view>
 			<view class="history">
@@ -121,10 +120,6 @@
 								</view>
 							</view>
 						</view>
-						<!-- 分页加载 -->
-						<!-- <view class="uni-tab-bar-loading" @click="toLoadMore(active)" v-if="loadMoreShow">
-							<uni-load-more :status="statusType" :contentText="contentText"></uni-load-more>
-						</view> -->
 					</view>
 				</block>
 			</view>
@@ -211,7 +206,9 @@
 	var canvaLineA = null;
 	var canvaLineB = null;
 	export default {
-		components: {customNav},
+		components: {
+			customNav
+		},
 		data() {
 			return {
 				currentIndex: 0,
@@ -276,12 +273,12 @@
 					contentrefresh: '正在加载...',
 					contentnomore: '没有数据了'
 				},
-				warningData: []
+				warningData: [],
+				currentValueData: [],
+				currentValueIndex: 0
 			}
 		},
 		onLoad(options) {
-			console.log('options=====', options)
-			console.log("getSystemInfoSync",uni.getSystemInfoSync());
 			this.$store.commit('zerOingOffser'); //清空日志页码
 			this.$store.commit('zerOingEqupPage'); //清空告警页码
 			this.device_name = options.device_name
@@ -294,10 +291,9 @@
 			this.cWidth = uni.upx2px(750);
 			this.cHeight = uni.upx2px(420);
 			this.getCurrentTime()
-			// this.getDeviceHistory() // 获取曲线数据
 			this.getLogData() //获取日志
 			this.getWarningData() //获取告警信息
-			this.getDetail()
+			this.getDetail()			
 		},
 		onShow() {
 			this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
@@ -305,6 +301,10 @@
 		},
 		onReady() {},
 		methods: {
+			changeIndex(index) {
+				this.currentValueIndex = index
+				this.$forceUpdate()
+			},
 			// 数值下发
 			toSendNum(item) {
 				if (item.dataType == 'float') {
@@ -321,11 +321,9 @@
 							[item.name]: item.num
 						}
 					}
-					console.log('params===', params)
 					this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
 						if (res.code === 200) {
 							this.getCurrentTime()
-							// this.getDeviceHistory() // 获取曲线数据
 							this.getLogData() //获取日志
 							this.getWarningData() //获取告警信息
 							this.getDetail()
@@ -347,40 +345,127 @@
 					end_ts: timestamp,
 					rate: 10 * 1000 * 1000, // 微秒,
 					attribute: itme.attribute.concat(["systime"])
-				}, 'post').then(res => {
-					if (res.code === 200) {
-						var data = res.data.systime
+				}, 'post').then(response => {
+					if (response.code == 200 && response.data) {
+						var data = response.data.systime
 						var yData = [];
-						for (let key in res.data) {
-							if (itme.attribute[0] == key) {
-								yData = res.data[key]
+						for (let key in response.data) {
+							if(itme.attribute.length > 0) {
+								itme.attribute.forEach((attr,attrIndex) =>{
+									if(attr == key) {
+										yData.push({
+											name: key,
+											oldData: response.data[key],
+											data: []
+										})
+									}
+								})
 							}
+							// if (itme.attribute[0] == key) {
+							// 	yData = response.data[key]
+							// }
 						}
 						var newArry = []
 						var xData = []
-						data.forEach(item => {
-							var index = item.lastIndexOf(' ')
-							newArry.push(item.substring(index, item.length))
+						if(data && data.length >0) {
+						data.forEach((item, i) => {
+							if (item && Math.floor((new Date(this.end_time).getTime() - new Date(item)
+									.getTime()) / 1000 / 60 / 60) <= 0.5 && item.indexOf(' ') > -1) {
+								var index = item.lastIndexOf(' ')
+								newArry.push(item.substring(index, item.length))
+							}
 						})
+						}
+						if(newArry.length > 0) {
 						newArry.forEach(item => {
 							var index = item.lastIndexOf(':')
 							xData.push(item.substring(0, index))
 						})
-						this.showLine(canvasLineId, xData, yData)
+						}
+						itme.opts = {
+							colors: ["#1890FF", '#F88B33'],
+							padding: [15, 15, 0, 5],
+							touchMoveLimit: 24,
+							enableScroll: true,
+							legend: {},
+							width: this.cWidth * this.pixelRatio,
+							height: this.cHeight * this.pixelRatio,
+							xAxis: {
+								disableGrid: true,
+								scrollShow: true,
+								itemCount: 4
+							},
+							yAxis: {
+								data: [{
+									min: 0
+								}]
+							},
+							extra: {
+								column: {
+									type: "group",
+									width: 30,
+									activeBgColor: "#000000",
+									activeBgOpacity: 0.08
+								}
+							}
+						}
+						// let res = {
+						// 	categories: xData,
+						// 	series: [{
+						// 		data: yData
+						// 	}]
+						// }
+						// 去掉重复的时间
+						var newYData = []
+						var num = xData[0]
+						var newXData = []
+						newXData.push(xData[0])
+						xData.forEach((xItem, xIndex) => {
+							if (xItem != num) {
+								num = xItem
+								newXData.push(xItem)
+							}
+						})
+						if (yData.length > 0) {
+							yData.forEach((item, index) => {
+								if(item.oldData.length > 0) {
+									item.oldData.forEach((old,oldIndex) =>{
+										if(oldIndex <= newXData.length - 1 ){
+											item.data.push(old)
+										}
+									})
+								}
+								// if (index <= newXData.length - 1) {
+								// 	newYData.push(item)
+								// }
+							})
+						}
+						let chartData = {
+							categories: newXData,
+							series: yData
+						}
+						// let chartData = {
+						// 	categories: ["2018", "2019", "2020", "2021", "2022", "2023"],
+						// 	series: [{
+						// 		name: '',
+						// 		data: [35, 36, 31, 33, 13, 34]
+						// 	}]
+						// }
+						itme.chartData = JSON.parse(JSON.stringify(chartData));
+						this.$forceUpdate()
 						uni.hideLoading()
 					}
 				}).finally(() => {});
 			},
 			// 改变状态
 			changSwitch(item, index) {
-				console.log('iem==', item)
 				var state = ''
 				if (item.state == 0) {
-					state = 1
-					// this.$set(this.device.controlData[index],'state',1);
+					// state = 1
+					this.$set(this.device.controlData[index], 'state', 1);
 				} else if (item.state == 1) {
-					state = 0
-					// this.$set(this.device.controlData[index],'state',0);
+					// state = 0
+					this.$set(this.device.controlData[index], 'state', 0);
 				}
 				// this.$forceUpdate()
 				const params = {
@@ -391,20 +476,10 @@
 				}
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
 					if (res.code === 200) {
-						// item.state = res.data[item.name]
 						this.getCurrentTime()
-						// this.getDeviceHistory() // 获取曲线数据
 						this.getLogData() //获取日志
 						this.getWarningData() //获取告警信息
-						// this.getDevieceKv(item)
-						const delayTime = 5 * 1000
-						this.getDevieceKv(item)
-						// 清除定时器
-						clearInterval(this.timer)
-						this.timer = setInterval(() => {
-							this.getDevieceKv(item)
-						}, delayTime)
-						this.$forceUpdate()
+						this.getDetail()
 					}
 				});
 			},
@@ -450,6 +525,13 @@
 							return val.toFixed(0)
 						}
 					},
+					extra: {
+						line: {
+							type: "straight",
+							width: 2,
+							activeType: "hollow"
+						}
+					},
 					width: this.cWidth * this.pixelRatio,
 					height: this.cHeight * this.pixelRatio
 				});
@@ -470,8 +552,22 @@
 						this.device.controlData = []
 						this.device.chartData = []
 						this.device.chart_data = JSON.parse(data.chart_data)
+						var currentValueData = []
 						if (this.device.chart_data.chart.length > 0) {
 							this.device.chart_data.chart.forEach((ch, index) => {
+								// 当前值
+								if(this.device.chart_data.tsl.properties.length > 0) {
+									this.device.chart_data.tsl.properties.forEach(pro=>{
+										if(ch.series.length > 0 && ch.name==pro.title) {
+											ch.series.forEach(se=>{
+												if(se.type == 'gauge') {
+													currentValueData.push({name:ch.name, value:'', valueOld: ch.mapping[0],unit:pro.unit})
+												}
+											})
+										}
+									})
+								}
+								
 								if (ch.controlType == 'dashboard') {
 									if (ch.mapping && ch.mapping.length > 0) {
 										ch.mapping.forEach(map => {
@@ -495,7 +591,6 @@
 										num: ch.series[0].value,
 										dataType: ch.series[0].mapping.attr.dataType,
 										dataRange: ch.series[0].mapping.attr.dataRange
-
 									}
 									this.device.controlData.push(obj)
 								}
@@ -506,20 +601,23 @@
 										series: ch.series,
 										xAxis: ch.xAxis,
 										yAxis: ch.yAxis,
-										id: 'canvasLine' + index
+										id: 'canvasLine' + index,
+										opts: {},
+										chartData: {},
 									})
 								}
 							})
+							this.currentValueData = currentValueData
 						}
-						// if (this.device.valuesNew.length > 0) {
-						// 	this.device.valuesNew.forEach(va => {
-						// 		for (let key in this.device.values) {
-						// 			if (va.name == key) {
-						// 				va.value = this.device.values[key]
-						// 			}
-						// 		}
-						// 	})
-						// }
+						if (this.device.valuesNew.length > 0) {
+							this.device.valuesNew.forEach(va => {
+								for (let key in this.device.values) {
+									if (va.name == key) {
+										va.value = this.device.values[key]
+									}
+								}
+							})
+						}
 						if (this.device.chart_data.tsl.properties && this.device.chart_data.tsl.properties.length >
 							0) {
 							this.device.chart_data.tsl.properties.forEach(d => {
@@ -532,24 +630,24 @@
 								}
 							})
 						}
+						console.log('chartData-----', this.device.chartData)
 						if (this.device.chartData.length > 0) {
 							this.device.chartData.forEach((itme, index) => {
 								var canvasLineId = 'canvasLine' + index
 								this.getDeviceHistory(canvasLineId, itme)
 							})
 						}
-						// this.showLineA("canvasLineA", this.chartDataA)
-						// this.showLineB("canvasLineB", this.chartDataB)
 						if (this.device.controlData.length > 0) {
 							this.device.controlData.forEach(va => {
-								// for (let key in this.device.values) {
-								// 	if (va.name == key) {
-								// 		va.state = this.device.values[key]
-								// 	}
-								// }
-								this.getContorl(va)
+								for (let key in this.device.values) {
+									if (va.name == key) {
+										va.state = this.device.values[key]
+									}
+								}
+								this.getContorl(this.device, va)
 							})
 						}
+						this.getCurrentContorl()
 						this.$forceUpdate()
 					} else {
 						this.toast.msg = res.msg;
@@ -559,17 +657,36 @@
 				})
 			},
 			// 定时获取开关
-			getContorl(con) {
-				const delayTime = 5 * 1000
-				this.getDevieceKv(con)
+			getContorl(device, con) {
+				const delayTime = 60 * 1000
+				this.getDevieceKv(device, con)
 				// 清除定时器
 				clearInterval(this.timer)
 				this.timer = setInterval(() => {
-					this.getDevieceKv(con)
+					this.getContorl(device, con)
 				}, delayTime)
 			},
+			// 获取设备的当前值
+			getCurrentContorl(){
+				this.API.apiRequest('/api/kv/current', {
+					entity_id: this.device_id,
+				}, 'post').then(res => {
+					if (res.code === 200) {
+						if(this.currentValueData.length > 0) {
+							this.currentValueData.forEach(item =>{
+								for(var key in res.data[0]){
+									if(item.valueOld == key){
+										item.value = res.data[0][key]
+									}
+								}
+							})
+						}
+						this.$forceUpdate()
+					}
+				});
+			},
 			// 获取设备的开关状态
-			getDevieceKv(con) {
+			getDevieceKv(device, con) {
 				var newArry = []
 				newArry.push(con.name)
 				// uni.showLoading({
@@ -582,14 +699,11 @@
 					if (res.code === 200) {
 						// uni.hideLoading()
 						if (res.data && res.data.length > 0) {
-							this.device.controlData.forEach(item=>{
-								for (let key in res.data[0]) {
-									if (con.name == key && con.typeName == item.typeName) {
-										con.state = res.data[0][key]
-										item.state = res.data[0][key]
-									}
+							for (let key in res.data[0]) {
+								if (con.name == key && res.data[0][key]) {
+									con.state = res.data[0][key]
 								}
-							})
+							}
 							this.$forceUpdate()
 						}
 					}
