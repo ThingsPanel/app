@@ -27,6 +27,13 @@
 				获取验证码
 			</view> -->
 		</view>
+		<view
+			class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
+			<view class="inputicon">
+				<image src="/static/image/server.png" alt="">
+			</view>
+			<input type="text" placeholder-class="tp-plc" placeholder="服务器地址,以http开头" v-model="server" />
+		</view>
 		<view class="btn">
 			<!-- <button class="tp-btn-cancle tp-mg-t-50 cancel_btn">取消登录</button> -->
 			<button class="tp-btn tp-mg-t-50" :loading="loading" @tap="doLoginSubmit">登 录</button>
@@ -48,6 +55,7 @@
 		mapState,
 		mapMutations
 	} from "vuex";
+import login from "../../store/login";
 	// 
 	export default {
 		data() {
@@ -56,6 +64,7 @@
 				loading: false,
 				email: '',
 				password: '',
+				server: '',
 				toast: {
 					msg: ''
 				},
@@ -76,6 +85,7 @@
 				this.password = uni.getStorageSync('password')
 				this.toLogin()
 			}
+			this.server  = uni.getStorageSync('serverAddress') || ''
 		},
 		methods: {
 			// 取消授权
@@ -112,6 +122,9 @@
 			},
 			// 
 			toLogin(){
+				if (this.server) {
+					uni.setStorageSync('serverAddress', this.server)
+				}
 				uni.showLoading({
 					title: '加载中'
 				});
@@ -138,6 +151,7 @@
 						this.toast.msg = res.msg;
 						this.$refs.toast.show();
 					}
+				}).finally(() => {
 					uni.hideLoading()
 				})
 			},
