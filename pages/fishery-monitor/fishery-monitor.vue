@@ -411,20 +411,20 @@
 			// 点击设备
 			clickDevice(data, dataIndex) {
 				var state = ''
-				// if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
-				// 		new Date().getTime() *
-				// 		1000))) > 30) {
-				// 	state = 0
-				// }
-				// if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
-				// 		new Date().getTime() *
-				// 		1000))) <= 30) {
-				// 	state = 1
-				// }
+				if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
+						new Date().getTime() *
+						1000))) > 30) {
+					state = 0
+				}
+				if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
+						new Date().getTime() *
+						1000))) <= 30) {
+					state = 1
+				}
 				this.currentDataIndex = dataIndex
 				uni.navigateTo({
 					url: './deviceDetail?type=' + data.type + '&device_id=' + data.device_id + '&device_name=' +
-						data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + data.status
+						data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + state
 				})
 			},
 			// 日志详情
@@ -701,7 +701,6 @@
 									item.status = res.data[key]
 								}
 							})
-							this.$forceUpdate()
 						}
 					}
 				})

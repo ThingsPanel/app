@@ -52,7 +52,7 @@
 							</view>
 						</view>
 					</view>
-					<view
+					<!-- <view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
 						hover-class="tp-panel-item-hover">
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15" @click="showAddressPopup">
@@ -62,7 +62,7 @@
 								<view class="iconfont iconjiantou1"></view>
 							</view>
 						</view>
-					</view>
+					</view> -->
 				</view>
 				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
 					退出登录
@@ -76,10 +76,10 @@
 			<view class="server">
 				<view class="server-title">
 					服务器地址
-					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup"/>
+					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup">
 				</view>
 				<view class="server-input">
-					<input type="text" placeholder-class="tp-plc" placeholder="请输入服务器地址" v-model="inputAddress" />
+					<input type="text" placeholder-class="tp-plc" placeholder="请输入服务器地址" v-model="address" />
 				</view>
 				<button class="tp-btn tp-mg-t-50" @tap="serverConfirm">确定</button>
 			</view>
@@ -107,8 +107,7 @@
 					msg: ''
 				},
 				userInfo:{},
-				address: '',
-				inputAddress: ''
+				address: ''
 			}
 		},
 		//
@@ -153,9 +152,7 @@
 				this.API.apiRequest('/api/auth/me', {}, 'post').then(res => {
 					if (res.code == 200) {
 						this.userWxInfo = res.data
-						this.address = uni.getStorageSync('serverAddress')
 					}
-				}).finally(() => {
 					uni.hideLoading()
 				})
 			},
@@ -270,21 +267,18 @@
 				});
 			},
 			serverConfirm() {
-				// if(!this.inputAddress){
-				// 	uni.showToast({
-				// 		title: '请输入地址',
-				// 		icon: 'none'
-				// 	});
-				// }
-			
-				uni.setStorageSync('serverAddress', this.inputAddress);
-				this.address = this.inputAddress
+				if(!this.address){
+					uni.showToast({
+						title: '请输入地址',
+						icon: 'none'
+					});
+				}
+				uni.setStorageSync('serverAddress', this.address);
 				this.$refs.serverPopup.close()
 				// uni.redirectTo({url: '../login/login' });
 			},
 			showAddressPopup() {
-				this.inputAddress = ''
-				this.$refs.serverPopup.open()
+				this.$refs.serverPopup.open();
 			},
 			closeAddressPopup() {
 				this.$refs.serverPopup.close()
@@ -295,10 +289,4 @@
 
 <style>
 	@import '@/common/ucenter.css';
-	.server-input input{
-		border: 1px solid #e4e4e4;
-		height: 30px;
-		border-radius: 4px;
-		padding: 0 10px;
-	}
 </style>
