@@ -744,7 +744,7 @@
 					} else {
 						// this.loadMoreShow = false;
 						// this.statusType = 'noMore';
-						this.toast.msg = res.msg;
+						this.toast.msg = res.message;
 						this.$refs.toast.show();
 					}
 					uni.hideLoading()

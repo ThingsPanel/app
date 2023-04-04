@@ -148,7 +148,7 @@ import login from "../../store/login";
 							icon: 'none'
 						});
 					} else {
-						this.toast.msg = res.msg;
+						this.toast.msg = res.message;
 						this.$refs.toast.show();
 					}
 				}).finally(() => {

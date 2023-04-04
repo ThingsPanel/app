@@ -424,7 +424,7 @@
 				this.currentDataIndex = dataIndex
 				uni.navigateTo({
 					url: './deviceDetail?type=' + data.type + '&device_id=' + data.device_id + '&device_name=' +
-						data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + state
+						data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + parseInt(data.status)
 				})
 			},
 			// 日志详情
