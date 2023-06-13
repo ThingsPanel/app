@@ -9,6 +9,14 @@
 			}
 		},
 		{
+			"path": "pages/notify/notify",
+			"style": {
+				"navigationBarTitleText": "告警信息",
+				"enablePullDownRefresh": true,
+				"navigationBarBackgroundColor": "#EEEEEE"
+			}
+		},
+		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
 				"navigationBarTitleText": "猪场监测",
@@ -174,8 +182,17 @@
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		}
-	],
+		},
+		{
+            "path" : "pages/notify/notify",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+    ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "ThingsPanel",

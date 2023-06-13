@@ -14,6 +14,10 @@
 				</view>
 				<view class="tp-fishery-top"></view>
 				<view class="tp-title tp-mg-t-25" :style="{marginTop: marginConTop,marginBottom: '36rpx'}">设备监控
+					<view class="tp-add" style="margin-left:10px" @click="toNotify">
+						<image src="../../static/icon/notify.svg" v-if="!activeNotify"></image>
+						<image src="../../static/icon/notify-red.svg" v-else></image>
+					</view>
 					<view class="tp-add" @click="addEqp">
 						<image src="../../static/image/scan.png"></image>
 					</view>
@@ -30,7 +34,7 @@
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) <= 30"><i></i>在线</span> -->
-									<span v-if="item.status == 1"><i></i>在线</span>
+									<span v-if="+item.status == 1"><i></i>在线</span>
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
@@ -235,6 +239,8 @@
 	export default {
 		data() {
 			return {
+				timer: 0,
+				activeNotify: false,
 				marginConTop: 0,
 				currentDataIndex: -1,
 				currentD: -1,
@@ -338,6 +344,7 @@
 			this.$store.state.list.equpPage = 1
 			this.ywData = []
 			this.showData();
+			this.checkNotify()
 		},
 		// 上拉加载更多,onReachBottom上拉触底函数
 		onReachBottom() {
@@ -369,6 +376,28 @@
 		// },
 		//
 		methods: {
+			checkNotify() {
+				this.API.apiRequest('/api/v1/warning/information/list', {
+					current_page: 1,
+					per_page: 1,
+					processing_result: '0'
+				}, 'post').then(res => {
+					clearInterval(this.timer)
+					if (res.code === 200) {
+						this.activeNotify = !!res.data.data.length
+						if (this.activeNotify) {
+							this.timer = setInterval(() => {
+								this.activeNotify = !this.activeNotify
+							}, 500)
+						}
+					}
+				})
+			},
+			toNotify() {
+				uni.navigateTo({
+					url: '../notify/notify'
+				})
+			},
 			showData() {
 				if (uni.getStorageSync("currentYw").id) {
 					if (uni.getStorageSync("currentGroup").id) {

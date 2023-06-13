@@ -1,3 +1,4 @@
+import login from '../store/login'
 import http from './interface'
 
 /**
@@ -13,13 +14,12 @@ export const apiRequest = (url, data, method) => {
 		if (token) {
 			config.header['Authorization'] = 'Bearer '+token
 		}
-		// let server = uni.getStorageSync("serverAddress")
+		let server = uni.getStorageSync("serverAddress")
 		// console.log("server",server);
-		// if (server) {
-		// 	delete config.baseUrl
-		// 	config.baseUrl = server
-		// 	console.log("baseUrl",config.baseUrl);
-		// }
+		if (server) {
+			config.baseUrl = server
+			// console.log("baseUrl",config.baseUrl);
+		}
 	}
 	//设置请求结束后拦截器
 	http.interceptor.response = async (response) => {
