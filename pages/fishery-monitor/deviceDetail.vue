@@ -1,7 +1,7 @@
 <template>
-	<view :style="{ height: pageHeight, }">
+	<view :style="{ height: pageHeight, }" class="device_list">
 		<customNav iconColor='#1B1B1B' pageTitle='设备详情' style="padding-top: 50rpx;"></customNav>
-		<view class="content" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%' }">
+		<view class="content device_item" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%' }">
 			<view class="device">
 				<view class="device_img">
 					<image src="/static/image/device_icon.png" mode=""></image>
