@@ -34,3 +34,19 @@ page{
 	font-weight: bold;
 	color: #FFFFFF;
 }
+.selectlist {
+		width: 100%;
+		max-height: 700rpx;
+	}
+
+.select_item {
+  padding: 10rpx;
+  text-align: center;
+  font-size: 26rpx;
+  font-weight: bold;
+  color: #333333;
+  height: 80rpx;
+  line-height: 80rpx;
+  border-bottom: 1rpx solid #F2F2F3;
+  background: #fff;
+}

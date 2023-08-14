@@ -183,6 +183,23 @@
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
+    
+    {
+    	"path": "pages/scene-rule-detail/scene-rule-detail",
+    	"style": {
+    		"navigationBarTitleText": "新增场景联动",
+    		"enablePullDownRefresh": false,
+    		"navigationBarBackgroundColor": "#FFFFFF"
+    	}
+    },
+    {
+    	"path": "pages/scene-detail/scene-detail",
+    	"style": {
+    		"navigationBarTitleText": "新增场景",
+    		"enablePullDownRefresh": false,
+    		"navigationBarBackgroundColor": "#FFFFFF"
+    	}
+    },
 		{
             "path" : "pages/notify/notify",
             "style" :                                                                                    
