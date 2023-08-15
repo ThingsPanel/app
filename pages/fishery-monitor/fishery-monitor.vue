@@ -333,7 +333,7 @@
 			// 导航栏的高度
 			let navigationHeight = 44 * pxToRpxScale;
 			this.marginTop = ktxStatusHeight + 'rpx';
-			this.marginConTop = ktxStatusHeight + 'rpx'
+			this.marginConTop = (ktxStatusHeight || 40) + 'rpx'
 			this.isLogin = this.$login.isLoginType().isLogin
 			// this.ywData = []
 			// this.showData()
