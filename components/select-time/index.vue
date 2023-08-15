@@ -8,7 +8,7 @@
         v-model="data.time_condition_type"
       ></CustomSelect>
       
-      <view>
+      <view class="tp-flex-1">
         <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
           <!-- 单次 -->
         	<uni-datetime-picker v-if="data.time_condition_type === '1'" :clear-icon="false" :hide-second="true" v-model="data.v1" @change="singleDateTimeChange"/>
@@ -43,13 +43,17 @@
           :options="minuteOptions"
           v-model="data.v3"
         ></CustomSelect>
+        
+        <view class="tp-flex-1"></view>
       </view>
       
       <!-- 2 每天 -->
       <view v-if="data.v1 === '2'" class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
-      	<picker mode="time" :value="data.v3" @change="bindTimeChange">
+      	<picker class="tp-flex-1" mode="time" :value="data.v3" @change="bindTimeChange">
       		<view class="uni-input" :class="!data.v3 && 'placeholder'">{{data.v3 || '请选择'}}</view>
       	</picker>
+        
+        <view class="tp-flex-1"></view>
       </view>
       
       <!-- 3 每周 -->
@@ -60,9 +64,11 @@
       	  v-model="data.v3"
       	></CustomSelect>
         
-        <picker v-if="data.v3" mode="time" :value="data.v4" @change="bindTimeChange2">
-        	<view class="uni-input" :class="!data.v4 && 'placeholder'">{{data.v4 || '请选择'}}</view>
-        </picker>
+        <view class="tp-flex-1">
+          <picker v-if="data.v3" mode="time" :value="data.v4" @change="bindTimeChange2">
+          	<view class="uni-input" :class="!data.v4 && 'placeholder'">{{data.v4 || '请选择'}}</view>
+          </picker>
+        </view>
       </view>
       
       <!-- 4 每月 -->
@@ -74,9 +80,11 @@
       	  v-model="date"
       	></CustomSelect>
         
-        <picker v-if="date" mode="time" :value="time" @change="bindTimeChange1">
-        	<view class="uni-input" :class="!time && 'placeholder'">{{time || '请选择'}}</view>
-        </picker>
+        <view class="tp-flex-1">
+          <picker v-if="date" mode="time" :value="time" @change="bindTimeChange1">
+          	<view class="uni-input" :class="!time && 'placeholder'">{{time || '请选择'}}</view>
+          </picker>
+        </view>
       </view>
       
       <!-- 5 自定义cron -->
@@ -152,7 +160,7 @@
         let minuteOptions = []
         for (let i = 0; i < 60; i++) {
           const minute = i + ''
-          minuteOptions.push({ value: minute, label: minute.padStart(2, '0') })
+          minuteOptions.push({ value: minute, label: minute.padStart(2, '0') + ':00' })
         }
         this.minuteOptions = minuteOptions
       },

@@ -48,5 +48,5 @@ page{
   height: 80rpx;
   line-height: 80rpx;
   border-bottom: 1rpx solid #F2F2F3;
-  background: #fff;
+  /* background: #fff; */
 }

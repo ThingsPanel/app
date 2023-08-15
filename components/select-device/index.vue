@@ -20,33 +20,41 @@
         v-model="data.business_id"
       ></CustomSelect>
       
-      <CustomSelect
-        v-if="data.business_id" 
-        placeholder="请选择" 
-        :options="groupOptions"
-        @change="groupIdChange"
-        optionValue="id"
-        optionLabel="device_group"
-        v-model="data.asset_id"
-      ></CustomSelect>
+      <view class="tp-flex-1">
+        <CustomSelect
+          v-if="data.business_id" 
+          placeholder="请选择" 
+          :options="groupOptions"
+          @change="groupIdChange"
+          optionValue="id"
+          optionLabel="device_group"
+          v-model="data.asset_id"
+        ></CustomSelect>
+      </view>
+      
     </view>
     
     <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
-      <SelectDevice 
+      <Device 
+        class="tp-flex-1"
         v-if="data.asset_id"
         :options="deviceOptions"
         @change="deviceIdChange"
         @propTypeChange="propTypeChange"
         v-model="data.device_id"
-      ></SelectDevice>
+      ></Device>
       
-      <SelectPes 
-        v-if="data.device_id"
-        :propOptions="propOptions"
-        v-model="pesData" 
-        @change="pesDataChange"
-        @valueConfChange="valueConfChange"
-        ></SelectPes>
+      <view class="tp-flex-1">
+        <SelectPes
+          v-if="data.device_id"
+          :showStatus="showStatus"
+          :propOptions="propOptions"
+          v-model="pesData" 
+          @change="pesDataChange"
+          @valueConfChange="valueConfChange"
+          ></SelectPes>
+      </view>
+      
     </view>
     
     <!-- 前一个选择框选择了属性时才显示 -->
@@ -55,18 +63,18 @@
       v-if="data.device_condition_type === '1'"
     >
       <CustomSelect
+        v-if="showStatus"
         placeholder="请选择" 
         :options="symbolOptions"
         v-model="data.v2"
       ></CustomSelect>
       
-      <view class="">
+      <view class="tp-flex-1">
         <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
         	<input class="uni-input" placeholder="输入内容" v-model="data.v3"/>
-          <view style="width:16px;" class="iconfont">{{ valueConf.unit }}</view>
+          <text class="tp-font-size-13 tp-mg-l-r-15 unit">{{ valueConf.unit }}</text>
         </view>
       </view>
-      
     </view>
   </view>
   
@@ -74,19 +82,23 @@
 
 <script>
   import CustomSelect from '@/components/custom-select.vue'
-  import SelectDevice from './select-device.vue'
+  import Device from './device.vue'
   import SelectPes from './select-pes.vue'
   
   export default {
     components: {
       CustomSelect,
-      SelectDevice,
+      Device,
       SelectPes,
     },
     props: {
       data: {
         type: [Object],
         default: () => ({}),
+      },
+      showStatus: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {
@@ -126,7 +138,7 @@
       this.initPesData()
     },
     mounted () {
-      
+      console.log(this.data)
     },
     methods: {
       // 加载项目列表
@@ -235,14 +247,14 @@
       // 切换项目需要重置后面所有联动表单项的值，
       // 且如果紧跟在后面的第一个表单项有下拉选项，则需要清空选项数据
       businessIdChange () {
-        Object.assign(this.data, {
-          asset_id: '', 
-          device_id: '', 
-          device_condition_type: '', 
-          v1: '', 
-          v2: '', 
-          v3: '', 
-        })
+        
+        // todo：待优化
+        this.$set(this.data, 'asset_id', '')
+        this.$set(this.data, 'device_id', '')
+        this.$set(this.data, 'device_condition_type', '')
+        this.$set(this.data, 'v1', '')
+        this.$set(this.data, 'v2', '')
+        this.$set(this.data, 'v3', '')
         
         this.groupOptions = []
         this.queryGroupOptions()
@@ -251,14 +263,12 @@
       },
       
       groupIdChange () {
-        
-        Object.assign(this.data, {
-          device_id: '', 
-          device_condition_type: '', 
-          v1: '', 
-          v2: '', 
-          v3: '', 
-        })
+        // todo：待优化
+        this.$set(this.data, 'device_id', '')
+        this.$set(this.data, 'device_condition_type', '')
+        this.$set(this.data, 'v1', '')
+        this.$set(this.data, 'v2', '')
+        this.$set(this.data, 'v3', '')
         
         this.deviceOptions = []
         this.queryDeviceOptions()
@@ -267,13 +277,15 @@
       }, 
       
       deviceIdChange () {
-        Object.assign(this.data, {
-          device_condition_type: '', 
-          v1: '', 
-          v2: '', 
-          v3: '', 
-        })
+        console.log(this.data)
         
+        // todo：待优化
+        this.$set(this.data, 'device_condition_type', '')
+        this.$set(this.data, 'v1', '')
+        this.$set(this.data, 'v2', '')
+        this.$set(this.data, 'v3', '')
+        
+        console.log(this.data)
         this.initPesData()
       },
       propTypeChange (propType) {
@@ -282,9 +294,13 @@
       },
       
       pesDataChange (pesData) {
-        Object.assign(this.data, pesData, {
-          v3: '', 
-        })
+        console.log(pesData)
+        
+        // todo：待优化
+        this.$set(this.data, 'device_condition_type', pesData.device_condition_type)
+        this.$set(this.data, 'v1', pesData.v1)
+        this.$set(this.data, 'v2', pesData.v2)
+        this.$set(this.data, 'v3', '')
       },
       
       // 更新传递给属性选择器的数据。在属性选择器修改了选项，需要同步需改显示值
@@ -304,5 +320,7 @@
 </script>
 
 <style scoped>
-
+  .unit {
+    color: #777;
+  }
 </style>

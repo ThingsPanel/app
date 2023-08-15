@@ -1,11 +1,12 @@
 <template>
-  <view>
+  <view class="tp-flex-1">
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
+      <view class="label">{{label}}</view>
     	<input class="uni-input" :placeholder="placeholder" disabled :value="showValue"/>
     	<view class="iconfont iconjiantou1"></view>
     </view>
     
-    <uni-popup ref="pop" type="bottom">
+    <uni-popup ref="pop" type="bottom" backgroundColor="#fff">
     	<scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '700rpx' }">
     		<view class="selectlist">
     			<view class="select_item" v-for="(option, key) in options" :key="key" @click="onSelect(option)">
@@ -40,6 +41,10 @@
         type: String,
         default: 'label',
       },
+      label: {
+        type: String,
+        default: '',
+      },
       placeholder: {
         type: String,
         default: '',
@@ -68,6 +73,7 @@
     },
     methods: {
       showPop () {
+        this.$emit('click')
         this.$refs.pop.open()
       },
       hidePop() {
@@ -82,5 +88,7 @@
 </script>
 
 <style scoped>
-  
+  .label {
+    font-size: 28rpx;
+  }
 </style>

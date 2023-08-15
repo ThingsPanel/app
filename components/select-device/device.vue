@@ -47,7 +47,7 @@
     },
     data () {
       return {
-        type: '',
+        type: undefined,
       }
     },
     computed: {
@@ -65,6 +65,7 @@
         this.$emit('change', n, o)
       },
       type (n, o) {
+        console.log(n, o)
         this.$emit('propTypeChange', n, o)
       },
     },
@@ -81,10 +82,8 @@
       onSelect ([option]) {
         console.log(option)
         if (option) {
-          this.type = option.type
+          this.type = option.value
           this.$emit('update:value', option.id)
-        } else {
-          this.$emit('update:value')
         }
       },
       

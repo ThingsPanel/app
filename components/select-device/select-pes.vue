@@ -5,9 +5,9 @@
     	<view class="iconfont iconjiantou1"></view>
     </view>
     
-    <uni-popup ref="pop" type="bottom">
+    <uni-popup ref="pop" type="bottom" backgroundColor="#fff">
     	<scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '700rpx' }">
-    		<view class="selectlist">
+    		<view class="selectlist" v-if="showStatus">
           <view style="color: #bbb;" class="select_item">上下线</view>
     			<view class="select_item" v-for="(option, key) in statusOptions" :key="key" @click="onSelect('3', option)">
     				{{ option.label }}
@@ -19,6 +19,9 @@
         	<view class="select_item" v-for="(option, key) in propOptions" :key="key" @click="onSelect('1', option)">
         		{{ option.title }}
         	</view>
+        </view>
+        <view style="color:red;" class="select_item" v-else>
+          <text v-if="!showStatus">无数据！</text>
         </view>
     	</scroll-view>
     </uni-popup>
@@ -40,6 +43,10 @@
       propOptions: {
         type: Array,
         default: [],
+      },
+      showStatus: {
+        type: Boolean,
+        default: true,
       },
     },
     computed: {

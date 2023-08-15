@@ -1,50 +1,53 @@
 <template>
-  <view class="tp-mg-l-r-30" v-for="(condition, index) in conditions" :key="condition.$index">
-    <!-- 选择且或关系 -->
-    <view class='tp-mg-t-b-10' v-if="index !== 0">
-      <uni-data-checkbox :localdata="relations" v-model="condition._relation" />
-    </view>
-    
-    <view class="tp-flex tp-flex-row">
-      <view class="tp-panel tp-flex-1">
-        <CustomSelect
-          placeholder="条件类型"
-          :options="conditionTypeOptions"
-          @change="conditionTypeChange($event, index)"
-          v-model="condition.condition_type"
-        ></CustomSelect>
-        
-        <!-- 设备条件 -->
-        <SelectDevice key="SelectDevice" v-if="condition.condition_type === '1'" :data="condition"></SelectDevice>
-        
-        <!-- 时间条件 -->
-        <SelectTime key="SelectTime" v-if="condition.condition_type === '2'" :data="condition"></SelectTime>
+  <view >
+    <view class="tp-mg-l-r-30" v-for="(condition, index) in conditions" :key="condition.$index">
+      <!-- 选择且或关系 -->
+      <view class='tp-mg-t-b-10' v-if="index !== 0">
+        <uni-data-checkbox :localdata="relations" v-model="condition._relation" />
       </view>
       
-      <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
-        <!-- 条件数量大于1条时才允许删除 -->
-        <uni-icons 
-          v-if="conditions.length > 1" 
-          style="color:red;" 
-          class="tp-mg-t-b-10" 
-          type="minus" 
-          size="20" 
-          @click="removeCondition(condition, index)"
-        ></uni-icons>
+      <view class="tp-flex tp-flex-row">
+        <view style="align-self: center;" class="tp-panel tp-flex-1 feedback-body">
+          <CustomSelect
+            placeholder="条件类型"
+            :options="conditionTypeOptions"
+            @change="conditionTypeChange($event, index)"
+            v-model="condition.condition_type"
+          ></CustomSelect>
+          
+          <!-- 设备条件 -->
+          <SelectDevice key="SelectDevice" v-if="condition.condition_type === '1'" :data="condition"></SelectDevice>
+          
+          <!-- 时间条件 -->
+          <SelectTime key="SelectTime" v-if="condition.condition_type === '2'" :data="condition"></SelectTime>
+        </view>
         
-        <uni-icons
-          style="color:#2979ff;" 
-          class="tp-mg-t-b-10" 
-          type="plus" 
-          size="20" 
-          @click="addCondition(condition, index)"
-        ></uni-icons>
+        <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+          <!-- 条件数量大于1条时才允许删除 -->
+          <uni-icons 
+            v-if="conditions.length > 1" 
+            style="color:red;" 
+            class="tp-mg-t-b-10" 
+            type="minus" 
+            size="20" 
+            @click="removeCondition(condition, index)"
+          ></uni-icons>
+          
+          <uni-icons
+            style="color:#2979ff;" 
+            class="tp-mg-t-b-10" 
+            type="plus" 
+            size="20" 
+            @click="addCondition(condition, index)"
+          ></uni-icons>
+        </view>
       </view>
     </view>
     
     <!-- 消息提示框 -->
     <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
   </view>
+  
 </template>
 
 <script>
@@ -79,6 +82,9 @@
         ],
       }
     },
+    created () {
+      console.log(this.conditions)
+    },
     methods: {
       conditionTypeChange (condition_type, index) {
         console.log(condition_type, index)
@@ -111,6 +117,8 @@
           
           $index: condition.$index,
         })
+        
+        console.log(this.conditions)
       },
       // 删除条件
       removeCondition (currCondition, index) {
@@ -122,7 +130,7 @@
           // condition_type: '1', // todo：赋默认值有bug
           $index: Math.random(),
         })
-        console.log(this.formData)
+        console.log(this.conditions)
       },
     },
   }

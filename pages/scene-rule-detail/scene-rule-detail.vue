@@ -19,110 +19,27 @@
           <uni-number-box class="tp-flex-1" v-model="formData.priority" />
           
           <uni-tooltip class="tooltip" content="值越小优先级越高">
-            <view class="iconfont iconbianji tp-mg-r-10"></view>
+            <!-- <view class="iconfont iconbianji tp-mg-r-10"></view/> -->
+            <!-- <icon type="warn" size="26"/> -->
+            <uni-icons type="help-filled"></uni-icons>
+            <!-- <uni-icons type="info" size="26"></uni-icons> -->
           </uni-tooltip>
         </view>
 			</view>
       
-      <view class="tp-box-sizing tp-mg-t-30 tp-mg-l-r-30 uni-bold">
+      <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30  uni-bold">
         <text class=tp-font-size-14>如果</text>
       </view>
-      
+
       <!-- 条件列表 -->
-      <view class="tp-mg-l-r-30" v-for="(condition, index) in formData.automation_conditions" :key="condition.$index">
-        <!-- 选择且或关系 -->
-        <view class='tp-mg-t-b-10' v-if="index !== 0">
-          <uni-data-checkbox :localdata="relations" v-model="condition._relation" />
-        </view>
-        
-        <view class="tp-flex tp-flex-row">
-          <view class="tp-panel tp-flex-1">
-            <CustomSelect
-              placeholder="条件类型"
-              :options="conditionTypeOptions"
-              @change="conditionTypeChange($event, index)"
-              v-model="condition.condition_type"
-            ></CustomSelect>
-            
-            <!-- 设备条件 -->
-            <SelectDevice key="SelectDevice" v-if="condition.condition_type === '1'" :data="condition"></SelectDevice>
-            
-            <!-- 时间条件 -->
-            <SelectTime key="SelectTime" v-if="condition.condition_type === '2'" :data="condition"></SelectTime>
-          </view>
-          
-          <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
-            <!-- 条件数量大于1条时才允许删除 -->
-            <uni-icons 
-              v-if="formData.automation_conditions.length > 1" 
-              style="color:red;" 
-              class="tp-mg-t-b-10" 
-              type="minus" 
-              size="20" 
-              @click="removeCondition(condition, index)"
-            ></uni-icons>
-            
-            <uni-icons
-              style="color:#2979ff;" 
-              class="tp-mg-t-b-10" 
-              type="plus" 
-              size="20" 
-              @click="addCondition(condition, index)"
-            ></uni-icons>
-          </view>
-        </view>
-      </view>
+      <Conditions :conditions="formData.automation_conditions" />
       
-      <!-- 
-        <conditions conditions="formData.automation_conditions" />
-       -->
-      
-      <view class="tp-box-sizing tp-mg-t-30 tp-mg-l-r-30 uni-bold">
+      <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30 uni-bold">
         <text class=tp-font-size-14>那么</text>
       </view>
-      
+
       <!-- 操作列表 -->
-      <view class="tp-mg-l-r-30" v-for="(action, index) in formData.automation_actions" :key="Math.random()">
-        <view class="tp-flex tp-flex-row">
-          <view class="tp-panel tp-flex-1">            
-            <CustomSelect
-              placeholder="执行动作"
-              :options="actionTypeOptions"
-              @change="actionTypeChange($event, index)"
-              v-model="action.action_type"
-            ></CustomSelect>
-            
-            <!-- 操作设备 -->
-            <view class="" v-if="action.actions_type === '1'">操作设备</view>
-            
-            <!-- 触发告警 -->
-            <view class="" v-if="action.actions_type === '2'">触发告警</view>
-            
-            <!-- 激活场景 -->
-            <view class="" v-if="action.actions_type === '3'">激活场景</view>
-          </view>
-          
-          <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
-            <!-- 条件数量大于1条时才允许删除 -->
-            <uni-icons 
-              v-if="formData.automation_actions.length > 1" 
-              style="color:red;" 
-              class="tp-mg-t-b-10" 
-              type="minus" 
-              size="20" 
-              @click="removeAction(action, index)"
-            ></uni-icons>
-            
-            <uni-icons 
-              style="color:#2979ff;" 
-              class="tp-mg-t-b-10" 
-              type="plus" 
-              size="20" 
-              @click="addAction(action, index)"
-            ></uni-icons>
-          </view>
-        </view>
-      </view>
+      <Actions ref="actions" :list="formData.automation_actions" />
       
 			<view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
 				<button class="tp-btn" @tap="doUpdateSubmit">保存</button>
@@ -135,36 +52,21 @@
 </template>
 
 <script>
+  import Conditions from './conditions.vue'
+  import Actions from './actions.vue'
   import CustomSelect from '@/components/custom-select.vue'
-  import SelectDevice from '@/components/select-device'
-  import SelectTime from '@/components/select-time'
   
 	export default {
     components: {
+      Conditions,
+      Actions,
       CustomSelect,
-      SelectDevice,
-      SelectTime,
-      
     },
 		data() {
 			return {
         toast: {
         	msg: ''
         },
-        
-        relations: [
-          { text: '且', value: 'and' }, 
-          { text: '或', value: 'or' },
-        ],
-        conditionTypeOptions: [
-          { value: '1', label: '设备条件' },
-          { value: '2', label: '时间条件' },
-        ],
-        actionTypeOptions: [
-          { value: '1', label: '操作设备' },
-          { value: '2', label: '触发告警' },
-          { value: '3', label: '激活场景' },
-        ],
         
 				formData: {},
         
@@ -222,6 +124,9 @@
       		uni.hideLoading()
       	});
       },
+      // 初始化数据时：
+      // 设置且或连接符（第一个条件不需要）
+      // 设置条件的唯一标识符（$index）
       transRelation (automation_conditions) {
         if (automation_conditions?.length) {
           automation_conditions[0].$index = Math.random()
@@ -237,14 +142,14 @@
             }
           }
         }
-        
-        
       },
-      /**
-       * @description 转换条件分组(gropu_number)
-       * @param {Object} automation_conditions
-       * @return {Boolean} 是否转换成功
-       */
+      // 点击保存时：
+      // 设置 group_number 分组编号（第一个条件默认为1）。从第二个条件开始，如果用或连接，则分组编号+1；
+      //    如果用且连接时需要判断相邻条件是否都为时间条件的重复与单次二者之一，
+      //    如果否（不满足有两种情况，一是均为时间条件不满足，二是均为重复与单次二者之一不满足），则分组编号与前一个条件相同；
+      //    如果是，则清除当前条件的连接符和分组编号，然后计数（清除了几个连接符）
+      // 最后判断清除连接符的次数，如果次数为 0，方法返回 true，表示设置 分组编号 成功；
+      //    如果次数不为0，方法返回 false，表示设置分组编号失败，此时需要提示用户检查条件详情
       transGroupNumber (automation_conditions) {
         let invalidRelationNum = 0
         
@@ -277,101 +182,42 @@
           }
         }
         if (invalidRelationNum) {
-          this.toast.msg = '相邻条件均为时间条件时，单次、重复只能用“或”连接。请检查条件';
-          this.$refs.toast.show();
           return
         }
         return true;
       },
-      
-      conditionTypeChange (condition_type, index) {
-        console.log(condition_type, index)
-        
-        const condition = this.formData.automation_conditions[index] || {}
-
-        this.$set(this.formData.automation_conditions, index, {
-          condition_type, // 1-设备条件 2-时间条件
-          
-          business_id: "", // 项目id
-          asset_id: "", // 分组id
-          device_id: "", // 设备id
-          device_condition_type: "", // 1-属性 2-事件 3-在线离线状态
-
-          time_condition_type: "", // 0-时间范围 1-单次 2-重复 3-自定义
-          
-          v1: "",
-          v2: "",
-          v3: "",
-          v4: "",
-          v5: "",
-
-          remark: "",
-          
-          group_number: condition.group_number, // 条件分组编号（相邻两个条件 group_number 不同则用或连接，相同用且连接）
-          _relation: condition._relation,
-          
-          automation_id: this.formData.id, // 父id
-          id: condition.id, // 自身id
-          
-          $index: condition.$index,
-        })
-      },
-      
-      actionTypeChange (action_type, index) {
-        
-      },
-      
-      // 删除条件
-      removeCondition (currCondition, index) {
-        this.formData.automation_conditions.splice(index, 1)
-      },
-      // 新增条件
-      addCondition (currCondition, index) {
-        this.formData.automation_conditions.splice(index+1, 0, {
-          // condition_type: '1', // todo：赋默认值有bug
-          $index: Math.random(),
-        })
-        console.log(this.formData)
-      },
-      
-      // 删除动作
-      removeAction (currAction, index) {
-        this.formData.automation_actions.splice(index, 1)
-      },
-      // 新增动作
-      addAction (currAction, index) {
-        this.formData.automation_actions.splice(index+1, 0, {
-          
-        })
-      },
 			
       // 校验
 			validate() {
+        // 请将“时间条件”信息补充完整
+        // 请将“设备条件”信息补充完整
+        // 请将“激活场景”信息补充完整
+        // 请将“触发告警”信息补充完整
+        // 请将“操作设备”信息补充完整
+        
+        // 场景基本信息校验，待拆分
         const {
           automation_name,
           // automation_described,
           priority,
-          automation_conditions = [],
-          automation_actions = [],
         } = this.formData
-        
 				if(!automation_name){
 					this.toast.msg = '请输入规则名称';
           this.$refs.toast.show();
           return
 				}
-        
         // if(!automation_described){
         // 	this.toast.msg = '请输入规则说明';
         //  this.$refs.toast.show();
         // }
-        
 				if(priority != 0 && !priority){
 					this.toast.msg = '请设置优先级';
           this.$refs.toast.show();
           return
 				}
-				
+        
+        // 校验单个条件的数据填写是否完整，待拆分
+        const automation_conditions = this.formData.automation_conditions || []
         for (const condition of automation_conditions) {
           const {
             group_number, // 且、或
@@ -508,6 +354,8 @@
           }
         }
         
+        // 校验单个动作的数据填写是否完整，待拆分
+        const automation_actions = this.formData.automation_actions || []
         for (const action of automation_actions) {
           const {
             
@@ -516,15 +364,19 @@
         
         return true
 			},
+      
 			// 保存
 			doUpdateSubmit() {
+        console.log(JSON.parse(JSON.stringify(this.$refs.actions.getActions())))
         if (!this.transGroupNumber(this.formData.automation_conditions)) {
+          this.toast.msg = '相邻条件均为时间条件时，单次、重复只能用“或”连接。请检查条件';
+          this.$refs.toast.show();
           return;
         }
 
-				if (!this.validate()) {
-          return;
-				}
+				// if (!this.validate()) {
+    //       return;
+				// }
         
         console.log(JSON.parse(JSON.stringify(this.formData)))
         
@@ -563,6 +415,11 @@
   
   .uni-data-checklist /deep/ .checklist-group .checklist-box .checklist-content .checklist-text {
     font-size: 26rpx;
+  }
+  
+  .uni-tooltip .uni-icons {
+    font-size: 42rpx !important;
+    color: #808080 !important;
   }
 </style>
 
