@@ -1,17 +1,16 @@
 <template>
-  <view class="tp-mg-25 tp-bd-1">
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+  <view class="">
+    <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <CustomSelect
-        label="告警级别"
-        placeholder="请选择" 
+        placeholder="告警级别" 
         :options="levelOptions"
         @change="change"
         v-model="warningStrategy.warning_level"
       ></CustomSelect>
       
     	<CustomSelect
-        label="通知组"
-    	  placeholder="请选择" 
+        clearable
+    	  placeholder="通知组" 
     	  :options="noticOptions"
     	  @change="change"
     	  optionValue="id"
@@ -20,17 +19,17 @@
     	></CustomSelect>
     </view>
     
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
-        <view class="label">重复次数</view>
-      	<input class="uni-input" placeholder="输入内容" v-model="warningStrategy.repeat_count"/>
+        <!-- <view class="label">重复次数</view> -->
+      	<input class="uni-input" placeholder="重复次数" v-model.number="warningStrategy.repeat_count"/>
       </view>
     </view>
     
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
-        <view class="label">告警描述</view>
-      	<input class="uni-input" placeholder="输入内容" v-model="warningStrategy.warning_description"/>
+        <!-- <view class="label">告警描述</view> -->
+      	<input class="uni-input" placeholder="告警描述" v-model="warningStrategy.warning_description"/>
       </view>
     </view>
   </view>
@@ -103,8 +102,6 @@
   }
 </script>
 
-<style>
-  .label {
-    font-size: 28rpx;
-  }
+<style scoped>
+  @import '@/common/alert-strategy.css';
 </style>

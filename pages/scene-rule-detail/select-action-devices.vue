@@ -1,9 +1,9 @@
 <template>
-  <view >
-    <view class="tp-mg-l-r-25 ttt" v-for="(action, index) in data.actions" :key="action.$index">
+  <view class="tp-flex tp-flex-col">
+    <view class="item2 tp-pd-l-r-25 " v-for="(action, index) in data.actions" :key="action.$index">
       
       <view class="tp-flex tp-flex-row">
-        <view style="align-self: center;" class="tp-panel tp-flex-1 tp-bd-1">
+        <view style="align-self: center;" class="tp-panel tp-flex-1">
           
           <!-- 设备条件 -->
           <SelectDevice :showStatus="false" key="SelectDevice" :data="action"></SelectDevice>
@@ -13,19 +13,19 @@
           <!-- 条件数量大于1条时才允许删除 -->
           <uni-icons 
             v-if="data.actions.length > 1" 
-            style="color:red;" 
-            class="tp-mg-t-b-10" 
+            class="tp-mg-t-b-10"
             type="minus" 
-            size="20" 
+            size="40rpx" 
+            color="red"
             @click="removeAction(action, index)"
           ></uni-icons>
           
           <!-- 仅最后一个显示新增 -->
           <uni-icons
-            style="color:#2979ff;" 
-            class="tp-mg-t-b-10" 
+            class="tp-mg-t-b-10"
             type="plus" 
-            size="20" 
+            size="40rpx"
+            color="#2979ff"
             @click="addAction(action, index)"
           ></uni-icons>
         </view>
@@ -106,6 +106,7 @@
 </script>
 
 <style scoped>
+  @import '@/common/alert-strategy.css';
   
   .ttt {
     margin-bottom: 30rpx;

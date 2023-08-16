@@ -44,7 +44,7 @@
             <view class="tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c tp-pd-t-b-15">
               <template v-if="clName == '场景联动'">
                 <view :style="{ color: item.enabled === '0' ? '#5bdc1b' : '#ff9900' }" class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toggleStatue(item)">
-                  {{item.enabled === '0' ? '启用' : '停用'}}
+                  {{item.enabled === '0' ? '启动' : '停用'}}
                 </view>
                 
                 <view class="tp-mg-l-r-25">|</view>

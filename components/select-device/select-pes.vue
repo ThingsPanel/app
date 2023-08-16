@@ -1,8 +1,10 @@
 <template>
   <view>
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
-    	<input class="uni-input" placeholder="选择状态/属性" disabled :value="showValue"/>
-    	<view class="iconfont iconjiantou1"></view>
+    	<input class="uni-input" placeholder="状态/属性" disabled :value="showValue"/>
+    	<view>
+    	  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+    	</view>
     </view>
     
     <uni-popup ref="pop" type="bottom" backgroundColor="#fff">
@@ -20,9 +22,12 @@
         		{{ option.title }}
         	</view>
         </view>
-        <view style="color:red;" class="select_item" v-else>
-          <text v-if="!showStatus">无数据！</text>
-        </view>
+        <template v-else>
+          <view style="color:red;" class="select_item" v-if="!showStatus">
+            <text>无数据！</text>
+          </view>
+        </template>
+        
     	</scroll-view>
     </uni-popup>
   </view>
@@ -93,6 +98,7 @@
         this.$refs.pop.close()
       },
       onSelect (device_condition_type, option) {
+        console.log(JSON.parse(JSON.stringify(option)))
         if (device_condition_type === '1') { // 当前选中的是 属性，v1有值  v2有值  v3有值
           this.$emit('update:value', {
             device_condition_type: '1',

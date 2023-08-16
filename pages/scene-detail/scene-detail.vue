@@ -3,284 +3,74 @@
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略名称</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入名称" placeholder-class="tp-plc"
-						v-model="formData.name" />
+					<view>场景标题</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景标题" placeholder-class="tp-plc"
+						v-model.trim="formData.scenario_name" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略描述</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入描述" placeholder-class="tp-plc"
-						v-model="formData.describe" />
+					<view>场景描述</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景描述" placeholder-class="tp-plc"
+						v-model.trim="formData.scenario_description" />
 				</view>
 			</view>
-			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80">
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备分组</view>
-					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectGroup">
-						<text class="tp-mg-r-10" v-if="formData.groupName">{{formData.groupName}}</text>
-						<view class="iconfont iconjiantou1"></view>
-					</view>
-				</view>
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备</view>
-					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectEqp">
-						<text class="tp-mg-r-10" v-if="formData.eqpName">{{formData.eqpName}}</text>
-						<view class="iconfont iconjiantou1"></view>
-					</view>
-				</view>
+      
+			<view class="tp-mg-l-r-30 tp-mg-t-25 tp-flex tp-flex-row" v-for="(action, index) in formData.scenario_actions" :key="action.$index">
+			  
+			  <view style="align-self: center;" class="tp-panel tp-flex-1">
+			    <SelectDevice :showStatus="false" key="SelectDevice" :data="action"></SelectDevice>
+			  </view>
+			  
+			  <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+			    <!-- 条件数量大于1条时才允许删除 -->
+			    <uni-icons 
+			      v-if="formData.scenario_actions.length > 1" 
+			      class="tp-mg-t-b-10"
+			      type="minus" 
+			      size="40rpx" 
+			      color="red"
+			      @click="removeAction(action, index)"
+			    ></uni-icons>
+			    
+			    <!-- 仅最后一个显示新增 -->
+			    <uni-icons
+			      class="tp-mg-t-b-10"
+			      type="plus" 
+			      size="40rpx"
+			      color="#2979ff"
+			      @click="addAction(action, index)"
+			    ></uni-icons>
+			  </view>
 			</view>
-			<view class="tp-txt tp-box-sizing tp-pd-30">触发条件
-				<view class="add_btn" @click="toAdd">
-					+新增一行
-				</view>
-			</view>
-			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80" v-for="(rule,index) in rulesList"
-				:key="index">
-				<view class="info_header" v-if="rule.gxName">
-					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
-					</view>
-					<view class="info_header_d">
-						{{rule.gxName}}
-					</view>
-				</view>
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择条件</view>
-					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectTj(rule,'edit')">
-						<text class="tp-mg-r-10" v-if="rule.tjName">{{rule.tjName}}</text>
-						<view class="iconfont iconjiantou1"></view>
-					</view>
-				</view>
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择符号</view>
-					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectFh(rule)">
-						<text class="tp-mg-r-10" v-if="rule.fhName">{{rule.fhName}}</text>
-						<view class="iconfont iconjiantou1"></view>
-					</view>
-				</view>
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请输入值</view>
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值" placeholder-class="tp-plc"
-						v-model="rule.num" v-if="rule.filedType == 3" />
-					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
-						placeholder-class="tp-plc" v-model="rule.num" />
-				</view>
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
-					v-if="index!=0">
-					<view class="del_btn" @click="toDel(data,index)">
-						<image src="../../static/icon/del.png" alt="">删除
-					</view>
-				</view>
-			</view>
-			<view class="tp-panel tp-panel-textarea tp-flex tp-flex-col tp-mg-30 tp-box-sizing tp-pd-20">
-				<view class="tp-mg-b-20">信息</view>
-				<view>
-					<textarea placeholder="请在此处填写信息" class="tp-box-sizing tp-pd-20" placeholder-class="tp-plc-i"
-						v-model="formData.message"></textarea>
-				</view>
-			</view>
-			<view class="tp-box-sizing tp-pd-l-r-30">
-				<button class="tp-btn" :class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit">保
-					存</button>
-			</view>
-			<!-- 分组 -->
-			<uni-popup ref="groupPopup" type="bottom">
-				<scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '700rpx' }">
-					<view class="selectlist">
-						<view class="select_item" v-for="(item,index) in eqpGroupsList" :key="index"
-							@click="toConfirmeqpGroup(item)">
-							{{item.device_group}}
-						</view>
-					</view>
-				</scroll-view>
-			</uni-popup>
-			<!-- 设备 -->
-			<uni-popup ref="epqPopup" type="bottom">
-				<scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '700rpx' }">
-					<view class="selectlist">
-						<view class="select_item" v-for="(item,index) in eqpList" :key="index" @click="comfirEqp(item)">
-							{{item.name}}
-						</view>
-					</view>
-				</scroll-view>
-			</uni-popup>
-			<!-- 条件 -->
-			<uni-popup ref="tiaojianPopup" type="bottom">
-				<scroll-view :scroll-y="true" scroll-with-animation="true"
-					:style="{ maxHeight: '700rpx',background:'#fff' }">
-					<view class="selectlist">
-						<view class="select_item" v-for="(item,index) in conditionList" :key="index"
-							@click="confirmCondition(item)">
-							{{item.name}}
-						</view>
-					</view>
-				</scroll-view>
-			</uni-popup>
-			<!-- 符号 -->
-			<uni-popup ref="fuhaoPopup" type="bottom">
-				<scroll-view :scroll-y="true" scroll-with-animation="true"
-					:style="{ maxHeight: '700rpx',background:'#fff' }">
-					<view class="selectlist">
-						<view class="select_item" v-for="(item,index) in fuhaoList" :key="index"
-							@click="confirmFh(item)">
-							{{item.name}}
-						</view>
-					</view>
-				</scroll-view>
-			</uni-popup>
-			<!-- 关系 -->
-			<uni-popup ref="relationshipPopup" type="bottom">
-				<scroll-view :scroll-y="true" scroll-with-animation="true"
-					:style="{ maxHeight: '700rpx',background:'#fff' }">
-					<view class="selectlist">
-						<view class="select_item" v-for="(item,index) in relationshipList" :key="index"
-							@click="confirmrRelationship(item)">
-							{{item.name}}
-						</view>
-					</view>
-				</scroll-view>
-			</uni-popup>
-			<!-- 新增触发条件 -->
-			<uni-popup ref="addFormPopup" type="bottom" :mask="true" :maskClick="true">
-				<view class="logInfo">
-					<view class="info_title">
-						新增触发条件
-						<image src="../../static/icon/close.png" alt="" @click="$refs.addFormPopup.close()">
-					</view>
-					<view class="info_header">
-						<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
-						</view>
-						<view class="info_header_d">
-							{{addForm.gxName}}
-						</view>
-						<span class="info_header_t" @click="relationship()">
-							<view class="iconfont iconjiantou1"></view>
-						</span>
-					</view>
-					<view class="info_list">
-						<view class="item" @click="toSelectTjAdd">
-							<view class="value">
-								请选择条件：
-							</view>
-							<view class="label">
-								{{addForm.tjName}}
-							</view>
-							<view class="iconfont iconjiantou1"></view>
-						</view>
-						<view class="item" @click="toSelectFhAdd">
-							<view class="value">
-								请选择符号：
-							</view>
-							<view class="label">
-								{{addForm.fhName}}
-							</view>
-							<view class="iconfont iconjiantou1"></view>
-						</view>
-						<view class="item">
-							<view class="value">
-								数值：
-							</view>
-							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
-								placeholder-class="tp-plc" v-model="addForm.num" v-if="addForm.filedType == 3" />
-							<input v-else type="text" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
-								placeholder-class="tp-plc" v-model="addForm.num" />
-						</view>
-					</view>
-					<view class="info_btn">
-						<view class="btn_del" @click="$refs.addFormPopup.close()">取消</view>
-						<view class="btn_save" @click="saveAddForm()">
-							保存
-						</view>
-					</view>
-				</view>
-			</uni-popup>
+      
+      <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
+      	<button class="tp-btn" @tap="handlerSubmit">保存</button>
+      </view>
+			
 			<!-- 消息提示框 -->
 			<cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
+      
+      <Modal v-model="visible" title='保存' text='确定要保存数据吗？' @cancel='cancel' @confirm='confirm' />
 		</view>
 	</view>
 </template>
 
 <script>
+  import Modal from '@/components/x-modal/x-modal'
+  import SelectDevice from '@/components/select-device'
+  
 	export default {
+    components: {
+      SelectDevice,
+      Modal,
+    },
 		data() {
 			return {
-				conditionList: [],
-				currentRule: {
-					tj: '',
-					tjName: '',
-					fh: '',
-					fhName: '',
-					filedType: '',
-					num: '',
-					field_symbol: ''
-				},
-				addForm: {
-					tj: '',
-					tjName: '',
-					fh: '',
-					fhName: '',
-					filedType: '',
-					num: '',
-					field_symbol: '',
-					gx: '',
-					gxName: ''
-				},
-				type: '',
-				addType: '',
-				relationshipList: [{
-						name: '且',
-						id: '&&'
-					},
-					{
-						name: '或',
-						id: '||'
-					}
-				], // 关系
-				rulesList: [{
-					tj: '',
-					tjName: '',
-					fh: '',
-					fhName: '',
-					filedType: '',
-					num: '',
-					field_symbol: ''
-				}],
-				eqpList: [],
-				eqpGroupsList: [],
-				loading: false,
 				toast: {
 					msg: ''
 				},
-				formData: {
-					describe: '',
-					name: '',
-					groupName: '',
-					group: '',
-					eqp: '',
-					eqpName: '',
-					message: ''
-				},
-				fuhaoList: [{
-						name: '大于',
-						id: '>'
-					},
-					{
-						name: '小于',
-						id: '<'
-					},
-					{
-						name: '等于',
-						id: '='
-					},
-					{
-						name: '大于等于',
-						id: '≥'
-					},
-					{
-						name: '小于等于',
-						id: '≤'
-					},
-				],
-				editId:''
+        editId:'',
+        formData: {},
+        visible: false,
 			}
 		},
 		onShow() {
@@ -288,396 +78,242 @@
 		},
 		onLoad(options) {
 			this.editId = options.id
-			this.getInfo()
+      uni.setNavigationBarTitle({
+        title: `${this.editId ? '编辑' : '新增'}场景`,
+      })
 		},
+    created () {
+      if (this.editId) {
+        this.getInfo()
+      } else {
+        this.formData = {
+          scenario_actions: [
+            {
+              $index: Math.random(),
+              action_type: '1',
+            },
+          ]
+        }
+      }
+    },
 		methods: {
-			// 获取修改信息
-			getInfo(){
-				uni.showLoading({
-					title: '加载中'
-				});
-				this.API.apiRequest('/api/warning/update', {
-					id: this.editId
-				}, 'post').then(res => {
-					if (res.code == 200) {
-						const data = res.data
-						this.formData.name = data.name
-						this.formData.describe = data.describe
-						this.formData.message = data.message
-						this.formData.group = data.sensor
-						this.formData.eqp = data.bid
-						const config = JSON.parse(data.config)
-						var newArry = []
-						config.forEach(item=>{
-							var obj = {
-								tj: item.field,
-								fh: item.condition,
-								num: item.value,
-								gx: item.operator
-							}
-							newArry.push(obj)
-						})
-						newArry.forEach(item=>{
-							this.fuhaoList.forEach(fh=>{
-								if(item.fh == fh.id){
-									item.fhName = fh.name
-								}
-							})
-						})
-						this.relationshipList.forEach(re=>{
-							newArry.forEach(item=>{
-								if(item.gx == re.id){
-									item.gxName = re.name
-								}
-							})
-						})
-						this.rulesList = newArry
-						this.toSelectGroup('edit') // 选择分组
-						this.toSelectEqp('edit') // 选择设备
-						this.toSelectTj('','edit') //选择条件
-					} else {
-						this.toast.msg = res.message
-						this.$refs.toast.show();
-					}
-					uni.hideLoading()
-				}).finally(() => {
-					uni.hideLoading()
-				});
+      getInfo(){
+      	uni.showLoading({
+      		title: '加载中'
+      	});
+        const params = {
+      		id: this.editId
+      	}
+      	this.API.apiRequest('/api/scenario/strategy/detail', params, 'post').then(res => {
+      		if (res.code == 200) {
+            this.transActionsIn(res.data.scenario_actions)
+            this.formData = res.data
+      		} else {
+      			this.toast.msg = res.message
+      			this.$refs.toast.show();
+      		}
+      	}).finally(() => {
+      		uni.hideLoading()
+      	});
+      },
+      
+      transActionsIn (actions) {
+        actions.forEach(action => {
+          const instruct = JSON.parse(action.instruct)
+          const [[v1, v3]] = Object.entries(instruct)
+          action.device_condition_type = action.device_model
+          action.v1 = v1
+          action.v3 = v3
+          
+          action.$index = Math.random()
+        })
+      },
+      
+      transActionsOut (actions) {
+        const list = []
+        for (let action of actions) {
+          const {
+            action_type,
+            device_id,
+            device_condition_type,
+            v1,
+            v3,
+          } = action
+          
+          console.log(action)
+          if (!action_type || !device_id || !device_condition_type || !v1 || !v3) {
+            return {
+              result: '请将设备信息补充完整'
+            }
+          }
+          
+          list.push({
+            action_type,
+            device_id,
+            device_model: device_condition_type,
+            instruct: JSON.stringify({ [v1]: v3 }),
+          })
+        }
+        
+        return {
+          result: true,
+          actions: list,
+        }
+      },
+      
+			// 删除
+			removeAction (currAction, index) {
+			  console.log(currAction, index)
+			  this.formData.scenario_actions.splice(index, 1)
 			},
-			validate() {
-				if(!this.formData.name){
-					this.toast.msg = '请输入策略名称';
-					this.$refs.toast.show();
-					return false
-				}
-				if(!this.formData.describe){
-					this.toast.msg = '请输入策略描述';
-					this.$refs.toast.show();
-					return false
-				}
-				if(!this.formData.group){
-					this.toast.msg = '请选择设备分组';
-					this.$refs.toast.show();
-					return false
-				}
-				if(!this.formData.eqp){
-					this.toast.msg = '请选择设备';
-					this.$refs.toast.show();
-					return false
-				}
-				return true
+			// 新增
+			addAction (currAction, index) {
+        console.log(this.formData)
+			  this.formData.scenario_actions.splice(index+1, 0, {
+			    $index: Math.random(),
+			    action_type: '1',
+			    
+			    business_id: '',
+			    asset_id: '',
+			    device_id: '',
+			    device_condition_type: '',
+			    
+			    v1: '',
+			    v3: '',
+			  })
+			  console.log(this.formData.scenario_actions)
 			},
-			// 保存告警策略
-			doUpdateSubmit() {
-				if (this.validate()) {
-					var newArry = []
-					this.rulesList.forEach((e, i) => {
-						const obj = {
-							field: e.tj,
-							condition: e.fh,
-							value: e.num,
-							operator: e.gx ? e.gx : ''
-						}
-						newArry.push(obj)
-					})
-					var params = {
-						wid: uni.getStorageSync('ywId'), //业务Id
-						name: this.formData.name,
-						describe: this.formData.describe,
-						sensor: this.formData.group,
-						bid: this.formData.eqp,
-						config: JSON.stringify(newArry),
-						message: this.formData.message,
-						id: this.editId
-					}
-				}
-				uni.showLoading({
-					title: '加载中'
-				});
-				this.API.apiRequest('/api/warning/edit', params, 'post').then(res => {
-					if (res.code == 200) {
-						this.toast.msg = res.message
-						this.$refs.toast.show();
-						uni.navigateBack(-1)
-					} else {
-						this.toast.msg = res.message
-						this.$refs.toast.show();
-					}
-					uni.hideLoading()
-				}).finally(() => {
-					uni.hideLoading()
-				});
-			},
-			// 新增一行
-			toAdd() {
-				this.$refs.addFormPopup.open()
-			},
-			// 删除触发条件
-			toDel(data, index) {
-				this.rulesList.forEach((item, itemIndex) => {
-					if (itemIndex == index) {
-						this.rulesList.splice(index, 1)
-					}
-				})
-			},
-			// 验证保存触发条件
-			validateSave() {
-				if (!this.addForm.gx) {
-					this.toast.msg = '请选择关系';
-					this.$refs.toast.show();
-					return false
-				}
-				if (!this.addForm.tj) {
-					this.toast.msg = '请选择条件';
-					this.$refs.toast.show();
-					return false
-				}
-				if (!this.addForm.fh) {
-					this.toast.msg = '请选择符号';
-					this.$refs.toast.show();
-					return false
-				}
-				if (!this.addForm.num) {
-					this.toast.msg = '请输入值';
-					this.$refs.toast.show();
-					return false
-				}
-				return true
-			},
-			// 保存新增触发条件
-			saveAddForm() {
-				if (this.validateSave()) {
-					this.rulesList.push({
-						tj: this.addForm.tj,
-						tjName: this.addForm.tjName,
-						fh: this.addForm.fh,
-						fhName: this.addForm.fhName,
-						filedType: this.addForm.filedType,
-						num: this.addForm.num,
-						field_symbol: this.addForm.field_symbol,
-						gx: this.addForm.gx,
-						gxName: this.addForm.gxName
-					})
-					this.$refs.addFormPopup.close()
-				}
-			},
-			// 确定关系
-			confirmrRelationship(item) {
-				this.addForm.gx = item.id
-				this.addForm.gxName = item.name
-				this.$refs.relationshipPopup.close()
-				this.$refs.addFormPopup.open()
-			},
-			// 选择关系
-			relationship() {
-				this.$refs.addFormPopup.close()
-				this.$refs.relationshipPopup.open()
-			},
-			// 确定符号
-			confirmFh(item) {
-				if (this.type == '1') {
-					this.currentRule.fh = item.id
-					this.currentRule.fhName = item.name
-					this.$refs.fuhaoPopup.close()
-				} else if (this.addType == '1') {
-					this.addForm.fh = item.id
-					this.addForm.fhName = item.name
-					this.$refs.fuhaoPopup.close()
-					this.$refs.addFormPopup.open()
-				}
-			},
-			// 新增框选择符号
-			toSelectFhAdd() {
-				this.type = ''
-				this.addType = '1'
-				this.$refs.addFormPopup.close()
-				this.$refs.fuhaoPopup.open()
-			},
-			// 选择符号
-			toSelectFh(rule) {
-				this.type = '1'
-				this.addType = ''
-				this.currentRule = rule
-				this.$refs.fuhaoPopup.open()
-			},
-			// 确定条件选择
-			confirmCondition(item) {
-				if (this.type == '1') {
-					this.currentRule.tj = item.key
-					this.currentRule.tjName = item.name
-					this.currentRule.filedType = item.type
-					this.currentRule.field_symbol = item.symbol
-					this.$refs.tiaojianPopup.close()
-				} else if (this.addType == '1') {
-					this.addForm.tj = item.key
-					this.addForm.tjName = item.name
-					this.addForm.filedType = item.type
-					this.addForm.field_symbol = item.symbol
-					this.$refs.tiaojianPopup.close()
-					this.$refs.addFormPopup.open()
-				}
-			},
-			// 新增框选择条件
-			toSelectTjAdd() {
-				this.type = ''
-				this.addType = '1'
-				if (this.formData.eqp) {
-					uni.showLoading({
-						title: '加载中'
-					});
-					this.API.apiRequest('/api/automation/show', {
-						bid: this.formData.eqp
-					}, 'post').then(res => {
-						if (res.code === 200) {
-							if (res.data && res.data.length > 0) {
-								this.$refs.addFormPopup.close()
-								this.$refs.tiaojianPopup.open()
-								this.conditionList = res.data
-							} else {
-								this.toast.msg = '暂无可选择数据';
-								this.$refs.toast.show();
-							}
-						}
-						uni.hideLoading()
-					}).finally(() => {
-						uni.hideLoading()
-					});
-				} else {
-					this.toast.msg = '请选择设备';
-					this.$refs.toast.show();
-				}
-			},
-			// 选择条件
-			toSelectTj(rule,type) {
-				this.type = '1'
-				this.addType = ''
-				this.currentRule = rule
-				if (this.formData.eqp) {
-					uni.showLoading({
-						title: '加载中'
-					});
-					this.API.apiRequest('/api/automation/show', {
-						bid: this.formData.eqp
-					}, 'post').then(res => {
-						if (res.code === 200) {
-							if (res.data && res.data.length > 0) {
-								if(type && type == 'edit'){
-									this.rulesList.forEach(rule=>{
-										res.data.forEach(item=>{
-											if(item.key == rule.tj){
-												rule.tjName = item.name
-											}
-										})
-									})
-								}else{
-									this.$refs.tiaojianPopup.open()
-								}
-								this.conditionList = res.data
-							} else {
-								this.toast.msg = '暂无可选择数据';
-								this.$refs.toast.show();
-							}
-						}
-						uni.hideLoading()
-					}).finally(() => {
-						uni.hideLoading()
-					});
-				} else {
-					this.toast.msg = '请选择设备';
-					this.$refs.toast.show();
-				}
-			},
-			// 确定选择设备
-			comfirEqp(item) {
-				this.formData.eqp = item.device_id
-				this.formData.eqpName = item.name
-				this.$refs.epqPopup.close()
-			},
-			// 选择设备
-			toSelectEqp(type) {
-				if (this.formData.group) {
-					uni.showLoading({
-						title: '加载中'
-					});
-					this.API.apiRequest('/api/kv/current/asset/a', {
-						asset_id: this.formData.group
-					}, 'post').then(res => {
-						if (res.code === 200) {
-							if (res.data && res.data.devices.length > 0) {
-								if(type && type =='edit'){
-									res.data.devices.forEach(item=>{
-										if(item.device_id == this.formData.eqp){
-											this.formData.eqpName = item.name
-										}
-									})
-								}else{
-									this.$refs.epqPopup.open()
-								}
-								this.eqpList = res.data.devices
-							} else {
-								this.toast.msg = '暂无可选择数据';
-								this.$refs.toast.show();
-							}
-						}
-						uni.hideLoading()
-					}).finally(() => {
-						uni.hideLoading()
-					});
-				} else {
-					this.toast.msg = '请选择设备分组';
-					this.$refs.toast.show();
-				}
-			},
-			// 确定选择设备分组
-			toConfirmeqpGroup(item) {
-				this.formData.group = item.id
-				this.formData.groupName = item.device_group
-				this.$refs.groupPopup.close()
-			},
-			// 选择设备分组
-			toSelectGroup(type) {
-				uni.showLoading({
-					title: '加载中'
-				});
-				this.API.apiRequest('/api/asset/list/d', {
-					business_id: uni.getStorageSync('ywId')
-				}, 'post').then(res => {
-					if (res.code === 200) {
-						if (res.data && res.data.length > 0) {
-							if(type && type == 'edit'){
-								res.data.forEach(item=>{
-									if(item.id == this.formData.group){
-										this.formData.groupName = item.device_group
-									}
-								})
-							} else {
-								this.$refs.groupPopup.open()
-							}
-							this.eqpGroupsList = res.data
-						} else {
-							this.toast.msg = '暂无可选择数据';
-							this.$refs.toast.show();
-						}
-					}
-					uni.hideLoading()
-				}).finally(() => {
-					uni.hideLoading()
-				});
-			},
-			empty() {
-				this.name = ''
-				this.describe = ''
-				this.message = ''
-				this.currentEqp = {}
-				this.warningNum = ''
-				this.currentSel = {}
-				this.currentZc = {}
-				this.currentEqpSx = {}
-			}
+      
+      handlerSubmit () {
+        console.log(this.formData)
+        
+        const {
+          tenant_id,
+          id,
+          scenario_name,
+          scenario_description,
+          scenario_actions,
+        } = this.formData
+        
+        if (!scenario_name) {
+          this.toast.msg = '请输入场景标题'
+          this.$refs.toast.show()
+          return;
+        }
+        
+        const validateReult = this.transActionsOut(scenario_actions)
+        if (validateReult.result !== true) {
+          this.toast.msg = validateReult.result
+          this.$refs.toast.show()
+          return;
+        }
+
+        const submitData = {
+          id,
+          scenario_name,
+          scenario_description,
+          tenant_id,
+          scenario_actions: validateReult.actions,
+        }
+        
+        console.log(submitData)
+        
+        this.submitData = submitData
+        this.visible = true
+      },
+      cancel() {
+        console.log("取消")
+        this.visible = false
+      },
+      confirm () {
+        this.doSubmit(this.submitData)
+      },
+      doSubmit (submitData) {
+        uni.showLoading({
+        	title: '加载中'
+        });
+        
+        let url = '/api/scenario/strategy/edit'
+        if (!submitData.id) {
+          url = '/api/scenario/strategy/add'
+        }
+        
+        this.API.apiRequest(url, submitData, 'post').then(res => {
+        	if (res.code == 200) {
+        		uni.navigateBack(-1)
+        	} else {
+        		this.toast.msg = res.message
+        		this.$refs.toast.show();
+        	}
+        }).finally(() => {
+        	uni.hideLoading()
+        });
+      },
 		}
 	}
 </script>
 
 <style>
 	@import '@/common/alert-strategy.css';
+  
+  .tooltip /deep/.uni-tooltip-popup {
+    width: max-content;
+    left: initial;
+    right: 0;
+  }
+  
+  .title {
+    font-size: 26rpx;
+  }
+  
+  /deep/.uni-input {
+    font-size: 26rpx;
+  }
+  /deep/.uni-input-input {
+    color: #000;
+  }
+  
+  /deep/.uni-input .uni-input-placeholder.input-placeholder {
+    color: #999;
+  }
+  
+  
+  /deep/.uniui-forward, 
+  /deep/.uniui-clear {
+    font-size: 28rpx !important;
+    color: #999 !important;
+    vertical-align: middle;
+    margin-right: 12rpx;
+  }
+  
+  /deep/.uniui-clear {
+    font-size: 36rpx !important;
+  }
+  
+  /deep/.uni-icons {
+    display: block;
+  }
+  
+  uni-text {
+    color: #333;
+  }
+  
+  /deep/.checklist-text > span {
+    font-size: 26rpx;
+  }
+  
+  /deep/.tp-panel {
+    border-radius: 10rpx;
+    overflow: hidden;
+  }
+  
+  /deep/.item2 {
+    border-bottom: 1rpx solid #dfdfdf;
+  }
+  /deep/.item > .tp-flex-1 + .tp-flex-1 {
+    margin-left: 20rpx;
+  }
+  /deep/.item + .item {
+    border-top: 1rpx solid #f1f1f1;
+  }
 </style>

@@ -1,8 +1,8 @@
 <template>
   <view>
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view class=" tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
     	<CustomSelect
-    	  placeholder="请选择" 
+    	  placeholder="场景" 
     	  :options="sceneOptions"
     	  @change="change"
     	  optionValue="id"
@@ -74,6 +74,6 @@
   }
 </script>
 
-<style>
-  
+<style scoped>
+  @import '@/common/alert-strategy.css';
 </style>

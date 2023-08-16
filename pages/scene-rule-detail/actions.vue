@@ -4,6 +4,7 @@
       <view class="tp-flex tp-flex-row">
         <view style="align-self: center;" class="tp-panel tp-flex-1 feedback-body">            
           <CustomSelect
+            class="item2"
             placeholder="执行动作"
             :options="getOptions(action.action_type)"
             @change="actionTypeChange($event, index)"
@@ -24,19 +25,19 @@
           <!-- 条件数量大于1条时才允许删除 -->
           <uni-icons 
             v-if="actions.length > 1" 
-            style="color:red;" 
-            class="tp-mg-t-b-10" 
+            class="tp-mg-t-b-10"
             type="minus" 
-            size="20" 
+            size="40rpx" 
+            color="red"
             @click="removeAction(action, index)"
           ></uni-icons>
           
           <uni-icons
             v-if="actions.length < 3"
-            style="color:#2979ff;" 
-            class="tp-mg-t-b-10" 
+            class="tp-mg-t-b-10"
             type="plus" 
-            size="20" 
+            size="40rpx"
+            color="#2979ff"
             @click="addAction(action, index)"
           ></uni-icons>
         </view>
@@ -182,15 +183,126 @@
         })
       },
       
-      getActions () {
-        return this.actions
+      getActionsData () {
+        let msg = ''
+        let actions = JSON.parse(JSON.stringify(this.actions))
+        actions = actions.map(actionsGroup => actionsGroup.actions).flat()
+        console.log(actions)
+        for (let i = 0; i< actions.length; i++) {
+          const action = actions[i]
+          console.log('action' + i, action)
+          const {
+            action_type, // 1-操作设备 2-触发告警 3-激活场景
+
+            business_id, // 项目
+            asset_id, // 分组
+            device_id, // 设备
+            device_condition_type, // 状态/属性 1-属性 2-事件 3-在线离线状态
+            v1,
+            v3,
+            
+            scenario_strategy_id,
+          } = action
+          
+          if (!action_type) {
+            msg = '请选择需要执行的动作类型'
+            break;
+          } else if (action_type === '1') { // 1-操作设备
+            if (!business_id || !asset_id || !device_id || !device_condition_type || !v1 || !v3) { // device_condition_type 为空表示未选择属性
+              msg = '请将“操作设备”信息补充完整'
+              break;
+            }
+          } else if (action_type === '2') { // 2-触发告警
+            const {
+              warning_level,
+              inform_way,
+              repeat_count,
+              warning_description,
+            } = action.warning_strategy || {}
+            
+            if (!warning_level) { //
+              msg = '请将“触发告警”信息补充完整（“告警级别”为必填）'
+              break;
+            }
+          } else if (action_type === '3') { // 3-激活场景
+            if (!scenario_strategy_id) {
+              msg = '请将“激活场景”信息补充完整（“场景”为必填）'
+              break;
+            }
+          } else {
+            msg = '未知的操作类型'// 异常
+            break;
+          }
+        }
+        
+        if (msg) {
+          return {
+            result: msg,
+          }
+        }
+        
+        return {
+          result: true,
+          actions: this.submitData(actions),
+        }
+      },
+      submitData (actions) {
+        return actions.map(action => {
+          const {
+            action_type,
+            
+            device_id,
+            device_condition_type, // 状态/属性 1-属性 2-事件 3-在线离线状态
+            v1,
+            v3,
+            
+            warning_strategy,
+            
+            scenario_strategy_id,
+          } = action
+          
+          const result = {
+            action_type,
+          }
+          
+          if (action_type === '1') {
+            result.device_id = device_id
+            result.additional_info = JSON.stringify({
+              device_model: device_condition_type,
+              instruct: {
+                [v1]: v3,
+              },
+            })
+          } else if (action_type === '2') {
+            const {
+              id,
+              warning_level,
+              inform_way,
+              repeat_count,
+              warning_description,
+            } = warning_strategy || {}
+            console.log(warning_strategy)
+            result.warning_strategy = {
+              id,
+              warning_level,
+              inform_way: inform_way || undefined,
+              repeat_count: repeat_count || undefined,
+              warning_description: warning_description || undefined,
+            }
+          } else if (action_type === '3') {
+            result.scenario_strategy_id = scenario_strategy_id
+          }
+          return JSON.parse(JSON.stringify(result))
+        })
       },
     },
   }
 </script>
 
 <style scoped>
+  @import '@/common/alert-strategy.css';
+  
   .action + .action {
-    margin-top: 40rpx;
+    margin-top: 20rpx;
   }
 </style>

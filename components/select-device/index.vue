@@ -10,9 +10,9 @@
     <p style="font-size: 10px;">v2：{{data.v2}}</p>
     <p style="font-size: 10px;">v3：{{data.v3}}</p> -->
     
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <CustomSelect
-        placeholder="请选择" 
+        placeholder="项目" 
         :options="projectOptions"
         @change="businessIdChange"
         optionValue="id"
@@ -23,7 +23,7 @@
       <view class="tp-flex-1">
         <CustomSelect
           v-if="data.business_id" 
-          placeholder="请选择" 
+          placeholder="分组" 
           :options="groupOptions"
           @change="groupIdChange"
           optionValue="id"
@@ -34,10 +34,9 @@
       
     </view>
     
-    <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing" v-if="data.asset_id || data.device_id">
       <Device 
         class="tp-flex-1"
-        v-if="data.asset_id"
         :options="deviceOptions"
         @change="deviceIdChange"
         @propTypeChange="propTypeChange"
@@ -59,19 +58,19 @@
     
     <!-- 前一个选择框选择了属性时才显示 -->
     <view 
-      class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing" 
+      class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing" 
       v-if="data.device_condition_type === '1'"
     >
       <CustomSelect
         v-if="showStatus"
-        placeholder="请选择" 
+        placeholder="操作符" 
         :options="symbolOptions"
         v-model="data.v2"
       ></CustomSelect>
       
       <view class="tp-flex-1">
         <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
-        	<input class="uni-input" placeholder="输入内容" v-model="data.v3"/>
+        	<input class="uni-input" placeholder="属性值" v-model.trim="data.v3"/>
           <text class="tp-font-size-13 tp-mg-l-r-15 unit">{{ valueConf.unit }}</text>
         </view>
       </view>
@@ -320,7 +319,9 @@
 </script>
 
 <style scoped>
+  @import '@/common/alert-strategy.css';
+
   .unit {
-    color: #777;
+    color: #999;
   }
 </style>

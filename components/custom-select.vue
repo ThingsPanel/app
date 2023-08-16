@@ -1,9 +1,14 @@
 <template>
   <view class="tp-flex-1">
-    <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
+    <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showPop">
       <view class="label">{{label}}</view>
     	<input class="uni-input" :placeholder="placeholder" disabled :value="showValue"/>
-    	<view class="iconfont iconjiantou1"></view>
+    	<view class="" v-if="!clearable || (clearable && !value)">
+        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+      </view>
+      <view class="" v-if="clearable && value" @tap.stop="clear">
+        <uni-icons color="#999" type="clear" size="40rpx"></uni-icons>
+      </view>
     </view>
     
     <uni-popup ref="pop" type="bottom" backgroundColor="#fff">
@@ -26,6 +31,10 @@
       prop: 'value'
     },
     props: {
+      clearable: {
+        type: Boolean,
+        default: false,
+      },
       value: {
         type: String,
       },
@@ -72,7 +81,11 @@
       
     },
     methods: {
-      showPop () {
+      clear (e) {
+        this.$emit('update:value')
+      },
+      showPop (e) {
+        console.log('showPop', e)
         this.$emit('click')
         this.$refs.pop.open()
       },
@@ -89,6 +102,6 @@
 
 <style scoped>
   .label {
-    font-size: 28rpx;
+    font-size: 26rpx;
   }
 </style>

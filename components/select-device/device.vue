@@ -1,8 +1,10 @@
 <template>
   <view>
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
-    	<input class="uni-input" placeholder="选择设备" disabled :value="showValue"/>
-    	<view class="iconfont iconjiantou1"></view>
+    	<input class="uni-input" placeholder="设备" disabled :value="showValue"/>
+    	<view>
+        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+      </view>
     </view>
     
     <gq-tree
@@ -25,7 +27,9 @@
       titleColor="#757575"
       @cancel="treeCancel"
       @confirm="onSelect"
-    ></gq-tree>
+    >
+    <text>测试</text>
+    </gq-tree>
   </view>
   
 </template>
