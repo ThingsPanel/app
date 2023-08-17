@@ -1,7 +1,7 @@
 <template>
 	<view class="pagehome">
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
-			<view style="overflow: unset;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
+			<view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view class="form-item-label">规则名称</view>
 					<input type="text" class="tp-flex-1" placeholder="规则名称" placeholder-class="tp-plc"
@@ -19,7 +19,7 @@
           <uni-number-box class="tp-flex-1" v-model="formData.priority" />
           
           <uni-tooltip class="tooltip" content="值越小优先级越高">
-            <uni-icons type="help-filled" size="40rpx" color="#808080"></uni-icons>
+            <uni-icons type="help-filled" size="40rpx" color="#999"></uni-icons>
           </uni-tooltip>
         </view>
 			</view>
@@ -262,6 +262,7 @@
   
   /deep/.uni-input {
     font-size: 26rpx;
+    background-color: transparent;
   }
   /deep/.uni-input-input {
     color: #000;
@@ -301,8 +302,8 @@
     // overflow: hidden;
   }
   
-  /deep/.item2 {
-    border-bottom: 1rpx solid #dfdfdf;
+  /deep/.item2 + .item2 {
+    border-top: 1rpx solid #dfdfdf;
   }
   /deep/.item > .tp-flex-1 + .tp-flex-1 {
     margin-left: 20rpx;

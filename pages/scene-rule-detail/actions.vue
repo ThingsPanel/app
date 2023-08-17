@@ -12,13 +12,13 @@
           ></CustomSelect>
 
           <!-- 操作设备 -->
-          <SelectActionDevices v-if="action.action_type === '1'" :data="action"></SelectActionDevices>
+          <SelectActionDevices class="item2" v-if="action.action_type === '1'" :data="action"></SelectActionDevices>
 
           <!-- 触发告警 -->
-          <SelectNotice v-if="action.action_type === '2'" :data="action"></SelectNotice>
+          <SelectNotice class="item2" v-if="action.action_type === '2'" :data="action"></SelectNotice>
 
           <!-- 激活场景 -->
-          <SelectScene v-if="action.action_type === '3'" :data="action"></SelectScene>
+          <SelectScene class="item2" v-if="action.action_type === '3'" :data="action"></SelectScene>
         </view>
         
         <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">

@@ -14,7 +14,7 @@
           <template v-if="data.time_condition_type === '1'">
             <uni-datetime-picker placeholder="触发日期时间" :clear-icon="false" :hide-second="true" v-model="data.v1" @change="singleDateTimeChange"/>
             <uni-tooltip class="tooltip" content="只执行一次，执行结束后条件消失">
-              <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+              <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
             </uni-tooltip>
           </template>
         	
@@ -53,7 +53,7 @@
         <view class="tp-flex-1 tp-flex">
           <view class="tp-flex-1"></view>
           <uni-tooltip class="tooltip" content='例: 33:00" 表示每小时的第33分钟触发'>
-            <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+            <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
           </uni-tooltip>
         </view>
       </view>
@@ -67,7 +67,7 @@
         <view class="tp-flex-1 tp-flex">
           <view class="tp-flex-1"></view>
           <uni-tooltip class="tooltip" content='例: "18:33" 表示每天的18:33触发'>
-            <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+            <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
           </uni-tooltip>
         </view>
       </view>
@@ -86,7 +86,7 @@
           </picker>
           
           <uni-tooltip v-if="data.v3" class="tooltip" content='例: "周一, 18:33" 表示每周一的18:33触发'>
-            <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+            <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
           </uni-tooltip>
         </view>
       </view>
@@ -106,7 +106,7 @@
           </picker>
           
           <uni-tooltip v-if="date" class="tooltip" content='例: "1日, 9:00" 表示每月1日的09:00触发'>
-            <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+            <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
           </uni-tooltip>
         </view>
       </view>
@@ -116,7 +116,7 @@
       	<input class="uni-input" placeholder="执行日期时间规则" v-model="data.v3"/>
         
         <uni-tooltip class="tooltip tooltip-c">
-          <uni-icons type="help-filled" size="36rpx" color="#808080"></uni-icons>
+          <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
           <template v-slot:content>
             <text>
               <strong style="margin-right: 16rpx;">0/2 * * * *</strong>每2分钟触发;<br>
@@ -288,6 +288,7 @@
   }
   /deep/.uni-date-x {
     padding: 0 26rpx;
+    background-color: transparent;
   }
   /deep/.uni-date__x-input {
     font-size: 26rpx;

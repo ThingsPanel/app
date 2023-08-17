@@ -17,10 +17,10 @@
           ></CustomSelect>
           
           <!-- 设备条件 -->
-          <SelectDevice key="SelectDevice" v-if="condition.condition_type === '1'" :data="condition"></SelectDevice>
+          <SelectDevice class="item2" key="SelectDevice" v-if="condition.condition_type === '1'" :data="condition"></SelectDevice>
           
           <!-- 时间条件 -->
-          <SelectTime key="SelectTime" v-if="condition.condition_type === '2'" :data="condition"></SelectTime>
+          <SelectTime class="item2" key="SelectTime" v-if="condition.condition_type === '2'" :data="condition"></SelectTime>
         </view>
         
         <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
