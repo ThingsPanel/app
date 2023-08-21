@@ -60,6 +60,8 @@
         if (path.length) {
           this.type = path[path.length-1].type
           return path.map(item => item.device_name).join('/')
+        } else {
+          return ''
         }
       },
     },

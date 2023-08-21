@@ -70,6 +70,8 @@
             this.$emit('valueConfChange', option)
             return option.label
           }
+        } else {
+          return ''
         }
       },
     },

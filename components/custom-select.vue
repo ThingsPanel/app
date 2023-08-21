@@ -59,16 +59,22 @@
         default: '',
       },
     },
+    
     watch: {
       value (n, o) {
+        console.log(1234, n, o)
         this.$emit('change', n, o)
       },
     },
     computed: {
       showValue () {
+        console.log('value', this.value)
         const option = this.options.find(item => item[this.optionValue] === this.value)
+        console.log('option', option)
         if (option) {
           return option[this.optionLabel]
+        } else {
+          return ''
         }
       },
     },

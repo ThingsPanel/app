@@ -246,6 +246,7 @@
       // 切换项目需要重置后面所有联动表单项的值，
       // 且如果紧跟在后面的第一个表单项有下拉选项，则需要清空选项数据
       businessIdChange () {
+        this.groupOptions = []
         
         // todo：待优化
         this.$set(this.data, 'asset_id', '')
@@ -255,7 +256,7 @@
         this.$set(this.data, 'v2', '')
         this.$set(this.data, 'v3', '')
         
-        this.groupOptions = []
+        
         this.queryGroupOptions()
         
         console.log(this.data)

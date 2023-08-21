@@ -29,14 +29,14 @@
       </view>
 
       <!-- 条件列表 -->
-      <Conditions ref="conditions" :list="formData.automation_conditions" />
+      <Conditions v-if="formData.automation_conditions" ref="conditions" :list="formData.automation_conditions" />
       
       <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30 uni-bold">
         <text class="title">那么</text>
       </view>
 
       <!-- 操作列表 -->
-      <Actions ref="actions" :list="formData.automation_actions" />
+      <Actions v-if="formData.automation_actions" ref="actions" :list="formData.automation_actions" />
       
 			<view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
 				<button class="tp-btn" @tap="handlerSubmit">保存</button>
@@ -75,16 +75,14 @@
 				editId:''
 			}
 		},
-		onShow() {
 
-		},
 		onLoad(options) {
 			this.editId = options.id
       uni.setNavigationBarTitle({
         title: `${this.editId ? '编辑' : '新增'}场景联动`,
       })
 		},
-    created () {
+    mounted () {
       if (this.editId) {
         this.getInfo()
       } else {
