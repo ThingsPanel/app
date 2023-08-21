@@ -236,11 +236,11 @@
         this.data.v3 = e.detail.value
       },
       dateChange () {
-        this.data.v4 = this.date+':'+this.time
+        this.data.v3 = this.date+':'+this.time
       },
       bindTimeChange1 (e) {
         this.time = e.detail.value
-        this.data.v4 = this.date+':'+this.time
+        this.data.v3 = this.date+':'+this.time
       },
       bindTimeChange2 (e) {
         this.data.v4 = e.detail.value
