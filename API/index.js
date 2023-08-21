@@ -27,13 +27,13 @@ export const apiRequest = (url, data, method) => {
 		if (statusCode === 401) {
 			uni.showModal({
 				title: '提示',
-				content: '您的token已过期,请重新登陆!',
+				content: '您的token已过期,请重新登录!',
 				showCancel: false,
 				success: function(res) {
 					if (res.confirm) {
 						uni.clearStorageSync() //清空所有缓存
-						uni.reLaunch({
-							url: 'pages/login/login'
+						uni.navigateTo({
+							url: '/pages/login/login'
 						})
 					}
 				},
