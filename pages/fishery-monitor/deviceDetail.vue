@@ -1,7 +1,7 @@
 <template>
-	<view :style="{ height: pageHeight, }" class="device_list">
+	<view :style="{ height: pageHeight, 'overflow-y':'auto' }" class="device_list">
 		<customNav iconColor='#1B1B1B' pageTitle='设备详情' style="padding-top: 50rpx;"></customNav>
-		<view class="content device_item" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%' }">
+		<view class="content device_item" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%', 'box-sizing': 'border-box' }">
 			<view class="device">
 				<view class="device_img">
 					<image src="/static/image/device_icon.png" mode=""></image>
@@ -18,34 +18,38 @@
 				</view>
 			</view>
 			<!-- 当前值 -->
-			<view class="device_tab" v-if="currentValueData.length > 0">
-				<view v-for="(item,index) in currentValueData" :key="index"
+			<view class="device_tab" v-if="textCompData.length > 0">
+				<view v-for="(item,index) in textCompData" :key="index"
 					@click="changeIndex(index)"
 					:class="currentValueIndex == index ?'device_tab_item active':'device_tab_item'">
 					<view class="tab-label" v-if="item.name">
 						{{item.name}}
 					</view>
-					<view class="tab-value" v-if="item.value">
-						{{item.value}}
+					<view class="tab-value" >
+						{{item.value || '--'}}
 						<view class="value-unit" v-if="item.unit">
 							{{item.unit}}
 						</view>
 					</view>
 				</view>
 			</view>
-			<view class="jiance" v-for="(chart,index) in device.chartData" :key="chart"
-				v-if="device.chartData.length > 0">
-				<view class="jiance_t" v-if="index == 0">
+			<view class="jiance" v-for="(chart,index) in device.chartData" :key="index">
+				<!-- <view class="jiance_t" v-if="index == 0">
 					监测
+				</view> -->
+				<view style="height: 488rpx;margin-bottom: 40rpx;">
+					<view>{{ chart.name }}历史</view>
+					<l-echart ref="chartRef"></l-echart>
 				</view>
-				<view class="jiance_c">
+				<!-- <view class="jiance_c">
 					<view class="jiance_name">
 						{{chart.name}}
 					</view>
+
 					<qiun-data-charts type="line" :opts="chart.opts" :chartData="chart.chartData" :ontouch="true" />
-				</view>
-			</view>
-			<view class="control" v-if="device.controlData.length > 0">
+				</view> -->
+			</view> 
+			<!-- <view class="control" v-if="device.controlData.length > 0">
 				<view class="control_t">
 					控制
 				</view>
@@ -78,28 +82,28 @@
 						</view>
 					</block>
 				</view>
-			</view>
-			<view class="warning" v-if="warningData.length > 0">
+			</view> -->
+			<!-- <view class="warning" v-if="warningData.length > 0">
 				<view class="warning_t">
 					告警
 				</view>
 				<view class="warning_c" v-for="(warn, index) in warningData" :key="index">
 					<view class="warning_c_l">
-						<!-- <view class="warning_c_l_img">
+						<view class="warning_c_l_img">
 							<img src="/static/image/warning_icon.png">
-						</view> -->
+						</view>
 						<view class="warning_c_l_i">
 							<view class="warning_c_l_i_t">
 								{{warn.describe}}
 							</view>
-							<!-- <view class="warning_c_l_i_c">
+							<view class="warning_c_l_i_c">
 								超过预警值3℃
-							</view> -->
+							</view>  
 						</view>
 					</view>
 				</view>
-			</view>
-			<view class="history">
+			</view> -->
+			<!-- <view class="history">
 				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 55rpx; margin-bottom: 10rpx">日志
 				</view>
 				<block>
@@ -122,10 +126,10 @@
 						</view>
 					</view>
 				</block>
-			</view>
+			</view> -->
 		</view>
 		<!-- 日志详情 -->
-		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
+		<!-- <uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
 			<view class="logInfo">
 				<view class="info_title">
 					日志详情
@@ -196,11 +200,12 @@
 					</view>
 				</view>
 			</view>
-		</uni-popup>
+		</uni-popup> -->
 	</view>
 </template>
 
 <script>
+	import * as echarts from 'echarts';
 	import uCharts from '@/components/u-charts/u-charts.min.js';
 	import customNav from '@/components/customNav/customNav.vue';
 	var canvaLineA = null;
@@ -211,6 +216,7 @@
 		},
 		data() {
 			return {
+				textCompData: [],
 				currentIndex: 0,
 				currentLog: {},
 				currentLog: {},
@@ -291,15 +297,19 @@
 			this.cWidth = uni.upx2px(750);
 			this.cHeight = uni.upx2px(420);
 			this.getCurrentTime()
-			this.getLogData() //获取日志
-			this.getWarningData() //获取告警信息
-			this.getDetail()			
+			// this.getLogData() //获取日志
+			// this.getWarningData() //获取告警信息				
 		},
+		// mounted(){
+		// 	this.getDetail()
+		// },
 		onShow() {
 			this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
 			this.pageHeight = uni.getStorageSync('pageHeight');
 		},
-		onReady() {},
+		onReady() {
+			this.getDetail()
+		},
 		methods: {
 			changeIndex(index) {
 				this.currentValueIndex = index
@@ -334,14 +344,15 @@
 				}
 			},
 			// 获取设备的历史数据
-			getDeviceHistory(canvasLineId, itme) {
+			getDeviceHistory(itme, num) {
 				let timestamp = (new Date()).getTime();
 				uni.showLoading({
 					title: '加载中'
 				});
 				this.API.apiRequest('/api/kv/history', {
 					device_id: this.device_id,
-					start_ts: timestamp - 246060 * 1000,
+					// start_ts: timestamp - 246060 * 1000,
+					start_ts: timestamp - 60 * 60 * 24 * 1000, // 1天
 					end_ts: timestamp,
 					rate: 10 * 1000 * 1000, // 微秒,
 					attribute: itme.attribute.concat(["systime"])
@@ -354,18 +365,18 @@
 								itme.attribute.forEach((attr,attrIndex) =>{
 									if(attr == key) {
 										yData.push({
+											type: 'line',
 											name: key,
-											oldData: response.data[key],
-											data: []
+											data: response.data[key],
 										})
 									}
 								})
 							}
-							// if (itme.attribute[0] == key) {
+// if (itme.attribute[0] == key) {
 							// 	yData = response.data[key]
 							// }
 						}
-						var newArry = []
+ 						var newArry = []
 						var xData = []
 						if(data && data.length >0) {
 						data.forEach((item, i) => {
@@ -384,13 +395,14 @@
 						}
 						itme.opts = {
 							colors: ["#1890FF", '#F88B33'],
-							padding: [15, 15, 0, 5],
+							padding: [15, 15, 0, 0],
 							touchMoveLimit: 24,
 							enableScroll: true,
 							legend: {},
 							width: this.cWidth * this.pixelRatio,
 							height: this.cHeight * this.pixelRatio,
 							xAxis: {
+								type: 'time',
 								disableGrid: true,
 								scrollShow: true,
 								itemCount: 4
@@ -415,33 +427,33 @@
 						// 		data: yData
 						// 	}]
 						// }
-						// 去掉重复的时间
-						var newYData = []
-						var num = xData[0]
-						var newXData = []
-						newXData.push(xData[0])
-						xData.forEach((xItem, xIndex) => {
-							if (xItem != num) {
-								num = xItem
-								newXData.push(xItem)
-							}
-						})
-						if (yData.length > 0) {
-							yData.forEach((item, index) => {
-								if(item.oldData.length > 0) {
-									item.oldData.forEach((old,oldIndex) =>{
-										if(oldIndex <= newXData.length - 1 ){
-											item.data.push(old)
-										}
-									})
-								}
-								// if (index <= newXData.length - 1) {
-								// 	newYData.push(item)
-								// }
-							})
-						}
+				 // 去掉重复的时间
+// 						var newYData = []
+// 						var num = xData[0]
+// 						var newXData = []
+// 						newXData.push(xData[0])
+// 						xData.forEach((xItem, xIndex) => {
+// 							if (xItem != num) {
+// 								num = xItem
+// 								newXData.push(xItem)
+// 							}
+// 						})
+// 						if (yData.length > 0) {
+// 							yData.forEach((item, index) => {
+// 								if(item.oldData.length > 0) {
+// 									item.oldData.forEach((old,oldIndex) =>{
+// 										if(oldIndex <= newXData.length - 1 ){
+// 											item.data.push(old)
+// 										}
+// 									})
+// 								}
+// 								// if (index <= newXData.length - 1) {
+// 								// 	newYData.push(item)
+// 						// }
+// })
+// 						}
 						let chartData = {
-							categories: newXData,
+							categories: response.data.systime,
 							series: yData
 						}
 						// let chartData = {
@@ -451,7 +463,42 @@
 						// 		data: [35, 36, 31, 33, 13, 34]
 						// 	}]
 						// }
+						// item.data = yDataAttribute
+						// item.categories = xDataSystimes
 						itme.chartData = JSON.parse(JSON.stringify(chartData));
+						 
+						this.$nextTick(() => {
+							const chartRef = this.$refs?.chartRef[num]
+							chartRef.init(echarts, chart=> {
+								chart.setOption({
+										grid: {
+											left: '10%',
+											right: '5%',
+											bottom: '10%',
+											top: '5%',
+										},
+											tooltip: {
+												trigger: 'axis'
+											},
+											dataZoom: [
+												{
+													type: 'inside'
+												}
+											],
+											xAxis: {
+												type: 'category',
+												boundaryGap: false,
+												data:  response.data.systime
+											},
+											yAxis: {
+												type: 'value'
+											},
+											series: [
+												...yData
+											]
+									});
+							})
+						})
 						this.$forceUpdate()
 						uni.hideLoading()
 					}
@@ -561,6 +608,7 @@
 										if(ch.series.length > 0 && ch.name==pro.title) {
 											ch.series.forEach(se=>{
 												if(se.type == 'gauge') {
+													this.textCompData.push({name:ch.name, value:'', valueOld: ch.mapping[0],unit:pro.unit})
 													currentValueData.push({name:ch.name, value:'', valueOld: ch.mapping[0],unit:pro.unit})
 												}
 											})
@@ -633,8 +681,9 @@
 						console.log('chartData-----', this.device.chartData)
 						if (this.device.chartData.length > 0) {
 							this.device.chartData.forEach((itme, index) => {
-								var canvasLineId = 'canvasLine' + index
-								this.getDeviceHistory(canvasLineId, itme)
+								// var canvasLineId = 'canvasLine' + index
+								
+								this.getDeviceHistory(itme,index)
 							})
 						}
 						if (this.device.controlData.length > 0) {
@@ -668,15 +717,20 @@
 			},
 			// 获取设备的当前值
 			getCurrentContorl(){
+				const attribute = this.textCompData.map(x =>x.valueOld)
 				this.API.apiRequest('/api/kv/current', {
 					entity_id: this.device_id,
+					attribute: ["systime", ...attribute]
 				}, 'post').then(res => {
 					if (res.code === 200) {
-						if(this.currentValueData.length > 0) {
-							this.currentValueData.forEach(item =>{
+						if(this.textCompData.length > 0) {
+							this.textCompData.forEach(item =>{
 								for(var key in res.data[0]){
 									if(item.valueOld == key){
 										item.value = res.data[0][key]
+									}
+									if(key === 'systime'){
+										this.latest_ts_name = res.data[0][key]
 									}
 								}
 							})

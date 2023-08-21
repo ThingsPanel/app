@@ -14,6 +14,7 @@
         ]
     },
     "dependencies": {
-        "dayjs": "^1.11.8"
+        "dayjs": "^1.11.8",
+        "echarts": "^5.4.3"
     }
 }
