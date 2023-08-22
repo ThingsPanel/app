@@ -652,9 +652,10 @@
 	font-family: Source Han Sans CN;
 	font-weight: bold;
 	padding-top: 14rpx;
-	margin-left: 125rpx;
+	/* margin-left: 125rpx; */
 	position: relative;
 	display: flex;
+	justify-content: center;
 }
 
 .device_list .device_item .device_tab .device_tab_item .tab-value .value-unit {
