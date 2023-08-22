@@ -496,7 +496,7 @@
 	font-weight: 500;
 	color: #0C3163;
 	/* margin-top: 20rpx; */
-	margin-left: 24rpx;
+	/* margin-left: 24rpx; */
 }
 
 .device_unit {
@@ -536,6 +536,7 @@
 .device_list .device_item .device_name .device_name_l {
 	flex: 1;
 	display: flex;
+	flex-direction: column;
 }
 
 .device_list .device_item .device_name .device_name_l .item-name {
@@ -544,10 +545,15 @@
 	font-weight: 500;
 	color: #333333;
 	padding-top: 15rpx;
+	width: 400rpx;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 .device_list .device_item .device_name .device_name_l .item-info{
 	flex: 1;
 	text-align: right;
+	margin-top: -50rpx;
 }
 
 .device_list .device_item .device_name .device_name_l .item-name .name_device{
@@ -606,6 +612,9 @@
 }
 
 .device_list .device_item .device_tab {
+	display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 	/* padding-top: 30rpx; */
 	/* display: flex;
 	justify-content: space-between; */
