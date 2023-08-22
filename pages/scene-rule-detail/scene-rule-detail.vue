@@ -4,13 +4,13 @@
 			<view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view class="form-item-label">规则名称</view>
-					<input type="text" class="tp-flex-1" placeholder="规则名称" placeholder-class="tp-plc"
+					<input maxlength="20" type="text" class="tp-flex-1" placeholder="规则名称" placeholder-class="tp-plc"
 						v-model="formData.automation_name" />
 				</view>
         
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view class="form-item-label">规则说明</view>
-					<input type="text" class="tp-flex-1" placeholder="规则说明" placeholder-class="tp-plc"
+					<input maxlength="40" type="text" class="tp-flex-1" placeholder="规则说明" placeholder-class="tp-plc"
 						v-model="formData.automation_described" />
 				</view>
         

@@ -9,12 +9,11 @@
       ></CustomSelect>
       
     	<CustomSelect
-        clearable
     	  placeholder="通知组" 
     	  :options="noticOptions"
     	  @change="change"
     	  optionValue="id"
-    	  optionLabel="desc"
+    	  optionLabel="group_name"
     	  v-model="warningStrategy.inform_way"
     	></CustomSelect>
     </view>

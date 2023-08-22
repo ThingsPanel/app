@@ -22,6 +22,7 @@
       
       <view class="tp-flex-1">
         <CustomSelect
+          :meiyouxiexian="true"
           v-if="data.business_id" 
           placeholder="分组" 
           :options="groupOptions"

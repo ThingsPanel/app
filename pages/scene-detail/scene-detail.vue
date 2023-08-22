@@ -4,12 +4,12 @@
 			<view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view>场景标题</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景标题" placeholder-class="tp-plc"
+					<input maxlength="20" type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景标题" placeholder-class="tp-plc"
 						v-model.trim="formData.scenario_name" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view>场景描述</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景描述" placeholder-class="tp-plc"
+					<input maxlength="40" type="text" class="tp-flex-1 tp-mg-l-20" placeholder="场景描述" placeholder-class="tp-plc"
 						v-model.trim="formData.scenario_description" />
 				</view>
 			</view>

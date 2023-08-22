@@ -224,6 +224,11 @@
               msg = '请将“触发告警”信息补充完整（“告警级别”为必填）'
               break;
             }
+            
+            if (!inform_way) { //
+              msg = '请将“触发告警”信息补充完整（“通知组”为必填）'
+              break;
+            }
           } else if (action_type === '3') { // 3-激活场景
             if (!scenario_strategy_id) {
               msg = '请将“激活场景”信息补充完整（“场景”为必填）'

@@ -1,15 +1,16 @@
 <template>
   <view class="tp-box tp-box-sizing tp-pd-b-30">
-    <view class="tp-control tp-flex tp-felx-row tp-flex-j-s tp-flex-a-c tp-pd-l-r-30 tp-pd-t-25 tp-pd-b-10 tp-fixed"
-      style="background: #EEE;">
+    <view class="tp-control tp-flex tp-felx-row tp-flex-j-s tp-flex-a-c tp-pd-l-r-30 tp-pd-t-0 tp-pd-b-15 tp-fixed" style="background: #EEE;">
       <!-- 左 -->
-      <view class="tp-tab tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
-        <view v-for="(item,index) in tabData" :key="index" class="tp-mg-r-30"
+      <view class="tp-flex-1 tp-tab tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
+        <view v-for="(item,index) in tabData" :key="index" class="uni-ellipsis"
           :class=" index === tabIndex ?'tp-active':'' " @tap="doTab(index)">{{item.title}}</view>
       </view>
+      
+      <view class="tp-flex-1"></view>
 
       <!-- 右 -->
-      <view class="tp-strategy-select tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="isMore=!isMore"
+      <view class="tp-flex-1 tp-strategy-select tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="isMore=!isMore"
         style="position: relative;">
         <text>{{clName}}</text>
         <view class="iconfont iconjiantou tp-mg-l-10"></view>
@@ -22,23 +23,24 @@
     </view>
 
     <view class="tp-pd-l-r-30" ref="scrollWrapper">
-      <view class="tp-tmp"></view>
+      <view style="height: 52rpx;"></view>
 
       <view class="tp-strategy-add-btn tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @click="toEdit(null)">
-        <text>+新增{{clName}}</text>
+        <text v-if="clName === '场景联动'">+新增场景联动</text>
+        <text v-if="clName === '场景管理'">+新增场景</text>
       </view>
 
       <view class="tp-panel tp-flex tp-flex-col" v-if="dataList.length>0">
         <block v-for="(item,index) in dataList" :key="index">
           <view class="tp-strategy-item tp-flex tp-flex-col tp-mg-t-25 tp-box-sizing tp-pd-20">
             <template v-if="clName === '场景联动'">
-              <view class="tp-pd-t-b-05">{{item.automation_name}}</view>
-              <view class="tp-pd-t-b-05">规则说明：{{item.automation_described}}</view>
+              <view class="tp-pd-t-b-05 uni-ellipsis">{{item.automation_name}}</view>
+              <view class="tp-pd-t-b-05 uni-ellipsis">规则说明：{{item.automation_described || '无'}}</view>
             </template>
             
             <template v-if="clName === '场景管理'">
               <view class="tp-pd-t-b-05">{{item.scenario_name}}</view>
-              <view class="tp-pd-t-b-05">场景描述：{{item.scenario_description}}</view>
+              <view class="tp-pd-t-b-05">场景描述：{{item.scenario_description || '无'}}</view>
             </template>
             
             <view class="tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c tp-pd-t-b-15">
@@ -353,4 +355,13 @@
 
 <style>
   @import '@/common/intelligent-control.css';
+  
+  .tp-control {
+    height: 36rpx;
+  }
+  
+  .tp-flex-1 {
+    flex: 1 0 0;
+    overflow: hidden;
+  }
 </style>

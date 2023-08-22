@@ -31,6 +31,10 @@
       prop: 'value'
     },
     props: {
+      meiyouxiexian: {
+        type: Boolean,
+        default: false,
+      },
       clearable: {
         type: Boolean,
         default: false,
@@ -72,6 +76,9 @@
         const option = this.options.find(item => item[this.optionValue] === this.value)
         console.log('option', option)
         if (option) {
+          if (this.meiyouxiexian) {
+            return option[this.optionLabel].slice(1)
+          }
           return option[this.optionLabel]
         } else {
           return ''
