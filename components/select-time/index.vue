@@ -116,8 +116,8 @@
       	<input class="uni-input" placeholder="执行日期时间规则" v-model="data.v3"/>
         
         <uni-tooltip class="tooltip tooltip-c">
-          <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
-          <template v-slot:content>
+          <uni-icons type="help-filled" size="36rpx" color="#999" @tap="ttt"></uni-icons>
+          <template slot="content">
             <text>
               <strong style="margin-right: 16rpx;">0/2 * * * *</strong>每2分钟触发;<br>
               <strong style="margin-right: 16rpx;">0 0/2 * * *</strong>每两小时触发;<br>
@@ -195,6 +195,9 @@
       }
     },
     methods: {
+      ttt () {
+        console.log('=====测试')
+      },
       initMinuteOptions () {
         let minuteOptions = []
         for (let i = 0; i < 60; i++) {
