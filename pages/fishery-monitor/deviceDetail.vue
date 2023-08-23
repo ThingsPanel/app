@@ -93,8 +93,8 @@
 					</view>
 				</view>
 			</view> -->
-			<!-- <view class="history">
-				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 55rpx; margin-bottom: 10rpx">日志
+			<view class="history" v-if="logData.length">
+				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 20rpx; margin-bottom: 10rpx">日志
 				</view>
 				<block>
 					<view class="tp-log tp-flex tp-flex-col tp-mg-t-15">
@@ -106,6 +106,8 @@
 									style="margin-left: 10rpx;">
 								</view>
 								<view class="tp-flex-1">{{item.remark}}</view>
+								<view class="tp-flex-1">{{item.instruct.name}}</view>
+								<view class="tp-flex-1">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>
 								<view v-if="index==currentIndex">
 									<image src="../../static/icon/log_icon_on.png"></image>
 								</view>
@@ -116,7 +118,7 @@
 						</view>
 					</view>
 				</block>
-			</view> -->
+			</view>
 		</view>
 		<!-- 日志详情 -->
 		<!-- <uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
@@ -287,8 +289,7 @@
 			this.cWidth = uni.upx2px(750);
 			this.cHeight = uni.upx2px(420);
 			this.getCurrentTime()
-			// this.getLogData() //获取日志
-			// this.getWarningData() //获取告警信息				
+						
 		},
 		// mounted(){
 		// 	this.getDetail()
@@ -299,6 +300,8 @@
 		},
 		onReady() {
 			this.getDetail()
+			this.getLogData() //获取日志
+			// this.getWarningData() //获取告警信息	
 		},
 		methods: {
 			changeIndex(index) {
@@ -498,17 +501,19 @@
 			changSwitch(item, index) {
 				var state = ''
 				if (item.state == 0) {
-					// state = 1
+					state = 1
 					this.$set(this.device.controlData[index], 'state', 1);
 				} else if (item.state == 1) {
-					// state = 0
+					state = 0
 					this.$set(this.device.controlData[index], 'state', 0);
 				}
 				// this.$forceUpdate()
 				const params = {
 					device_id: this.device_id,
 					values: {
-						[item.name]: state
+						[item.name]: state,
+						state,
+						name: item.typeName 
 					}
 				}
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
@@ -673,8 +678,6 @@
 						console.log('chartData-----', this.device.chartData)
 						if (this.device.chartData.length > 0) {
 							this.device.chartData.forEach((itme, index) => {
-								// var canvasLineId = 'canvasLine' + index
-								
 								this.getDeviceHistory(itme,index)
 							})
 						}
@@ -766,11 +769,16 @@
 				this.API.apiRequest('/api/conditions/log/index', {
 					// current_page: this.$store.state.list.offset,
 					current_page: 1,
-					per_page: 10,
+					per_page: 20,
 					device_id: this.device_id
 				}, 'post').then(res => {
 					if (res.code === 200) {
-						this.logData = res.data.data;
+						this.logData = res.data.data.map(x => {
+							return {
+								...x,
+								instruct: JSON.parse(x.instruct)
+							}
+						});
 						// var lastTableData = [];
 						// if (data.length > 0) {
 						// 	let pauArry = data;
