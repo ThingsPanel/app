@@ -34,22 +34,12 @@
 				</view>
 			</view>
 			<view class="jiance" v-for="(chart,index) in device.chartData" :key="index">
-				<!-- <view class="jiance_t" v-if="index == 0">
-					监测
-				</view> -->
 				<view style="height: 488rpx;margin-bottom: 40rpx;">
 					<view>{{ chart.name }}历史</view>
 					<l-echart ref="chartRef"></l-echart>
 				</view>
-				<!-- <view class="jiance_c">
-					<view class="jiance_name">
-						{{chart.name}}
-					</view>
-
-					<qiun-data-charts type="line" :opts="chart.opts" :chartData="chart.chartData" :ontouch="true" />
-				</view> -->
 			</view> 
-			<!-- <view class="control" v-if="device.controlData.length > 0">
+			<view class="control" v-if="device.controlData.length > 0">
 				<view class="control_t">
 					控制
 				</view>
@@ -58,8 +48,8 @@
 						<view class="control_l_item">
 							<view class="control_l_item_l">
 								<view class="iconfontImg">
-									<image src="/static/icon/device_close.png" v-if="item.value == 0">
-										<image src="/static/icon/device_on.png" v-if="item.value == 1">
+									<image src="/static/icon/device_close.png" v-if="item.value == 0" />
+									<image src="/static/icon/device_on.png" v-if="item.value == 1" />
 								</view>
 								<view style="margin-left: 24rpx;">
 									<view class="sp_item_title">{{item.typeName}}</view>
@@ -71,8 +61,8 @@
 							</view>
 							<view class="control_l_item_r" v-if="item.type == 'switch'">
 								<view class="control_l_item_r_switch" @click="changSwitch(item,index)">
-									<image src="/static/icon/switch_on.png" v-if="item.state == 1">
-										<image src="/static/icon/switch_close.png" v-if="item.state == 0"></text>
+									<image src="/static/icon/switch_on.png" v-if="item.state == 1" />
+									<image src="/static/icon/switch_close.png" v-if="item.state == 0" />
 								</view>
 							</view>
 							<view v-else class="send">
@@ -82,7 +72,7 @@
 						</view>
 					</block>
 				</view>
-			</view> -->
+			</view>
 			<!-- <view class="warning" v-if="warningData.length > 0">
 				<view class="warning_t">
 					告警
@@ -596,6 +586,7 @@
 					if (res.code === 200) {
 						var data = res.data.data[0];
 						this.device.valuesNew = []
+						this.textCompData = []
 						this.device.controlData = []
 						this.device.chartData = []
 						this.device.chart_data = JSON.parse(data.chart_data)
@@ -616,15 +607,16 @@
 									})
 								}
 								
-								if (ch.controlType == 'dashboard') {
+								if (ch.controlType == 'dashboard' && ch.type === 'status') {
 									if (ch.mapping && ch.mapping.length > 0) {
 										ch.mapping.forEach(map => {
 											var obj = {
-												name: map,
+												name: ch.name,
 												value: '',
+												valueOld: map,
 												unit: ''
 											}
-											this.device.valuesNew.push(obj)
+											this.textCompData.push(obj)
 										})
 									}
 								}
