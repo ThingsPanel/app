@@ -728,6 +728,9 @@
 								for(var key in res.data[0]){
 									if(item.valueOld == key){
 										item.value = res.data[0][key]
+										if(item.value && String(item.value).includes('.')){
+											item.value = item.value.toFixed(2)
+										}
 									}
 									if(key === 'systime'){
 										this.latest_ts_name = res.data[0][key]
