@@ -133,7 +133,10 @@
       dataList (n, o) {
         // 体验优化：列表被重置后滚动到顶部
         if (n.length === 0) {
-          window.scrollTo(0, 0)
+          uni.pageScrollTo({
+            scrollTop: 0,
+            duration: 0,
+          })
         }
       },
     },

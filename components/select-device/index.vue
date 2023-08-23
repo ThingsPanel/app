@@ -22,7 +22,6 @@
       
       <view class="tp-flex-1">
         <CustomSelect
-          :meiyouxiexian="true"
           v-if="data.business_id" 
           placeholder="分组" 
           :options="groupOptions"
@@ -176,7 +175,10 @@
         
         this.API.apiRequest('/api/asset/list/d', params, 'post').then(res => {
         	if (res.code == 200) {
-        		this.groupOptions = res.data || []
+        		this.groupOptions = res.data.map(item => ({ 
+              id: item.id,
+              device_group: item.device_group.slice(1)
+            })) || []
         	} else {
         		this.toast.msg = res.message
         		this.$refs.toast.show();
