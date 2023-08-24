@@ -25,7 +25,7 @@
 					<view class="tab-label" v-if="item.name">
 						{{item.name}}
 					</view>
-					<view class="tab-value" >
+					<view class="tab-value" :class="item.type ? 'small-font' : ''">
 						{{item.value || '--'}}
 						<view class="value-unit" v-if="item.unit">
 							{{item.unit}}
@@ -34,22 +34,12 @@
 				</view>
 			</view>
 			<view class="jiance" v-for="(chart,index) in device.chartData" :key="index">
-				<!-- <view class="jiance_t" v-if="index == 0">
-					监测
-				</view> -->
 				<view style="height: 488rpx;margin-bottom: 40rpx;">
 					<view>{{ chart.name }}历史</view>
 					<l-echart ref="chartRef"></l-echart>
 				</view>
-				<!-- <view class="jiance_c">
-					<view class="jiance_name">
-						{{chart.name}}
-					</view>
-
-					<qiun-data-charts type="line" :opts="chart.opts" :chartData="chart.chartData" :ontouch="true" />
-				</view> -->
 			</view> 
-			<!-- <view class="control" v-if="device.controlData.length > 0">
+			<view class="control" v-if="device.controlData.length > 0">
 				<view class="control_t">
 					控制
 				</view>
@@ -58,8 +48,8 @@
 						<view class="control_l_item">
 							<view class="control_l_item_l">
 								<view class="iconfontImg">
-									<image src="/static/icon/device_close.png" v-if="item.value == 0">
-										<image src="/static/icon/device_on.png" v-if="item.value == 1">
+									<image src="/static/icon/device_close.png" v-if="item.value == 0" />
+									<image src="/static/icon/device_on.png" v-if="item.value == 1" />
 								</view>
 								<view style="margin-left: 24rpx;">
 									<view class="sp_item_title">{{item.typeName}}</view>
@@ -71,8 +61,8 @@
 							</view>
 							<view class="control_l_item_r" v-if="item.type == 'switch'">
 								<view class="control_l_item_r_switch" @click="changSwitch(item,index)">
-									<image src="/static/icon/switch_on.png" v-if="item.state == 1">
-										<image src="/static/icon/switch_close.png" v-if="item.state == 0"></text>
+									<image src="/static/icon/switch_on.png" v-if="item.state == 1" />
+									<image src="/static/icon/switch_close.png" v-if="item.state == 0" />
 								</view>
 							</view>
 							<view v-else class="send">
@@ -82,7 +72,7 @@
 						</view>
 					</block>
 				</view>
-			</view> -->
+			</view>
 			<!-- <view class="warning" v-if="warningData.length > 0">
 				<view class="warning_t">
 					告警
@@ -103,8 +93,8 @@
 					</view>
 				</view>
 			</view> -->
-			<!-- <view class="history">
-				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 55rpx; margin-bottom: 10rpx">日志
+			<view class="history" v-if="logData.length">
+				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 20rpx; margin-bottom: 10rpx">日志
 				</view>
 				<block>
 					<view class="tp-log tp-flex tp-flex-col tp-mg-t-15">
@@ -116,6 +106,8 @@
 									style="margin-left: 10rpx;">
 								</view>
 								<view class="tp-flex-1">{{item.remark}}</view>
+								<view class="tp-flex-1">{{item.instruct.name}}</view>
+								<view class="tp-flex-1">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>
 								<view v-if="index==currentIndex">
 									<image src="../../static/icon/log_icon_on.png"></image>
 								</view>
@@ -126,7 +118,7 @@
 						</view>
 					</view>
 				</block>
-			</view> -->
+			</view>
 		</view>
 		<!-- 日志详情 -->
 		<!-- <uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
@@ -297,8 +289,7 @@
 			this.cWidth = uni.upx2px(750);
 			this.cHeight = uni.upx2px(420);
 			this.getCurrentTime()
-			// this.getLogData() //获取日志
-			// this.getWarningData() //获取告警信息				
+						
 		},
 		// mounted(){
 		// 	this.getDetail()
@@ -309,6 +300,8 @@
 		},
 		onReady() {
 			this.getDetail()
+			this.getLogData() //获取日志
+			// this.getWarningData() //获取告警信息	
 		},
 		methods: {
 			changeIndex(index) {
@@ -508,17 +501,19 @@
 			changSwitch(item, index) {
 				var state = ''
 				if (item.state == 0) {
-					// state = 1
+					state = 1
 					this.$set(this.device.controlData[index], 'state', 1);
 				} else if (item.state == 1) {
-					// state = 0
+					state = 0
 					this.$set(this.device.controlData[index], 'state', 0);
 				}
 				// this.$forceUpdate()
 				const params = {
 					device_id: this.device_id,
 					values: {
-						[item.name]: state
+						[item.name]: state,
+						state,
+						name: item.typeName 
 					}
 				}
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
@@ -596,6 +591,7 @@
 					if (res.code === 200) {
 						var data = res.data.data[0];
 						this.device.valuesNew = []
+						this.textCompData = []
 						this.device.controlData = []
 						this.device.chartData = []
 						this.device.chart_data = JSON.parse(data.chart_data)
@@ -616,15 +612,17 @@
 									})
 								}
 								
-								if (ch.controlType == 'dashboard') {
+								if (ch.controlType == 'dashboard' && ch.type === 'status') {
 									if (ch.mapping && ch.mapping.length > 0) {
 										ch.mapping.forEach(map => {
 											var obj = {
-												name: map,
+												name: ch.name,
 												value: '',
-												unit: ''
+												valueOld: map,
+												unit: '',
+												type: ch.type,
 											}
-											this.device.valuesNew.push(obj)
+											this.textCompData.push(obj)
 										})
 									}
 								}
@@ -681,8 +679,6 @@
 						console.log('chartData-----', this.device.chartData)
 						if (this.device.chartData.length > 0) {
 							this.device.chartData.forEach((itme, index) => {
-								// var canvasLineId = 'canvasLine' + index
-								
 								this.getDeviceHistory(itme,index)
 							})
 						}
@@ -731,6 +727,9 @@
 										if(item.value && String(item.value).includes('.')){
 											item.value = item.value.toFixed(2)
 										}
+										if(item.type=== 'status'){
+											item.value = {0:'关闭',1:'开启'}[item.value]
+										}
 									}
 									if(key === 'systime'){
 										this.latest_ts_name = res.data[0][key]
@@ -774,11 +773,16 @@
 				this.API.apiRequest('/api/conditions/log/index', {
 					// current_page: this.$store.state.list.offset,
 					current_page: 1,
-					per_page: 10,
+					per_page: 20,
 					device_id: this.device_id
 				}, 'post').then(res => {
 					if (res.code === 200) {
-						this.logData = res.data.data;
+						this.logData = res.data.data.map(x => {
+							return {
+								...x,
+								instruct: JSON.parse(x.instruct)
+							}
+						});
 						// var lastTableData = [];
 						// if (data.length > 0) {
 						// 	let pauArry = data;
