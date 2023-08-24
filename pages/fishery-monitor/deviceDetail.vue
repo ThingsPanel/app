@@ -25,7 +25,7 @@
 					<view class="tab-label" v-if="item.name">
 						{{item.name}}
 					</view>
-					<view class="tab-value" >
+					<view class="tab-value" :class="item.type ? 'small-font' : ''">
 						{{item.value || '--'}}
 						<view class="value-unit" v-if="item.unit">
 							{{item.unit}}
@@ -619,7 +619,8 @@
 												name: ch.name,
 												value: '',
 												valueOld: map,
-												unit: ''
+												unit: '',
+												type: ch.type,
 											}
 											this.textCompData.push(obj)
 										})
@@ -725,6 +726,9 @@
 										item.value = res.data[0][key]
 										if(item.value && String(item.value).includes('.')){
 											item.value = item.value.toFixed(2)
+										}
+										if(item.type=== 'status'){
+											item.value = {0:'关闭',1:'开启'}[item.value]
 										}
 									}
 									if(key === 'systime'){
