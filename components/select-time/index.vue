@@ -34,9 +34,9 @@
     <!-- 范围 -->
     <template v-if="data.time_condition_type === '0'">
       <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
-      	<uni-datetime-picker placeholder="开始执行日期时间" :clear-icon="false" :hide-second="true" :end="data.v2" v-model="data.v1" @change="v1DateTimeChange"/>
+      	<uni-datetime-picker placeholder="起始时间" :clear-icon="false" :hide-second="true" :end="data.v2" v-model="data.v1" @change="v1DateTimeChange"/>
         <text class="zhi">-</text>
-        <uni-datetime-picker placeholder="停止执行日期时间" :clear-icon="false" :hide-second="true" :start="data.v1" v-model="data.v2" @change="v2DateTimeChange"/>
+        <uni-datetime-picker placeholder="结束时间" :clear-icon="false" :hide-second="true" :start="data.v1" v-model="data.v2" @change="v2DateTimeChange"/>
       </view>
     </template>
     

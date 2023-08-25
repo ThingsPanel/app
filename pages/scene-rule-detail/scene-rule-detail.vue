@@ -116,6 +116,13 @@
       		if (res.code == 200) {
             this.formData = res.data
             console.log(this.formData)
+            if (!this.formData.automation_conditions?.length) {
+              this.formData.automation_conditions = [
+                {
+                  $index: Math.random(),
+                }
+              ]
+            }
       		} else {
       			this.toast.msg = res.message
       			this.$refs.toast.show();
