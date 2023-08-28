@@ -101,13 +101,16 @@
 						<view class="tp-panel tp-flex tp-flex-col tp-box-sizing tp-pd-20"
 							v-for="(item,index) in logData" :key="index" @click="logInfo(item, index)">
 							<view class="tp-log-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c">
-								<view class="tp-time">{{item.cteate_time}}</view>
-								<view class="tp-circle tp-mg-l-r-20" :class="index==currentIndex?'tp-active':'' "
-									style="margin-left: 10rpx;">
+								<view class="tp-time">
+									{{item.cteate_time}}
+									<view class="tp-circle tp-mg-l-r-20" :class="index==currentIndex?'tp-active':'' "
+										style="margin-left: 10rpx;">
+									</view>
 								</view>
+								
 								<view class="tp-flex-1">{{item.remark}}</view>
-								<view class="tp-flex-1">{{item.instruct.name}}</view>
-								<view class="tp-flex-1">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>
+								<view class="tp-flex-1 color-grey">{{item.instruct.name}}</view>
+								<view class="tp-flex-1 color-grey">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>
 								<view v-if="index==currentIndex">
 									<image src="../../static/icon/log_icon_on.png"></image>
 								</view>

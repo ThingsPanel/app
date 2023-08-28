@@ -373,12 +373,14 @@
 
 .tp-time {
 	font-size: 22rpx;
-	font-8mily: Source Han Sans CN;
+	font-family: monospace;
 	font-weight: 400;
 	color: #999999;
+
 }
 
-.tp-log-item>view.tp-circle {
+.tp-log-item view.tp-circle {
+	display: inline-block;
 	width: 20rpx;
 	height: 20rpx;
 	background: #E2E2E2;
@@ -386,7 +388,7 @@
 	position: relative;
 }
 
-.tp-log-item>view.tp-circle::before {
+.tp-log-item view.tp-circle::before {
 	content: '';
 	height: 80rpx;
 	border-left: 2rpx solid #F2F2F3;
