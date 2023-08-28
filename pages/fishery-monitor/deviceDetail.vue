@@ -465,8 +465,8 @@
 							chartRef.init(echarts, chart=> {
 								chart.setOption({
 										grid: {
-											left: '10%',
-											right: '5%',
+											left: '15%',
+											right: '10%',
 											bottom: '10%',
 											top: '5%',
 										},
@@ -728,7 +728,11 @@
 											item.value = item.value.toFixed(2)
 										}
 										if(item.type=== 'status'){
-											item.value = {0:'关闭',1:'开启'}[item.value]
+											if(item.valueOld === 'Motiondetect'){
+												item.value = {0:'无人',1:'有人'}[item.value]
+											}else{
+												item.value = {0:'关闭',1:'开启'}[item.value]	
+											}
 										}
 									}
 									if(key === 'systime'){

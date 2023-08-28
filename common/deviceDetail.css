@@ -182,10 +182,13 @@
 
 .device_info {
 	margin-left: 20rpx;
+	flex: 1;
+	padding-right: 20rpx;
 }
 
 .device_info .device_name {
 	margin-top: 26rpx;
+	justify-content: space-between;
 }
 
 .device_info .device_name .name {
@@ -217,6 +220,7 @@
 	color: #BEC1C6;
 	margin-top: 16rpx;
 	margin-left: 24rpx;
+	text-align: right;
 }
 
 .jiance {
@@ -241,4 +245,8 @@
 	font-family: Source Han Sans CN;
 	font-weight: 400;
 	color: #333333;
+}
+
+.device_list .device_item {
+	background: transparent;
 }

@@ -233,7 +233,7 @@
 	margin-right: 29rpx;
 }
 
-.tp-grid-three>view..tp_panel_first {
+.tp-grid-three>view.tp_panel_first {
 	background: #207AF5;
 	margin-right: 29rpx;
 	color: #fff;
@@ -360,7 +360,7 @@
 	z-index: 1;
 }
 
-.tp-log-item::before {
+/* .tp-log-item::before {
 	content: '';
 	height: 80rpx;
 	border-left: 2rpx solid #F2F2F3;
@@ -369,7 +369,7 @@
 	bottom: -80rpx;
 	left: 264rpx;
 	z-index: -1;
-}
+} */
 
 .tp-time {
 	font-size: 22rpx;
@@ -383,7 +383,20 @@
 	height: 20rpx;
 	background: #E2E2E2;
 	border-radius: 50%;
+	position: relative;
 }
+
+.tp-log-item>view.tp-circle::before {
+	content: '';
+	height: 80rpx;
+	border-left: 2rpx solid #F2F2F3;
+	position: absolute;
+	top: 20rpx;
+	bottom: -80rpx;
+	left: 10rpx;
+	z-index: -1;
+}
+
 
 .tp-log-item>view.tp-circle.tp-active {
 	background: #207AF5;
@@ -627,7 +640,7 @@
 .device_list .device_item .device_tab .device_tab_item {
 	width: 300rpx;
 	height: 137rpx;
-	background: rgba(229, 239, 255, 0.4);
+	background: #e3eeff;
 	border-radius: 10rpx;
 	color: #0C3163;
 	display: inline-block;
