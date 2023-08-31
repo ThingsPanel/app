@@ -284,7 +284,8 @@
 				loadMoreEqupShow: true,
 				currentGroup: {},
 				ktxStatusHeight: 0,
-				timer: null
+				timer: null,
+				statusBarHeight: 0
 			}
 		},
 		// 
@@ -318,6 +319,10 @@
 			this.topHeight = uni.getStorageSync('statusBarHeight') + uni.getStorageSync(
 				'navigationBarHeight') - this.ktxStatusHeight + 100 + 'px';
 			// #endif
+
+			let systemInfo = uni.getSystemInfoSync();
+			this.statusBarHeight = (systemInfo.statusBarHeight || 25) + 'px'
+
 		},
 		//
 		onLoad(options) {
@@ -332,7 +337,7 @@
 			this.ktxStatusHeight = ktxStatusHeight
 			// 导航栏的高度
 			let navigationHeight = 44 * pxToRpxScale;
-			this.marginTop = ktxStatusHeight + 'rpx';
+			this.marginTop = (ktxStatusHeight || 50) + 'rpx';
 			this.marginConTop = (ktxStatusHeight || 40) + 'rpx'
 			this.isLogin = this.$login.isLoginType().isLogin
 			// this.ywData = []

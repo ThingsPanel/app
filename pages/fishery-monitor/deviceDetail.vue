@@ -1,6 +1,6 @@
 <template>
 	<view :style="{ height: pageHeight, 'overflow-y':'auto' }" class="device_list">
-		<customNav iconColor='#1B1B1B' pageTitle='设备详情' style="padding-top: 50rpx;"></customNav>
+		<customNav iconColor='#1B1B1B' pageTitle='设备详情' :style="{'padding-top': statusBarHeight}"></customNav>
 		<view class="content device_item" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%', 'box-sizing': 'border-box' }">
 			<view class="device">
 				<view class="device_img">
@@ -124,11 +124,11 @@
 			</view>
 		</view>
 		<!-- 日志详情 -->
-		<!-- <uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
+		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
 			<view class="logInfo">
 				<view class="info_title">
 					日志详情
-					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()">
+					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()"/>
 				</view>
 				<view class="info_header">
 					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
@@ -195,7 +195,7 @@
 					</view>
 				</view>
 			</view>
-		</uni-popup> -->
+		</uni-popup>
 	</view>
 </template>
 
@@ -276,10 +276,14 @@
 				},
 				warningData: [],
 				currentValueData: [],
-				currentValueIndex: 0
+				currentValueIndex: 0,
+				statusBarHeight: 0
 			}
 		},
 		onLoad(options) {
+			let systemInfo = uni.getSystemInfoSync();
+			this.statusBarHeight = (systemInfo.statusBarHeight || 25) + 'px'
+
 			this.$store.commit('zerOingOffser'); //清空日志页码
 			this.$store.commit('zerOingEqupPage'); //清空告警页码
 			this.device_name = options.device_name
@@ -604,7 +608,7 @@
 								// 当前值
 								if(this.device.chart_data.tsl.properties.length > 0) {
 									this.device.chart_data.tsl.properties.forEach(pro=>{
-										if(ch.series.length > 0 && ch.name==pro.title) {
+										if(ch.series && ch.series.length > 0 && ch.name==pro.title) {
 											ch.series.forEach(se=>{
 												if(se.type == 'gauge') {
 													this.textCompData.push({name:ch.name, value:'', valueOld: ch.mapping[0],unit:pro.unit})
@@ -615,18 +619,18 @@
 									})
 								}
 								
-								if (ch.controlType == 'dashboard' && ch.type === 'status') {
+								if (ch.controlType == 'dashboard' && ['status', 'signalStatus'].includes(ch.type)) {
 									if (ch.mapping && ch.mapping.length > 0) {
-										ch.mapping.forEach(map => {
+										// ch.mapping.forEach(map => {
 											var obj = {
 												name: ch.name,
 												value: '',
-												valueOld: map,
+												valueOld: ch.mapping,
 												unit: '',
 												type: ch.type,
 											}
 											this.textCompData.push(obj)
-										})
+										// })
 									}
 								}
 								if (ch.controlType == 'control') {
@@ -721,7 +725,7 @@
 					entity_id: this.device_id,
 					attribute: ["systime", ...attribute]
 				}, 'post').then(res => {
-					if (res.code === 200) {
+					if (res.code === 200 && res.data) {
 						if(this.textCompData.length > 0) {
 							this.textCompData.forEach(item =>{
 								for(var key in res.data[0]){
