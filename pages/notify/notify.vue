@@ -11,7 +11,7 @@
 						告警级别
 					</view>
 					<view class="content">
-						{{item.warning_level}}
+						{{{'1':'低', '2':'中',"3": '高'}[item.warning_level]}}
 					</view>
 				</view>
 				<view class="opt">
@@ -126,9 +126,10 @@ import dayjs from 'dayjs'
 	padding: 20px 12px;
 }
 .item{
-	border: 1px solid #d6d6d6;
+	/* border: 1px solid #d6d6d6; */
 	padding: 6px;
 	border-radius: 4px;
+	background-color: #fff;
 }
 .item ~ .item{
 	margin-top: 12px;

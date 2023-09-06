@@ -1461,3 +1461,8 @@ radio-group label, checkbox-group label{
 .left-win-active text{
 	color: #007AFF !important;
 }
+uni-modal .uni-modal__textarea{
+	background-color: #ffffff;
+	border: 1px solid #ddd;
+	border-radius: 4rpx;
+}

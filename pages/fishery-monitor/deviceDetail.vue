@@ -22,13 +22,15 @@
 				<view v-for="(item,index) in textCompData" :key="index"
 					@click="changeIndex(index)"
 					:class="currentValueIndex == index ?'device_tab_item active':'device_tab_item'">
-					<view class="tab-label" v-if="item.name">
-						{{item.name}}
-					</view>
-					<view class="tab-value" :class="item.type ? 'small-font' : ''">
-						{{item.value || '--'}}
-						<view class="value-unit" v-if="item.unit">
-							{{item.unit}}
+					<view class="device_tab_item_container">
+						<view class="tab-label" v-if="item.name">
+							{{item.name}}
+						</view>
+						<view class="tab-value" :class="item.type ? 'small-font' : ''">
+							{{item.value || '--'}}
+							<view class="value-unit" v-if="item.unit">
+								{{item.unit}}
+							</view>
 						</view>
 					</view>
 				</view>
@@ -36,7 +38,7 @@
 			<view class="jiance" v-for="(chart,index) in device.chartData" :key="index">
 				<view style="height: 488rpx;margin-bottom: 40rpx;">
 					<view>{{ chart.name }}历史</view>
-					<l-echart ref="chartRef"></l-echart>
+					<l-echart class="echart-container" ref="chartRef"></l-echart>
 				</view>
 			</view> 
 			<view class="control" v-if="device.controlData.length > 0">
@@ -109,8 +111,8 @@
 								</view>
 								
 								<view class="tp-flex-1">{{item.remark}}</view>
-								<view class="tp-flex-1 color-grey">{{item.instruct.name}}</view>
-								<view class="tp-flex-1 color-grey">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>
+								<!--<view class="tp-flex-1 color-grey">{{item.instruct.name}}</view>
+								<view class="tp-flex-1 color-grey">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>-->
 								<view v-if="index==currentIndex">
 									<image src="../../static/icon/log_icon_on.png"></image>
 								</view>
@@ -307,7 +309,7 @@
 		},
 		onReady() {
 			this.getDetail()
-			this.getLogData() //获取日志
+			// this.getLogData() //获取日志
 			// this.getWarningData() //获取告警信息	
 		},
 		methods: {
@@ -346,9 +348,7 @@
 			// 获取设备的历史数据
 			getDeviceHistory(itme, num) {
 				let timestamp = (new Date()).getTime();
-				uni.showLoading({
-					title: '加载中'
-				});
+				// uni.showLoading({title: '加载中'});
 				this.API.apiRequest('/api/kv/history', {
 					device_id: this.device_id,
 					// start_ts: timestamp - 246060 * 1000,
@@ -500,7 +500,7 @@
 							})
 						})
 						this.$forceUpdate()
-						uni.hideLoading()
+						// uni.hideLoading()
 					}
 				}).finally(() => {});
 			},
@@ -587,9 +587,9 @@
 			},
 			// 插件查询
 			getDetail() {
-				uni.showLoading({
-					title: '加载中'
-				});
+				// uni.showLoading({
+				// 	title: '加载中'
+				// });
 				this.API.apiRequest('/api/device/model/list', {
 					id: this.deviceType,
 					current_page: 1,
@@ -625,7 +625,7 @@
 											var obj = {
 												name: ch.name,
 												value: '',
-												valueOld: ch.mapping,
+												valueOld: Array.isArray(ch.mapping) ? ch.mapping[0] : ch.mapping,
 												unit: '',
 												type: ch.type,
 											}
@@ -646,6 +646,7 @@
 										dataRange: ch.series[0].mapping.attr.dataRange
 									}
 									this.device.controlData.push(obj)
+									console.log(this.device.controlData)
 								}
 								if (ch.controlType == 'history') {
 									this.device.chartData.push({
@@ -690,7 +691,9 @@
 							})
 						}
 						if (this.device.controlData.length > 0) {
+							// debugger
 							this.device.controlData.forEach(va => {
+								console.log(this.device.values)
 								for (let key in this.device.values) {
 									if (va.name == key) {
 										va.state = this.device.values[key]
@@ -698,6 +701,7 @@
 								}
 								this.getContorl(this.device, va)
 							})
+							this.getLogData()
 						}
 						this.getCurrentContorl()
 						this.$forceUpdate()
@@ -705,7 +709,7 @@
 						this.toast.msg = res.msg;
 						this.$refs.toast.show();
 					}
-					uni.hideLoading()
+					// uni.hideLoading()
 				})
 			},
 			// 定时获取开关
@@ -728,13 +732,14 @@
 					if (res.code === 200 && res.data) {
 						if(this.textCompData.length > 0) {
 							this.textCompData.forEach(item =>{
-								for(var key in res.data[0]){
+								for(var key in res.data){
+									
 									if(item.valueOld == key){
-										item.value = res.data[0][key]
+										item.value = res.data[key]
 										if(item.value && String(item.value).includes('.')){
 											item.value = item.value.toFixed(2)
 										}
-										if(item.type=== 'status'){
+										if(['status', 'signalStatus'].includes(item.type)){
 											if(item.valueOld === 'Motiondetect'){
 												item.value = {0:'无人',1:'有人'}[item.value]
 											}else{
@@ -743,7 +748,7 @@
 										}
 									}
 									if(key === 'systime'){
-										this.latest_ts_name = res.data[0][key]
+										this.latest_ts_name = res.data[key]
 									}
 								}
 							})
@@ -765,10 +770,10 @@
 				}, 'post').then(res => {
 					if (res.code === 200) {
 						// uni.hideLoading()
-						if (res.data && res.data.length > 0) {
-							for (let key in res.data[0]) {
-								if (con.name == key && res.data[0][key]) {
-									con.state = res.data[0][key]
+						if (res.data) {
+							for (let key in res.data) {
+								if (con.name == key && res.data[key]) {
+									con.state = res.data[key]
 								}
 							}
 							this.$forceUpdate()
@@ -778,9 +783,9 @@
 			},
 			//获取操作日志
 			getLogData() {
-				uni.showLoading({
-					title: '加载中'
-				});
+				// uni.showLoading({
+				// 	title: '加载中'
+				// });
 				this.API.apiRequest('/api/conditions/log/index', {
 					// current_page: this.$store.state.list.offset,
 					current_page: 1,
@@ -819,7 +824,7 @@
 						this.toast.msg = res.message;
 						this.$refs.toast.show();
 					}
-					uni.hideLoading()
+					// uni.hideLoading()
 				});
 			},
 			// 日志详情
@@ -838,9 +843,9 @@
 			},
 			// 获取设备告警信息
 			getWarningData() {
-				uni.showLoading({
-					title: '加载中'
-				});
+				// uni.showLoading({
+				// 	title: '加载中'
+				// });
 				this.API.apiRequest('/api/warning/log/list', {
 					// current_page: this.$store.state.list.equpPage,
 					page: 1,
@@ -877,7 +882,7 @@
 						this.toast.msg = res.msg;
 						this.$refs.toast.show();
 					}
-					uni.hideLoading()
+					// uni.hideLoading()
 				});
 			},
 			// 加载更多

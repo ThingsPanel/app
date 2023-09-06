@@ -630,28 +630,44 @@
 	display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
+	background-color: #fff;
+  padding: 20rpx;
 	/* padding-top: 30rpx; */
 	/* display: flex;
 	justify-content: space-between; */
 }
 
 .device_list .device_item .device_tab .device_tab_item:nth-child(odd) {
-	margin-right: 29rpx;
+	padding-right: 29rpx;
 }
-
+.device_list .device_item .device_tab .device_tab_item:nth-child(even) {
+	padding-left: 29rpx;
+}
 .device_list .device_item .device_tab .device_tab_item {
-	width: 300rpx;
+	width: 50%;
 	height: 137rpx;
-	background: #e3eeff;
+	/* background: #e3eeff; */
 	border-radius: 10rpx;
 	color: #0C3163;
 	display: inline-block;
 	margin-top: 30rpx;
+	box-sizing: border-box;
 }
 
 .device_list .device_item .device_tab .active {
-	background: #207AF5;
+	/* background: #207AF5; */
 	color: #FFFFFF;
+}
+.device_list .device_item .device_tab_item_container { 
+	height: 137rpx;
+	background: #e3eeff;
+	border-radius: 10rpx;
+}
+.device_list .device_item.active .device_tab_item_container { 
+	background: #207AF5;
+}
+.device_list .device_item .device_tab .active .device_tab_item_container{
+	background: #207AF5;
 }
 
 .device_list .device_item .device_tab .device_tab_item .tab-label {

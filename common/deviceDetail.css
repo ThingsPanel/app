@@ -253,3 +253,8 @@
 .color-grey{
 	color: #999999;
 }
+.echart-container {
+	background-color: #fff;
+	border-radius: 8rpx;
+	margin-top: 20rpx;
+}
