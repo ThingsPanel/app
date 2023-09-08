@@ -1,17 +1,18 @@
 <template>
 	<view class="pagehome">
-		<view class="tp-box tp-box-sizing tp-pd-l-r-30">
-			<!-- 已登录 -->
-			<view :style="{marginTop: marginTop}">
-				<!-- <view class="tp-status-bar"></view> -->
-				<view class="tp-fishery-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
-					<view style="display: flex;" @click="toMore">
-						<view class="iconmore" style="margin-top: 10rpx;" @click='toShowNavDrawer'>
-							<image src="/static/icon/more.png">
-								<view class="title">{{currentGroup.device_group}}</view>
-						</view>
-					</view>
+		<view class="tp-fishery-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
+			<view style="display: flex;" @click="toMore">
+				<view class="iconmore" style="margin-top: 10rpx;" @click='toShowNavDrawer'>
+					<image src="/static/icon/more.png" />
+						<view class="title">{{currentGroup.device_group}}</view>
 				</view>
+			</view>
+		</view>
+		<view class="tp-box tp-box-sizing tp-pd-l-r-30 pt-30">
+			<!-- 已登录 -->
+			<view>
+				<!-- <view class="tp-status-bar"></view> -->
+				
 				<view class="tp-fishery-top"></view>
 				<view class="tp-title tp-mg-t-25" :style="{marginTop: marginConTop,marginBottom: '36rpx'}">设备监控
 					<view class="tp-add" style="margin-left:10px" @click="toNotify">
@@ -145,7 +146,7 @@
 			<view class="logInfo">
 				<view class="info_title">
 					日志详情
-					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()">
+					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()" />
 				</view>
 				<view class="info_header">
 					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">

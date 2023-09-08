@@ -13,15 +13,15 @@
 			"style": {
 				"navigationBarTitleText": "告警信息",
 				"enablePullDownRefresh": true,
-				"navigationBarBackgroundColor": "#EEEEEE"
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
-				"navigationBarTitleText": "猪场监测",
+				"navigationBarTitleText": "设备",
 				"enablePullDownRefresh": false,
-				"navigationStyle": "custom"
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
@@ -29,7 +29,7 @@
 			"style": {
 				"navigationBarTitleText": "智能控制",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#EEEEEE"
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
@@ -37,9 +37,9 @@
 			"style": {
 				"navigationBarTitleText": "个人中心",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#EEEEEE"
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		},		
+		},
 		{
 			"path": "pages/accounts/accounts",
 			"style": {
@@ -52,8 +52,7 @@
 			"path": "pages/fishery-monitor/deviceDetail",
 			"style": {
 				"navigationBarTitleText": "设备详情",
-				"enablePullDownRefresh": false,
-				"navigationStyle": "custom"
+				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
@@ -62,7 +61,6 @@
 				"navigationBarTitleText": "添加设备",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
-				
 			}
 		},
 		{
@@ -75,19 +73,22 @@
 					"scrollIndicator": "none",
 					"bounce": "none",
 					"titleNView": {
-						"buttons": [{ // 设置
-							"color": "#333333",
-							"colorPressed": "#009933",
-							"float": "right",
-							"fontWeight": "normal",
-							"fontSize": "14px",
-							"text": "保存",
-							"width": "40px"
-						}]
+						"buttons": [
+							{ 
+								"color": "#333333",
+								"colorPressed": "#009933",
+								"float": "right",
+								"fontWeight": "normal",
+								"fontSize": "14px",
+								"text": "保存",
+								"width": "40px"
+							}
+						]
 					}
 				}
 			}
-		}, {
+		},
+		{
 			"path": "pages/accounts/phone",
 			"style": {
 				"navigationBarTitleText": "修改手机",
@@ -97,19 +98,22 @@
 					"scrollIndicator": "none",
 					"bounce": "none",
 					"titleNView": {
-						"buttons": [{ // 设置
-							"color": "#333333",
-							"colorPressed": "#009933",
-							"float": "right",
-							"fontWeight": "normal",
-							"fontSize": "14px",
-							"text": "保存",
-							"width": "40px"
-						}]
+						"buttons": [
+							{
+								"color": "#333333",
+								"colorPressed": "#009933",
+								"float": "right",
+								"fontWeight": "normal",
+								"fontSize": "14px",
+								"text": "保存",
+								"width": "40px"
+							}
+						]
 					}
 				}
 			}
-		}, {
+		},
+		{
 			"path": "pages/accounts/email",
 			"style": {
 				"navigationBarTitleText": "修改邮箱",
@@ -119,54 +123,61 @@
 					"scrollIndicator": "none",
 					"bounce": "none",
 					"titleNView": {
-						"buttons": [{ // 设置
-							"color": "#333333",
-							"colorPressed": "#009933",
-							"float": "right",
-							"fontWeight": "normal",
-							"fontSize": "14px",
-							"text": "保存",
-							"width": "40px"
-						}]
+						"buttons": [
+							{ 
+								"color": "#333333",
+								"colorPressed": "#009933",
+								"float": "right",
+								"fontWeight": "normal",
+								"fontSize": "14px",
+								"text": "保存",
+								"width": "40px"
+							}
+						]
 					}
 				}
 			}
-		}, {
+		},
+		{
 			"path": "pages/change-pwd/change-pwd",
 			"style": {
 				"navigationBarTitleText": "修改密码",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FAFAFA"
 			}
-		}, {
+		},
+		{
 			"path": "pages/history-operate/history-operate",
 			"style": {
 				"navigationBarTitleText": "历史操作",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		}, {
+		},
+		{
 			"path": "pages/device/device",
 			"style": {
 				"navigationBarTitleText": "我的设备",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		}, {
+		},
+		{
 			"path": "pages/alert-strategy/edit-strategy",
 			"style": {
 				"navigationBarTitleText": "编辑告警策略",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		}, {
+		},
+		{
 			"path": "pages/alert-strategy/alert-strategy",
 			"style": {
 				"navigationBarTitleText": "新增告警策略",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
-		}, 
+		},
 		{
 			"path": "pages/alert-control/add-control",
 			"style": {
@@ -183,33 +194,23 @@
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
-    
-    {
-    	"path": "pages/scene-rule-detail/scene-rule-detail",
-    	"style": {
-    		"navigationBarTitleText": "新增场景联动",
-    		"enablePullDownRefresh": false,
-    		"navigationBarBackgroundColor": "#FFFFFF"
-    	}
-    },
-    {
-    	"path": "pages/scene-detail/scene-detail",
-    	"style": {
-    		"navigationBarTitleText": "新增场景",
-    		"enablePullDownRefresh": false,
-    		"navigationBarBackgroundColor": "#FFFFFF"
-    	}
-    },
 		{
-            "path" : "pages/notify/notify",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+			"path": "pages/scene-rule-detail/scene-rule-detail",
+			"style": {
+				"navigationBarTitleText": "新增场景联动",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
+			"path": "pages/scene-detail/scene-detail",
+			"style": {
+				"navigationBarTitleText": "新增场景",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		}
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "ThingsPanel",
@@ -222,7 +223,8 @@
 		"height": "52px",
 		"backgroundColor": "#FFFFFF",
 		"borderStyle": "white",
-		"list": [{
+		"list": [
+			{
 				"pagePath": "pages/fishery-monitor/fishery-monitor",
 				"text": "设备列表",
 				"iconPath": "static/tabbar/eqp.png",

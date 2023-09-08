@@ -1,6 +1,6 @@
 <template>
   <view class="tp-box tp-box-sizing tp-pd-b-30">
-    <view class="tp-control tp-flex tp-felx-row tp-flex-j-s tp-flex-a-c tp-pd-l-r-30 tp-pd-t-0 tp-pd-b-15 tp-fixed" style="background: #EEE;">
+    <view class="tp-control tp-flex tp-felx-row tp-flex-j-s tp-flex-a-c tp-pd-l-r-30 tp-pd-t-0 tp-pd-b-15 tp-fixed" style="background: #fff;">
       <!-- 左 -->
       <view class="tp-flex-1 tp-tab tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
         <view v-for="(item,index) in tabData" :key="index" class="uni-ellipsis"

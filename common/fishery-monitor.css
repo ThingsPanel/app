@@ -156,6 +156,10 @@
 .tp-fishery-select {
 	/* position: relative; */
 	position: fixed;
+	background: #FFFFFF;
+	width: 100%;
+	padding-left: 30rpx;
+	padding-bottom: 20rpx;
 	/* width: 100%;
 	height: 80rpx;
 	background: #EEE;
@@ -164,6 +168,9 @@
 	left: 0;
 	padding-left: 30rpx;
 	padding-top: 50rpx; */
+}
+.pt-30{
+	padding-top: 60rpx;
 }
 
 .tp-fishery-select>text {
@@ -540,8 +547,10 @@
 	background: #FFFFFF;
 	border-radius: 10rpx;
 	margin: 0 auto;
-	margin-top: 30rpx;
+	/* margin-top: 30rpx; */
 	padding: 30rpx;
+	padding-top: 0;
+	margin-bottom: 30rpx;
 }
 
 .device_list .device_item .device_name {
@@ -630,8 +639,6 @@
 	display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-	background-color: #fff;
-  padding: 20rpx;
 	/* padding-top: 30rpx; */
 	/* display: flex;
 	justify-content: space-between; */
