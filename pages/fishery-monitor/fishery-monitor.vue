@@ -522,7 +522,7 @@
 				});
 				this.API.apiRequest('/api/business/index', {
 					page: 1,
-					limit: 100
+					limit: 300
 				}, 'post').then(res => {
 					if (res.code === 200) {
 						this.ywData = res.data.data

@@ -1,8 +1,8 @@
 {
     "name" : "物联网平台",
-    "appid" : "__UNI__1EEB2FC",
+    "appid" : "__UNI__D43B86D",
     "description" : "物联网平台",
-    "versionName" : "1.0.0",
+    "versionName" : "0.5.2",
     "versionCode" : "100",
     "transformPx" : false,
     /* 5+App特有相关 */
@@ -51,7 +51,7 @@
             },
             "icons" : {
                 "android" : {
-                    "hdpi" : "unpackage/res/icons/72x72.png",
+                    "hdpi" : "unpackage/res/icons/58x58.png",
                     "xhdpi" : "unpackage/res/icons/96x96.png",
                     "xxhdpi" : "unpackage/res/icons/144x144.png",
                     "xxxhdpi" : "unpackage/res/icons/192x192.png"

@@ -1,6 +1,5 @@
 <template>
 	<view :style="{ height: pageHeight, 'overflow-y':'auto' }" class="device_list">
-		<!-- <customNav iconColor='#1B1B1B' pageTitle='设备详情' :style="{'padding-top': statusBarHeight}"></customNav> -->
 		<view class="content device_item" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%', 'box-sizing': 'border-box' }">
 			<view class="device">
 				<view class="device_img">
@@ -279,11 +278,16 @@
 				warningData: [],
 				currentValueData: [],
 				currentValueIndex: 0,
-				statusBarHeight: 0
+				statusBarHeight: 0,
+				socketTask: null,
+				// 确保websocket是打开状态
+				is_open_socket: false,
+				token: '',
 			}
 		},
 		onLoad(options) {
 			let systemInfo = uni.getSystemInfoSync();
+			this.token = uni.getStorageSync("access_token")
 			this.statusBarHeight = (systemInfo.statusBarHeight || 25) + 'px'
 
 			this.$store.commit('zerOingOffser'); //清空日志页码
@@ -309,10 +313,88 @@
 		},
 		onReady() {
 			this.getDetail()
+			this.connectSocketInit();
 			// this.getLogData() //获取日志
 			// this.getWarningData() //获取告警信息	
 		},
+		beforeDestroy() {
+			this.closeSocket();
+		},
 		methods: {
+			// 进入这个页面的时候创建websocket连接【整个页面随时使用】
+			connectSocketInit() {
+				// 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
+				this.socketTask = uni.connectSocket({
+					// 【非常重要】必须确保你的服务器是成功的,如果是手机测试千万别使用ws://127.0.0.1:9099【特别容易犯的错误】
+					url: "ws://dev.thingspanel.cn:9999/ws/device/current",
+					success(data) {
+						console.log("websocket连接成功");
+					},
+				});
+ 
+				// 消息的发送和接收必须在正常连接打开中,才能发送或接收【否则会失败】
+				this.socketTask.onOpen((res) => {
+					console.log("WebSocket连接正常打开中...！");
+					this.is_open_socket = true;
+					// 注：只有连接正常打开中 ，才能正常成功发送消息
+					this.socketTask.send({
+						data: JSON.stringify({
+							device_id: this.device_id,
+							token: this.token,
+						}),
+						async success() {
+							console.log("消息发送成功");
+						},
+					});
+					// 注：只有连接正常打开中 ，才能正常收到消息
+					this.socketTask.onMessage((res) => {
+						if (res.data) {
+							const resData = JSON.parse(res.data)
+							for(let i = 0;i<this.device.controlData.length; i++){
+								const con = this.device.controlData[i]
+								for (let key in resData) {
+									const val = String(resData[key])
+									if (con.name == key && val) {
+										console.log(`${key}__${resData[key]}`)
+										this.$set(con, 'state', resData[key])
+										con.state = resData[key]
+									}
+								}
+								this.$forceUpdate()
+							}
+							this.setCurrentTextValue(resData)
+						}
+						// console.log("收到服务器内容：" + JSON.stringify(res.data));
+					});
+				})
+				// 这里仅是事件监听【如果socket关闭了会执行】
+				this.socketTask.onClose(() => {
+					console.log("已经被关闭了")
+				})
+			},
+			// 关闭websocket【离开这个页面的时候执行关闭】
+			closeSocket() {
+				this.socketTask.close({
+					success(res) {
+						this.is_open_socket = false;
+						console.log("关闭成功", res)
+					},
+					fail(err) {
+						console.log("关闭失败", err)
+					}
+				})
+			},
+			clickRequest() {
+				if (this.is_open_socket) {
+					// websocket的服务器的原理是:发送一次消息,同时返回一组数据【否则服务器会进去死循环崩溃】
+					this.socketTask.send({
+						data: "请求一次发送一次message",
+						async success() {
+							console.log("消息发送成功");
+						},
+					});
+				}
+			},
 			changeIndex(index) {
 				this.currentValueIndex = index
 				this.$forceUpdate()
@@ -519,16 +601,16 @@
 					device_id: this.device_id,
 					values: {
 						[item.name]: state,
-						state,
-						name: item.typeName 
+						// state,
+						// name: item.typeName 
 					}
 				}
 				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
 					if (res.code === 200) {
-						this.getCurrentTime()
+						// this.getCurrentTime()
 						this.getLogData() //获取日志
-						this.getWarningData() //获取告警信息
-						this.getDetail()
+						// this.getWarningData() //获取告警信息
+						// this.getDetail()
 					}
 				});
 			},
@@ -714,13 +796,13 @@
 			},
 			// 定时获取开关
 			getContorl(device, con) {
-				const delayTime = 60 * 1000
+				// const delayTime = 60 * 1000
 				this.getDevieceKv(device, con)
 				// 清除定时器
-				clearInterval(this.timer)
-				this.timer = setInterval(() => {
-					this.getContorl(device, con)
-				}, delayTime)
+				// clearInterval(this.timer)
+				// this.timer = setInterval(() => {
+				// 	this.getContorl(device, con)
+				// }, delayTime)
 			},
 			// 获取设备的当前值
 			getCurrentContorl(){
@@ -737,7 +819,7 @@
 									if(item.valueOld == key){
 										item.value = res.data[key]
 										if(item.value && String(item.value).includes('.')){
-											item.value = item.value.toFixed(2)
+											item.value = Number(item.value).toFixed(2)
 										}
 										if(['status', 'signalStatus'].includes(item.type)){
 											if(item.valueOld === 'Motiondetect'){
@@ -756,6 +838,31 @@
 						this.$forceUpdate()
 					}
 				});
+			},
+			setCurrentTextValue(data) {
+				if (this.textCompData.length > 0) {
+					this.textCompData.forEach(item => {
+						for (var key in data) {
+							if (item.valueOld == key) {
+								item.value = data[key]
+								if (item.value && String(item.value).includes('.')) {
+									item.value = Number(item.value).toFixed(2)
+								}
+								if (['status', 'signalStatus'].includes(item.type)) {
+									if (item.valueOld === 'Motiondetect') {
+										item.value = { 0: '无人', 1: '有人' }[item.value]
+									} else {
+										item.value = { 0: '关闭', 1: '开启' }[item.value]
+									}
+								}
+							}
+							if (key === 'systime') {
+								this.latest_ts_name = data[key]
+							}
+						}
+					})
+				}
+				this.$forceUpdate()
 			},
 			// 获取设备的开关状态
 			getDevieceKv(device, con) {
@@ -959,7 +1066,7 @@
 					.add0(minute) + ':' + this.add0(second)
 				this.start_time = year + '-' + this.add0(month) + '-' + this.add0(day - 1) + ' ' + this.add0(hour) + ':' +
 					this.add0(minute) + ':' + this.add0(second)
-			}
+			},
 		}
 	}
 </script>
