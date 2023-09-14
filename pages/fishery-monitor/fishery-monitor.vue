@@ -14,7 +14,7 @@
 				<!-- <view class="tp-status-bar"></view> -->
 				
 				<view class="tp-fishery-top"></view>
-				<view class="tp-title tp-mg-t-25" :style="{marginTop: marginConTop,marginBottom: '36rpx'}">设备监控
+				<view class="tp-title" :style="{marginBottom: '36rpx'}">设备监控
 					<view class="tp-add" style="margin-left:10px" @click="toNotify">
 						<image src="../../static/icon/notify.svg" v-if="!activeNotify"></image>
 						<image src="../../static/icon/notify-red.svg" v-else></image>
@@ -40,8 +40,8 @@
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
 									<span v-else class='grey'><i></i>离线</span>
-									<view class="item-time" v-if="item.latest_ts_name && item.latest_ts_name != null">
-										更新时间：{{item.latest_ts_name}}
+									<view class="item-time">
+										更新时间：{{item.latest_ts_name || '--'}}
 									</view>
 								</view>
 
@@ -339,7 +339,7 @@
 			// 导航栏的高度
 			let navigationHeight = 44 * pxToRpxScale;
 			this.marginTop = (ktxStatusHeight || 50) + 'rpx';
-			this.marginConTop = (ktxStatusHeight || 40) + 'rpx'
+			this.marginConTop = (ktxStatusHeight || 20) + 'rpx'
 			this.isLogin = this.$login.isLoginType().isLogin
 			// this.ywData = []
 			// this.showData()

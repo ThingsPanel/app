@@ -19,7 +19,7 @@
 		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
-				"navigationBarTitleText": "",
+				"navigationBarTitleText": "设备",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
