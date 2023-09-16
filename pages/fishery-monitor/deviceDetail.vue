@@ -201,6 +201,7 @@
 </template>
 
 <script>
+	import dayjs from 'dayjs'
 	import * as echarts from 'echarts';
 	import uCharts from '@/components/u-charts/u-charts.min.js';
 	import customNav from '@/components/customNav/customNav.vue';
@@ -321,6 +322,9 @@
 			this.closeSocket();
 		},
 		methods: {
+			formatDate(date) {
+				return dayjs(date * 1000).format('YYYY-MM-DD HH:mm')
+			},
 			// 进入这个页面的时候创建websocket连接【整个页面随时使用】
 			connectSocketInit() {
 				// 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
@@ -431,33 +435,38 @@
 			getDeviceHistory(itme, num) {
 				let timestamp = (new Date()).getTime();
 				// uni.showLoading({title: '加载中'});
-				this.API.apiRequest('/api/kv/history', {
+				this.API.apiRequest('/api/kv/statistic',{
 					device_id: this.device_id,
-					// start_ts: timestamp - 246060 * 1000,
-					start_ts: timestamp - 60 * 60 * 24 * 1000, // 1天
-					end_ts: timestamp,
-					rate: 10 * 1000 * 1000, // 微秒,
-					attribute: itme.attribute.concat(["systime"])
+					start_time: (timestamp - 60 * 60 * 1 * 1000) * 1000, // 1小时
+					end_time: timestamp * 1000,
+					key: itme.attribute[0],
+					"aggregate_window": "no_aggregate",
+    			"aggregate_function":"avg"
 				}, 'post').then(response => {
 					if (response.code == 200 && response.data) {
+						let time_series = response.data.time_series
+						time_series.forEach(x => {
+							x.x = this.formatDate(x.x)
+						})
+						time_series = time_series.reverse()
 						var data = response.data.systime
 						var yData = [];
-						for (let key in response.data) {
-							if(itme.attribute.length > 0) {
-								itme.attribute.forEach((attr,attrIndex) =>{
-									if(attr == key) {
-										yData.push({
-											type: 'line',
-											name: key,
-											data: response.data[key],
-										})
-									}
-								})
-							}
-// if (itme.attribute[0] == key) {
-							// 	yData = response.data[key]
-							// }
-						}
+// 						for (let key in response.data) {
+// 							if(itme.attribute.length > 0) {
+// 								itme.attribute.forEach((attr,attrIndex) =>{
+// 									if(attr == key) {
+// 										yData.push({
+// 											type: 'line',
+// 											name: key,
+// 											data: response.data[key],
+// 										})
+// 									}
+// 								})
+// 							}
+// // if (itme.attribute[0] == key) {
+// 							// 	yData = response.data[key]
+// 							// }
+// 						}
  						var newArry = []
 						var xData = []
 						if(data && data.length >0) {
@@ -481,6 +490,10 @@
 							touchMoveLimit: 24,
 							enableScroll: true,
 							legend: {},
+							dataset: {
+								dimensions: ['x', 'y'],
+								source: time_series,
+							},
 							width: this.cWidth * this.pixelRatio,
 							height: this.cHeight * this.pixelRatio,
 							xAxis: {
@@ -559,25 +572,36 @@
 											bottom: '10%',
 											top: '5%',
 										},
-											tooltip: {
-												trigger: 'axis'
-											},
-											dataZoom: [
-												{
-													type: 'inside'
-												}
-											],
-											xAxis: {
-												type: 'category',
-												boundaryGap: false,
-												data:  response.data.systime
-											},
-											yAxis: {
-												type: 'value'
-											},
-											series: [
-												...yData
-											]
+										tooltip: {
+											trigger: 'axis'
+										},
+										dataZoom: [
+											{
+												type: 'inside'
+											}
+										],
+										xAxis: {
+											type: 'category',
+											boundaryGap: false,
+											// data:  response.data.systime
+										},
+										yAxis: {
+											type: 'value'
+										},
+										dataset: {
+											dimensions: ['x', 'y'],
+											source: time_series,
+										},
+										series: [
+											{
+												type: 'line',
+												smooth: true,
+												seriesLayoutBy: 'row',
+												yAxisIndex: 0,
+												emphasis: { focus: 'series' }
+											} 
+											// ...yData
+										]
 									});
 							})
 						})
