@@ -213,6 +213,7 @@
 		},
 		data() {
 			return {
+				propMap: {},
 				textCompData: [],
 				currentIndex: 0,
 				currentLog: {},
@@ -435,18 +436,21 @@
 			getDeviceHistory(itme, num) {
 				let timestamp = (new Date()).getTime();
 				// uni.showLoading({title: '加载中'});
+				const key = itme.attribute[0]
+				const im = this.propMap[key]
 				this.API.apiRequest('/api/kv/statistic',{
 					device_id: this.device_id,
 					start_time: (timestamp - 60 * 60 * 3 * 1000) * 1000, // 3小时
 					end_time: timestamp * 1000,
-					key: itme.attribute[0],
-					"aggregate_window": "no_aggregate",
+					key,
+					"aggregate_window": "30s",
     			"aggregate_function":"avg"
 				}, 'post').then(response => {
 					if (response.code == 200 && response.data) {
 						let time_series = response.data.time_series
 						time_series.forEach(x => {
 							x.x = this.formatDate(x.x)
+							x.y = x.y.toFixed(2)
 						})
 						time_series = time_series.reverse()
 						var data = response.data.systime
@@ -561,7 +565,6 @@
 						// item.data = yDataAttribute
 						// item.categories = xDataSystimes
 						itme.chartData = JSON.parse(JSON.stringify(chartData));
-						 
 						this.$nextTick(() => {
 							const chartRef = this.$refs?.chartRef[num]
 							chartRef.init(echarts, chart=> {
@@ -573,7 +576,13 @@
 											top: '5%',
 										},
 										tooltip: {
-											trigger: 'axis'
+											trigger: 'axis',
+											formatter (params){
+												console.log(params, im)
+												return `${params[0].value.x}
+${im.title}: ${params[0].value.y} ${im.unit}
+												`
+											}
 										},
 										dataZoom: [
 											{
@@ -714,6 +723,7 @@
 								// 当前值
 								if(this.device.chart_data.tsl.properties.length > 0) {
 									this.device.chart_data.tsl.properties.forEach(pro=>{
+										this.propMap[pro.name] = {name: pro.name,unit: pro.unit,title: pro.title}
 										if(ch.series && ch.series.length > 0 && ch.name==pro.title) {
 											ch.series.forEach(se=>{
 												if(se.type == 'gauge') {
