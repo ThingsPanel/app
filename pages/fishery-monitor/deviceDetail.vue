@@ -437,7 +437,7 @@
 				// uni.showLoading({title: '加载中'});
 				this.API.apiRequest('/api/kv/statistic',{
 					device_id: this.device_id,
-					start_time: (timestamp - 60 * 60 * 1 * 1000) * 1000, // 1小时
+					start_time: (timestamp - 60 * 60 * 3 * 1000) * 1000, // 3小时
 					end_time: timestamp * 1000,
 					key: itme.attribute[0],
 					"aggregate_window": "no_aggregate",
