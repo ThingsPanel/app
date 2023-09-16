@@ -444,7 +444,7 @@
 					end_time: timestamp * 1000,
 					key,
 					"aggregate_window": "30s",
-    			"aggregate_function":"avg"
+    			"aggregate_function":"max"
 				}, 'post').then(response => {
 					if (response.code == 200 && response.data) {
 						let time_series = response.data.time_series
@@ -579,8 +579,16 @@
 											trigger: 'axis',
 											formatter (params){
 												console.log(params, im)
+												let y = params[0].value.y
+												if(key === 'Motiondetect'){
+													if(y == 1){
+														y = '有人'
+													} else{
+														y = '无人'
+													}
+												}
 												return `${params[0].value.x}
-${im.title}: ${params[0].value.y} ${im.unit}
+${im.title}: ${y} ${im.unit || ''}
 												`
 											}
 										},
