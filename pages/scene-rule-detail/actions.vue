@@ -208,7 +208,7 @@
             msg = '请选择需要执行的动作类型'
             break;
           } else if (action_type === '1') { // 1-操作设备
-            if (!business_id || !asset_id || !device_id || !device_condition_type || !v1 || !v3) { // device_condition_type 为空表示未选择属性
+            if (!business_id || !asset_id || !device_id || !device_condition_type || !v1 || (!v3 && v3 !== 0)) { // device_condition_type 为空表示未选择属性
               msg = '请将“操作设备”信息补充完整'
               break;
             }
