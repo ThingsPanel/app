@@ -731,7 +731,7 @@ export default {
 					for (let key in res.data) {
 						this.deviceList.forEach(item => {
 							if (key == item.device_id) {
-								item.status = res.data[key]
+								this.$set(item, 'status', res.data[key])
 							}
 						})
 					}
