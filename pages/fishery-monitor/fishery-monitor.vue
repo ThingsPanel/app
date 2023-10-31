@@ -239,6 +239,7 @@ export default {
 	data() {
 		return {
 			timer: 0,
+			deviceStatusTimer: 0,
 			activeNotify: false,
 			marginConTop: 0,
 			currentDataIndex: -1,
@@ -374,9 +375,14 @@ export default {
 			}
 		});
 	},
+	onHide() {
+		this.clearDeviceStatusTimer()
+	},
 	beforeDestroy() {
 		// 清除定时器
 		clearInterval(this.timer)
+		// 清除在线/离线状态定时器
+		this.clearDeviceStatusTimer()
 	},
 	// onLoad(options) {
 	// 	this.$store.commit('zerOingOffser'); //清空日志页码
@@ -710,7 +716,9 @@ export default {
 						ids.push(item.device_id)
 					})
 					this.getDetailStatus(ids)
-					this.timer = setInterval(() => {
+					this.clearDeviceStatusTimer()
+					this.deviceStatusTimer = setInterval(() => {
+						console.log("getDetailStatus")
 						this.getDetailStatus(ids)
 					}, 5000)
 				} else {
@@ -908,6 +916,12 @@ export default {
 			//将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
 			var minutes = m + n;
 			return minutes
+		},
+		clearDeviceStatusTimer() {
+			if (this.deviceStatusTimer > 0) {
+				clearInterval(this.deviceStatusTimer)
+				this.deviceStatusTimer = 0
+			}
 		}
 	}
 }
