@@ -18,8 +18,8 @@ export const apiRequest = (url, data, method) => {
 		// console.log("server",server);
 		if (server) {
 			config.baseUrl = server
-			// console.log("baseUrl",config.baseUrl);
 		}
+		return config;
 	}
 	//设置请求结束后拦截器
 	http.interceptor.response = async (response) => {

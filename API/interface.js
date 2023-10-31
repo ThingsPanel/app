@@ -28,18 +28,25 @@ export default {
 		response: null
 	},
 	request(options) {
-		// console.log("options",options)
+		if( uni.getStorageSync('serverAddress')) {
+			this.config.baseUrl = uni.getStorageSync('serverAddress')
+		} else {
+			this.config.baseUrl = "http://dev.thingspanel.cn:9999"
+		}
 		if (!options) {
 			options = {}
 		}
-		options.baseUrl = options.baseUrl || this.config.baseUrl
+		// options.baseUrl = options.baseUrl || this.config.baseUrl
+		options.baseUrl = this.config.baseUrl
 		// let server = uni.getStorageSync("serverAddress")
 		// if (server) {
 		// 	delete options.baseUrl
 		// 	options.baseUrl =  server
 		// }
 		options.dataType = options.dataType || this.config.dataType
-		options.url = options.baseUrl + options.url
+		if (!options.url.startsWith("http://")) {
+			options.url = options.baseUrl + options.url
+		}
 		// console.log(options.url)
 		options.data = options.data || {}
 		options.method = options.method || this.config.method

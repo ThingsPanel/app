@@ -37,7 +37,7 @@
 			</view>
 			<view class="jiance" v-for="(chart, index) in device.chartData" :key="index">
 				<view style="height: 488rpx;margin-bottom: 40rpx;">
-					<view>{{ chart.name }}历史</view>
+					<view>{{ chart.name }}</view>
 					<l-echart class="echart-container" ref="chartRef"></l-echart>
 				</view>
 			</view>
@@ -286,6 +286,8 @@ export default {
 			// 确保websocket是打开状态
 			is_open_socket: false,
 			token: '',
+			// 历史曲线计时器
+			timers: []
 		}
 	},
 	onLoad(options) {
@@ -318,6 +320,7 @@ export default {
 	},
 	beforeDestroy() {
 		this.closeSocket();
+		this.clearTimer();
 	},
 	methods: {
 		formatDate(date) {
@@ -395,6 +398,14 @@ export default {
 				});
 			}
 		},
+		clearTimer() {
+			if (this.timers && this.timers.length) {
+				for (var i = 0; i < this.timers.length; i++) {
+					clearInterval(this.timers[i])
+				}
+			}
+			this.timers = [];
+		},
 		changeIndex(index) {
 			this.currentValueIndex = index
 			this.$forceUpdate()
@@ -446,7 +457,7 @@ export default {
 						x.x = this.formatDate(x.x)
 						x.y = x.y.toFixed(2)
 					})
-					time_series = time_series.reverse()
+					// time_series = time_series.reverse()
 					var data = response.data.systime
 					var yData = [];
 					var newArry = []
@@ -508,6 +519,7 @@ export default {
 						const chartRef = this.$refs?.chartRef[num]
 						chartRef.init(echarts, chart => {
 							chart.setOption({
+								animation: false,
 								grid: {
 									left: '15%',
 									right: '10%',
@@ -745,9 +757,13 @@ ${im.title}: ${y} ${im.unit || ''}
 						})
 					}
 					console.log('chartData-----', this.device.chartData)
+					this.clearTimer()
 					if (this.device.chartData.length > 0) {
 						this.device.chartData.forEach((itme, index) => {
 							this.getDeviceHistory(itme, index)
+							this.timers[index] = setInterval(() => {
+								this.getDeviceHistory(itme, index)
+							}, 5000)
 						})
 					}
 					if (this.device.controlData.length > 0) {

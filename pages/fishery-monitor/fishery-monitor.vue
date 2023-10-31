@@ -374,6 +374,10 @@ export default {
 			}
 		});
 	},
+	beforeDestroy() {
+		// 清除定时器
+		clearInterval(this.timer)
+	},
 	// onLoad(options) {
 	// 	this.$store.commit('zerOingOffser'); //清空日志页码
 	// 	this.$store.commit('zerOingEqupPage'); //清空设备页码

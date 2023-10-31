@@ -32,7 +32,7 @@
 			<view class="inputicon">
 				<image src="/static/image/server.png" alt="">
 			</view>
-			<input type="text" placeholder-class="tp-plc" placeholder="http://dev.thingspanel.cn" v-model="server" />
+			<input type="text" placeholder-class="tp-plc" placeholder="http://dev.thingspanel.cn" v-model="server" @input="serverChange"/>
 		</view>
 		<view class="btn">
 			<!-- <button class="tp-btn-cancle tp-mg-t-50 cancel_btn">取消登录</button> -->
@@ -88,6 +88,10 @@ import login from "../../store/login";
 			this.server  = uni.getStorageSync('serverAddress') || ''
 		},
 		methods: {
+			serverChange(v) {
+				console.log("serverChange", v.detail.value)
+				// uni.setStorageSync('serverAddress', v.detail.value)
+			},
 			// 取消授权
 			toCloseLogin() {
 				this.$refs.authPopup.close()
@@ -122,9 +126,7 @@ import login from "../../store/login";
 			},
 			// 
 			toLogin(){
-				if (this.server) {
-					uni.setStorageSync('serverAddress', this.server)
-				}
+				uni.setStorageSync('serverAddress', this.server)
 				uni.showLoading({
 					title: '加载中'
 				});
@@ -132,7 +134,7 @@ import login from "../../store/login";
 					email:this.email,
 					password:this.password
 				};
-				this.API.apiRequest('/api/auth/login', {
+				this.API.apiRequest(this.server + '/api/auth/login', {
 					email:this.email,
 					password:this.password
 				}, 'post').then(res => {
