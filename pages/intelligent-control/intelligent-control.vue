@@ -44,7 +44,14 @@
             </template>
             
             <view class="tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c tp-pd-t-b-15">
-              <template v-if="clName == '场景联动'">
+              <template v-if="clName == '场景管理'">
+                <view :style="{ color: '#5bdc1b' }" class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toggleSwitch(item)">
+                   激活
+                </view>
+                
+                <view class="tp-mg-l-r-25">|</view>
+              </template>
+			        <template v-if="clName == '场景联动'">
                 <view :style="{ color: item.enabled === '0' ? '#5bdc1b' : '#ff9900' }" class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toggleStatue(item)">
                   {{item.enabled === '0' ? '启动' : '停用'}}
                 </view>
@@ -226,6 +233,30 @@
           uni.hideLoading()
         });
       },
+	  // 切换启停状态（仅场景管理）
+	  toggleSwitch (item) {
+	    uni.showLoading({
+	      title: '加载中'
+	    });
+	     
+	    this.API.apiRequest('/api/scenario/strategy/activate', {
+	      id: item.id,
+	    }, 'post').then(res => {
+	      if (res.code == 200) {
+          uni.showToast({
+            title: '操作成功',
+            icon: 'none'
+          });
+	      }else{
+          uni.showToast({
+            title: '操作失败，请稍后再试',
+            icon: 'none'
+          });
+		    }
+	    }).finally(() => {
+	      uni.hideLoading()
+	    });
+	  },
       // 编辑
       toEdit(item) {
         const urls = {
