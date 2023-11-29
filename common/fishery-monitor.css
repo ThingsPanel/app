@@ -668,7 +668,7 @@
 }
 .device_list .device_item .device_tab_item_container { 
 	height: 137rpx;
-	background: #e5effe;
+	background: #fff;
 	border-radius: 10rpx;
 }
 .device_list .device_item.active .device_tab_item_container { 
