@@ -69,8 +69,15 @@
       ></CustomSelect>
       
       <view class="tp-flex-1">
-        <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
-        	<input class="uni-input" placeholder="属性值" v-model.trim="data.v3"/>
+        <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-a-c tp-mg-l-20">
+          <view class="control_l_item_l" v-if="data.v1.startsWith('switch')">
+            <view class="control_l_item_r_switch" @click="changSwitch(data)">
+              <image src="/static/icon/switch_on.png" v-if="data.v3 == 1" />
+              <image src="/static/icon/switch_close.png" v-if="data.v3 == 0" />
+            </view>
+
+          </view>
+        	<input v-else class="uni-input" placeholder="属性值" v-model.trim="data.v3"/>
           <text class="tp-font-size-13 tp-mg-l-r-15 unit">{{ valueConf.unit }}</text>
         </view>
       </view>
@@ -140,6 +147,13 @@
       console.log(this.data)
     },
     methods: {
+      changSwitch(data){
+        if(data.v3 == 1){
+          this.$set(data, 'v3', '0')
+        }else{
+          this.$set(data, 'v3', '1')
+        }
+      },
       // 加载项目列表
       queryProjectOptions () {
         // uni.showLoading({
@@ -232,7 +246,7 @@
         }
         this.API.apiRequest('/api/device/model/list', params, 'post').then(res => {
         	if (res.code == 200) {
-        		this.propOptions = JSON.parse(res.data.data[0].chart_data)?.tsl?.properties || []
+            this.propOptions = JSON.parse(res.data.data[0].chart_data)?.tsl?.properties || []
         	} else {
         		this.toast.msg = res.message
         		this.$refs.toast.show();
@@ -304,6 +318,11 @@
         this.$set(this.data, 'v1', pesData.v1)
         this.$set(this.data, 'v2', pesData.v2)
         this.$set(this.data, 'v3', '')
+        if(this.data.v1.startsWith('switch')){
+          this.$set(this.data, 'v3', '0')
+        } else {
+          this.$set(this.data, 'v3', '')
+        }
       },
       
       // 更新传递给属性选择器的数据。在属性选择器修改了选项，需要同步需改显示值
@@ -327,5 +346,11 @@
 
   .unit {
     color: #999;
+  }
+  .control_l_item_r_switch uni-image{
+    text-align: left;
+    margin-top: 10px;
+    width: 78px;
+    height: 37px;
   }
 </style>
