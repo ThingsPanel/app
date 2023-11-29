@@ -111,8 +111,8 @@
 								</view>
 
 								<view class="tp-flex-1">{{ item.remark }}</view>
-								<!--<view class="tp-flex-1 color-grey">{{item.instruct.name}}</view>
-								<view class="tp-flex-1 color-grey">{{{1:'开启',0:'关闭'}[item.instruct.state]}}</view>-->
+								<!-- <view class="tp-flex-1 color-grey">{{item.instruct.name}}</view> -->
+								<view class="tp-flex-1 tp-mg-r-10 color-grey">{{item.showInstructText}}</view>
 								<view v-if="index == currentIndex">
 									<image src="../../static/icon/log_icon_on.png"></image>
 								</view>
@@ -181,7 +181,7 @@
 							指令：
 						</view>
 						<view class="label">
-							{{ currentLog.instruct }}
+							{{ currentLog.showInstructText }}
 						</view>
 					</view>
 					<view class="item">
@@ -886,9 +886,11 @@ ${im.title}: ${y} ${im.unit || ''}
 			}, 'post').then(res => {
 				if (res.code === 200) {
 					this.logData = (res.data.data || []).map(x => {
+						const instruct = JSON.parse(x.instruct)
 						return {
 							...x,
-							instruct: JSON.parse(x.instruct)
+							instruct,
+							showInstructText: x.instruct
 						}
 					});
 
