@@ -530,7 +530,7 @@ export default {
 			});
 			this.API.apiRequest('/api/business/index', {
 				page: 1,
-				limit: 300
+				limit: 999
 			}, 'post').then(res => {
 				if (res.code === 200) {
 					this.ywData = res.data.data
