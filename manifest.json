@@ -2,8 +2,8 @@
     "name" : "物联网平台",
     "appid" : "__UNI__D43B86D",
     "description" : "物联网平台",
-    "versionName" : "0.5.2",
-    "versionCode" : "100",
+    "versionName" : "0.5.3",
+    "versionCode" : 101,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {

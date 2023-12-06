@@ -126,7 +126,7 @@ import login from "../../store/login";
 			},
 			// 
 			toLogin(){
-				uni.setStorageSync('serverAddress', this.server)
+				uni.setStorageSync('serverAddress', this.server)		
 				uni.showLoading({
 					title: '加载中'
 				});
@@ -134,7 +134,7 @@ import login from "../../store/login";
 					email:this.email,
 					password:this.password
 				};
-				this.API.apiRequest(this.server + '/api/auth/login', {
+				this.API.apiRequest('/api/auth/login', {
 					email:this.email,
 					password:this.password
 				}, 'post').then(res => {

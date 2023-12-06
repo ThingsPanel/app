@@ -327,13 +327,19 @@ export default {
 			return dayjs(date * 1000).format('YYYY-MM-DD HH:mm')
 		},
 		connectSocketInit() {
+			let server = uni.getStorageSync("serverAddress")
+			let httpServer = new URL(server);
+			const hostname = httpServer.hostname
 			// 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
 			this.socketTask = uni.connectSocket({
 				// 【非常重要】必须确保你的服务器是成功的,如果是手机测试千万别使用ws://127.0.0.1:9099【特别容易犯的错误】
-				url: "ws://dev.thingspanel.cn:9999/ws/device/current",
+				url: `ws://${hostname}:9999/ws/device/current`,
 				success(data) {
 					console.log("websocket连接成功");
 				},
+				fail(){
+					uni.showToast('链接websocket失败，端口必须是9999')
+				}
 			});
 
 			// 消息的发送和接收必须在正常连接打开中,才能发送或接收【否则会失败】
