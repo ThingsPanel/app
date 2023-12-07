@@ -80,12 +80,12 @@ import login from "../../store/login";
 			}
 		},
 		onShow(){
+			this.server  = uni.getStorageSync('serverAddress') || ''
 			if(uni.getStorageSync('email') && uni.getStorageSync('password')) {
 				this.email = uni.getStorageSync('email')
 				this.password = uni.getStorageSync('password')
 				this.toLogin()
 			}
-			this.server  = uni.getStorageSync('serverAddress') || ''
 		},
 		methods: {
 			serverChange(v) {

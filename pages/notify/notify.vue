@@ -40,12 +40,20 @@
 				</view>
 			</view>
 		</view>
+
+		<NotofyDialog 
+			:visible="showDialog" 
+			@close="closeDialog" 
+			:id="handleInfo.id" 
+			:status="handleInfo.status" />
 	</view>
 </template>
 
 <script>
 import dayjs from 'dayjs'
-	export default {
+import NotofyDialog from '@/components/notify-dialog'
+ 	export default {
+		components: {NotofyDialog},
 		data() {
 			return {
 				page: 1,
@@ -53,35 +61,50 @@ import dayjs from 'dayjs'
 				processing_result: "0", // 0 未处理 1 已处理 2 已忽略
 				loadEnd: false,
 				loading: false,
-				list: []
+				list: [],
+				showDialog: false,
+				handleInfo: {
+					id: '',
+					status: ''
+				}
 			}
 		},
 		methods: {
 			formatDate(date) {
 				return dayjs(date * 1000).format('YYYY-MM-DD HH:mm')
 			},
+			closeDialog(refresh){
+				this.showDialog = false
+				if(refresh){
+					// this.getList()
+					this.list = this.list.filter(l => l.id !== this.handleInfo.id)
+				}
+				this.handleInfo = {id :'', status: ''}
+			},
 			process(id, status) {
-				uni.showModal({
-					title: `点击确定${status === '1' ? '处理' : '忽略'}警告`,
-					confirmText: '确定',
-					cancelText: '取消',
-					editable: status === '1',
-					placeholderText: '选填',
-					success: res => {
-						if (res.confirm) {
-							this.API.apiRequest('/api/v1/warning/information/edit', {
-								id, processing_result: status, processing_instructions: res.content
-							}, 'post').then(res => {
-								if (res.code === 200) {
-									uni.showToast({
-										title: '操作成功'
-									})
-									this.list = this.list.filter(l => l.id !== id)
-								}
-							})
-						}
-					}
-				})
+				this.showDialog = true
+				this.handleInfo = {id, status}
+				// uni.showModal({
+				// 	title: `点击确定${status === '1' ? '处理' : '忽略'}警告`,
+				// 	confirmText: '确定',
+				// 	cancelText: '取消',
+				// 	editable: status === '1',
+				// 	placeholderText: '选填',
+				// 	success: res => {
+				// 		if (res.confirm) {
+				// 			this.API.apiRequest('/api/v1/warning/information/edit', {
+				// 				id, processing_result: status, processing_instructions: res.content
+				// 			}, 'post').then(res => {
+				// 				if (res.code === 200) {
+				// 					uni.showToast({
+				// 						title: '操作成功'
+				// 					})
+				// 					this.list = this.list.filter(l => l.id !== id)
+				// 				}
+				// 			})
+				// 		}
+				// 	}
+				// })
 			},
 			getList() {
 				this.loading = true
