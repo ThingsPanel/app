@@ -36,11 +36,11 @@ export default {
   },
   methods:{
     confirm(){
-      this.API.apiRequest('/api/v1/warning/information/edit', {
+      this.API.apiRequest('/api/v1/alarm/info', {
         id: this.id, 
         processing_result: this.status, 
         processing_instructions: this.content
-      }, 'post').then(res => {
+      }, 'put').then(res => {
         if (res.code === 200) {
           uni.showToast({
             title: '操作成功'

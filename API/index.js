@@ -10,9 +10,9 @@ export const apiRequest = (url, data, method) => {
 	//设置请求前拦截器
 	http.interceptor.request = (config) => {
 		let token = uni.getStorageSync("access_token")
-		delete config.header['Authorization']
+		delete config.header['x-token']
 		if (token) {
-			config.header['Authorization'] = 'Bearer '+token
+			config.header['x-token'] = token
 		}
 		let server = uni.getStorageSync("serverAddress")
 		// console.log("server",server);
@@ -56,13 +56,13 @@ async function doRequest(response) {
 		refreshToken: uni.getStorageSync('refreshToken'),
 		token: uni.getStorageSync('accessToken')
 	}
-	const res = await apiRequest('/api/TokenAuth/Refresh', params, 'POST')
+	const res = await apiRequest('/api/v1/user/refresh', params, 'POST')
 	if (res && res.statusCode === 200) {
 		let config = response.config
 		uni.setStorageSync('accessToken', res.data.result.token)
 		uni.setStorageSync('refreshToken', res.data.result.refreshToken)
-		config.header['Authorization'] = 'Bearer ' + res.data.result.token
-		const resold = await apiRequest('/api/' + getStrAfter(config.url, '/api/'), {
+		config.header['x-token'] = res.data.result.token
+		const resold = await apiRequest('/api/v1' + getStrAfter(config.url, '/api/v1'), {
 			...config.data
 		}, config.method)
 		return resold

@@ -34,13 +34,13 @@
         <block v-for="(item,index) in dataList" :key="index">
           <view class="tp-strategy-item tp-flex tp-flex-col tp-mg-t-25 tp-box-sizing tp-pd-20">
             <template v-if="clName === '场景联动'">
-              <view class="tp-pd-t-b-05 uni-ellipsis">{{item.automation_name}}</view>
-              <view class="tp-pd-t-b-05 uni-ellipsis">规则说明：{{item.automation_described || '无'}}</view>
+              <view class="tp-pd-t-b-05 uni-ellipsis">{{item.name}}</view>
+              <view class="tp-pd-t-b-05 uni-ellipsis">规则说明：{{item.description || '无'}}</view>
             </template>
             
             <template v-if="clName === '场景管理'">
-              <view class="tp-pd-t-b-05">{{item.scenario_name}}</view>
-              <view class="tp-pd-t-b-05">场景描述：{{item.scenario_description || '无'}}</view>
+              <view class="tp-pd-t-b-05">{{item.name}}</view>
+              <view class="tp-pd-t-b-05">场景描述：{{item.description || '无'}}</view>
             </template>
             
             <view class="tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c tp-pd-t-b-15">
@@ -174,8 +174,8 @@
       // 加载数据（翻页）
       loadData () {
         let apis = {
-          '场景联动': '/api/v1/automation/list',
-          '场景管理': '/api/scenario/strategy/list'
+          '场景联动': '/api/v1/scene_automations/list',
+          '场景管理': '/api/v1/scene'
         }
         
         uni.showLoading({
@@ -183,11 +183,11 @@
         });
         
         this.API.apiRequest(apis[this.clName], {
-          current_page: this.page,
-          per_page: 10
-        }, 'post').then(res => {
+          page: this.page,
+          page_size: 10
+        }, 'get').then(res => {
           if (res.code === 200) {
-            var data = res.data.data;
+            var data = res.data.list;
             var lastTableData = [];
             if (data.length > 0) {
               let pauArry = data;
@@ -222,9 +222,7 @@
         });
         
         const enabled = item.enabled === '0' ? '1' : '0'
-        this.API.apiRequest('/api/v1/automation/enabled', {
-          id: item.id,
-          enabled,
+        this.API.apiRequest('/api/v1/scene_automations/switch/'+item.id, {
         }, 'post').then(res => {
           if (res.code == 200) {
             item.enabled = enabled
@@ -239,8 +237,7 @@
 	      title: '加载中'
 	    });
 	     
-	    this.API.apiRequest('/api/scenario/strategy/activate', {
-	      id: item.id,
+	    this.API.apiRequest('/api/v1/scene/active/'+item.id, {
 	    }, 'post').then(res => {
 	      if (res.code == 200) {
           uni.showToast({

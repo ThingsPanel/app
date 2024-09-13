@@ -11,18 +11,9 @@
     <p style="font-size: 10px;">v3：{{data.v3}}</p> -->
     
     <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
-      <CustomSelect
-        placeholder="项目" 
-        :options="projectOptions"
-        @change="businessIdChange"
-        optionValue="id"
-        optionLabel="name"
-        v-model="data.business_id"
-      ></CustomSelect>
       
       <view class="tp-flex-1">
         <CustomSelect
-          v-if="data.business_id" 
           placeholder="分组" 
           :options="groupOptions"
           @change="groupIdChange"
@@ -137,8 +128,8 @@
       
     },
     created () {
-      this.queryProjectOptions()
-      this.data.business_id && this.queryGroupOptions()
+      //this.queryProjectOptions()
+      this.queryGroupOptions()
       this.data.asset_id && this.queryDeviceOptions()
       
       this.initPesData()
@@ -175,23 +166,23 @@
       
       // 加载分组列表
       queryGroupOptions () {
-        if (!this.data.business_id) {
+        /*if (!this.data.business_id) {
           return
-        }
+        }*/
         
         // uni.showLoading({
         // 	title: '加载中'
         // });
         
         const params = {
-        	business_id: this.data.business_id,
+        	/*business_id: this.data.business_id,*/
         }
         
-        this.API.apiRequest('/api/asset/list/d', params, 'post').then(res => {
+        this.API.apiRequest('/api/v1/device/group/tree', params, 'get').then(res => {
         	if (res.code == 200) {
         		this.groupOptions = res.data.map(item => ({ 
-              id: item.id,
-              device_group: item.device_group.slice(1)
+              id: item.group.id,
+              device_group: item.group.name
             })) || []
         	} else {
         		this.toast.msg = res.message
@@ -213,13 +204,13 @@
         // });
         
         const params = {
-        	asset_id: this.data.asset_id,
-        	current_page: 1,
-        	per_page: 9999,
+        	group_id: this.data.asset_id,
+        	page: 1,
+        	page_size: 9999,
         }
-        this.API.apiRequest('/api/device/list/tree', params, 'post').then(res => {
+        this.API.apiRequest('/api/v1/device', params, 'get').then(res => {
         	if (res.code == 200) {
-        		this.deviceOptions = res.data.data || []
+        		this.deviceOptions = res.data.list || []
         	} else {
         		this.toast.msg = res.message
         		this.$refs.toast.show();

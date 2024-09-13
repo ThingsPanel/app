@@ -134,14 +134,14 @@ import login from "../../store/login";
 					email:this.email,
 					password:this.password
 				};
-				this.API.apiRequest('/api/auth/login', {
+				this.API.apiRequest('/api/v1/login', {
 					email:this.email,
 					password:this.password
 				}, 'post').then(res => {
 					if (res.code == 200) {
 						uni.setStorageSync('email', this.email)
 						uni.setStorageSync('password', this.password)
-						uni.setStorageSync('access_token',res.data.access_token)
+						uni.setStorageSync('access_token',res.data.token)
 						uni.switchTab({
 							url: '../fishery-monitor/fishery-monitor'
 						});

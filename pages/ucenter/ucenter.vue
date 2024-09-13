@@ -130,7 +130,7 @@
 				uni.showLoading({
 					title: '加载中'
 				});
-				this.API.apiRequest('/api/auth/logout', {}, 'post').then(res => {
+				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
 					if (res.code == 200) {
 						uni.removeStorageSync('access_token')
 						uni.removeStorageSync('wx_code')
@@ -149,7 +149,7 @@
 				uni.showLoading({
 					title: '加载中'
 				});
-				this.API.apiRequest('/api/auth/me', {}, 'post').then(res => {
+				this.API.apiRequest('/api/v1/board/user/info', {}, 'get').then(res => {
 					if (res.code == 200) {
 						this.userWxInfo = res.data
 					}

@@ -19,7 +19,7 @@
 		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
-				"navigationBarTitleText": "设备",
+				"navigationBarTitleText": "设备列表",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -50,6 +50,13 @@
 		},
 		{
 			"path": "pages/fishery-monitor/deviceDetail",
+			"style": {
+				"navigationBarTitleText": "设备详情",
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
+			"path": "pages/webViewPage/webViewPage",
 			"style": {
 				"navigationBarTitleText": "设备详情",
 				"navigationBarBackgroundColor": "#FFFFFF"
