@@ -1,10 +1,15 @@
 <template>
 	<view class="pagehome">
 		<view class="tp-fishery-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
-			<view style="display: flex;" @click="toMore">
+			<view style="display: flex; gap: 30rpx;">
 				<view class="iconmore" style="margin-top: 10rpx;" @click='toShowNavDrawer'>
 					<image src="/static/icon/more.png" />
-					<view class="title">{{ currentGroup.device_group }}</view>
+				</view>
+				<view style="display: flex; gap: 10rpx">
+					<view class="title" style="margin-top: 10rpx;" >{{ selectedGroupName }}</view>
+					<view v-if="selectedGroupId" style="margin-top: 10rpx;" @click='clearSelectedGroup'>
+						<image src="/static/icon/close.png" style="width: 25rpx; height: 25rpx;" />
+					</view>
 				</view>
 			</view>
 		</view>
@@ -28,19 +33,19 @@
 						<view class="device_name">
 							<view class="device_name_l">
 								<view class="item-name">
-									{{ item.device_name }}
+									{{ item.name }}
 								</view>
 								<view class="item-info">
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) <= 30"><i></i>在线</span> -->
-									<span v-if="+item.status == 1"><i></i>在线</span>
+									<span v-if="+item.is_online == 1"><i></i>在线</span>
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
 									<span v-else class='grey'><i></i>离线</span>
 									<view class="item-time">
-										更新时间：{{ item.latest_ts_name || '--' }}
+										上报时间：{{ item.latest_ts_name || '--' }}
 									</view>
 								</view>
 
@@ -123,20 +128,41 @@
 				<view class="tp-tmp"></view> -->
 			</view>
 		</view>
+		<gq-tree
+		        ref="gqTree"
+		        :range="deviceGroupData"
+		        idKey="id"
+		        nameKey="name"
+		        allKey="value"
+		        childKey="children"
+		        pidKey="pid"
+		        :showSearch="false"
+		        :multiple="false"
+		        :cascade="false"
+		        :selectParent="true"
+		        :foldAll="false"
+		        confirmColor="#007aff"
+		        cancelColor="#757575"
+		        title="分组选择"
+		        titleColor="#757575"
+		        @cancel="treeCancel"
+		        @confirm="treeConfirm"
+		    >
+		    </gq-tree>
 		<!-- 菜单抽屉 -->
 		<uni-drawer ref="navDrawer" :mask="true" :maskClick="true" :width="300" :drawerTop='topHeight'>
 			<scroll-view scroll-y :style="{ height: height - 80 + 'px' }" style="padding-top: 50rpx;">
-				<view class="draw-title" v-for='(item, index) in ywData' :key='index'>
-					<h3 @click='getYTData(item)'>{{ item.name }}
-						<uni-icons :type="item.secondShow ? 'bottom' : 'top'" size="15" class="rightIcons"></uni-icons>
-					</h3>
-					<view class="draw-title-list" v-for="(equip, equipIndex) in item.equipLists" :key="equipIndex"
-						v-if="item.equipLists && item.equipLists.length > 0 && item.secondShow" @click="toClickEquip(item, equip)">
-						<view class="list-item">
-							<text class="item_text">{{ equip.device_group }}</text>
-						</view>
-					</view>
-				</view>
+				<!--  <TreeSelector :treeData="deviceGroupData" :selectedId="selectedGroupId" @groupSelect="handleGroupSelect" :style="{ '--indent-size': '20px' }"/> -->
+				<!-- <next-tree
+					:changeVerify="changeVerify" 
+					ref="nextTreeRef"
+					:uiMode="uiMode"
+					:selectParent="true"
+					:funcMode="funcMode"
+					:ifSearch="false"
+					:treeData="deviceGroupData">
+				</next-tree> -->
+				
 			</scroll-view>
 		</uni-drawer>
 		<!-- 日志详情 -->
@@ -234,6 +260,7 @@ var Dissolved_Oxygen1, PH1, temperature1;
 import {
 	mapState
 } from "vuex";
+import dayjs from 'dayjs';
 //
 export default {
 	data() {
@@ -285,7 +312,13 @@ export default {
 			currentGroup: {},
 			ktxStatusHeight: 0,
 			timer: null,
-			statusBarHeight: 0
+			statusBarHeight: 0,
+			uiMode: 'popup',
+			funcMode: 'radio',
+			deviceGroupData: [],
+			// treeData: this.formatData(this.deviceGroupData.data), // 假设deviceGroupData是你的数据源
+			selectedGroupId: '' ,// 当前选中的group id
+			selectedGroupName: ''
 		}
 	},
 	// 
@@ -349,7 +382,7 @@ export default {
 		this.$store.state.list.equpPage = 1
 		this.ywData = []
 		this.showData();
-		this.checkNotify()
+		//this.checkNotify()
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {
@@ -422,7 +455,9 @@ export default {
 					this.getYTData(uni.getStorageSync("currentYw"))
 				}
 			} else {
-				this.getYwData()
+				//this.getYwData()
+				this.deviceList = []
+				this.getDeviceList()
 			}
 			// 获取日志接口
 			// this.getWarningList()
@@ -453,7 +488,7 @@ export default {
 		},
 		// 点击设备
 		clickDevice(data, dataIndex) {
-			var state = ''
+			/*var state = ''
 			if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
 				new Date().getTime() *
 				1000))) > 30) {
@@ -466,9 +501,15 @@ export default {
 			}
 			this.currentDataIndex = dataIndex
 			uni.navigateTo({
-				url: './deviceDetail?type=' + data.type + '&device_id=' + data.device_id + '&device_name=' +
-					data.device_name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + parseInt(data.status)
-			})
+				url: './deviceDetail?type=' + data.type + '&device_id=' + data.id + '&device_name=' +
+					data.name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + data.is_online
+			})*/
+			const token = uni.getStorageSync("access_token");
+			const serverUrl = uni.getStorageSync('serverAddress');
+			const url = `${serverUrl}/device-details-app?d_id=${data.id}&token=${token}`;
+			uni.navigateTo({
+			  url: `/pages/webViewPage/webViewPage?url=${encodeURIComponent(url)}`
+			});
 		},
 		// 日志详情
 		logInfo(log, index) {
@@ -489,10 +530,19 @@ export default {
 		},
 		// 展示分组
 		toShowNavDrawer() {
-			if (this.ywData.length == 0) {
-				this.getYwData()
-			}
-			this.$refs.navDrawer.open()
+			this.getGroupData();
+			//this.$refs.navDrawer.open()
+			//this.$refs.nextTreeRef.showTree = true
+			//this.$refs.gqTree._show();
+			//setTimeout(() => {
+				this.$refs.gqTree._show();
+			//}, 1000)
+		},
+		clearSelectedGroup() {
+			this.deviceList = [];
+			this.selectedGroupId = '';
+			this.selectedGroupName = '';
+			this.getDeviceList();
 		},
 		// 改变设备开关
 		changSwitch(dev, sw) {
@@ -522,6 +572,62 @@ export default {
 			setTimeout(() => {
 				uni.hideLoading()
 			}, 1000);
+		},
+		/*formatGroupData(data) {
+			// 处理数据使其适应next-tree组件
+			return data.map(group => {
+			  const formattedGroup = {
+				id: group.group.id,
+				label: group.group.name,
+				children: group.children ? this.formatGroupData(group.children) : [],
+			  };
+			  return formattedGroup;
+			});
+		},*/
+		formatGroupData(data, parentId) {
+			return data.map(group => {
+			  const formattedGroup = {
+				id: group.group.id,
+				name: group.group.name,
+				pid: parentId,
+				children: group.children ? this.formatGroupData(group.children, group.group.id) : [],
+			  };
+			  return formattedGroup;
+			});
+		},
+		getGroupData() {
+			uni.showLoading({
+				title: '加载中'
+			});
+			this.API.apiRequest('/api/v1/device/group/tree', {
+			}, 'get').then(res => {
+				if (res.code === 200) {
+					this.deviceGroupData = this.formatGroupData(res.data)
+					console.log(this.deviceGroupData)
+				}
+			}).finally(() => {
+				// uni.hideLoading()
+				//this.$refs.navDrawer.open()
+				this.$refs.gqTree._show();
+			});
+			setTimeout(() => {
+				uni.hideLoading()
+			}, 1000);
+		},
+		treeConfirm(e) {
+			this.deviceList = []
+			this.selectedGroupId = e[0].id
+			this.selectedGroupName = e[0].name
+			this.$refs.navDrawer.close()
+			this.getDeviceList()
+		},
+		changeVerify: function(current, chooseList) {
+			console.log('当前变化的数据', current)
+			console.log('已选择的数据', chooseList)
+			if(chooseList && chooseList.length > 4) {
+
+				return '最多可以选择4个节点'
+			}
 		},
 		// 获取业务列表
 		getYwData() {
@@ -673,13 +779,13 @@ export default {
 			uni.showLoading({
 				title: '加载中'
 			});
-			this.API.apiRequest('/api/device/list', {
-				asset_id: this.currentGroup.id,
-				current_page: this.$store.state.list.equpPage,
-				per_page: 20
-			}, 'post').then(res => {
+			this.API.apiRequest('/api/v1/device', {
+				group_id: this.selectedGroupId,
+				page: this.$store.state.list.equpPage,
+				page_size: 20
+			}, 'get').then(res => {
 				if (res.code === 200) {
-					var newData = res.data.data || [];
+					var newData = res.data.list || [];
 					var data = []
 					if (newData.length > 0) {
 						newData.forEach(item => {
@@ -709,18 +815,18 @@ export default {
 					var ids = []
 					this.deviceList.forEach(item => {
 						item.currentIndex = 0
-						if (item.latest_ts && item.latest_ts != null) {
-							item.latest_ts_name = this.formatDate(item.latest_ts)
+						if (item.ts && item.ts != null) {
+							item.latest_ts_name = item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : ''; //this.formatDate(item.ts)
 						}
 						item.chart_data = {}
-						ids.push(item.device_id)
+						ids.push(item.id)
 					})
-					this.getDetailStatus(ids)
+					/*this.getDetailStatus(ids)
 					this.clearDeviceStatusTimer()
 					this.deviceStatusTimer = setInterval(() => {
 						console.log("getDetailStatus")
 						this.getDetailStatus(ids)
-					}, 5000)
+					}, 5000)*/
 				} else {
 					this.loadMoreEqupShow = false;
 					this.statusEqupType = 'noMore';
@@ -922,13 +1028,23 @@ export default {
 				clearInterval(this.deviceStatusTimer)
 				this.deviceStatusTimer = 0
 			}
+		},
+		formatData(data) {
+		  return data.map(item => ({ ...item, children: item.children || [] }));
+		},
+		handleGroupSelect(groupItem) {
+		  this.selectedGroupId = groupItem.group.id; // 更新选中的group id
+		  console.log('Selected group:', groupItem);
+		  this.$refs.navDrawer.close(); // 关闭drawer
 		}
 	}
 }
 </script>
 <style scoped lang="css">
 @import '@/common/fishery-monitor.css';
-
+.title {
+	font-size: large;
+}
 .rightIcons {}
 
 .draw-title {}
