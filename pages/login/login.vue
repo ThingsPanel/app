@@ -150,12 +150,21 @@ import login from "../../store/login";
 							icon: 'none'
 						});
 					} else {
-						this.toast.msg = res.message;
-						this.$refs.toast.show();
+						this.handleError(res.message);
 					}
+				}).catch(err => {
+					this.handleError('网络错误，请稍后再试!'); // 处理网络错误
 				}).finally(() => {
 					uni.hideLoading()
 				})
+			},
+			handleError(message) {
+				this.toast.msg = message;
+				//this.$refs.toast.show();
+				uni.showToast({
+					title: message,
+					icon: 'none'
+				});
 			},
 			//获取授权
 			getAuth() {
