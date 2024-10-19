@@ -81,6 +81,7 @@
   import CustomSelect from '@/components/custom-select.vue'
   import Device from './device.vue'
   import SelectPes from './select-pes.vue'
+  import { deviceList } from '@/service/device'
   
   export default {
     components: {
@@ -145,24 +146,6 @@
           this.$set(data, 'v3', '1')
         }
       },
-      // 加载项目列表
-      queryProjectOptions () {
-        // uni.showLoading({
-        // 	title: '加载中'
-        // });
-        
-        const params = {}
-        this.API.apiRequest('/api/business/index', params, 'post').then(res => {
-        	if (res.code == 200) {
-        		this.projectOptions = res.data.data || []
-        	} else {
-        		this.toast.msg = res.message
-        		this.$refs.toast.show();
-        	}
-        }).finally(() => {
-        	uni.hideLoading()
-        });
-      },
       
       // 加载分组列表
       queryGroupOptions () {
@@ -208,7 +191,7 @@
         	page: 1,
         	page_size: 9999,
         }
-        this.API.apiRequest('/api/v1/device', params, 'get').then(res => {
+        deviceList(params).then(res => {
         	if (res.code == 200) {
         		this.deviceOptions = res.data.list || []
         	} else {

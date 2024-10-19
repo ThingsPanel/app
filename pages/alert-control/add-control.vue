@@ -715,12 +715,11 @@
 						controlList.push(obj)
 					})
 					var params = {
-						business_id: uni.getStorageSync('ywId'), // 业务id
 						status: switchOnTwo,
 						name: this.formData.name,
 						sort: this.formData.sort,
 						type: this.trigList[0].conditionType,
-						describe: this.formData.describe,
+						description: this.formData.describe,
 						issued: '0',
 						config: {
 							rules: trigList,
@@ -728,7 +727,7 @@
 						},
 					}
 					params.config = JSON.stringify(params.config)
-					this.API.apiRequest('/api/automation/add', params, 'post').then(res => {
+					this.API.apiRequest('/api/v1/scene_automations', params, 'post').then(res => {
 						if (res.code == 200) {
 							this.toast.msg = res.message
 							this.$refs.toast.show();

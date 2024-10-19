@@ -281,13 +281,13 @@
         });
         
         let apis = {
-          '场景联动': '/api/v1/automation/delete',
-          '场景管理': '/api/scenario/strategy/delete'
+          '场景联动': `/api/v1/scene_automations/${this.currentDelId}`,
+          '场景管理': `/api/v1/scene/${this.currentDelId}`
         }
         
         this.API.apiRequest(apis[this.clName], {
           id: this.currentDelId
-        }, 'post').then(res => {
+        }, 'delete').then(res => {
           if (res.code == 200) {
             this.visible = false
             

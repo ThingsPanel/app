@@ -5,23 +5,14 @@
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view class="form-item-label">规则名称</view>
 					<input maxlength="20" type="text" class="tp-flex-1" placeholder="规则名称" placeholder-class="tp-plc"
-						v-model="formData.automation_name" />
+						v-model="formData.name" />
 				</view>
         
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
 					<view class="form-item-label">规则说明</view>
 					<input maxlength="40" type="text" class="tp-flex-1" placeholder="规则说明" placeholder-class="tp-plc"
-						v-model="formData.automation_described" />
+						v-model="formData.description" />
 				</view>
-        
-        <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-        	<view class="form-item-label">优先级</view>
-          <uni-number-box class="tp-flex-1" v-model="formData.priority" />
-          
-          <uni-tooltip class="tooltip" content="值越小优先级越高">
-            <uni-icons type="help-filled" size="40rpx" color="#999"></uni-icons>
-          </uni-tooltip>
-        </view>
 			</view>
       
       <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30  uni-bold">
@@ -29,14 +20,20 @@
       </view>
 
       <!-- 条件列表 -->
-      <Conditions v-if="formData.automation_conditions" ref="conditions" :list="formData.automation_conditions" />
+      <conditions-edit
+        v-if="formData.trigger_condition_groups" ref="conditions"
+        :condition-data.sync="formData.trigger_condition_groups" />
       
       <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30 uni-bold">
         <text class="title">那么</text>
       </view>
 
       <!-- 操作列表 -->
-      <Actions v-if="formData.automation_actions" ref="actions" :list="formData.automation_actions" />
+      <actions-edit
+        v-if="formData.actions"
+        ref="actions" 
+        :actions.sync="formData.actions"
+      ></actions-edit>
       
 			<view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
 				<button class="tp-btn" @tap="handlerSubmit">保存</button>
@@ -51,16 +48,17 @@
 </template>
 
 <script>
-  import Conditions from './conditions.vue'
-  import Actions from './actions.vue'
+  import ActionsEdit from '../scene-detail/actions-edit.vue';
+  import ConditionsEdit from './conditions-edit.vue';
   import CustomSelect from '@/components/custom-select.vue'
+  import moment from '@/static/js/moment.js';
   import Modal from '@/components/x-modal/x-modal'
   
 	export default {
     components: {
-      Conditions,
-      Actions,
+      ActionsEdit,
       CustomSelect,
+      ConditionsEdit,
       Modal
     },
 		data() {
@@ -84,18 +82,14 @@
 		},
     mounted () {
       if (this.editId) {
-        this.getInfo()
+        this.getInfo();
       } else {
         this.formData = {
-          automation_name: '',
-          automation_described: '',
-          priority: 0,
-          automation_conditions: [ // 条件
-            {
-              $index: Math.random()
-            }
+          name: '',
+          description: '',
+          trigger_condition_groups: [ // 条件
           ],
-          automation_actions: [ // 动作
+          actions: [ // 动作
             {
               $index: Math.random()
             }
@@ -112,12 +106,15 @@
         const params = {
       		id: this.editId
       	}
-      	this.API.apiRequest('/api/v1/automation/detail', params, 'post').then(res => {
+      	this.API.apiRequest('/api/v1/scene_automations/detail/'+this.editId, params, 'get').then(res => {
       		if (res.code == 200) {
-            this.formData = res.data
+            this.formData = { ...res.data,
+              trigger_condition_groups: this.convertConditionsData(res.data.trigger_condition_groups),
+              actions: this.convertActionsData(res.data.actions)
+            };
             console.log(this.formData)
-            if (!this.formData.automation_conditions?.length) {
-              this.formData.automation_conditions = [
+            if (!this.formData.trigger_condition_groups?.length) {
+              this.formData.trigger_condition_groups = [
                 {
                   $index: Math.random(),
                 }
@@ -131,31 +128,206 @@
       		uni.hideLoading()
       	});
       },
-      
+      convertConditionsData(ifData) {
+        // 遍历数据，处理每一项的逻辑
+        ifData.forEach((item) => {
+          item.forEach((ifItem) => {
+            // 条件类型为 '10' 或 '11'
+            if (ifItem.trigger_conditions_type === '10' || ifItem.trigger_conditions_type === '11') {
+              ifItem.ifType = '1';
+              if (ifItem.trigger_operator === 'between') {
+                const [min, max] = ifItem.trigger_value.split('-');
+                ifItem.minValue = min;
+                ifItem.maxValue = max;
+              }
+              ifItem.trigger_param_key = `${ifItem.trigger_param_type}/${ifItem.trigger_param}`;
+            }
+
+            // 条件类型为 '22'
+            if (ifItem.trigger_conditions_type === '22') {
+              ifItem.ifType = '2';
+              const [weekChose, startTime, endTime] = ifItem.trigger_value.split('|');
+              ifItem.weekChoseValue = weekChose.split('');
+              
+              const formattedDate = moment().format('YYYY-MM-DD');
+              ifItem.startTimeValue = moment(`${formattedDate} ${startTime}`).valueOf();
+              ifItem.endTimeValue = moment(`${formattedDate} ${endTime}`).valueOf();
+            }
+
+            // 条件类型为 '20'
+            if (ifItem.trigger_conditions_type === '20') {
+              ifItem.ifType = '2';
+              ifItem.onceTimeValue = moment(ifItem.execution_time).valueOf();
+            }
+
+            // 条件类型为 '21'
+            if (ifItem.trigger_conditions_type === '21') {
+              ifItem.ifType = '2';
+
+              const formattedDate = moment().format('YYYY-MM-DD');
+              const hour = moment().format('YYYY-MM-DD HH');
+
+              switch (ifItem.task_type) {
+                case 'HOUR':
+                  ifItem.hourTimeValue = moment(`${hour}:${ifItem.params}`).valueOf();
+                  break;
+                case 'DAY':
+                  ifItem.dayTimeValue = moment(`${formattedDate} ${ifItem.params}`).valueOf();
+                  break;
+                case 'WEEK':
+                  const [weekStr, weekTime] = ifItem.params.split('|');
+                  ifItem.weekChoseValue = weekStr.split('');
+                  ifItem.weekTimeValue = moment(`${formattedDate} ${weekTime}`).valueOf();
+                  break;
+                case 'MONTH':
+                  const [monthChose, monthTime] = ifItem.params.split('T');
+                  ifItem.monthChoseValue = monthChose;
+                  ifItem.monthTimeValue = moment(`${formattedDate} ${monthTime}`).valueOf();
+                  break;
+              }
+            }
+          });
+        });
+        return ifData;
+      },
+      // 提交时处理条件数据
+      handleConditionsData(conditionsData) {
+        const ifGroupsData = JSON.parse(JSON.stringify(conditionsData));
+        // eslint-disable-next-line array-callback-return
+        ifGroupsData.map((ifGroupItem) => {
+          // eslint-disable-next-line array-callback-return
+          ifGroupItem.map((ifItem) => {
+            if (ifItem.trigger_conditions_type === '10' || ifItem.trigger_conditions_type === '11') {
+              if (ifItem.trigger_operator === 'between') {
+                ifItem.trigger_value = `${ifItem.minValue}-${ifItem.maxValue}`;
+              }
+            }
+            if (ifItem.trigger_conditions_type === '22') {
+              let trigger_value = '';
+              // eslint-disable-next-line array-callback-return
+              ifItem.weekChoseValue.map((item) => {
+                trigger_value += item;
+              });
+              trigger_value += `|${moment(ifItem.startTimeValue).format('HH:mm:ssZ')}`;
+              trigger_value += `|${moment(ifItem.endTimeValue).format('HH:mm:ssZ')}`;
+              ifItem.trigger_value = trigger_value;
+            }
+            if (ifItem.trigger_conditions_type === '20') {
+              ifItem.execution_time = moment(ifItem.onceTimeValue).format();
+            }
+            if (ifItem.trigger_conditions_type === '21') {
+              if (ifItem.task_type === 'HOUR') {
+                ifItem.params = moment(ifItem.hourTimeValue).format('mm:00Z');
+              }
+              if (ifItem.task_type === 'DAY') {
+                ifItem.params = moment(ifItem.dayTimeValue).format('HH:mm:00Z');
+              }
+              if (ifItem.task_type === 'WEEK') {
+                let params = '';
+                // eslint-disable-next-line array-callback-return
+                ifItem.weekChoseValue.map((item) => {
+                  params += item;
+                });
+                ifItem.params = `${params}|${moment(ifItem.weekTimeValue).format('HH:mm:00Z')}`;
+              }
+              if (ifItem.task_type === 'MONTH') {
+                ifItem.params = `${ifItem.monthChoseValue}T${moment(ifItem.monthTimeValue).format(`HH:mm:00Z`)}`;
+              }
+            }
+          });
+        });
+        return ifGroupsData;
+      },
+      convertActionsData(actionsData) {
+        const actionGroupsData = [];
+        const actionInstructList = [];
+        actionsData.map((item) => {
+          if (item.action_type === '10' || item.action_type === '11') {
+            item.actionParamOptions = [];
+            const actionValueObj = JSON.parse(item.action_value);
+            if (
+              item.action_param_type === 'c_telemetry' ||
+              item.action_param_type === 'c_attribute' ||
+              item.action_param_type === 'c_command'
+            ) {
+              item.actionValue = item.action_value;
+            }
+            if (item.action_param_type === 'telemetry' || item.action_param_type === 'attributes') {
+              item.actionValue = actionValueObj[item.action_param];
+            }
+            if (item.action_param_type === 'command') {
+              item.actionValue = actionValueObj.params;
+            }
+            item.actionParamOptions = [];
+            actionInstructList.push(item);
+          } else {
+            item.actionType = item.action_type;
+            actionGroupsData.push(item);
+          }
+        });
+        if (actionInstructList.length > 0) {
+          const type1Data = {
+            actionType: '1',
+            actionInstructList
+          };
+          actionGroupsData.push(type1Data);
+        }
+        return actionGroupsData;
+      },
+      // 提交时处理动作数据
+      handleActionData(inputActions) {
+        // 处理动作的数据
+        const actionGroupsData = inputActions;
+        const actionsData = [];
+        // eslint-disable-next-line array-callback-return
+        actionGroupsData.map((item) => {
+          if (item.actionType === '1') {
+            // eslint-disable-next-line array-callback-return
+            item.actionInstructList.map((instructItem) => {
+              // 如果是c_telemetry/c_attribute,那么action_value示例格式：{"c_telemetry":2}
+              // 如果是c_command,那么action_value示例格式：{"method":"switch1","params":{"false":0}}
+              if (
+                instructItem.action_param_type === 'c_telemetry' ||
+                instructItem.action_param_type === 'c_attribute' ||
+                instructItem.action_param_type === 'c_command'
+              ) {
+                instructItem.action_value = instructItem.actionValue;
+              }
+              // 如果是telemetry/attribute，那么 action_value示例格式：{"humidity":2}
+              if (instructItem.action_param_type === 'telemetry' || instructItem.action_param_type === 'attributes') {
+                const action_value = {};
+                action_value[instructItem.action_param] = instructItem.actionValue;
+                instructItem.action_value = JSON.stringify(action_value);
+              }
+              // 如果是command/c_command，那么 action_value示例格式:	{"method":"ReSet","params":{"switch":1,"light":"close"}}
+              if (instructItem.action_param_type === 'command') {
+                const action_value = {
+                  method: instructItem.action_param,
+                  params: instructItem.actionValue
+                };
+                instructItem.action_value = JSON.stringify(action_value);
+              }
+              actionsData.push(instructItem);
+            });
+          } else {
+            item.action_type = item.actionType;
+            actionsData.push(item);
+          }
+        });
+        return actionsData;
+      },
       
 			
       // 校验
 			validateBaseInfo () {
         // 场景基本信息校验
         const {
-          automation_name,
-          // automation_described,
-          priority,
+          name
         } = this.formData
         
-				if (!automation_name) {
+				if (!name) {
           return {
-            result: '请输入规则名称'
-          }
-				}
-        // if(!automation_described){
-        //   return {
-        //     result: '请输入规则说明'
-        //   }
-        // }
-				if (priority != 0 && !priority) {
-          return {
-            result: '请设置优先级'
+            result: '请输入场景联动名称'
           }
 				}
         
@@ -176,28 +348,33 @@
         } else {
           submitData.tenant_id = this.formData.tenant_id
           submitData.id = this.formData.id
-          submitData.automation_name = this.formData.automation_name
-          submitData.automation_described = this.formData.automation_described
-          submitData.priority = this.formData.priority
-          submitData.enabled = '0' // 传0表示将状态改为停用
+          submitData.name = this.formData.name
+          submitData.description = this.formData.description
+          submitData.enabled = this.formData.enabled
         }
-        
-        const conditionsInfo = this.$refs.conditions.getConditionsData()
+        const conditionsInfo = this.handleConditionsData(this.$refs.conditions.ifGroupsData());
+        if (!conditionsInfo || conditionsInfo.length === 0) {
+          this.toast.msg = "请输入场景联动条件"
+          this.$refs.toast.show()
+          return;
+        } else {
+          submitData.trigger_condition_groups = conditionsInfo
+        }
+        /*const conditionsInfo = this.$refs.conditions.getConditionsData()
         if (conditionsInfo.result != true) {
           this.toast.msg = conditionsInfo.result
           this.$refs.toast.show()
           return;
         } else {
           submitData.automation_conditions = conditionsInfo.conditions
-        }
-       
-        const actionsInfo = this.$refs.actions.getActionsData()
-        if (actionsInfo.result != true) {
-          this.toast.msg = actionsInfo.result
+        }*/
+        const actionsInfo = this.handleActionData(this.formData.actions);
+        if (!actionsInfo || actionsInfo.length === 0) {
+          this.toast.msg = "请输入场景联动动作"
           this.$refs.toast.show()
           return;
         } else {
-          submitData.automation_actions = actionsInfo.actions
+          submitData.actions = actionsInfo
         }
 
         console.log(submitData)
@@ -217,12 +394,13 @@
         	title: '加载中'
         });
         
-        let url = '/api/v1/automation/edit'
+        let url = '/api/v1/scene_automations';
+        let method = 'put';
         if (!submitData.id) {
-          url = '/api/v1/automation/add'
+          method = 'post';
         }
         
-        this.API.apiRequest(url, submitData, 'post').then(res => {
+        this.API.apiRequest(url, submitData, method).then(res => {
         	if (res.code == 200) {
         		uni.navigateBack(-1)
         	} else {

@@ -261,6 +261,7 @@ import {
 	mapState
 } from "vuex";
 import dayjs from 'dayjs';
+import { deviceList as deviceListApi } from '@/service/device'
 //
 export default {
 	data() {
@@ -424,11 +425,10 @@ export default {
 	//
 	methods: {
 		checkNotify() {
-			this.API.apiRequest('/api/v1/warning/information/list', {
-				current_page: 1,
-				per_page: 1,
-				processing_result: '0'
-			}, 'post').then(res => {
+			this.API.apiRequest('/api/v1/alarm/info/history', {
+				page: 1,
+				page_size: 10
+			}, 'get').then(res => {
 				clearInterval(this.timer)
 				if (res.code === 200) {
 					this.activeNotify = !!res.data.data.length
@@ -446,19 +446,8 @@ export default {
 			})
 		},
 		showData() {
-			if (uni.getStorageSync("currentYw").id) {
-				if (uni.getStorageSync("currentGroup").id) {
-					this.deviceList = []
-					this.currentGroup = uni.getStorageSync("currentGroup")
-					this.getDeviceList()
-				} else {
-					this.getYTData(uni.getStorageSync("currentYw"))
-				}
-			} else {
-				//this.getYwData()
-				this.deviceList = []
-				this.getDeviceList()
-			}
+			this.deviceList = []
+			this.getDeviceList()
 			// 获取日志接口
 			// this.getWarningList()
 			// let count = 0;
@@ -545,7 +534,7 @@ export default {
 			this.getDeviceList();
 		},
 		// 改变设备开关
-		changSwitch(dev, sw) {
+		/*changSwitch(dev, sw) {
 			var stateNum;
 			if (sw.state == 0) {
 				stateNum = 1
@@ -572,7 +561,7 @@ export default {
 			setTimeout(() => {
 				uni.hideLoading()
 			}, 1000);
-		},
+		},*/
 		/*formatGroupData(data) {
 			// 处理数据使其适应next-tree组件
 			return data.map(group => {
@@ -606,8 +595,6 @@ export default {
 					console.log(this.deviceGroupData)
 				}
 			}).finally(() => {
-				// uni.hideLoading()
-				//this.$refs.navDrawer.open()
 				this.$refs.gqTree._show();
 			});
 			setTimeout(() => {
@@ -619,6 +606,7 @@ export default {
 			this.selectedGroupId = e[0].id
 			this.selectedGroupName = e[0].name
 			this.$refs.navDrawer.close()
+			this.$store.state.list.equpPage = 1
 			this.getDeviceList()
 		},
 		changeVerify: function(current, chooseList) {
@@ -628,68 +616,6 @@ export default {
 
 				return '最多可以选择4个节点'
 			}
-		},
-		// 获取业务列表
-		getYwData() {
-			uni.showLoading({
-				title: '加载中'
-			});
-			this.API.apiRequest('/api/business/index', {
-				page: 1,
-				limit: 999
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					this.ywData = res.data.data
-					this.ywData.forEach(item => {
-						item.secondShow = false
-					})
-					this.getYTData(res.data.data[0])
-					uni.setStorageSync('ywName', res.data.data[0].name)
-					uni.setStorageSync('ywId', res.data.data[0].id)
-				}
-			}).finally(() => {
-				// uni.hideLoading()
-			});
-			setTimeout(() => {
-				uni.hideLoading()
-			}, 1000);
-		},
-		//获取业务下分组列表
-		getYTData(item) {
-			uni.setStorageSync('currentYw', item)
-			// uni.showLoading({
-			// 	title: '加载中'
-			// });
-			this.API.apiRequest('/api/asset/list/d', {
-				business_id: item.id
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					if (res.data && res.data.length > 0) {
-						item.secondShow = !item.secondShow
-						const data = res.data
-						data.forEach(t => {
-							t.device_group = t.device_group.replace(/\//g, '');
-						})
-						this.ywData.forEach(d => {
-							if (item.id == d.id) {
-								d.equipLists = data
-							}
-						})
-						console.log("aaa", this.currentGroup);
-						if (!this.currentGroup) {
-							console.log("currentGroup")
-							this.currentGroup = data[0]
-							this.deviceList = []
-							this.getDeviceList()
-						}
-						this.currentGroup = data[0]
-						this.$forceUpdate()
-					}
-				}
-				// setTimeout(()=>{
-				// uni.hideLoading();
-				// },500);
-			});
 		},
 		//获取操作日志
 		getWarningList() {
@@ -779,11 +705,11 @@ export default {
 			uni.showLoading({
 				title: '加载中'
 			});
-			this.API.apiRequest('/api/v1/device', {
+			deviceListApi({
 				group_id: this.selectedGroupId,
 				page: this.$store.state.list.equpPage,
 				page_size: 20
-			}, 'get').then(res => {
+			}).then(res => {
 				if (res.code === 200) {
 					var newData = res.data.list || [];
 					var data = []
@@ -841,7 +767,7 @@ export default {
 			}, 1000);
 		},
 		// 获取离线在线状态
-		getDetailStatus(ids) {
+		/*getDetailStatus(ids) {
 			this.API.apiRequest('/api/device/status', {
 				device_id_list: ids
 			}, 'post').then(res => {
@@ -855,7 +781,7 @@ export default {
 					}
 				}
 			})
-		},
+		},*/
 		// 插件查询
 		getDetail(device) {
 			uni.showLoading({
