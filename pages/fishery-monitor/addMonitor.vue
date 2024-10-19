@@ -34,7 +34,7 @@
 		},
 		onLoad(option) {
 			this.code = option.code
-			this.groupId = option.id
+			this.groupId = option.groupId
 		},
 		onShow() {
 			this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
@@ -46,11 +46,10 @@
 					uni.showLoading({
 						title: '加载中'
 					});
-					this.API.apiRequest('/api/tp_generate_device/activate', {
-						activation_code: this.code,
-						name: this.name,
-						access_id: this.groupId,
-					}, 'post').then(res => {
+					this.API.apiRequest('/api/v1/device/active', {
+						device_number: this.code,
+						name: this.name
+					}, 'put').then(res => {
 						if (res.code === 200) {
 							uni.switchTab({
 								url: '../fishery-monitor/fishery-monitor'
