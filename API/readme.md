@@ -8,7 +8,7 @@
 ### 1.1 全局配置修改（修改vmeitime-http/interface.js中config和interceptor）
 ``` javascript 
 	config: {
-		baseUrl: "https://api.com/api/",
+		baseUrl: "https://api.com/api/v1",
 		header: {
 			'Content-Type':'application/json;charset=UTF-8',
 			'Content-Type':'application/x-www-form-urlencoded'
@@ -25,7 +25,7 @@
 ### 1.2 具体接口调用时修改（在vmeitime-http/index.js文件中具体业务接口中配置)
 ``` javascript
 //设置baseUrl
-http.config.baseUrl = "http://localhost:8080/api/"
+http.config.baseUrl = "http://localhost:8080/api/v1"
 //设置请求前拦截器
 http.interceptor.request = (config) => {
     //添加通用参数

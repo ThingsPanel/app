@@ -56,10 +56,10 @@
         // });
         
         const params = {
-          current_page: 1,
-          per_page: 999,
+          page: 1,
+          page_size: 999,
         }
-        this.API.apiRequest('/api/scenario/strategy/list', params, 'post').then(res => {
+        this.API.apiRequest('/api/v1/scene', params, 'get').then(res => {
         	if (res.code == 200) {
         		this.sceneOptions = res.data.data || []
         	} else {

@@ -11,7 +11,7 @@
 						告警级别
 					</view>
 					<view class="content">
-						{{{'1':'低', '2':'中',"3": '高'}[item.warning_level]}}
+						{{{'L':'低', 'M':'中',"H": '高'}[item.alarm_level]}}
 					</view>
 				</view>
 				<view class="opt">
@@ -19,7 +19,7 @@
 						告警名称
 					</view>
 					<view class="content">
-						{{item.warning_name}}
+						{{item.name}}
 					</view>
 				</view>
 				<view class="opt">
@@ -27,17 +27,19 @@
 						告警内容
 					</view>
 					<view class="content">
-						{{item.warning_content}}
+						{{item.content}}
 					</view>
 				</view>
 				<view class="opt">
 					<view class="name">告警时间</view>
 					<view class="content">{{formatDate(item.created_at)}}</view>
 				</view>
+				<!--
 				<view class="opt end">
 					<view class="btn" @click="process(item.id, '2')">忽略</view>
 					<view class="btn active" @click="process(item.id, '1')">处理</view>
 				</view>
+				-->
 			</view>
 		</view>
 
@@ -58,7 +60,6 @@ import NotofyDialog from '@/components/notify-dialog'
 			return {
 				page: 1,
 				pageSize: 10,
-				processing_result: "0", // 0 未处理 1 已处理 2 已忽略
 				loadEnd: false,
 				loading: false,
 				list: [],
@@ -71,7 +72,7 @@ import NotofyDialog from '@/components/notify-dialog'
 		},
 		methods: {
 			formatDate(date) {
-				return dayjs(date * 1000).format('YYYY-MM-DD HH:mm')
+				return dayjs(date).format('YYYY-MM-DD HH:mm')
 			},
 			closeDialog(refresh){
 				this.showDialog = false
@@ -108,13 +109,12 @@ import NotofyDialog from '@/components/notify-dialog'
 			},
 			getList() {
 				this.loading = true
-				this.API.apiRequest('/api/v1/warning/information/list', {
-					current_page: this.page,
-					per_page: this.pageSize,
-					processing_result: this.processing_result
-				}, 'post').then(res => {
+				this.API.apiRequest('/api/v1/alarm/info/history', {
+					page: this.page,
+					page_size: this.pageSize
+				}, 'get').then(res => {
 					if (res.code === 200) {
-						const list = res.data.data || []
+						const list = res.data.list || []
 						this.list = this.list.concat(list)
 						if (list.length < this.pageSize) {
 							this.loadEnd = true
