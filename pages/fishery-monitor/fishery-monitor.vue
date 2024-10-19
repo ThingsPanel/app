@@ -688,7 +688,7 @@ export default {
 				success: function (res) {
 					let result = res.result
 					uni.navigateTo({
-						url: './addMonitor?code=' + result + '&id=' + _this.currentGroup.id,
+						url: './addMonitor?code=' + result + '&groupId=' + _this.currentGroup.id,
 					})
 				}
 			});
