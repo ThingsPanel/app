@@ -1,16 +1,20 @@
 <template>
-<view class="tp-panel">
+<view>
     <!-- 动作编辑部分 -->
     <view
     v-for="(actionGroupItem, actionGroupIndex) in actions"
     :key="actionGroupIndex"
     class="mt-1 w-100%"
     >
-    <view style="align-self: center; border: 1px solid #ccc;" class="tp-panel tp-flex-1 tp-mg-10 tp-pd-b-10">
-        <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
+    <view style="align-self: center" class="tp-flex tp-flex-1 tp-mg-10 tp-pd-b-10 w-80">
+      <view class="tp-panel tp-flex-1">
+        <view
+          class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing"
+          :style="isInSceneEdit ? 'display:none' : ''">
           <CustomSelect
               v-model="actionGroupItem.actionType"
               :options="actionOptions"
+              :placeholder="'选择动作类型'"
               @change="(data) => actionChange(actionGroupItem, actionGroupIndex, data)"
           ></CustomSelect>
         </view>
@@ -23,10 +27,12 @@
               style="border: 1px solid #ccc;"
               class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-flex-wrap tp-mg-10 tp-pd-b-10"
           >
+          <view class="tp-flex-1">
             <view class="max-w-30 w-full">
               <CustomSelect
                   v-model="instructItem.action_type"
                   :options="actionTypeOptions"
+                  :placeholder="'选择设备类型'"
                   @change="(data) => actionTypeChange(actionGroupIndex, instructIndex, data)"
               ></CustomSelect>
             </view>
@@ -36,6 +42,7 @@
               <CustomSelect
                   v-model="instructItem.action_target"
                   :options="deviceOptions"
+                  :placeholder="'选择设备'"
                   option-value="id"
                   option-label="name"
                   @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
@@ -47,6 +54,7 @@
               <CustomSelect
                   v-model="instructItem.action_target"
                   :options="deviceConfigOption"
+                  :placeholder="'选择单类设备'"
                   option-value="id"
                   option-label="name"
                   @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
@@ -59,6 +67,7 @@
                 <CustomSelect
                   v-model="instructItem.action_param_type"
                   :options="instructItem.actionParamTypeOptions"
+                  :placeholder="'选择指标类型'"
                   @change="(data) => actionParamTypeChange(actionGroupIndex, instructIndex, data)"
                 ></CustomSelect>
               </view>
@@ -67,6 +76,7 @@
               <view v-if="instructItem.showSubSelect" class="max-w-40 w-full">
                 <CustomSelect
                   v-model="instructItem.action_param"
+                  :placeholder="'选择指标'"
                   :options="instructItem.actionParamOptions"
                   @change="(data) => actionParamChange(actionGroupIndex, instructIndex, data)"
                 ></CustomSelect>
@@ -102,8 +112,30 @@
                   class="w-full uni-input"
                   />
               </view>
+              </view>
             </view>
-
+            <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+              <!-- 条件数量大于1条时才允许删除 -->
+              <uni-icons 
+                v-if="actionGroupItem.actionInstructList.length > 1" 
+                class="tp-mg-t-b-10"
+                type="minus" 
+                size="40rpx" 
+                color="red"
+                @click="deleteIfGroupsSubItem(actionGroupIndex, instructIndex)"
+              ></uni-icons>
+              
+              <!-- 仅最后一个显示新增 -->
+              <uni-icons
+                v-if="instructIndex === actionGroupItem.actionInstructList.length - 1"
+                class="tp-mg-t-b-10"
+                type="plus" 
+                size="40rpx"
+                color="#2979ff"
+                @click="addIfGroupsSubItem(actionGroupIndex)"
+              ></uni-icons>
+            </view>
+            <!--
             <button
               v-if="instructIndex !== 0"
               @click="() => deleteIfGroupsSubItem(actionGroupIndex, instructIndex)"
@@ -111,8 +143,9 @@
               style="width: 50%; margin-right: 15px;"
             >
             删除
-            </button>
+            </button> -->
           </view>
+          <!-- 
           <button
               @click="() => addIfGroupsSubItem(actionGroupIndex)"
               style="width: 50%; margin-right: 15px;"
@@ -120,12 +153,14 @@
           >
               新增一个操作
           </button>
+          -->
         </view>
 
         <!-- 激活场景 -->
         <view v-if="actionGroupItem.actionType === '20'" class="ml-6 max-w-40 w-auto">
           <CustomSelect
             v-model="actionGroupItem.action_target"
+            :placeholder="'选择场景'"
             :options="sceneList"
             option-value="id"
             option-label="name"
@@ -137,14 +172,37 @@
           <CustomSelect
             v-model="actionGroupItem.action_target"
             :options="alarmList"
+            :placeholder="'选择告警'"
             option-value="id"
             option-label="name"
           ></CustomSelect>
-          <button @click="popUpVisible = true" class="tp-btn">
+          <!-- <button @click="popUpVisible = true" class="tp-btn">
           创建告警
-          </button>
+          </button> -->
         </view>
-
+        </view>
+        <view v-if="!isInSceneEdit" style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+          <!-- 条件数量大于1条时才允许删除 -->
+          <uni-icons 
+            v-if="actions.length > 1" 
+            class="tp-mg-t-b-10"
+            type="minus" 
+            size="40rpx" 
+            color="red"
+            @click="deleteActionGroupItem(actionGroupIndex)"
+          ></uni-icons>
+          
+          <!-- 仅最后一个显示新增 -->
+          <uni-icons
+            v-if="actionGroupIndex === actions.length - 1"
+            class="tp-mg-t-b-10"
+            type="plus" 
+            size="40rpx"
+            color="#2979ff"
+            @click="addActionGroupItem()"
+          ></uni-icons>
+        </view>
+        <!--
         <button
           v-if="actionGroupIndex > 0"
           @click="() => deleteActionGroupItem(actionGroupIndex)"
@@ -153,12 +211,8 @@
         >
         删除执行动作
         </button>
+        -->
     </view>
-    </view>
-    <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
-    <button @click="addActionGroupItem()" class="tp-btn">
-        新增执行动作
-    </button>
     </view>
 </view>
 </template>
@@ -182,7 +236,8 @@
       actions: {
         type: Array,
         required: true
-      }
+      },
+      isInSceneEdit: false
     },
     data() {
       return {

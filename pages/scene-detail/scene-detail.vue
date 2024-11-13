@@ -32,6 +32,7 @@
     </view>
     <actions-edit
         :actions.sync="formData.actions"
+        :isInSceneEdit="true"
       ></actions-edit>
 
       <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
@@ -100,7 +101,22 @@ export default {
         actions: [
           {
             actionType: '1',
-            actionInstructList: []
+            actionInstructList: [{
+              action_target: '',
+              action_type: null,
+              action_param_type: null,
+              action_param: null,
+              actionValue: null,
+              deviceGroupId: null,
+              actionParamOptions: [],
+              actionParamOptionsData: [],
+              actionParamTypeOptions: [],
+              showSubSelect: true,
+              actionParamData: null,
+              placeholder: '',
+              inputFeedback: '',
+              inputValidationStatus: ''
+            }]
           }
         ]
       };

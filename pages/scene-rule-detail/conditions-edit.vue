@@ -7,15 +7,17 @@
         @keydown.enter="onKeydownEnter"
         class="w-100%"
       >
-        <view v-for="(ifGroupItem, ifGroupIndex) in premiseForm.ifGroups" :key="ifGroupIndex" class="w-100%">
-          <view class="mb-2 w-100%">
+        <view v-for="(ifGroupItem, ifGroupIndex) in premiseForm.ifGroups"
+          :key="ifGroupIndex"
+          class="w-100% tp-flex">
+          <view class="mb-2 w-100% tp-flex-1">
             <view
               v-for="(ifItem, ifIndex) in ifGroupItem"
               :key="ifIndex"
-              class="ifGroupItem-class mb-2 w-100% tp-mg-10"
-              style="border: 1px solid #ccc;"
+              class="ifGroupItem-class mb-2 w-100% tp-mg-10 tp-flex tp-panel"
             >
-              <view class="flex-1">
+              <view class="tp-flex-1 tp-flex">
+              <view class="tp-flex-1">
                 <view v-if="ifIndex !== 0" class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-20  uni-bold">
                     <text class="tag-class">{{ '并且' }}</text>
                 </view>
@@ -281,7 +283,29 @@
                   <!-- 其他时间条件类型的处理，省略 -->
                 </view>
               </view>
-              <!-- 操作按钮 -->
+              </view>
+              <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+                <!-- 条件数量大于1条时才允许删除 -->
+                <uni-icons 
+                  v-if="ifIndex !== 0"
+                  class="tp-mg-t-b-10"
+                  type="minus" 
+                  size="40rpx" 
+                  color="red"
+                  @click="deleteIfGroupsSubItem(ifGroupIndex, ifIndex)"
+                ></uni-icons>
+                
+                <!-- 仅最后一个显示新增 -->
+                <uni-icons
+                  v-if="ifIndex === ifGroupItem.length - 1"
+                  class="tp-mg-t-b-10"
+                  type="plus" 
+                  size="40rpx"
+                  color="#2979ff"
+                  @click="addIfGroupsSubItem(ifGroupIndex)"
+                ></uni-icons>
+              </view>
+              <!-- 操作按钮 
               <view class="button-group">
                 <button v-if="ifIndex === 0"
                     @click.prevent="addIfGroupsSubItem(ifGroupIndex)"
@@ -291,16 +315,38 @@
                     @click.prevent="deleteIfGroupsSubItem(ifGroupIndex, ifIndex)"
                     style="width: 50%; margin-right: 15px;"
                     class="tp-btn uni-button--warn">删除条件</button>
-              </view>
+              </view> -->
             </view>
           </view>
-          <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
+          <!-- <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
             <button v-if="ifGroupIndex > 0" @click.prevent="deleteIfGroupsItem(ifGroupIndex)" class="tp-btn uni-button--warn">删除条件组</button>
+          </view> -->
+          <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+            <!-- 条件数量大于1条时才允许删除 -->
+            <uni-icons 
+              v-if="premiseForm.ifGroups.length > 1"
+              class="tp-mg-t-b-10"
+              type="minus" 
+              size="40rpx" 
+              color="red"
+              @click="deleteIfGroupsItem(ifGroupIndex)"
+            ></uni-icons>
+            
+            <!-- 仅最后一个显示新增 -->
+            <uni-icons
+              v-if="ifGroupIndex === premiseForm.ifGroups.length - 1"
+              class="tp-mg-t-b-10"
+              type="plus" 
+              size="40rpx"
+              color="#2979ff"
+              @click="addIfGroupItem(null)"
+            ></uni-icons>
           </view>
         </view>
+        <!--
         <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
             <button @click.prevent="addIfGroupItem(null)" class="tp-btn">新增条件组</button>
-        </view>
+        </view> -->
       </form>
     </view>
   </template>
