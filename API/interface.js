@@ -6,12 +6,12 @@ let baseUrl = ''
 if( uni.getStorageSync('serverAddress')) {
 	baseUrl = uni.getStorageSync('serverAddress')
 } else {
-	baseUrl = "http://dev.thingspanel.cn:9999"
+	baseUrl = "http://demo.thingspanel.cn"
 }
 export default {
 	config: {
 		// baseUrl: "http://cc.jszjcc.com",  //测试地址
-		// baseUrl: "http://dev.thingspanel.cn:9999",
+		// baseUrl: "http://demo.thingspanel.cn",
 		baseUrl: baseUrl,
 		header: {
 			'content-type': 'application/json',
