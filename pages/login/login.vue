@@ -32,7 +32,7 @@
 			<view class="inputicon">
 				<image src="/static/image/server.png" alt="">
 			</view>
-			<input type="text" placeholder-class="tp-plc" placeholder="http://dev.thingspanel.cn" v-model="server" @input="serverChange"/>
+			<input type="text" placeholder-class="tp-plc" placeholder="http://demo.thingspanel.cn" v-model="server" @input="serverChange"/>
 		</view>
 		<view class="btn">
 			<!-- <button class="tp-btn-cancle tp-mg-t-50 cancel_btn">取消登录</button> -->
