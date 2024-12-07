@@ -24,18 +24,16 @@ export const apiRequest = (url, data, method) => {
 	//设置请求结束后拦截器
 	http.interceptor.response = async (response) => {
 		const statusCode = response.data.code;
-		if (statusCode === 401) {
+		if (statusCode === 401 || statusCode === 403 || statusCode === 402) {
 			uni.showModal({
 				title: '提示',
-				content: '您的token已过期,请重新登录!',
+				content: '您的登录已过期,请重新登录!',
 				showCancel: false,
 				success: function(res) {
-					if (res.confirm) {
-						uni.clearStorageSync() //清空所有缓存
-						uni.navigateTo({
-							url: '/pages/login/login'
-						})
-					}
+					uni.clearStorageSync() //清空所有缓存
+					uni.navigateTo({
+						url: '/pages/login/login'
+					})
 				},
 			})
 			
