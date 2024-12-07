@@ -31,7 +31,7 @@ export default {
 		if( uni.getStorageSync('serverAddress')) {
 			this.config.baseUrl = uni.getStorageSync('serverAddress')
 		} else {
-			this.config.baseUrl = "http://dev.thingspanel.cn:9999"
+			this.config.baseUrl = "http://demo.thingspanel.cn"
 		}
 		if (!options) {
 			options = {}

@@ -27,7 +27,7 @@ export const apiRequest = (url, data, method) => {
 		if (statusCode === 401 || statusCode === 403 || statusCode === 402) {
 			uni.showModal({
 				title: '提示',
-				content: '您的token已过期,请重新登录!',
+				content: '您的登录已过期,请重新登录!',
 				showCancel: false,
 				success: function(res) {
 					uni.clearStorageSync() //清空所有缓存
