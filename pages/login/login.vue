@@ -126,7 +126,11 @@ import login from "../../store/login";
 			},
 			// 
 			toLogin(){
-				uni.setStorageSync('serverAddress', this.server)		
+				if(this.server) {
+					uni.setStorageSync('serverAddress', this.server)
+				} else {
+					uni.setStorageSync('serverAddress', 'http://demo.thingspanel.cn')
+				}
 				uni.showLoading({
 					title: '加载中'
 				});
