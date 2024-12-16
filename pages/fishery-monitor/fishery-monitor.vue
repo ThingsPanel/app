@@ -24,9 +24,11 @@
 						<image src="../../static/icon/notify.svg" v-if="!activeNotify"></image>
 						<image src="../../static/icon/notify-red.svg" v-else></image>
 					</view>
+					<!--
 					<view class="tp-add" @click="addEqp">
 						<image src="../../static/image/scan.png"></image>
 					</view>
+					-->
 				</view>
 				<view class="device_list">
 					<view class="device_item" v-for="(item, index) in deviceList" :key="index" @click="clickDevice(item)">
