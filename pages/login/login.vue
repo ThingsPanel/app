@@ -188,6 +188,8 @@ import login from "../../store/login";
 			goToRegister() {
 				if(this.server) {
 					uni.setStorageSync('serverAddress', this.server)
+				} else {
+					uni.setStorageSync('serverAddress', 'http://demo.thingspanel.cn')
 				}
 				uni.navigateTo({
 					url: './register'
