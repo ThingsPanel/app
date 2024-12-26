@@ -9,6 +9,14 @@
 			}
 		},
 		{
+			"path": "pages/login/register",
+			"style": {
+				"navigationBarTitleText": "注册",
+				"enablePullDownRefresh": false,
+				"navigationStyle": "custom"
+			}
+		},
+		{
 			"path": "pages/notify/notify",
 			"style": {
 				"navigationBarTitleText": "告警信息",
