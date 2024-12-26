@@ -5,9 +5,6 @@
 
 		<view class="tp-flex tp-login-welcome tp-flex-col tp-mg-t-b-50">
 			<view class="fishTitle">物联网平台</view>
-			<!-- <view class="fishinfo">
-				<image src='/static/image/logo.png' alt="">
-			</view> -->
 		</view>
 
 		<view
@@ -37,6 +34,7 @@
 		<view class="btn">
 			<!-- <button class="tp-btn-cancle tp-mg-t-50 cancel_btn">取消登录</button> -->
 			<button class="tp-btn tp-mg-t-50" :loading="loading" @tap="doLoginSubmit">登 录</button>
+			<button class="tp-btn tp-mg-t-50" @tap="goToRegister">注 册</button>
 		</view>
 		<view class="tp-getpwd tp-mg-t-40 tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @tap="doLoginCancel">取消登录</view>
 		<!-- 授权登录 -->
@@ -185,6 +183,14 @@ import login from "../../store/login";
 					fail: err => {
 						console.log('未授权err==', err);
 					}
+				});
+			},
+			goToRegister() {
+				if(this.server) {
+					uni.setStorageSync('serverAddress', this.server)
+				}
+				uni.navigateTo({
+					url: './register'
 				});
 			},
 		}
