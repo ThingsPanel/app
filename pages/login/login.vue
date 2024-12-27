@@ -12,7 +12,7 @@
 			<view class="inputicon">
 				<image src="/static/image/username.png" alt="">
 			</view>
-			<input type="text" placeholder-class="tp-plc" placeholder="请输入用户名" v-model="email" />
+			<input type="text" placeholder-class="tp-plc" placeholder="请输入邮箱" v-model="email" />
 		</view>
 		<view
 			class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">

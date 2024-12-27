@@ -165,7 +165,7 @@
           return false
         }
         if (!this.validPasswordByExp(this.formData.pwd)) {
-          this.errors.pwd = '密码格式不正确'
+          this.errors.pwd = '密码必须包含英文字母和数字'
           return false
         }
         this.errors.pwd = ''
