@@ -64,6 +64,9 @@
 						</view>
 					</view> -->
 				</view>
+				<view class="quitLogin" @click="toDelete" style="background-color: red; margin-bottom: 10px;" v-if="$login.isLoginType().isLogin">
+					注销
+				</view>
 				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
 					退出登录
 				</view>
@@ -282,6 +285,56 @@
 			},
 			closeAddressPopup() {
 				this.$refs.serverPopup.close()
+			},
+			toDelete() {
+				uni.showModal({
+					title: '警告',
+					content: '您确定要注销这个账户吗？',
+					cancelText: '取消',
+					confirmText: '确定',
+					success: (res) => {
+						if (res.confirm) {
+							uni.showLoading({
+								title: '处理中'
+							});
+							// Call delete API
+							this.API.apiRequest(`/api/v1/user/${this.userWxInfo.id}`, {}, 'delete')
+								.then(res => {
+									if (res.code == 200) {
+										uni.showModal({
+											title: '提示',
+											content: '注销成功',
+											showCancel: false,
+											success: () => {
+												// Clear storage and redirect to login
+												uni.removeStorageSync('access_token');
+												uni.removeStorageSync('wx_code');
+												uni.removeStorageSync('ywId');
+												uni.removeStorageSync('email');
+												uni.removeStorageSync('password');
+												uni.reLaunch({
+													url: '../login/login'
+												});
+											}
+										});
+									} else {
+										console.log(res);
+										uni.showModal({
+											title: '提示',
+											content: res.message || '注销失败',
+											showCancel: false,
+											success: () => {
+												// Stay on current page
+											}
+										});
+									}
+								})
+								.finally(() => {
+									uni.hideLoading();
+								});
+						}
+					}
+				});
 			}
 		}
 	}
