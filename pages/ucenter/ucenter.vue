@@ -64,11 +64,11 @@
 						</view>
 					</view> -->
 				</view>
-				<view class="quitLogin" @click="toDelete" style="background-color: red; margin-bottom: 10px;" v-if="$login.isLoginType().isLogin">
-					注销
-				</view>
 				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
 					退出登录
+				</view>
+				<view class="deleteAccount" @click="toDelete" v-if="$login.isLoginType().isLogin">
+					永久注销账号
 				</view>
 			</view>
 		</view>
@@ -289,7 +289,7 @@
 			toDelete() {
 				uni.showModal({
 					title: '警告',
-					content: '您确定要注销这个账户吗？',
+					content: '账号注销后数据无法恢复，您在系统中注册的个人信息也将永久删除！请确认注销账号！',
 					cancelText: '取消',
 					confirmText: '确定',
 					success: (res) => {
