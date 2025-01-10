@@ -7,21 +7,32 @@
 					</image>
 					<image :src="uhead" class="tp-mg-t-20" v-else></image>
 					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15"><text class="tp-mg-r-10"
-							v-if="!$login.isLoginType().isLogin">未登录/注册</text>
+							v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.notLoggedIn') }}</text>
 						<!-- <view class="iconfont iconbianji2" v-if="$login.isLoginType().isLogin"></view> -->
 					</view>
-					<view class="tp-box-sizing tp-mg-t-b-10" v-if="!$login.isLoginType().isLogin">点击头像可登录/注册</view>
+					<view class="tp-box-sizing tp-mg-t-b-10" v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.clickToLogin') }}</view>
 					<!-- <view class="tp-box-sizing tp-mg-t-b-10" v-else>账户有效期：{{validdate}}</view> -->
 				</view>
 
 				<view class="tp-panel tp-flex tp-flex-col tp-mg-t-50">
-
+					<view
+						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
+						hover-class="tp-panel-item-hover"
+						@click="showLanguagePopup">
+						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
+							<view>{{ $t('ucenter.language') }}</view>
+							<view style="display: flex;">
+								<view>{{ currentLanguage }}</view>
+								<view class="iconfont iconjiantou1"></view>
+							</view>
+						</view>
+					</view>
 					<view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
 						hover-class="tp-panel-item-hover">
 						<!-- <view class="iconfont iconequipment"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>名字</view>
+							<view>{{ $t('ucenter.name') }}</view>
 							<view style="display: flex;">
 								<view class="" v-if="userWxInfo.name">{{userWxInfo.name}}</view>
 								<view class="iconfont iconjiantou1"></view>
@@ -33,7 +44,7 @@
 						hover-class="tp-panel-item-hover">
 						<!-- <view class="iconfont iconlishi"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>电话</view>
+							<view>{{ $t('ucenter.phone') }}</view>
 							<view style="display: flex;">
 								<view class="" v-if="userWxInfo.mobile">{{userWxInfo.mobile}}</view>
 								<view class="iconfont iconjiantou1"></view>
@@ -45,7 +56,7 @@
 						hover-class="tp-panel-item-hover">
 						<!-- <view class="iconfont iconlishi"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>邮箱</view>
+							<view>{{ $t('ucenter.email') }}</view>
 							<view style="display: flex;">
 								<view class="" v-if="userWxInfo.email">{{userWxInfo.email}}</view>
 								<view class="iconfont iconjiantou1"></view>
@@ -65,10 +76,10 @@
 					</view> -->
 				</view>
 				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
-					退出登录
+					{{ $t('ucenter.logout') }}
 				</view>
 				<view class="deleteAccount" @click="toDelete" v-if="$login.isLoginType().isLogin">
-					永久注销账号
+					{{ $t('ucenter.deleteAccount') }}
 				</view>
 			</view>
 		</view>
@@ -78,13 +89,13 @@
 		<uni-popup ref="serverPopup" :mask="true" :maskClick="true">
 			<view class="server">
 				<view class="server-title">
-					服务器地址
+					{{ $t('ucenter.serverAddress') }}
 					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup">
-				</view>
+					</view>
 				<view class="server-input">
-					<input type="text" placeholder-class="tp-plc" placeholder="请输入服务器地址" v-model="address" />
+					<input type="text" placeholder-class="tp-plc" :placeholder="$t('ucenter.enterServerAddress')" v-model="address" />
 				</view>
-				<button class="tp-btn tp-mg-t-50" @tap="serverConfirm">确定</button>
+				<button class="tp-btn tp-mg-t-50" @tap="serverConfirm">{{ $t('ucenter.confirm') }}</button>
 			</view>
 		</uni-popup>
 	</view>
@@ -95,6 +106,7 @@
 	import {
 		mapState
 	} from "vuex";
+	import { AVAILABLE_LANGUAGES } from '@/lang/index.js'
 	// 
 	export default {
 		// 
@@ -110,7 +122,10 @@
 					msg: ''
 				},
 				userInfo:{},
-				address: ''
+				address: '',
+				currentLanguage: AVAILABLE_LANGUAGES.find(
+					lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
+				)?.label || '中文',
 			}
 		},
 		//
@@ -131,18 +146,18 @@
 			//退出登录
 			toQuitLogin() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('ucenter.loading')
 				});
 				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
 					if (res.code == 200) {
-						uni.removeStorageSync('access_token')
-						uni.removeStorageSync('wx_code')
-						uni.removeStorageSync('ywId')
-						uni.removeStorageSync('email')
-						uni.removeStorageSync('password')
-						uni.reLaunch({
-							url: '../login/login'
-						})
+							uni.removeStorageSync('access_token')
+							uni.removeStorageSync('wx_code')
+							uni.removeStorageSync('ywId')
+							uni.removeStorageSync('email')
+							uni.removeStorageSync('password')
+							uni.reLaunch({
+								url: '../login/login'
+							})
 					}
 					uni.hideLoading()
 				})
@@ -150,7 +165,7 @@
 			//获取用户信息
 			getUserInfo() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('ucenter.loading')
 				});
 				this.API.apiRequest('/api/v1/board/user/info', {}, 'get').then(res => {
 					if (res.code == 200) {
@@ -258,7 +273,7 @@
 				var that = this;
 				//判断是否授权
 				uni.getUserProfile({
-					desc: '登录',
+					desc: this.$t('ucenter.authDescription'),
 					success(infoRes) {
 						const userInfo = infoRes.userInfo;
 						uni.setStorageSync('isAuth', '1')
@@ -272,7 +287,7 @@
 			serverConfirm() {
 				if(!this.address){
 					uni.showToast({
-						title: '请输入地址',
+						title: this.$t('ucenter.enterServerAddress'),
 						icon: 'none'
 					});
 				}
@@ -288,22 +303,22 @@
 			},
 			toDelete() {
 				uni.showModal({
-					title: '警告',
-					content: '账号注销后数据无法恢复，您在系统中注册的个人信息也将永久删除！请确认注销账号！',
-					cancelText: '取消',
-					confirmText: '确定',
+					title: this.$t('ucenter.warning'),
+					content: this.$t('ucenter.deleteConfirmation'),
+					cancelText: this.$t('common.cancel'),
+					confirmText: this.$t('common.confirm'),
 					success: (res) => {
 						if (res.confirm) {
 							uni.showLoading({
-								title: '处理中'
+								title: this.$t('ucenter.loading')
 							});
 							// Call delete API
 							this.API.apiRequest(`/api/v1/user/${this.userWxInfo.id}`, {}, 'delete')
 								.then(res => {
 									if (res.code == 200) {
 										uni.showModal({
-											title: '提示',
-											content: '注销成功',
+											title: this.$t('common.confirm'),
+											content: this.$t('ucenter.deleteSuccess'),
 											showCancel: false,
 											success: () => {
 												// Clear storage and redirect to login
@@ -320,8 +335,8 @@
 									} else {
 										console.log(res);
 										uni.showModal({
-											title: '提示',
-											content: res.message || '注销失败',
+											title: this.$t('ucenter.tip'),
+											content: res.message || this.$t('ucenter.deleteFailed'),
 											showCancel: false,
 											success: () => {
 												// Stay on current page
@@ -333,6 +348,20 @@
 									uni.hideLoading();
 								});
 						}
+					}
+				});
+			},
+			showLanguagePopup() {
+				uni.showActionSheet({
+					itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
+					success: (res) => {
+						const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];
+						uni.setStorageSync('language', selectedLang.code);
+						this.currentLanguage = selectedLang.label;
+						// Reload the app to apply language changes
+						uni.reLaunch({
+							url: '/pages/ucenter/ucenter'
+						});
 					}
 				});
 			}
