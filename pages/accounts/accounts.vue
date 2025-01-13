@@ -8,19 +8,19 @@
 		<view class="tp-panel tp-flex tp-flex-col tp-box-sizing tp-pd-t-b-10 tp-pd-l-r-30 tp-mg-t-50">
 			
 			<view class="tp-uinfo-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-30" @tap="doChangeRealname">
-				<view>名字</view>
+				<view>{{ $t('pages.accounts.name') }}</view>
 				<view class="tp-flex-1 tp-mg-l-r-10 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">{{realname}}</view>
 				<view class="iconfont iconjiantou1"></view>
 			</view>
 			
 			<view class="tp-uinfo-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-30" @tap="doChangePhone">
-				<view>电话</view>
+				<view>{{ $t('pages.accounts.phone') }}</view>
 				<view class="tp-flex-1 tp-mg-l-r-10 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">{{phone}}</view>
 				<view class="iconfont iconjiantou1"></view>
 			</view>
 			
 			<view class="tp-uinfo-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-30" @tap="doChangeEmail">
-				<view>邮箱</view>
+				<view>{{ $t('pages.accounts.email') }}</view>
 				<view class="tp-flex-1 tp-mg-l-r-10 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">{{email}}</view>
 				<view class="iconfont iconjiantou1"></view>
 			</view>
@@ -29,7 +29,7 @@
 		
 		<view class="tp-panel tp-change-pwd tp-flex tp-flex-col tp-box-sizing tp-pd-t-b-10 tp-pd-l-r-30 tp-mg-t-30">			
 			<view class="tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20" @tap="doOpenChangePwd">
-				<view>修改密码</view>
+				<view>{{ $t('pages.accounts.changePassword') }}</view>
 				<view class="iconfont iconjiantou1"></view>
 			</view>
 		</view>

@@ -4,25 +4,25 @@
 
 			<view class="tp-panel tp-flex tp-flex-col tp-mg-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略名称</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入名称" placeholder-class="tp-plc"
+					<view>{{ $t('pages.addControl.strategyName') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputName')" placeholder-class="tp-plc"
 						v-model="formData.name" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略描述</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入策略描述" placeholder-class="tp-plc"
+					<view>{{ $t('pages.addControl.strategyDescription') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputDescription')" placeholder-class="tp-plc"
 						v-model="formData.describe" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略优先级</view>
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入策略优先级" placeholder-class="tp-plc"
+					<view>{{ $t('pages.addControl.strategyPriority') }}</view>
+					<input type="number" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputPriority')" placeholder-class="tp-plc"
 						v-model="formData.sort" />
 				</view>
 			</view>
 
-			<view class="tp-txt tp-box-sizing tp-mg-30">触发条件
+			<view class="tp-txt tp-box-sizing tp-mg-30">{{ $t('pages.addControl.triggerCondition') }}
 				<view class="add_btn" @click="toAddtrig">
-					+新增一行
+					+{{ $t('pages.addControl.addNewRow') }}
 				</view>
 			</view>
 			<view class="tp-panel tp-flex tp-flex-col tp-mg-l-r-30" v-for="(data,index) in trigList" :key='index'
@@ -36,7 +36,7 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index == 0">
-					<view>设备条件类型</view>
+					<view>{{ $t('pages.addControl.deviceConditionType') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectConditionType(data,'trig')">
 						<text class="tp-mg-r-10" v-if="data.conditionTypeName">{{data.conditionTypeName}}</text>
@@ -45,7 +45,7 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 1">
-					<view>请选择设备分组</view>
+					<view>{{ $t('pages.addControl.selectDeviceGroup') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectEqpGroup(data,'trig')">
 						<text class="tp-mg-r-10" v-if="data.eqpGroupName">{{data.eqpGroupName}}</text>
@@ -54,7 +54,7 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 1">
-					<view>请选择设备</view>
+					<view>{{ $t('pages.addControl.selectDevice') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectEqp(data,'trig')">
 						<text class="tp-mg-r-10" v-if="data.eqpName">{{data.eqpName}}</text>
@@ -63,7 +63,7 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 1">
-					<view>条件</view>
+					<view>{{ $t('pages.addControl.condition') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectCondition(data,'trig')">
 						<text class="tp-mg-r-10" v-if="data.conditionName">{{data.conditionName}}</text>
@@ -72,7 +72,7 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 1">
-					<view>符号</view>
+					<view>{{ $t('pages.addControl.symbol') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectSymbol(data,'trig')">
 						<text class="tp-mg-r-10" v-if="data.symbolName">{{data.symbolName}}</text>
@@ -81,15 +81,15 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 1">
-					<view>数值</view>
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值" placeholder-class="tp-plc"
+					<view>{{ $t('pages.addControl.value') }}</view>
+					<input type="number" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')" placeholder-class="tp-plc"
 						v-model="data.trigNum" v-if="data.filedType == 3" />
-					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')"
 						placeholder-class="tp-plc" v-model="data.trigNum" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 2">
-					<view>次数</view>
+					<view>{{ $t('pages.addControl.times') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectCishu(data)">
 						<text class="tp-mg-r-10" v-if="data.cishuName">{{data.cishuName}}</text>
 						<view class="iconfont iconjiantou1"></view>
@@ -97,20 +97,20 @@
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="trigList[0].conditionType == 2">
-					<view v-if="data.cishu == 0">日期</view>
+					<view v-if="data.cishu == 0">{{ $t('pages.addControl.date') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" v-if="data.cishu == 0">
 						<uni-datetime-picker type="datetime" v-model="data.dateTime">
 							<view style="font-size: 26rpx;color: #999;text-align: right;">
-								{{data.dateTime?data.dateTime:'请选择日期'}}
+								{{data.dateTime?data.dateTime:$t('pages.addControl.selectDate')}}
 							</view>
 						</uni-datetime-picker>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
-					<view v-if="data.cishu == 1">时间</view>
+					<view v-if="data.cishu == 1">{{ $t('pages.addControl.time') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" v-if="data.cishu == 1">
 						<picker mode="time" :value="data.dateTime" start="00:00" end="23:59"
 							@change="bindTimeChange(data,$event)" v-model="data.dateTime">
-							<view class="uni-input">{{data.dateTime?data.dateTime:'请选择时间'}}</view>
+							<view class="uni-input">{{data.dateTime?data.dateTime:$t('pages.addControl.selectTime')}}</view>
 						</picker>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
@@ -118,13 +118,13 @@
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index!=0">
 					<view class="del_btn" @click="toDeltrig(data,index)">
-						<image src="../../static/icon/del.png" alt="">删除
+						<image src="../../static/icon/del.png" alt="">{{ $t('pages.addControl.delete') }}
 					</view>
 				</view>
 			</view>
-			<view class="tp-txt tp-box-sizing tp-mg-30">执行命令
+			<view class="tp-txt tp-box-sizing tp-mg-30">{{ $t('pages.addControl.executeCommand') }}
 				<view class="add_btn" @click="toAddCon">
-					+新增一行
+					+{{ $t('pages.addControl.addNewRow') }}
 				</view>
 			</view>
 
@@ -138,7 +138,7 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备分组</view>
+					<view>{{ $t('pages.addControl.selectDeviceGroup') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectEqpGroup(data,'con')">
 						<text class="tp-mg-r-10" v-if="data.eqpGroupName">{{data.eqpGroupName}}</text>
@@ -146,7 +146,7 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备</view>
+					<view>{{ $t('pages.addControl.selectDevice') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectEqp(data,'con')">
 						<text class="tp-mg-r-10" v-if="data.eqpName">{{data.eqpName}}</text>
@@ -154,7 +154,7 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>条件</view>
+					<view>{{ $t('pages.addControl.condition') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c"
 						@click="toSelectCondition(data,'con')">
 						<text class="tp-mg-r-10" v-if="data.conditionName">{{data.conditionName}}</text>
@@ -162,25 +162,23 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>数值</view>
-					<!-- <input :type="data.filedType == 3 ? 'number' : 'text'" class="tp-flex-1 tp-mg-l-20"
-						placeholder="请输入数值" placeholder-class="tp-plc" v-model="data.conNum" /> -->
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值" placeholder-class="tp-plc"
+					<view>{{ $t('pages.addControl.value') }}</view>
+					<input type="number" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')" placeholder-class="tp-plc"
 						v-model="data.conNum" v-if="data.filedType == 3" />
-					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')"
 						placeholder-class="tp-plc" v-model="data.conNum" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index!=0">
 					<view class="del_btn" @click="toDelCon(data,index)">
-						<image src="../../static/icon/del.png" alt="">删除
+						<image src="../../static/icon/del.png" alt="">{{ $t('pages.addControl.delete') }}
 					</view>
 				</view>
 			</view>
 			<view class="tp-txt tp-box-sizing tp-mg-30"></view>
 			<view class="tp-panel tp-flex tp-flex-col tp-mg-l-r-30">
 				<view class="tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view style="font-weight: bold;">策略状态</view>
+					<view style="font-weight: bold;">{{ $t('pages.addControl.strategyStatus') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
 						<view class="switchBtn">
 							<view class="on">
@@ -189,14 +187,14 @@
 								<view class="closeIcon" v-else @click="switchOnTwo=1;switchCloseTwo=0">
 									<view class="closeIconL"></view>
 								</view>
-								<i style="font-style: normal;">开</i>
+								<i style="font-style: normal;">{{ $t('common.on') }}</i>
 							</view>
 							<view class="close">
 								<view class="closeIcon" v-if="switchCloseTwo == 0"
 									@click="switchCloseTwo=1;switchOnTwo=0">
 									<view class="closeIconL"></view>
 								</view>
-								<view class="onIcon" v-else @click="switchCloseTwo=0;switchOnTwo=1"></view>关
+								<view class="onIcon" v-else @click="switchCloseTwo=0;switchOnTwo=1"></view>{{ $t('common.off') }}
 							</view>
 						</view>
 					</view>
@@ -204,8 +202,7 @@
 			</view>
 			<view class="tp-box-sizing tp-mg-l-r-30" style="padding: 0;">
 				<button class="tp-btn" :loading="loading" :class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit"
-					style="margin-bottom: 118rpx;">保
-					存</button>
+					style="margin-bottom: 118rpx;">{{ $t('pages.addControl.save') }}</button>
 			</view>
 			<!-- 设备条件类型 -->
 			<uni-popup ref="conditionType" type="bottom">
@@ -295,7 +292,7 @@
 			<uni-popup ref="addtrigPopup" type="bottom" :mask="true" :maskClick="true">
 				<view class="logInfo">
 					<view class="info_title">
-						新增触发条件
+						{{ $t('pages.addControl.triggerCondition') }}
 						<image src="../../static/icon/close.png" alt="" @click="$refs.addtrigPopup.close()">
 					</view>
 					<view class="info_header">
@@ -311,7 +308,7 @@
 					<view class="info_list" v-if="trigList[0].conditionType == 1">
 						<view class="item" @click="toSelectEqpGroupAdd('trig')">
 							<view class="value">
-								请选择设备分组：
+								{{ $t('pages.addControl.selectDeviceGroup') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.eqpGroupName}}
@@ -320,7 +317,7 @@
 						</view>
 						<view class="item" @click="toSelectEqpAdd('trig')">
 							<view class="value">
-								请选择设备：
+								{{ $t('pages.addControl.selectDevice') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.eqpName}}
@@ -329,7 +326,7 @@
 						</view>
 						<view class="item" @click="toSelectConditionAdd('trig')">
 							<view class="value">
-								条件：
+								{{ $t('pages.addControl.condition') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.conditionName}}
@@ -338,7 +335,7 @@
 						</view>
 						<view class="item" @click="toSelectSymbolAdd('trig')">
 							<view class="value">
-								符号：
+								{{ $t('pages.addControl.symbol') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.symbolName}}
@@ -347,21 +344,18 @@
 						</view>
 						<view class="item">
 							<view class="value">
-								数值：
+								{{ $t('pages.addControl.value') }}：
 							</view>
-							<!-- <input :type="addTrigForm.filedType == 3 ? 'number' : 'text'" class="input_num"
-								placeholder="请输入数值" placeholder-class="tp-plc" v-model="addTrigForm.trigNum" /> -->
-							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
-								placeholder-class="tp-plc" v-model="addTrigForm.trigNum"
-								v-if="addTrigForm.filedType == 3" />
-							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
+							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.addControl.inputValue')" placeholder-class="tp-plc"
+								v-model="addTrigForm.trigNum" v-if="addTrigForm.filedType == 3" />
+							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.addControl.inputValue')"
 								placeholder-class="tp-plc" v-model="addTrigForm.trigNum" />
 						</view>
 					</view>
 					<view class="info_list" v-if="trigList[0].conditionType == 2">
 						<view class="item" @click="toSelectCishuAdd()">
 							<view class="value">
-								次数：
+								{{ $t('pages.addControl.times') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.cishuName}}
@@ -370,32 +364,31 @@
 						</view>
 						<view class="item" v-if="addTrigForm.cishu == 0">
 							<view class="value">
-								日期：
+								{{ $t('pages.addControl.date') }}：
 							</view>
 							<view class="label">
 								<uni-datetime-picker type="datetime" v-model="addTrigForm.dateTime"
 									@change="changeLog" />
-								<!-- {{addTrigForm.eqpName}} -->
 							</view>
 							<view class="iconfont iconjiantou1"></view>
 						</view>
 						<view class="item" v-if="addTrigForm.cishu == 1">
 							<view class="value">
-								时间：
+								{{ $t('pages.addControl.time') }}：
 							</view>
 							<view class="label">
 								<picker mode="time" :value="addTrigForm.dateTime" start="00:00" end="23:59"
 									@change="bindTimeChangeAdd($event)">
-									<view class="uni-input">{{addTrigForm.dateTime?addTrigForm.dateTime:'请选择时间'}}</view>
+									<view class="uni-input">{{addTrigForm.dateTime?addTrigForm.dateTime:$t('pages.addControl.selectTime')}}</view>
 								</picker>
 							</view>
 							<view class="iconfont iconjiantou1"></view>
 						</view>
 					</view>
 					<view class="info_btn">
-						<view class="btn_del" @click="$refs.addtrigPopup.close()">取消</view>
+						<view class="btn_del" @click="$refs.addtrigPopup.close()">{{ $t('common.cancel') }}</view>
 						<view class="btn_save" @click="saveTrig()">
-							保存
+							{{ $t('common.save') }}
 						</view>
 					</view>
 				</view>
@@ -404,13 +397,13 @@
 			<uni-popup ref="addConPopup" type="bottom" :mask="true" :maskClick="true">
 				<view class="logInfo">
 					<view class="info_title">
-						新增执行命令
+						{{ $t('pages.addControl.executeCommand') }}
 						<image src="../../static/icon/close.png" alt="" @click="$refs.addConPopup.close()">
 					</view>
 					<view class="info_list">
 						<view class="item" @click="toSelectEqpGroupAdd('con')">
 							<view class="value">
-								请选择设备分组：
+								{{ $t('pages.addControl.selectDeviceGroup') }}：
 							</view>
 							<view class="label">
 								{{addConForm.eqpGroupName}}
@@ -419,7 +412,7 @@
 						</view>
 						<view class="item" @click="toSelectEqpAdd('con')">
 							<view class="value">
-								请选择设备：
+								{{ $t('pages.addControl.selectDevice') }}：
 							</view>
 							<view class="label">
 								{{addConForm.eqpName}}
@@ -428,7 +421,7 @@
 						</view>
 						<view class="item" @click="toSelectConditionAdd('con')">
 							<view class="value">
-								条件：
+								{{ $t('pages.addControl.condition') }}：
 							</view>
 							<view class="label">
 								{{addConForm.conditionName}}
@@ -437,21 +430,18 @@
 						</view>
 						<view class="item">
 							<view class="value">
-								数值：
+								{{ $t('pages.addControl.value') }}：
 							</view>
-							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
-								placeholder-class="tp-plc" v-model="addConForm.conNum"
-								v-if="addConForm.filedType == 3" />
-							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
+							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.addControl.inputValue')" placeholder-class="tp-plc"
+								v-model="addConForm.conNum" v-if="addConForm.filedType == 3" />
+							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.addControl.inputValue')"
 								placeholder-class="tp-plc" v-model="addConForm.conNum" />
-							<!-- <input :type="addConForm.filedType == 3 ? 'number' : 'text'" class="input_num"
-								placeholder="请输入数值" placeholder-class="tp-plc" v-model="addConForm.conNum" /> -->
 						</view>
 					</view>
 					<view class="info_btn">
-						<view class="btn_del" @click="$refs.addConPopup.close()">取消</view>
+						<view class="btn_del" @click="$refs.addConPopup.close()">{{ $t('common.cancel') }}</view>
 						<view class="btn_save" @click="saveCon()">
-							保存
+							{{ $t('common.save') }}
 						</view>
 					</view>
 				</view>

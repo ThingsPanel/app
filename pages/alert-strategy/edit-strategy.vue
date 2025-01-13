@@ -3,35 +3,35 @@
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略名称</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入名称" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.strategyName') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="{{ $t('pages.alertStrategy.enterName') }}" placeholder-class="tp-plc"
 						v-model="formData.name" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略描述</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入描述" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.strategyDescription') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="{{ $t('pages.alertStrategy.enterDescription') }}" placeholder-class="tp-plc"
 						v-model="formData.describe" />
 				</view>
 			</view>
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备分组</view>
+					<view>{{ $t('pages.alertStrategy.selectDeviceGroup') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectGroup">
 						<text class="tp-mg-r-10" v-if="formData.groupName">{{formData.groupName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备</view>
+					<view>{{ $t('pages.alertStrategy.selectDevice') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectEqp">
 						<text class="tp-mg-r-10" v-if="formData.eqpName">{{formData.eqpName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 			</view>
-			<view class="tp-txt tp-box-sizing tp-pd-30">触发条件
+			<view class="tp-txt tp-box-sizing tp-pd-30">{{ $t('pages.alertStrategy.triggerCondition') }}
 				<view class="add_btn" @click="toAdd">
-					+新增一行
+					{{ $t('pages.alertStrategy.addNewRow') }}
 				</view>
 			</view>
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80" v-for="(rule,index) in rulesList"
@@ -44,7 +44,7 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择条件</view>
+					<view>{{ $t('pages.alertStrategy.selectCondition') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectTj(rule,'edit')">
 						<text class="tp-mg-r-10" v-if="rule.tjName">{{rule.tjName}}</text>
 						<view class="iconfont iconjiantou1"></view>
@@ -58,10 +58,10 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请输入值</view>
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.enterValue') }}</view>
+					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="{{ $t('pages.alertStrategy.enterNumberValue') }}" placeholder-class="tp-plc"
 						v-model="rule.num" v-if="rule.filedType == 3" />
-					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+					<input v-else type="text" class="tp-flex-1 tp-mg-l-20" placeholder="{{ $t('pages.alertStrategy.enterValue') }}"
 						placeholder-class="tp-plc" v-model="rule.num" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
@@ -79,8 +79,7 @@
 				</view>
 			</view>
 			<view class="tp-box-sizing tp-pd-l-r-30">
-				<button class="tp-btn" :class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit">保
-					存</button>
+				<button class="tp-btn" :class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit">{{ $t('pages.alertStrategy.save') }}</button>
 			</view>
 			<!-- 分组 -->
 			<uni-popup ref="groupPopup" type="bottom">

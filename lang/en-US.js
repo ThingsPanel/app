@@ -62,7 +62,11 @@ export default {
       logout: 'Logout Current Account',
       logoutConfirm: 'Do you want to logout?',
       logoutBtn: 'Logout Now',
-      logoutSuccess: 'Logout successful'
+      logoutSuccess: 'Logout successful',
+      name: 'Name',
+      phone: 'Phone',
+      email: 'Email',
+      changePassword: 'Change Password'
     },
     email: {
       inputPlaceholder: 'Please enter email address!',
@@ -81,6 +85,47 @@ export default {
       tips: 'Please enter your real name!',
       emptyError: 'Real name cannot be empty',
       updateSuccess: 'Settings updated successfully!'
+    },
+    addControl: {
+      strategyName: 'Strategy Name',
+      strategyDescription: 'Strategy Description',
+      strategyPriority: 'Strategy Priority',
+      triggerCondition: 'Trigger Condition',
+      addNewRow: '+ Add New Row',
+      save: 'Save'
+    },
+    alertStrategy: {
+      strategyName: 'Strategy Name',
+      enterName: 'Please enter name',
+      strategyDescription: 'Strategy Description',
+      enterDescription: 'Please enter description',
+      selectDeviceGroup: 'Please select device group',
+      selectDevice: 'Please select device',
+      triggerCondition: 'Trigger Condition',
+      addNewRow: '+ Add New Row',
+      selectCondition: 'Please select condition',
+      selectSymbol: 'Please select symbol',
+      enterValue: 'Please enter value',
+      enterNumberValue: 'Please enter number value',
+      message: 'Message',
+      enterMessage: 'Please enter message here',
+      save: 'Save',
+      cancel: 'Cancel',
+      delete: 'Delete',
+      addTriggerCondition: 'Add Trigger Condition',
+      relation: 'AND',
+      or: 'OR',
+      pleaseSelectCondition: 'Please select condition',
+      pleaseSelectSymbol: 'Please select symbol',
+      value: 'Value',
+      enterValue: 'Please enter value',
+      noSelectableData: 'No selectable data',
+      pleaseSelectDeviceFirst: 'Please select device first',
+      pleaseSelectDeviceGroupFirst: 'Please select device group first',
+      pleaseSelectRelation: 'Please select relation',
+      pleaseEnterValue: 'Please enter value',
+      saveSuccess: 'Save successful',
+      loading: 'Loading'
     }
   },
   components: {
