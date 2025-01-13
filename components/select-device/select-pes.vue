@@ -1,7 +1,7 @@
 <template>
   <view>
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
-    	<input class="uni-input" placeholder="状态/属性" disabled :value="showValue"/>
+    	<input class="uni-input" :placeholder="$t('components.selectDevice.statusProperty')" disabled :value="showValue"/>
     	<view>
     	  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
     	</view>
@@ -10,21 +10,21 @@
     <uni-popup ref="pop" type="bottom" backgroundColor="#fff">
     	<scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '700rpx' }">
     		<view class="selectlist" v-if="showStatus">
-          <view style="color: #bbb;" class="select_item">上下线</view>
+          <view style="color: #bbb;" class="select_item">{{ $t('components.selectDevice.onlineStatus') }}</view>
     			<view class="select_item" v-for="(option, key) in statusOptions" :key="key" @click="onSelect('3', option)">
     				{{ option.label }}
     			</view>
     		</view>
         
         <view class="selectlist" v-if="propOptions.length">
-          <view style="color: #bbb;" class="select_item">属性</view>
+          <view style="color: #bbb;" class="select_item">{{ $t('components.selectDevice.property') }}</view>
         	<view class="select_item" v-for="(option, key) in propOptions" :key="key" @click="onSelect('1', option)">
         		{{ option.title }}
         	</view>
         </view>
         <template v-else>
           <view style="color:red;" class="select_item" v-if="!showStatus">
-            <text>无数据！</text>
+            <text>{{ $t('components.selectDevice.noData') }}</text>
           </view>
         </template>
         
@@ -83,9 +83,9 @@
     data () {
       return {
         statusOptions: [
-          { value: '1', name: 'online', label: '上线', mode: 'onlineState' },
-          { value: '2', name: 'offline', label: '下线', mode: 'onlineState' },
-          { value: '3', name: 'onAndOff', label: '上下线', mode: 'onlineState' },
+          { value: '1', name: 'online', label: this.$t('components.selectDevice.online'), mode: 'onlineState' },
+          { value: '2', name: 'offline', label: this.$t('components.selectDevice.offline'), mode: 'onlineState' },
+          { value: '3', name: 'onAndOff', label: this.$t('components.selectDevice.onAndOff'), mode: 'onlineState' },
         ],
       }
     },

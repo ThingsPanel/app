@@ -1,10 +1,12 @@
 <template>
 	<view class="tp-box tp-flex tp-flex-col tp-box-sizing tp-pd-l-r-30">
 		<view class="tp-panel tb-flex tp-box-sizing">
-			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" v-model="phone" placeholder="请输入手机号码!" placeholder-class="tp-plc" /></view>
+			<view class="tp-box-sizing tp-pd-t-b-25">
+				<input type="text" value="" v-model="phone" :placeholder="$t('pages.phone.inputPlaceholder')" placeholder-class="tp-plc" />
+			</view>
 		</view>
 		<view class="tp-panel tp-tips tp-box-sizing tp-mg-t-15">
-			请输入您的手机号码，确保手机号码正确无误！
+			{{ $t('pages.phone.tips') }}
 		</view>
 	</view>
 </template>
@@ -59,8 +61,11 @@
 			check(){ 
 				// 验证手机合法性
 				if(!this.isPhone()){
-					uni.showToast({	title:"请输入正确的手机号码",icon:"none"	});
-					return ;
+					uni.showToast({	
+						title: this.$t('pages.phone.invalidPhone'),
+						icon:"none"	
+					});
+					return;
 				}
 				// 
 				return true;
@@ -81,7 +86,7 @@
 					})
 					// 
 					return uni.showToast({
-						title:"设置成功！",
+						title: this.$t('pages.phone.updateSuccess'),
 						success:()=>{
 							uni.navigateBack({ delta:1 })
 						}

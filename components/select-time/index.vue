@@ -2,7 +2,7 @@
   <view>
     <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
     	<CustomSelect 
-        placeholder="触发方式" 
+        :placeholder="$t('components.selectTime.triggerType')"
         :options="time_condition_type_options"
         @change="timeConditionTypeChange"
         v-model="data.time_condition_type"
@@ -12,8 +12,8 @@
         <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
           <!-- 单次 -->
           <template v-if="data.time_condition_type === '1'">
-            <uni-datetime-picker placeholder="触发日期时间" :clear-icon="false" :hide-second="true" v-model="data.v1" @change="singleDateTimeChange"/>
-            <uni-tooltip class="tooltip" content="只执行一次，执行结束后条件消失">
+            <uni-datetime-picker :placeholder="$t('components.selectTime.triggerDateTime')" :clear-icon="false" :hide-second="true" v-model="data.v1" @change="singleDateTimeChange"/>
+            <uni-tooltip class="tooltip" :content="$t('components.selectTime.singleTip')">
               <uni-icons type="help-filled" size="36rpx" color="#999"></uni-icons>
             </uni-tooltip>
           </template>
@@ -22,7 +22,7 @@
           <!-- 重复 -->
           <CustomSelect
             v-if="data.time_condition_type === '2'"
-            placeholder="重复周期" 
+            :placeholder="$t('components.selectTime.repeatCycle')"
             :options="intervalOptions"
             @change="intervalChange"
              v-model="data.v1"
@@ -150,17 +150,17 @@
     data() {
       return {
         time_condition_type_options: [
-          { value: '1', label: '单次' },
-          { value: '2', label: '重复' },
-          { value: '0', label: '范围' },
+          { value: '1', label: this.$t('components.selectTime.single') },
+          { value: '2', label: this.$t('components.selectTime.repeat') },
+          { value: '0', label: this.$t('components.selectTime.range') },
           // { value: '3', label: '自定义' },
         ],
         intervalOptions: [
-          { value: '1', label: '每小时' },
-          { value: '2', label: '每天' },
-          { value: '3', label: '每周' },
-          { value: '4', label: '每月' },
-          { value: '5', label: '自定义cron' },
+          { value: '1', label: this.$t('components.selectTime.everyHour') },
+          { value: '2', label: this.$t('components.selectTime.everyDay') },
+          { value: '3', label: this.$t('components.selectTime.everyWeek') },
+          { value: '4', label: this.$t('components.selectTime.everyMonth') },
+          { value: '5', label: this.$t('components.selectTime.customCron') },
         ],
         minuteOptions: [],
         weekOptions: [

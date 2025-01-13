@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import store from './store'
+import i18n, { updatePageTitles } from './lang/index'
 //
 Vue.prototype.$store = store
 //
@@ -28,6 +29,23 @@ Vue.prototype.API = api
 App.mpType = 'app'
 // 
 const app = new Vue({
+    i18n,
     ...App
 })
+
+// Update titles when page shows
+uni.addInterceptor('navigateTo', {
+  success: () => {
+    setTimeout(updatePageTitles, 100)
+  }
+})
+
+uni.addInterceptor('switchTab', {
+  success: () => {
+    setTimeout(updatePageTitles, 100)
+  }
+})
+
 app.$mount()
+
+export default app

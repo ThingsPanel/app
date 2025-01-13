@@ -5,31 +5,31 @@
 			<view class="tp-pd-t-b-30"></view>
 
 			<view class="tp-flex tp-login-welcome tp-flex-col tp-mg-t-b-50">
-				<view>登录</view>
-				<view class="tp-mg-t-05">欢迎登录</view>
+				<view>{{ $t('components.login.welcome') }}</view>
+				<view class="tp-mg-t-05">{{ $t('components.login.welcomeSubtitle') }}</view>
 			</view>
 
 			<view
 				class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 				<view class="iconfont iconwode tp-mg-r-15"></view>
-				<input type="text" placeholder-class="tp-plc" placeholder="请输入账号!" v-model="email" />
+				<input type="text" placeholder-class="tp-plc" :placeholder="$t('components.login.accountPlaceholder')" v-model="email" />
 			</view>
 			<view
 				class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 				<view class="iconfont iconmima tp-mg-r-15"></view>
-				<input type="text" placeholder-class="tp-plc" placeholder="请输入密码!" v-model="password" password=true />
+				<input type="text" placeholder-class="tp-plc" :placeholder="$t('components.login.passwordPlaceholder')" v-model="password" password=true />
 			</view>
 
 			<view class="tp-remember-password tp-mg-b-20">
 				<label class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-mg-l-25">
-					<checkbox value="cb" checked="true" color="#000000" /> 记住密码
+					<checkbox value="cb" checked="true" color="#000000" /> {{ $t('components.login.rememberPassword') }}
 				</label>
 			</view>
 
 			<button class="tp-btn tp-mg-t-50" :loading="loading" :class="{'vc-btn-disabled':disabled}"
-				@tap="doLoginSubmit">登 录</button>
+				@tap="doLoginSubmit">{{ $t('components.login.loginButton') }}</button>
 
-			<view class="tp-getpwd tp-mg-t-40 tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c">忘记密码</view>
+			<view class="tp-getpwd tp-mg-t-40 tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c">{{ $t('components.login.forgotPassword') }}</view>
 
 		</view>
 		<uni-popup ref="authPopup" type="bottom">
@@ -105,7 +105,7 @@
 							url: '../fishery-monitor/fishery-monitor'
 						});
 						uni.showToast({
-							title: '登录成功',
+							title: this.$t('components.login.loginSuccess'),
 							icon: 'none'
 						});
 						//

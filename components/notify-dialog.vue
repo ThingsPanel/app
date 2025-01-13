@@ -2,13 +2,15 @@
   <view class="fizz-dialog" v-show="visible">
     <view class="mask"></view>
     <view class="conetent">
-      <view class="text-center dialog-title">{{ `点击确定${status === '1' ? '处理' : '忽略'}警告` }}</view>
+      <view class="text-center dialog-title">
+        {{ $t('components.notifyDialog.confirmText', { action: status === '1' ? $t('components.notifyDialog.process') : $t('components.notifyDialog.ignore') }) }}
+      </view>
       <view class="context-container">
-        <input class="border-input" type="text" placeholder="选填" v-model="content" />
+        <input class="border-input" type="text" :placeholder="$t('components.notifyDialog.optional')" v-model="content" />
       </view>
       <view class="foot-btn">
-        <view class="border-right flex-1" @click="cancle">取消</view>
-        <view class="flex-1" @click="confirm">确定</view>
+        <view class="border-right flex-1" @click="cancle">{{ $t('common.cancel') }}</view>
+        <view class="flex-1" @click="confirm">{{ $t('common.confirm') }}</view>
       </view>
     </view>
   </view>
@@ -43,7 +45,7 @@ export default {
       }, 'put').then(res => {
         if (res.code === 200) {
           uni.showToast({
-            title: '操作成功'
+            title: this.$t('components.notifyDialog.operationSuccess')
           })
           this.cancle(true)
           // this.list = this.list.filter(l => l.id !== id)

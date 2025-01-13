@@ -34,7 +34,9 @@
 			</view>
 		</view>
 		
-		<view class="tp-bnt tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c tp-box-sizing tp-pd-t-b-10 tp-pd-l-r-30 tp-mg-t-50" @tap="doLogout"><text>退出当前账号</text></view>
+		<view class="tp-bnt tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c tp-box-sizing tp-pd-t-b-10 tp-pd-l-r-30 tp-mg-t-50" @tap="doLogout">
+			<text>{{ $t('pages.accounts.logout') }}</text>
+		</view>
 		
 	</view>
 </template>
@@ -94,8 +96,8 @@
 			//
 			doLogout:function(){
 				uni.showModal({
-					content:'是否要退出登录',
-					confirmText:'立即退出',
+					content: this.$t('pages.accounts.logoutConfirm'),
+					confirmText: this.$t('pages.accounts.logoutBtn'),
 					success:(res)=>{
 						if(res.confirm){
 							uni.removeStorageSync('currentYw')
@@ -110,7 +112,7 @@
 							})
 							// 
 							uni.showToast({
-								title:'退出登录成功',
+								title: this.$t('pages.accounts.logoutSuccess'),
 								icon:'none'
 							})
 							// 
