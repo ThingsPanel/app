@@ -21,4 +21,41 @@ const i18n = new VueI18n({
   }
 })
 
+// Function to update page titles and tabBar based on current language
+// export const updatePageTitles = () => {
+//   const pages = getCurrentPages()
+//   const currentPage = pages[pages.length - 1]
+//   if (currentPage) {
+//     const route = currentPage.route
+//     console.log('route: %o', route)
+//     console.log('pages: %o', __uniConfig);
+//     const config = __uniConfig.pages.find(p => p.path === route)
+//     if (config && config.style.navigationBarTitleText) {
+//       const titleKey = config.style.navigationBarTitleText.replace(/%(.+)%/g, '$1')
+//       const title = i18n.global.t(titleKey)
+//       uni.setNavigationBarTitle({ title })
+//     }
+//   }
+
+//   // Update tabBar texts
+//   const tabBar = __uniConfig.tabBar
+//   if (tabBar && tabBar.list) {
+//     tabBar.list.forEach((tab, index) => {
+//       const textKey = tab.text.replace(/%(.+)%/g, '$1')
+//       const text = i18n.global.t(textKey)
+//       uni.setTabBarItem({
+//         index,
+//         text
+//       })
+//     })
+//   }
+// }
+
+// Function to change language
+export const changeLanguage = (locale) => {
+  i18n.global.locale = locale
+  uni.setStorageSync('language', locale)
+  // updatePageTitles()
+}
+
 export default i18n 

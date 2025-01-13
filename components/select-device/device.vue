@@ -1,7 +1,7 @@
 <template>
   <view>
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="showPop">
-    	<input class="uni-input" placeholder="设备" disabled :value="showValue"/>
+    	<input class="uni-input" :placeholder="$t('components.device.placeholder')" disabled :value="showValue"/>
     	<view>
         <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
       </view>
@@ -23,12 +23,12 @@
       :foldAll="false"
       confirmColor="#007aff"
       cancelColor="#757575"
-      title="选择设备"
+      :title="$t('components.device.selectTitle')"
       titleColor="#757575"
       @cancel="treeCancel"
       @confirm="onSelect"
     >
-    <text>测试</text>
+    <text>{{ $t('components.device.test') }}</text>
     </gq-tree>
   </view>
   

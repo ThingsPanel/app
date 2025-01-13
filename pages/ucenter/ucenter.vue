@@ -358,10 +358,14 @@
 						const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];
 						uni.setStorageSync('language', selectedLang.code);
 						this.currentLanguage = selectedLang.label;
-						// Reload the app to apply language changes
-						uni.reLaunch({
-							url: '/pages/ucenter/ucenter'
-						});
+						
+						// Update i18n instance and reload app
+						this.$i18n.locale = selectedLang.code;
+						setTimeout(() => {
+							uni.reLaunch({
+								url: '/pages/ucenter/ucenter'
+							});
+						}, 100);
 					}
 				});
 			}

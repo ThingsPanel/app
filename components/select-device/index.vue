@@ -14,7 +14,7 @@
       
       <view class="tp-flex-1">
         <CustomSelect
-          placeholder="分组" 
+          :placeholder="$t('components.selectDevice.group')"
           :options="groupOptions"
           @change="groupIdChange"
           optionValue="id"
@@ -54,7 +54,7 @@
     >
       <CustomSelect
         v-if="showStatus"
-        placeholder="操作符" 
+        :placeholder="$t('components.selectDevice.operator')"
         :options="symbolOptions"
         v-model="data.v2"
       ></CustomSelect>
@@ -68,7 +68,12 @@
             </view>
 
           </view>
-        	<input v-else class="uni-input" placeholder="属性值" v-model.trim="data.v3"/>
+        	<input 
+          v-else 
+          class="uni-input" 
+          :placeholder="$t('components.selectDevice.propertyValue')" 
+          v-model.trim="data.v3"
+        />
           <text class="tp-font-size-13 tp-mg-l-r-15 unit">{{ valueConf.unit }}</text>
         </view>
       </view>

@@ -3,7 +3,7 @@
 		{
 			"path": "pages/login/login",
 			"style": {
-				"navigationBarTitleText": "登录",
+				"navigationBarTitleText": "%pages.login%",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -11,7 +11,7 @@
 		{
 			"path": "pages/login/register",
 			"style": {
-				"navigationBarTitleText": "注册",
+				"navigationBarTitleText": "%pages.register%",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -19,7 +19,7 @@
 		{
 			"path": "pages/notify/notify",
 			"style": {
-				"navigationBarTitleText": "告警信息",
+				"navigationBarTitleText": "%pages.notify%",
 				"enablePullDownRefresh": true,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -27,7 +27,7 @@
 		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
-				"navigationBarTitleText": "设备列表",
+				"navigationBarTitleText": "%pages.deviceList%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -35,7 +35,7 @@
 		{
 			"path": "pages/intelligent-control/intelligent-control",
 			"style": {
-				"navigationBarTitleText": "智能控制",
+				"navigationBarTitleText": "%pages.intelligentControl%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -43,7 +43,7 @@
 		{
 			"path": "pages/ucenter/ucenter",
 			"style": {
-				"navigationBarTitleText": "个人中心",
+				"navigationBarTitleText": "%pages.userCenter%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -51,7 +51,7 @@
 		{
 			"path": "pages/accounts/accounts",
 			"style": {
-				"navigationBarTitleText": "基本资料",
+				"navigationBarTitleText": "%pages.basicInfo%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -59,21 +59,21 @@
 		{
 			"path": "pages/fishery-monitor/deviceDetail",
 			"style": {
-				"navigationBarTitleText": "设备详情",
+				"navigationBarTitleText": "%pages.deviceDetail%",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
 			"path": "pages/webViewPage/webViewPage",
 			"style": {
-				"navigationBarTitleText": "设备详情",
+				"navigationBarTitleText": "%pages.deviceDetail%",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
 			"path": "pages/fishery-monitor/addMonitor",
 			"style": {
-				"navigationBarTitleText": "添加设备",
+				"navigationBarTitleText": "%pages.addDevice%",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -81,7 +81,7 @@
 		{
 			"path": "pages/accounts/realname",
 			"style": {
-				"navigationBarTitleText": "修改姓名",
+				"navigationBarTitleText": "%pages.modifyName%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FAFAFA",
 				"app-plus": {
@@ -95,7 +95,7 @@
 								"float": "right",
 								"fontWeight": "normal",
 								"fontSize": "14px",
-								"text": "保存",
+								"text": "%common.save%",
 								"width": "40px"
 							}
 						]
@@ -106,7 +106,7 @@
 		{
 			"path": "pages/accounts/phone",
 			"style": {
-				"navigationBarTitleText": "修改手机",
+				"navigationBarTitleText": "%pages.modifyPhone%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FAFAFA",
 				"app-plus": {
@@ -120,7 +120,7 @@
 								"float": "right",
 								"fontWeight": "normal",
 								"fontSize": "14px",
-								"text": "保存",
+								"text": "%common.save%",
 								"width": "40px"
 							}
 						]
@@ -131,7 +131,7 @@
 		{
 			"path": "pages/accounts/email",
 			"style": {
-				"navigationBarTitleText": "修改邮箱",
+				"navigationBarTitleText": "%pages.modifyEmail%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FAFAFA",
 				"app-plus": {
@@ -145,7 +145,7 @@
 								"float": "right",
 								"fontWeight": "normal",
 								"fontSize": "14px",
-								"text": "保存",
+								"text": "%common.save%",
 								"width": "40px"
 							}
 						]
@@ -156,7 +156,7 @@
 		{
 			"path": "pages/change-pwd/change-pwd",
 			"style": {
-				"navigationBarTitleText": "修改密码",
+				"navigationBarTitleText": "%pages.modifyPassword%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FAFAFA"
 			}
@@ -164,7 +164,7 @@
 		{
 			"path": "pages/history-operate/history-operate",
 			"style": {
-				"navigationBarTitleText": "历史操作",
+				"navigationBarTitleText": "%pages.historyOperation%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -172,7 +172,7 @@
 		{
 			"path": "pages/device/device",
 			"style": {
-				"navigationBarTitleText": "我的设备",
+				"navigationBarTitleText": "%pages.myDevices%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -180,7 +180,7 @@
 		{
 			"path": "pages/alert-strategy/edit-strategy",
 			"style": {
-				"navigationBarTitleText": "编辑告警策略",
+				"navigationBarTitleText": "%pages.editAlertStrategy%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -188,7 +188,7 @@
 		{
 			"path": "pages/alert-strategy/alert-strategy",
 			"style": {
-				"navigationBarTitleText": "新增告警策略",
+				"navigationBarTitleText": "%pages.addAlertStrategy%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -196,7 +196,7 @@
 		{
 			"path": "pages/alert-control/add-control",
 			"style": {
-				"navigationBarTitleText": "新增控制策略",
+				"navigationBarTitleText": "%pages.addControlStrategy%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -204,7 +204,7 @@
 		{
 			"path": "pages/alert-control/edit-control",
 			"style": {
-				"navigationBarTitleText": "编辑控制策略",
+				"navigationBarTitleText": "%pages.editControlStrategy%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -212,7 +212,7 @@
 		{
 			"path": "pages/scene-rule-detail/scene-rule-detail",
 			"style": {
-				"navigationBarTitleText": "新增场景联动",
+				"navigationBarTitleText": "%pages.addSceneLinkage%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -220,7 +220,7 @@
 		{
 			"path": "pages/scene-detail/scene-detail",
 			"style": {
-				"navigationBarTitleText": "新增场景",
+				"navigationBarTitleText": "%pages.addScene%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -241,19 +241,19 @@
 		"list": [
 			{
 				"pagePath": "pages/fishery-monitor/fishery-monitor",
-				"text": "设备列表",
+				"text": "%pages.deviceList%",
 				"iconPath": "static/tabbar/eqp.png",
 				"selectedIconPath": "static/tabbar/eqp_on.png"
 			},
 			{
 				"pagePath": "pages/intelligent-control/intelligent-control",
-				"text": "智能控制",
+				"text": "%pages.intelligentControl%",
 				"iconPath": "static/tabbar/intelligentControl.png",
 				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
 			},
 			{
 				"pagePath": "pages/ucenter/ucenter",
-				"text": "我的账户",
+				"text": "%pages.myAccount%",
 				"iconPath": "static/tabbar/ucenter.png",
 				"selectedIconPath": "static/tabbar/ucenterSel.png"
 			}

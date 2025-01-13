@@ -1,10 +1,17 @@
 <template>
 	<view class="tp-box tp-flex tp-flex-col tp-box-sizing tp-pd-l-r-30">
 		<view class="tp-panel tb-flex tp-box-sizing">
-			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" v-model="email" placeholder="请输入电子邮箱!" placeholder-class="tp-plc" /></view>
+			<view class="tp-box-sizing tp-pd-t-b-25">
+				<input 
+					type="text" 
+					v-model="email" 
+					:placeholder="$t('pages.email.inputPlaceholder')" 
+					placeholder-class="tp-plc" 
+				/>
+			</view>
 		</view>
 		<view class="tp-panel tp-tips tp-box-sizing tp-mg-t-15">
-			请输入您的电子邮箱！
+			{{ $t('pages.email.tips') }}
 		</view>
 	</view>
 </template>
@@ -59,14 +66,14 @@
 			},
 			// 验证层
 			check(){ 
-				// 验证手机合法性
 				if(!this.isEmail()){
-					uni.showToast({	title:"请输入正确的邮箱地址！",icon:"none"	});
-					return ;
+					uni.showToast({	
+						title: this.$t('pages.email.invalidEmail'),
+						icon: "none"	
+					});
+					return;
 				}
-				// 
 				return true;
-				// 
 			},
 			//
 			handleUpdate(){
@@ -83,7 +90,7 @@
 					})
 					// 
 					return uni.showToast({
-						title:"设置成功！",
+						title: this.$t('pages.email.updateSuccess'),
 						success:()=>{
 							uni.navigateBack({ delta:1 })
 						}

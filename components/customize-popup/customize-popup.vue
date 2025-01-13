@@ -98,25 +98,33 @@
 			// 标题
 			title: {
 				type: String,
-				default: '提示'
+				default() {
+					return this.$t('components.popup.title')
+				}
 			},
 			
 			// 内容
 			content: {
 				type: String,
-				default: '确认此评论通过审核吗？'
+				default() {
+					return this.$t('components.popup.content')
+				}
 			},
 			
 			// 取消按钮的文字，默认为"取消"
 			cancelText: {
 				type: String,
-				default: '取消'
+				default() {
+					return this.$t('components.popup.cancel')
+				}
 			},
 	
 			// 确定按钮的文字，默认为"确定"
 			confirmText: {
 				type: String,
-				default: '确定'
+				default() {
+					return this.$t('components.popup.confirm')
+				}
 			},
 			
 			// 其他参数

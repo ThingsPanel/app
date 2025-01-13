@@ -1,10 +1,12 @@
 <template>
 	<view class="tp-box tp-flex tp-flex-col tp-box-sizing tp-pd-l-r-30">
 		<view class="tp-panel tb-flex tp-box-sizing">
-			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" v-model="realname" placeholder="请输入姓名!" placeholder-class="tp-plc" /></view>
+			<view class="tp-box-sizing tp-pd-t-b-25">
+				<input type="text" v-model="realname" :placeholder="$t('pages.realname.inputPlaceholder')" placeholder-class="tp-plc" />
+			</view>
 		</view>
 		<view class="tp-panel tp-tips tp-box-sizing tp-mg-t-15">
-			请输入您的真实姓名！
+			{{ $t('pages.realname.tips') }}
 		</view>
 	</view>
 </template>
@@ -60,7 +62,10 @@
 			check(){ 
 				// 
 				if(!this.realname || this.realname==""){
-					uni.showToast({	title:'真实姓名不能为空',icon:"none" });
+					uni.showToast({	
+						title: this.$t('pages.realname.emptyError'),
+						icon: "none" 
+					});
 					return false;
 				} 
 				// 
@@ -82,7 +87,7 @@
 					})
 					// 
 					return uni.showToast({
-						title:"设置成功！",
+						title: this.$t('pages.realname.updateSuccess'),
 						success:()=>{
 							uni.navigateBack({ delta:1 })
 						}
