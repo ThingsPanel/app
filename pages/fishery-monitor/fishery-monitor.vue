@@ -19,7 +19,7 @@
 				<!-- <view class="tp-status-bar"></view> -->
 
 				<view class="tp-fishery-top"></view>
-				<view class="tp-title" :style="{ marginBottom: '36rpx' }">设备监控
+				<view class="tp-title" :style="{ marginBottom: '36rpx' }">{{ $t('pages.deviceDetail.deviceMonitor') }}
 					<view class="tp-add" style="margin-left:10px" @click="toNotify">
 						<image src="../../static/icon/notify.svg" v-if="!activeNotify"></image>
 						<image src="../../static/icon/notify-red.svg" v-else></image>
@@ -41,16 +41,15 @@
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) <= 30"><i></i>在线</span> -->
-									<span v-if="+item.is_online == 1"><i></i>在线</span>
+									<span v-if="+item.is_online == 1"><i></i>{{ $t('pages.deviceDetail.online') }}</span>
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
-									<span v-else class='grey'><i></i>离线</span>
+									<span v-else class='grey'><i></i>{{ $t('pages.deviceDetail.offline') }}</span>
 									<view class="item-time">
-										上报时间：{{ item.latest_ts_name || '--' }}
+										{{ $t('pages.deviceDetail.reportTime') }}：{{ item.latest_ts_name || '--' }}
 									</view>
 								</view>
-
 							</view>
 							<view class="device_name_r" v-if="item.gateway_name">
 								{{ item.gateway_name }}
@@ -145,7 +144,7 @@
 		        :foldAll="false"
 		        confirmColor="#007aff"
 		        cancelColor="#757575"
-		        title="分组选择"
+		        :title="$t('pages.deviceDetail.groupSelection')"
 		        titleColor="#757575"
 		        @cancel="treeCancel"
 		        @confirm="treeConfirm"
@@ -171,7 +170,7 @@
 		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
 			<view class="logInfo">
 				<view class="info_title">
-					日志详情
+					{{ $t('pages.deviceDetail.logTitle') }}
 					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()" />
 				</view>
 				<view class="info_header">
@@ -185,7 +184,7 @@
 				<view class="info_list">
 					<view class="item">
 						<view class="value">
-							设备名称：
+							{{ $t('pages.deviceDetail.deviceNameLabel') }}
 						</view>
 						<view class="label">
 							{{ currentLog.device_name }}
@@ -193,7 +192,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							设备分组名称：
+							{{ $t('pages.deviceDetail.deviceGroupNameLabel') }}
 						</view>
 						<view class="label">
 							{{ currentLog.asset_name }}>{{ currentLog.device_name }}
@@ -201,7 +200,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							业务名称：
+							{{ $t('pages.deviceDetail.businessNameLabel') }}
 						</view>
 						<view class="label">
 							{{ currentLog.business_name }}
@@ -209,18 +208,18 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							操作类型：
+							{{ $t('pages.deviceDetail.operationTypeLabel') }}
 						</view>
 						<view class="label" v-if="currentLog.operation_type == '1'">
-							定时触发
+							{{ $t('pages.deviceDetail.timedTrigger') }}
 						</view>
 						<view class="label" v-if="currentLog.operation_type == '2'">
-							手动控制
+							{{ $t('pages.deviceDetail.manualControl') }}
 						</view>
 					</view>
 					<view class="item">
 						<view class="value">
-							指令：
+							{{ $t('pages.deviceDetail.commandLabel') }}
 						</view>
 						<view class="label">
 							{{ currentLog.instruct }}
@@ -228,19 +227,18 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							发送结果：
+							{{ $t('pages.deviceDetail.sendResultLabel') }}
 						</view>
 						<view class="label" v-if="currentLog.send_result == '1'">
-							成功
+							{{ $t('pages.deviceDetail.success') }}
 						</view>
 						<view class="label" v-if="currentLog.send_result == '2'">
-							失败
+							{{ $t('pages.deviceDetail.failure') }}
 						</view>
 					</view>
 				</view>
 			</view>
 		</uni-popup>
-		<!-- 消息提示框 -->
 		<cys-toast ref="toast" :msg="toast.msg" direction="row" location="top"></cys-toast>
 	</view>
 </template>
@@ -968,6 +966,7 @@ export default {
 	}
 }
 </script>
+
 <style scoped lang="css">
 @import '@/common/fishery-monitor.css';
 .title {

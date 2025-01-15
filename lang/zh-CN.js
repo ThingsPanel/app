@@ -48,6 +48,13 @@ export default {
     modifyPhone: '修改手机',
     modifyEmail: '修改邮箱',
     modifyPassword: '修改密码',
+    changePassword: {
+      passwordPlaceholder: '请输入登录密码!',
+      confirmPlaceholder: '请确认登录密码!',
+      passwordTip: '请设置6位及以上包含数字、字母和特殊符号中至少两种组合的密码！',
+      confirmBtn: '确认修改',
+      successMsg: '设置成功！'
+    },
     historyOperation: '历史操作',
     myDevices: '我的设备',
     editAlertStrategy: '编辑告警策略',
@@ -144,6 +151,13 @@ export default {
       value: '数值',
       time: '时间'
     },
+    changePwd: {
+      inputPwdPlaceholder: '请输入登录密码!',
+      confirmPwdPlaceholder: '请确认登录密码!',
+      pwdTip: '请设置6位及以上包含数字、字母和特殊符号中至少两种组合的密码！',
+      confirmBtn: '确认修改',
+      successMsg: '设置成功！'
+    },
     alertStrategy: {
       strategyName: '策略名称',
       enterName: '请输入名称',
@@ -175,7 +189,103 @@ export default {
       pleaseSelectRelation: '请选择关系',
       pleaseEnterValue: '请输入值',
       saveSuccess: '保存成功',
-      loading: '加载中'
+      loading: '加载中',
+      message: '信息',
+      enterMessage: '请在此处填写信息',
+      save: '保存',
+      triggerCondition: '触发条件',
+      addNewRow: '+新增一行'
+    },
+    controlStrategy: {
+      strategyName: '策略名称',  
+      enterName: '请输入名称!',
+      strategyDescription: '策略描述', 
+      enterDescription: '请输入描述!',
+      strategyPriority: '策略优先级',
+      strategyType: '策略类型',
+      deviceConditionType: '设备条件类型',
+      triggerCondition: '触发条件',
+      selectBusiness: '选择业务',
+      greenhouse1: '1号温棚',
+      selectDevice: '请选择设备',
+      device1: '设备1',
+      selectValue: '选择值',
+      greenhouse: '温棚',
+      selectRelation: '选择关系',
+      inputValue: '输入值',
+      controlCommand: '控制指令',
+      selectControlledObject: '选择受控对象',
+      relay: '继电器',
+      off: '关',
+      on: '开',
+      strategyStatus: '策略状态',
+      deployToDevice: '下发策略到终端设备',
+      deployNote: '（备注: 仅一个条件，和一个指令，且属于同一设备的情况方向允许下发）',
+      save: '保 存'
+    },
+    device: {
+      time: '时间',
+      deviceValue: '设备值', 
+      deviceType: '设备类型',
+      enabled: '已开启',
+      disabled: '未开启'
+    },
+    addMonitor: {
+      pageTitle: '添加设备',
+      deviceName: '设备名称：',
+      deviceNamePlaceholder: '智能控制器',
+      completeButton: '完成',
+      deviceNameRequired: '请输入设备名称'
+    },
+    deviceDetail: {
+      online: '在线',
+      offline: '离线',
+      updateTime: '更新时间',
+      control: '控制',
+      on: '开启',
+      off: '关闭',
+      send: '下发',
+      logs: '日志',
+      logDetail: '日志详情',
+      deviceName: '设备名称',
+      deviceGroupName: '设备分组名称',
+      businessName: '业务名称',
+      operationType: '操作类型',
+      command: '指令',
+      sendResult: '发送结果',
+      logTitle: '日志详情',
+      deviceNameLabel: '设备名称：',
+      deviceGroupNameLabel: '设备分组名称：',
+      businessNameLabel: '业务名称：',
+      operationTypeLabel: '操作类型：',
+      commandLabel: '指令：',
+      sendResultLabel: '发送结果：',
+      deviceMonitor: '设备监控',
+      reportTime: '上报时间',
+      groupSelection: '分组选择',
+      timedTrigger: '定时触发',
+      manualControl: '手动控制',
+      success: '成功',
+      failure: '失败',
+    },
+    fisheryMonitor: {
+      title: '设备监控',
+      online: '在线',
+      offline: '离线',
+      updateTime: '更新时间：'
+    },
+    logDetail: {
+      title: '日志详情',
+      deviceName: '设备名称：',
+      deviceGroupName: '设备分组名称：',
+      businessName: '业务名称：',
+      operationType: '操作类型：',
+      command: '指令：',
+      sendResult: '发送结果：',
+      timedTrigger: '定时触发',
+      manualControl: '手动控制',
+      success: '成功',
+      failure: '失败'
     }
   },
   components: {
@@ -245,7 +355,14 @@ export default {
       ignore: '忽略',
       optional: '选填',
       operationSuccess: '操作成功'
+    },
+    changePwd: {
+      inputPwdPlaceholder: '请输入登录密码!',
+      confirmPwdPlaceholder: '请确认登录密码!',
+      pwdTip: '请设置6位及以上包含数字、字母和特殊符号中至少两种组合的密码！',
+      confirmBtn: '确认修改',
+      successMsg: '设置成功！'
     }
   }
   // 根据需要添加更多翻译内容
-} 
+}

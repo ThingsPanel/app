@@ -158,7 +158,7 @@
 					<view class="info_list">
 						<view class="item" @click="toSelectTjAdd">
 							<view class="value">
-								{{ $t('pages.alertStrategy.pleaseSelectCondition') }}：
+								{{ $t('pages.alertStrategy.selectCondition') }}：
 							</view>
 							<view class="label">
 								{{addForm.tjName}}
@@ -167,7 +167,7 @@
 						</view>
 						<view class="item" @click="toSelectFhAdd">
 							<view class="value">
-								{{ $t('pages.alertStrategy.pleaseSelectSymbol') }}：
+								{{ $t('pages.alertStrategy.selectSymbol') }}：
 							</view>
 							<view class="label">
 								{{addForm.fhName}}

@@ -2,15 +2,15 @@
 	<view class="tp-box tp-flex tp-flex-col">
 		
 		<view class="tp-panel tb-flex tp-box-sizing tp-pd-l-r-30">			
-			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" password="true" v-model="upwd" placeholder="请输入登录密码!" placeholder-class="tp-plc" /></view>
-			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" password="true" v-model="rpwd" placeholder="请确认登录密码!" placeholder-class="tp-plc" /></view>
+			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" password="true" v-model="upwd" :placeholder="$t('pages.changePassword.passwordPlaceholder')" placeholder-class="tp-plc" /></view>
+			<view class="tp-box-sizing tp-pd-t-b-25"><input type="text" value="" password="true" v-model="rpwd" :placeholder="$t('pages.changePassword.confirmPlaceholder')" placeholder-class="tp-plc" /></view>
 		</view>
 		<view class="tp-panel tp-tips tp-box-sizing tp-pd-l-r-30 tp-mg-t-10">
-			请设置6位及以上包含数字、字母和特殊符号中至少两种组合的密码！
+			{{ $t('pages.changePassword.passwordTip') }}
 		</view>
 		
 		<view class="tp-box-sizing tp-pd-l-r-30">
-			<button class="tp-btn tp-mg-t-50" :loading="loading":class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit">确认修改</button>
+			<button class="tp-btn tp-mg-t-50" :loading="loading":class="{'vc-btn-disabled':disabled}" @tap="doUpdateSubmit">{{ $t('pages.changePassword.confirmBtn') }}</button>
 		</view>
 		
 	</view>
@@ -87,7 +87,7 @@
 					this.loading = this.disabled = false;
 					// 
 					return uni.showToast({
-						title:"设置成功！",
+						title: this.$t('pages.changePassword.successMsg'),
 						success:()=>{
 							uni.navigateBack({ delta:1 })
 						}

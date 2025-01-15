@@ -48,6 +48,13 @@ export default {
     modifyPhone: 'Modify Phone',
     modifyEmail: 'Modify Email',
     modifyPassword: 'Modify Password',
+    changePassword: {
+      passwordPlaceholder: 'Please enter login password!',
+      confirmPlaceholder: 'Please confirm login password!',
+      passwordTip: 'Please set a password with 6 or more characters containing at least two of the following: numbers, letters, and special symbols!',
+      confirmBtn: 'Confirm Change',
+      successMsg: 'Settings updated successfully!'
+    },
     historyOperation: 'Operation History',
     myDevices: 'My Devices',
     editAlertStrategy: 'Edit Alert Strategy',
@@ -115,8 +122,6 @@ export default {
       addTriggerCondition: 'Add Trigger Condition',
       relation: 'AND',
       or: 'OR',
-      pleaseSelectCondition: 'Please select condition',
-      pleaseSelectSymbol: 'Please select symbol',
       value: 'Value',
       enterValue: 'Please enter value',
       noSelectableData: 'No selectable data',
@@ -125,7 +130,112 @@ export default {
       pleaseSelectRelation: 'Please select relation',
       pleaseEnterValue: 'Please enter value',
       saveSuccess: 'Save successful',
-      loading: 'Loading'
+      loading: 'Loading',
+      message: 'Message',
+      enterMessage: 'Please enter message here',
+      save: 'Save',
+      triggerCondition: 'Trigger Condition',
+      addNewRow: '+ Add New Row'
+    },
+    changePassword: {
+      currentPassword: 'Current Password',
+      newPassword: 'New Password',
+      confirmPassword: 'Confirm Password',
+      passwordPlaceholder: 'Please enter password',
+      confirmPlaceholder: 'Please confirm password',
+      passwordTip: 'Please set a password with 6 or more characters containing at least two of the following: numbers, letters, and special symbols!',
+      updateSuccess: 'Password updated successfully!'
+    },
+    controlStrategy: {
+      strategyName: 'Strategy Name',
+      enterName: 'Please enter name!',
+      strategyDescription: 'Strategy Description',
+      enterDescription: 'Please enter description!',
+      strategyPriority: 'Strategy Priority',
+      strategyType: 'Strategy Type',
+      deviceConditionType: 'Device Condition Type',
+      triggerCondition: 'Trigger Condition',
+      selectBusiness: 'Select Business',
+      greenhouse1: 'Greenhouse 1',
+      selectDevice: 'Please select device',
+      device1: 'Device 1',
+      selectValue: 'Select Value',
+      greenhouse: 'Greenhouse',
+      selectRelation: 'Select Relation',
+      inputValue: 'Input Value',
+      controlCommand: 'Control Command',
+      selectControlledObject: 'Select Controlled Object',
+      relay: 'Relay',
+      off: 'Off',
+      on: 'On',
+      strategyStatus: 'Strategy Status',
+      deployToDevice: 'Deploy Strategy to Terminal Device',
+      deployNote: '(Note: Only one condition and one command are allowed when they belong to the same device)',
+      save: 'Save'
+    },
+    device: {
+      time: 'Time',
+      deviceValue: 'Device Value',
+      deviceType: 'Device Type',
+      enabled: 'Enabled',
+      disabled: 'Disabled',
+    },
+    addMonitor: {
+      pageTitle: 'Add Device',
+      deviceName: 'Device Name:',
+      deviceNamePlaceholder: 'Smart Controller',
+      completeButton: 'Complete',
+      deviceNameRequired: 'Please enter device name'
+    },
+    deviceDetail: {
+      online: 'Online',
+      offline: 'Offline',
+      updateTime: 'Update Time',
+      control: 'Control',
+      on: 'On',
+      off: 'Off',
+      send: 'Send',
+      logs: 'Logs',
+      logDetail: 'Log Detail',
+      deviceName: 'Device Name',
+      deviceGroupName: 'Device Group Name',
+      businessName: 'Business Name',
+      operationType: 'Operation Type',
+      command: 'Command',
+      sendResult: 'Send Result',
+      logTitle: 'Log Details',
+      deviceNameLabel: 'Device Name:',
+      deviceGroupNameLabel: 'Device Group Name:',
+      businessNameLabel: 'Business Name:',
+      operationTypeLabel: 'Operation Type:',
+      commandLabel: 'Command:',
+      sendResultLabel: 'Send Result:',
+      deviceMonitor: 'Device Monitoring',
+      reportTime: 'Report Time',
+      groupSelection: 'Group Selection',
+      timedTrigger: 'Timed Trigger',
+      manualControl: 'Manual Control',
+      success: 'Success',
+      failure: 'Failure',
+    },
+    fisheryMonitor: {
+      title: 'Device Monitoring',
+      online: 'Online',
+      offline: 'Offline',
+      updateTime: 'Update Time: '
+    },
+    logDetail: {
+      title: 'Log Details',
+      deviceName: 'Device Name:',
+      deviceGroupName: 'Device Group Name:',
+      businessName: 'Business Name:',
+      operationType: 'Operation Type:',
+      command: 'Command:',
+      sendResult: 'Send Result:',
+      timedTrigger: 'Timed Trigger',
+      manualControl: 'Manual Control',
+      success: 'Success',
+      failure: 'Failure'
     }
   },
   components: {
@@ -195,7 +305,14 @@ export default {
       ignore: 'ignore',
       optional: 'Optional',
       operationSuccess: 'Operation successful'
+    },
+    changePwd: {
+      inputPwdPlaceholder: 'Please enter login password!',
+      confirmPwdPlaceholder: 'Please confirm login password!',
+      pwdTip: 'Please set a password with 6 or more characters containing at least two of the following: numbers, letters, and special symbols',
+      confirmBtn: 'Confirm changes',
+      successMsg: 'Settings updated successfully!'
     }
   }
   // Add more translations as needed
-} 
+}

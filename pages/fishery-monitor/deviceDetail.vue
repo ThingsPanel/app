@@ -9,11 +9,11 @@
 				<view class="device_info">
 					<view class="device_name">
 						<span class="name">{{ device_name }}</span>
-						<span class="state green" v-if="device_state == 1">• 在线</span>
-						<span class="state" v-if="device_state == 0">• 离线</span>
+						<span class="state green" v-if="device_state == 1">• {{$t('pages.deviceDetail.online')}}</span>
+						<span class="state" v-if="device_state == 0">• {{$t('pages.deviceDetail.offline')}}</span>
 					</view>
 					<view class="updatetime">
-						更新时间: <span v-if="latest_ts_name">{{ latest_ts_name }}</span>
+						{{$t('pages.deviceDetail.updateTime')}}: <span v-if="latest_ts_name">{{ latest_ts_name }}</span>
 					</view>
 				</view>
 			</view>
@@ -43,7 +43,7 @@
 			</view>
 			<view class="control" v-if="device.controlData.length > 0">
 				<view class="control_t">
-					控制
+					{{$t('pages.deviceDetail.control')}}
 				</view>
 				<view class="control_l" v-if="device.controlData.length > 0">
 					<block v-for="(item, index) in device.controlData" :key="index">
@@ -55,9 +55,9 @@
 								</view>
 								<view style="margin-left: 24rpx;">
 									<view class="sp_item_title">{{ item.typeName }}</view>
-									<view class="sp_item_status" v-if="item.state == 0 && item.type == 'switch'">关闭
+									<view class="sp_item_status" v-if="item.state == 0 && item.type == 'switch'">{{$t('pages.deviceDetail.off')}}
 									</view>
-									<view class="sp_item_status" v-if="item.state == 1 && item.type == 'switch'">开启
+									<view class="sp_item_status" v-if="item.state == 1 && item.type == 'switch'">{{$t('pages.deviceDetail.on')}}
 									</view>
 								</view>
 							</view>
@@ -69,7 +69,7 @@
 							</view>
 							<view v-else class="send">
 								<input v-model="item.num" class="sendNum" type="text" />
-								<button @click="toSendNum(item)">下发</button>
+								<button @click="toSendNum(item)">{{$t('pages.deviceDetail.send')}}</button>
 							</view>
 						</view>
 					</block>
@@ -96,7 +96,7 @@
 				</view>
 			</view> -->
 			<view class="history" v-if="logData.length">
-				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 20rpx; margin-bottom: 10rpx">日志
+				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 20rpx; margin-bottom: 10rpx">{{$t('pages.deviceDetail.logs')}}
 				</view>
 				<block>
 					<view class="tp-log tp-flex tp-flex-col tp-mg-t-15">
@@ -129,7 +129,7 @@
 		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
 			<view class="logInfo">
 				<view class="info_title">
-					日志详情
+					{{$t('pages.deviceDetail.logDetail')}}
 					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()" />
 				</view>
 				<view class="info_header">
@@ -143,7 +143,7 @@
 				<view class="info_list">
 					<view class="item">
 						<view class="value">
-							设备名称：
+							{{$t('pages.deviceDetail.deviceName')}}：
 						</view>
 						<view class="label">
 							{{ currentLog.device_name }}
@@ -151,7 +151,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							设备分组名称：
+							{{$t('pages.deviceDetail.deviceGroupName')}}：
 						</view>
 						<view class="label">
 							{{ currentLog.asset_name }}>{{ currentLog.device_name }}
@@ -159,7 +159,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							业务名称：
+							{{$t('pages.deviceDetail.businessName')}}：
 						</view>
 						<view class="label">
 							{{ currentLog.business_name }}
@@ -167,7 +167,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							操作类型：
+							{{$t('pages.deviceDetail.operationType')}}：
 						</view>
 						<view class="label" v-if="currentLog.operation_type == '1'">
 							定时触发
@@ -178,7 +178,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							指令：
+							{{$t('pages.deviceDetail.command')}}：
 						</view>
 						<view class="label">
 							{{ currentLog.showInstructText }}
@@ -186,7 +186,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							发送结果：
+							{{$t('pages.deviceDetail.sendResult')}}：
 						</view>
 						<view class="label" v-if="currentLog.send_result == '1'">
 							成功
