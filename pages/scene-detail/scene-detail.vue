@@ -93,6 +93,7 @@ export default {
     uni.setNavigationBarTitle({
       title: this.$t('pages.addScene')
     })
+    uni.set
   },
   onLoad(options) {
     this.editId = options.id;

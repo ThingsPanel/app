@@ -6,7 +6,8 @@ export default {
     delete: '删除',
     loading: '加载中...',
     pleaseSelect: '请选择',
-    pleaseInput: '请输入'
+    pleaseInput: '请输入',
+    none: '无'
   },
   login: {
     title: '登录',

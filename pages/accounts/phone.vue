@@ -45,7 +45,6 @@
         title: this.$t('pages.modifyPhone')
       })
 			this.getAccount();
-			//
 		},
 		methods: {
 			//

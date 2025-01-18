@@ -378,6 +378,8 @@ export default {
 		// this.showData()
 
 	},
+	onLoad() {
+	},
 	onShow() {
 		this.isLogin = this.$login.isLoginType().isLogin
 		this.$store.state.list.equpPage = 1

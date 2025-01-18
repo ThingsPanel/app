@@ -6,7 +6,8 @@ export default {
     delete: 'Delete',
     loading: 'Loading...',
     pleaseSelect: 'Please select',
-    pleaseInput: 'Please input'
+    pleaseInput: 'Please input',
+    none: 'None'
   },
   login: {
     title: 'Login',
