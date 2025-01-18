@@ -266,28 +266,28 @@
         popUpVisible: false,
         actionOptions: [
             {
-            label: '操作设备',
+            label: this.$t('pages.sceneRuleDetail.actionType1'),
             value: '1',
             disabled: false
             },
             {
-            label: '激活场景',
+            label: this.$t('pages.sceneRuleDetail.actionType3'),
             value: '20',
             disabled: false
             },
             {
-            label: '触发告警',
+            label: this.$t('pages.sceneRuleDetail.actionType2'),
             value: '30',
             disabled: false
             }
         ],
         actionTypeOptions: [
             {
-            label: '单个设备',
+            label: this.$t('pages.sceneRuleDetail.singleDevice'),
             value: '10'
             },
             {
-            label: '单类设备',
+            label: this.$t('pages.sceneRuleDetail.singleDeviceType'),
             value: '11'
             }
         ],

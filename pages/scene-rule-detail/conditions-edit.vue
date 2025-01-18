@@ -627,14 +627,14 @@
       getIfTypeOptions(ifGroup, ifIndex) {
         const options = [
           {
-            label: '设备条件',
+            label: this.$t('pages.sceneRuleDetail.deviceCondition'),
             value: '1',
             disabled: ifGroup.some(item => {
               return (item.trigger_conditions_type === '20' || item.trigger_conditions_type === '21') && ifIndex > 0;
             })
           },
           {
-            label: '时间条件',
+            label: this.$t('pages.sceneRuleDetail.timeCondition'),
             value: '2'
           }
         ];

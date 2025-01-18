@@ -41,7 +41,9 @@
 		},
 		//
 		onShow() {
-			//
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.modifyPhone')
+      })
 			this.getAccount();
 			//
 		},

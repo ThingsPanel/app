@@ -47,9 +47,10 @@
 		},
 		//
 		onShow() {
-			//
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.modifyPassword')
+      })
 			this.getAccount();
-			//
 		},
 		methods: {
 			// 改变按钮状态

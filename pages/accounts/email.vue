@@ -47,7 +47,9 @@
 		},
 		//
 		onShow() {
-			//
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.modifyEmail')
+      })
 			this.getAccount();
 			//
 		},

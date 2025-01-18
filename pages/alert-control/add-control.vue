@@ -471,7 +471,7 @@
 					relationship: '',
 					relationshipName: '',
 					cishu: 0,
-					cishuName: '单次',
+					cishuName: $t('pages.addControl.single'),
 					dateTime: ''
 				},
 				addConForm: {
@@ -488,7 +488,7 @@
 				},
 				trigList: [{
 					conditionType: 1,
-					conditionTypeName: '设备条件类型',
+					conditionTypeName: $t('pages.addControl.deviceConditionType'),
 					eqpGroup: '',
 					eqpGroupName: '',
 					eqp: '',
@@ -502,7 +502,7 @@
 					relationship: '',
 					relationshipName: '',
 					cishu: 0,
-					cishuName: '单次',
+					cishuName: $t('pages.addControl.single'),
 					dateTime: ''
 				}], // 触发条件
 				controlList: [{
@@ -516,43 +516,43 @@
 					conNum: ''
 				}],
 				relationshipList: [{
-						name: '且',
+						name: $t('pages.addControl.and'),
 						id: '&&'
 					},
 					{
-						name: '或',
+						name: $t('pages.addControl.or'),
 						id: '||'
 					}
 				], // 关系
 				conditionList: [], // 条件
 				eqpGroupsList: [], // 设备分组
 				conditionTypeList: [{
-						label: '设备条件类型',
+						label: $t('pages.addControl.deviceConditionType'),
 						value: 1
 					},
 					{
-						label: '时间条件类型',
+						label: $t('pages.addControl.timeConditionType'),
 						value: 2
 					}
 				], // 条件类型
 				symbolList: [{
-						name: '大于',
+						name: $t('pages.addControl.greaterThan'),
 						id: '>'
 					},
 					{
-						name: '小于',
+						name: $t('pages.addControl.lessThan'),
 						id: '<'
 					},
 					{
-						name: '等于',
+						name: $t('pages.addControl.equal'),
 						id: '='
 					},
 					{
-						name: '大于等于',
+						name: $t('pages.addControl.greaterThanOrEqual'),
 						id: '≥'
 					},
 					{
-						name: '小于等于',
+						name: $t('pages.addControl.lessThanOrEqual'),
 						id: '≤'
 					},
 				], // 符号
@@ -573,18 +573,20 @@
 				currentTrigData: {}, // 当前触发条件
 				currentConData: {}, //当前执行命令
 				cishuList: [{
-						name: '单次',
+						name: $t('pages.addControl.single'),
 						id: 0
 					},
 					{
-						name: '每天',
+						name: $t('pages.addControl.everyDay'),
 						id: 1
 					}
 				]
 			}
 		},
 		onShow() {
-
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.addControlStrategy')
+			});
 		},
 		onLoad() {
 			// this.getZcList()
@@ -604,52 +606,52 @@
 					data.dateTime = e.target.value
 				}
 			},
-			validate() {
-				const control = this.controlList.filter((item, index) => {
-					return !item.eqpGroup || !item.eqp || !item.condition || !item.conNum
-				})
-				if (this.formData.name == '') {
-					this.toast.msg = '请输入策略名称';
-					this.$refs.toast.show();
-					return false
-				}
-				if (this.formData.describe == '') {
-					this.toast.msg = '请输入描述';
-					this.$refs.toast.show();
-					return false
-				}
-				if (this.trigList[0].conditionType == 1) {
-					const trig = this.trigList.filter((item, index) => {
-						if (index == 0) {
-							return !item.conditionType || !item.eqpGroup || !item.eqp || !item.condition || !item
-								.symbol || !item.trigNum
-						} else {
-							return !item.eqpGroup || !item.eqp || !item.condition || !item
-								.symbol || !item.trigNum || !item.relationship
-						}
-					})
-					if (trig.length > 0) {
-						this.toast.msg = '存在数据项不符合触发条件，请检查触发条件数据项';
-						this.$refs.toast.show();
-						return false
-					}
-				} else {
-					const trig = this.trigList.filter((item, index) => {
-						return !item.cishuName || !item.dateTime
-					})
-					if (trig.length > 0) {
-						this.toast.msg = '存在数据项不符合触发条件，请检查触发条件数据项';
-						this.$refs.toast.show();
-						return false
-					}
-				}
-				if (control.length > 0) {
-					this.toast.msg = '存在数据项不符合执行命令，请检查执行命令数据项';
-					this.$refs.toast.show();
-					return false
-				}
-				return true
-			},
+      validate() {
+        const control = this.controlList.filter((item, index) => {
+          return !item.eqpGroup || !item.eqp || !item.condition || !item.conNum
+        })
+        if (this.formData.name == '') {
+          this.toast.msg = this.$t('pages.addControl.validateError.nameRequired');
+          this.$refs.toast.show();
+          return false
+        }
+        if (this.formData.describe == '') {
+          this.toast.msg = this.$t('pages.addControl.validateError.descriptionRequired');
+          this.$refs.toast.show();
+          return false
+        }
+        if (this.trigList[0].conditionType == 1) {
+          const trig = this.trigList.filter((item, index) => {
+            if (index == 0) {
+              return !item.conditionType || !item.eqpGroup || !item.eqp || !item.condition || !item
+                .symbol || !item.trigNum
+            } else {
+              return !item.eqpGroup || !item.eqp || !item.condition || !item
+                .symbol || !item.trigNum || !item.relationship
+            }
+          })
+          if (trig.length > 0) {
+            this.toast.msg = this.$t('pages.addControl.validateError.triggerConditionInvalid');
+            this.$refs.toast.show();
+            return false
+          }
+        } else {
+          const trig = this.trigList.filter((item, index) => {
+            return !item.cishuName || !item.dateTime
+          })
+          if (trig.length > 0) {
+            this.toast.msg = this.$t('pages.addControl.validateError.triggerConditionInvalid');
+            this.$refs.toast.show();
+            return false
+          }
+        }
+        if (control.length > 0) {
+          this.toast.msg = this.$t('pages.addControl.validateError.executeCommandInvalid');
+          this.$refs.toast.show();
+          return false
+        }
+        return true
+      },
 			//保存策略
 			doUpdateSubmit() {
 				if (this.validate()) {
@@ -801,27 +803,27 @@
 			// 保存执行命令验证
 			saveConValidate() {
 				// if (!this.addConForm.relationship) {
-				// 	this.toast.msg = '请选择条件为且还是或';
+				// 	this.toast.msg = this.$t('pages.addControl.validateError.relationRequired');
 				// 	this.$refs.toast.show();
 				// 	return false
 				// }
 				if (!this.addConForm.eqpGroup) {
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.eqp) {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.condition) {
-					this.toast.msg = '请选择条件';
+					this.toast.msg = this.$t('pages.addControl.validateError.conditionRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.conNum) {
-					this.toast.msg = '请输入数值';
+					this.toast.msg = this.$t('pages.addControl.validateError.valueRequired');
 					this.$refs.toast.show();
 					return false
 				}
@@ -831,48 +833,48 @@
 			saveTrigValidate() {
 				if (this.trigList[0].conditionType == 1) {
 					if (!this.addTrigForm.relationship) {
-						this.toast.msg = '请选择条件为且还是或';
+						this.toast.msg = this.$t('pages.addControl.validateError.relationRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.eqpGroup) {
-						this.toast.msg = '请选择设备分组';
+						this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.eqp) {
-						this.toast.msg = '请选择设备';
+						this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.condition) {
-						this.toast.msg = '请选择条件';
+						this.toast.msg = this.$t('pages.addControl.validateError.conditionRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.symbol) {
-						this.toast.msg = '请选择符号';
+						this.toast.msg = this.$t('pages.addControl.validateError.symbolRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.trigNum) {
-						this.toast.msg = '请输入数值';
+						this.toast.msg = this.$t('pages.addControl.validateError.valueRequired');
 						this.$refs.toast.show();
 						return false
 					}
 				} else {
 					if (!this.addTrigForm.relationship) {
-						this.toast.msg = '请选择条件为且还是或';
+						this.toast.msg = this.$t('pages.addControl.validateError.relationRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.cishuName) {
-						this.toast.msg = '请选择次数';
+						this.toast.msg = this.$t('pages.addControl.validateError.timesRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.dateTime) {
-						this.toast.msg = '请选择日期或时间';
+						this.toast.msg = this.$t('pages.addControl.validateError.dateTimeRequired');
 						this.$refs.toast.show();
 						return false
 					}
@@ -1333,7 +1335,7 @@
 	}
 
 	.uni-date-x--border {
-		border: none
+		border: none;
 	}
 
 	/deep/ .uni-icons {

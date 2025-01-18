@@ -73,11 +73,15 @@
 				editId:''
 			}
 		},
-
+    onShow(){
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.addSceneLinkage')
+      })
+    },
 		onLoad(options) {
 			this.editId = options.id
       uni.setNavigationBarTitle({
-        title: `${this.editId ? '编辑' : '新增'}场景联动`,
+        title: this.editId ? this.$t('pages.sceneRuleDetail.editSceneLinkage') : this.$t('pages.sceneRuleDetail.addSceneLinkage'),
       })
 		},
     mounted () {

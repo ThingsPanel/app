@@ -283,7 +283,9 @@
 			}
 		},
 		onShow() {
-
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.addAlertStrategy')
+      })
 		},
 		onLoad() {},
 		methods: {

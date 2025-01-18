@@ -212,6 +212,11 @@
 				]
 			}
 		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.myDevices')
+			})
+		},
 		methods: {
 			
 		}

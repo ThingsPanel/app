@@ -188,6 +188,11 @@
 				]
 			}
 		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.historyOperation')
+			})
+		},
 		methods: {
 			//
 			doOpenSelectDateTime:function(){

@@ -70,6 +70,11 @@ import NotofyDialog from '@/components/notify-dialog'
 				}
 			}
 		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.notify')
+			})
+		},
 		methods: {
 			formatDate(date) {
 				return dayjs(date).format('YYYY-MM-DD HH:mm')

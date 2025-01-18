@@ -311,6 +311,9 @@ export default {
 	},
 
 	onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.deviceDetailTitle')
+      })
 		this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
 		this.pageHeight = uni.getStorageSync('pageHeight');
 	},

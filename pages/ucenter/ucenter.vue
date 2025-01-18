@@ -137,7 +137,10 @@
 			})
 		},
 		onShow() {
-			this.getUserInfo()
+			this.getUserInfo(),
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.userCenter')
+			})
 		},
 		onLoad() {
 			

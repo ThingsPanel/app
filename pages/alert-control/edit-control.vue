@@ -582,7 +582,9 @@
 			}
 		},
 		onShow() {
-
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.editControlStrategy')
+      })
 		},
 		onLoad(options) {
 			this.editId = options.id

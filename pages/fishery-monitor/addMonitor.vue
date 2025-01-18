@@ -37,6 +37,9 @@
 			this.groupId = option.groupId
 		},
 		onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.addDevice')
+      })
 			this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
 			this.pageHeight = uni.getStorageSync('pageHeight');
 		},

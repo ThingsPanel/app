@@ -150,6 +150,9 @@
       
     },
     onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.intelligentControlTitle')
+      })
       this.$store.commit('zerOingOffser'); //清空日志页码
       this.tabData = [{
         id: uni.getStorageSync('ywid'),

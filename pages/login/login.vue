@@ -78,6 +78,9 @@ import login from "../../store/login";
 			}
 		},
 		onShow(){
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.loginTitle')
+			})
 			this.server  = uni.getStorageSync('serverAddress') || ''
 			if(uni.getStorageSync('email') && uni.getStorageSync('password')) {
 				this.email = uni.getStorageSync('email')

@@ -384,6 +384,9 @@ export default {
 		this.ywData = []
 		this.showData();
 		//this.checkNotify()
+		uni.setNavigationBarTitle({
+				title: this.$t('pages.deviceList')
+			})
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {

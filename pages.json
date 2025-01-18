@@ -3,7 +3,7 @@
 		{
 			"path": "pages/login/login",
 			"style": {
-				"navigationBarTitleText": "%pages.login%",
+				"navigationBarTitleText": "%pages.loginTitle%",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -35,7 +35,7 @@
 		{
 			"path": "pages/intelligent-control/intelligent-control",
 			"style": {
-				"navigationBarTitleText": "%pages.intelligentControl%",
+				"navigationBarTitleText": "%pages.intelligentControlTitle%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -59,7 +59,7 @@
 		{
 			"path": "pages/fishery-monitor/deviceDetail",
 			"style": {
-				"navigationBarTitleText": "%pages.deviceDetail%",
+				"navigationBarTitleText": "%pages.deviceDetailTitle%",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},

@@ -63,7 +63,9 @@
 		},
 		// 
 		onShow() {
-			//
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.basicInfo')
+      })
 			this.getAccount();
 			//
 		},

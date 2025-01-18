@@ -96,6 +96,11 @@
   import { fetchEmailCode, registerByEmail } from '@/service/auth'
   
   export default {
+    onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.register')
+      })
+    },
     data() {
       return {
         formData: {

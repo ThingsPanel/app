@@ -89,6 +89,11 @@ export default {
       popUpVisible: false
     };
   },
+  onShow() {
+    uni.setNavigationBarTitle({
+      title: this.$t('pages.addScene')
+    })
+  },
   onLoad(options) {
     this.editId = options.id;
       uni.setNavigationBarTitle({
