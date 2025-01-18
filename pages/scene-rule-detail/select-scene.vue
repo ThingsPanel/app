@@ -2,7 +2,7 @@
   <view>
     <view class=" tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
     	<CustomSelect
-    	  placeholder="场景" 
+    	  :placeholder="$t('pages.sceneSelect.placeholder')"
     	  :options="sceneOptions"
     	  @change="change"
     	  optionValue="id"

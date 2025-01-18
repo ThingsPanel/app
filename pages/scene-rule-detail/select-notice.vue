@@ -2,14 +2,14 @@
   <view class="">
     <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <CustomSelect
-        placeholder="告警级别" 
+        :placeholder="$t('pages.sceneRuleDetail.alertLevel')"
         :options="levelOptions"
         @change="change"
         v-model="warningStrategy.warning_level"
       ></CustomSelect>
       
     	<CustomSelect
-    	  placeholder="通知组" 
+    	  :placeholder="$t('pages.sceneRuleDetail.notificationGroup')"
     	  :options="noticOptions"
     	  @change="change"
     	  optionValue="id"
@@ -21,14 +21,14 @@
     <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
         <!-- <view class="label">重复次数</view> -->
-      	<input class="uni-input" placeholder="重复次数" v-model.number="warningStrategy.repeat_count"/>
+      	<input class="uni-input" :placeholder="$t('pages.sceneRuleDetail.repeatCount')" v-model.number="warningStrategy.repeat_count"/>
       </view>
     </view>
     
     <view class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
       <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
         <!-- <view class="label">告警描述</view> -->
-      	<input class="uni-input" placeholder="告警描述" v-model="warningStrategy.warning_description"/>
+      	<input class="uni-input" :placeholder="$t('pages.sceneRuleDetail.alertDescription')" v-model="warningStrategy.warning_description"/>
       </view>
     </view>
   </view>
@@ -59,9 +59,9 @@
     data () {
       return {
         levelOptions: [
-          { value: '1', label: '低' },
-          { value: '2', label: '中' },
-          { value: '3', label: '高' },
+          { value: '1', label: this.$t('pages.sceneRuleDetail.levels.low') },
+          { value: '2', label: this.$t('pages.sceneRuleDetail.levels.medium') },
+          { value: '3', label: this.$t('pages.sceneRuleDetail.levels.high') },
         ],
         noticOptions: [],
         warningStrategy: this.data.actions[0].warning_strategy || {},

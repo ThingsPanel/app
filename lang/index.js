@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import { App } from 'vue';
 import VueI18n from 'vue-i18n'
 import enUS from './en-US'
 import zhCN from './zh-CN'
@@ -50,7 +51,7 @@ const i18n = new VueI18n({
 //     })
 //   }
 // }
-
+// export const $t = i18n.global.t
 // Function to change language
 export const changeLanguage = (locale) => {
   i18n.global.locale = locale

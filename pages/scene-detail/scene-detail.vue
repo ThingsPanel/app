@@ -3,23 +3,23 @@
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
       <view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
         <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-          <view>场景标题</view>
+          <view>{{ $t('pages.sceneDetail.sceneTitle') }}</view>
           <input
             maxlength="20"
             type="text"
             class="tp-flex-1 tp-mg-l-20"
-            placeholder="场景标题"
+            :placeholder="$t('pages.sceneDetail.sceneTitle')"
             placeholder-class="tp-plc"
             v-model.trim="formData.info.name"
           />
         </view>
         <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-          <view>场景描述</view>
+          <view>{{ $t('pages.sceneDetail.sceneDescription') }}</view>
           <input
             maxlength="40"
             type="text"
             class="tp-flex-1 tp-mg-l-20"
-            placeholder="场景描述"
+            :placeholder="$t('pages.sceneDetail.sceneDescription')"
             placeholder-class="tp-plc"
             v-model.trim="formData.info.description"
           />
@@ -27,7 +27,7 @@
       </view>
       <view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
       <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-25">
-        <view>动作：</view>
+        <view>{{ $t('pages.sceneDetail.actions') }}：</view>
       </view>
     </view>
     <actions-edit
@@ -36,13 +36,19 @@
       ></actions-edit>
 
       <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
-        <button class="tp-btn" @tap="handlerSubmit">保存</button>
+        <button class="tp-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
       </view>
 
       <!-- 消息提示框 -->
       <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
 
-      <Modal v-model="visible" title="保存" text="确定要保存数据吗？" @cancel="cancel" @confirm="confirm" />
+      <Modal 
+        v-model="visible" 
+        :title="$t('common.save')" 
+        :text="$t('pages.sceneDetail.saveConfirmation')" 
+        @cancel="cancel" 
+        @confirm="confirm" 
+      />
     </view>
   </view>
 </template>
@@ -85,8 +91,8 @@ export default {
   },
   onLoad(options) {
     this.editId = options.id;
-    uni.setNavigationBarTitle({
-      title: `${this.editId ? '编辑' : '新增'}场景`
+      uni.setNavigationBarTitle({
+      title: `${this.editId ? $t('common.edit') : $t('common.add')} ${$t('pages.sceneDetail.scene')}`
     });
   },
   created() {
@@ -126,8 +132,8 @@ export default {
   },
   methods: {
     getInfo() {
-      uni.showLoading({
-        title: '加载中'
+        uni.showLoading({
+        title: this.$t('common.loading')
       });
       const params = {
         id: this.editId
@@ -191,7 +197,7 @@ export default {
       const { actions } = this.formData;
 
       if (!name) {
-        this.toast.msg = '请输入场景标题';
+          this.toast.msg = this.$t('pages.sceneDetail.enterSceneTitle');
         this.$refs.toast.show();
         return;
       }
@@ -210,7 +216,7 @@ export default {
     },
     doSubmit(submitData) {
       uni.showLoading({
-        title: '加载中'
+        title: this.$t('common.loading')
       });
 
       let url = '/api/v1/scene';

@@ -3,7 +3,7 @@
 		<!-- Number柱状图Compent1 -->
 		<view>
 			<histogram-chart :dataAs="histogramData" canvasId="ht0" />
-			<view style="text-align: center;line-height: 40px;">柱状图histogram Number</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.histogramNumber')}}</view>
 		</view>
 
 		<!-- 百分比柱状图Compent2 -->
@@ -19,7 +19,7 @@
 					}
 				}"
 			/>
-			<view style="text-align: center;line-height: 40px;">柱状图histogram percent</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.histogramPercent')}}</view>
 		</view>
 
 		<!-- 柱状图Compent extra拓展 -->
@@ -36,7 +36,7 @@
 					}
 				}"
 			/>
-			<view style="text-align: center;line-height: 40px;">柱状图histogram extra拓展</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.histogramExtra')}}</view>
 		</view>
 
 		<!-- 圆环arcbar -->
@@ -52,7 +52,7 @@
 					/>
 				</block>
 			</view>
-			<view style="text-align: center;line-height: 40px;">圆环arcbar</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.arcbar')}}</view>
 		</view>
 
 		<!-- 折线Line带百分比 -->
@@ -67,19 +67,19 @@
 					}
 				}"
 			/>
-			<view style="text-align: center;line-height: 40px;">折线LineChart percent</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.linePercent')}}</view>
 		</view>
 
 		<!-- 折线Line纯数字-->
 		<view class="line">
 			<line-chart canvasId="index_line_2" :dataAs="lineData2" />
-			<view style="text-align: center;line-height: 40px;">折线LineChart Number</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.lineNumber')}}</view>
 		</view>
 
 		<!-- 饼状图 -->
 		<view class="pie_chart">
 			<pie-chart :dataAs="pieData" canvasId="index_pie_1" />
-			<view style="text-align: center;line-height: 40px;">饼状图PieChart</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.pieChart')}}</view>
 		</view>
 
 		<!-- 环状图 -->
@@ -96,7 +96,7 @@
 					}
 				}"
 			/>
-			<view style="text-align: center;line-height: 40px;">环状图 RingChart</view>
+			<view style="text-align: center;line-height: 40px;">{{$t('pages.charts.ringChart')}}</view>
 		</view>
 	</view>
 </template>

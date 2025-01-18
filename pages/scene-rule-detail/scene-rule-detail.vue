@@ -3,20 +3,20 @@
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
 			<view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view class="form-item-label">规则名称</view>
-					<input maxlength="20" type="text" class="tp-flex-1" placeholder="规则名称" placeholder-class="tp-plc"
+					<view class="form-item-label">{{ $t('pages.sceneRuleDetail.ruleName') }}</view>
+					<input maxlength="20" type="text" class="tp-flex-1" :placeholder="$t('pages.sceneRuleDetail.ruleName')" placeholder-class="tp-plc"
 						v-model="formData.name" />
 				</view>
         
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view class="form-item-label">规则说明</view>
-					<input maxlength="40" type="text" class="tp-flex-1" placeholder="规则说明" placeholder-class="tp-plc"
+					<view class="form-item-label">{{ $t('pages.sceneRuleDetail.ruleDescription') }}</view>
+					<input maxlength="40" type="text" class="tp-flex-1" :placeholder="$t('pages.sceneRuleDetail.ruleDescription')" placeholder-class="tp-plc"
 						v-model="formData.description" />
 				</view>
 			</view>
       
       <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30  uni-bold">
-        <text class="title">如果</text>
+        <text class="title">{{ $t('pages.sceneRuleDetail.ifText') }}</text>
       </view>
 
       <!-- 条件列表 -->
@@ -25,7 +25,7 @@
         :condition-data.sync="formData.trigger_condition_groups" />
       
       <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30 uni-bold">
-        <text class="title">那么</text>
+        <text class="title">{{ $t('pages.sceneRuleDetail.thenText') }}</text>
       </view>
 
       <!-- 操作列表 -->
@@ -36,14 +36,14 @@
       ></actions-edit>
       
 			<view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
-				<button class="tp-btn" @tap="handlerSubmit">保存</button>
+				<button class="tp-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
 			</view>
 		</view>
     
     <!-- 消息提示框 -->
     <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
     
-    <Modal v-model="visible" title='保存' text='确定要保存数据吗？' @cancel='cancel' @confirm='confirm' />
+    <Modal v-model="visible" :title="$t('pages.sceneRuleDetail.save')" :text="$t('pages.sceneRuleDetail.saveConfirm')" @cancel='cancel' @confirm='confirm' />
 	</view>
 </template>
 
@@ -101,7 +101,7 @@
       // 获取修改信息
       getInfo(){
       	uni.showLoading({
-      		title: '加载中'
+      		title: this.$t('pages.sceneRuleDetail.loading')
       	});
         const params = {
       		id: this.editId
@@ -327,7 +327,7 @@
         
 				if (!name) {
           return {
-            result: '请输入场景联动名称'
+            result: this.$t('pages.sceneRuleDetail.enterRuleName')
           }
 				}
         
@@ -354,7 +354,7 @@
         }
         const conditionsInfo = this.handleConditionsData(this.$refs.conditions.ifGroupsData());
         if (!conditionsInfo || conditionsInfo.length === 0) {
-          this.toast.msg = "请输入场景联动条件"
+          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleConditions')
           this.$refs.toast.show()
           return;
         } else {
@@ -370,7 +370,7 @@
         }*/
         const actionsInfo = this.handleActionData(this.formData.actions);
         if (!actionsInfo || actionsInfo.length === 0) {
-          this.toast.msg = "请输入场景联动动作"
+          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleActions')
           this.$refs.toast.show()
           return;
         } else {
@@ -391,7 +391,7 @@
       },
       doSubmit (submitData) {
         uni.showLoading({
-        	title: '加载中'
+        	title: this.$t('pages.sceneRuleDetail.loading')
         });
         
         let url = '/api/v1/scene_automations';
@@ -511,4 +511,3 @@
     }
   }
 </style>
-
