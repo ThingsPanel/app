@@ -1,22 +1,22 @@
 <template>
 	<view>
 		<view class="empty" v-if="!loading && !list.length">
-			暂无新的告警内容
+			{{$t('pages.notify.noAlerts')}}
 		</view>
 		<view class="list">
 			<view class="item" v-for="item in list" :key="item.id">
 				<view class="desc">{{item.warning_description}}</view>
 				<view class="opt">
 					<view class="name">
-						告警级别
+						{{$t('pages.notify.alertLevel')}}
 					</view>
 					<view class="content">
-						{{{'L':'低', 'M':'中',"H": '高'}[item.alarm_level]}}
+						{{$t(`pages.notify.alarmLevels.${item.alarm_level}`)}}
 					</view>
 				</view>
 				<view class="opt">
 					<view class="name">
-						告警名称
+						{{$t('pages.notify.alertName')}}
 					</view>
 					<view class="content">
 						{{item.name}}
@@ -24,14 +24,14 @@
 				</view>
 				<view class="opt">
 					<view class="name">
-						告警内容
+						{{$t('pages.notify.alertContent')}}
 					</view>
 					<view class="content">
 						{{item.content}}
 					</view>
 				</view>
 				<view class="opt">
-					<view class="name">告警时间</view>
+					<view class="name">{{$t('pages.notify.alertTime')}}</view>
 					<view class="content">{{formatDate(item.created_at)}}</view>
 				</view>
 				<!--
@@ -69,6 +69,11 @@ import NotofyDialog from '@/components/notify-dialog'
 					status: ''
 				}
 			}
+		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.notify')
+			})
 		},
 		methods: {
 			formatDate(date) {

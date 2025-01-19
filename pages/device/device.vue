@@ -8,13 +8,13 @@
 					<view class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-mg-b-20">
 						<view class="iconfont tp-mg-r-20" :class=" item.icon?item.icon:'iconbengzhan'"></view><text>{{item.title}}</text>
 					</view>
-					<view class="tp-pd-t-b-05">时间：{{item.time}}</view>
-					<view class="tp-pd-t-b-05">设备值：{{item.value}}</view>
-					<view class="tp-pd-t-b-05">设备类型：{{item.type}}</view>
+					<view class="tp-pd-t-b-05">{{$t('pages.device.time')}} {{item.time}}</view>
+					<view class="tp-pd-t-b-05">{{$t('pages.device.deviceValue')}} {{item.value}}</view>
+					<view class="tp-pd-t-b-05">{{$t('pages.device.deviceType')}} {{item.type}}</view>
 				</view>
 				
 				<view class="tp-flex tp-flex-col tp-flex-j-s tp-flex-a-c">
-					<view>{{item.status?'已开启':'未开启'}}</view>
+					<view>{{item.status?$t('pages.device.enabled'):$t('pages.device.disabled')}}</view>
 					<view class="tp-flex tp-flex-j-c tp-flex-a-c"><text class="iconfont iconkaiguan"></text></view>
 				</view>
 				
@@ -211,6 +211,11 @@
 					}
 				]
 			}
+		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.myDevices')
+			})
 		},
 		methods: {
 			

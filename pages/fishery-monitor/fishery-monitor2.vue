@@ -7,13 +7,13 @@
 				<view class="tp-fishery-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 					<view style="display: flex;" @click="toMore">
 						<view class="iconmore" style="margin-top: 10rpx;" @click='toShowNavDrawer'>
-							<image src="/static/icon/more.png">
-								<view class="title">{{currentGroup.device_group}}</view>
+							<image src="/static/icon/more.png"></image>
+							<view class="title">{{currentGroup.device_group}}</view>
 						</view>
 					</view>
 				</view>
 				<view class="tp-fishery-top"></view>
-				<view class="tp-title tp-mg-t-25" :style="{marginTop: marginConTop,marginBottom: '36rpx'}">设备监控
+				<view class="tp-title tp-mg-t-25" :style="{marginTop: marginConTop,marginBottom: '36rpx'}">{{$t('pages.fisheryMonitor.title')}}
 					<view class="tp-add" @click="addEqp">
 						<image src="../../static/image/scan.png"></image>
 					</view>
@@ -29,13 +29,13 @@
 								<view class="item-info">
 									<span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
-									1000))) <= 30"><i></i>在线</span>
+									1000))) <= 30"><i></i>{{$t('pages.fisheryMonitor.online')}}</span>
 									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
 									new Date().getTime() *
 									1000))) > 30" class='grey'><i></i>离线</span> -->
-									<span v-else class='grey'><i></i>离线</span>
+									<span v-else class='grey'><i></i>{{$t('pages.fisheryMonitor.offline')}}</span>
 									<view class="item-time" v-if="item.latest_ts_name && item.latest_ts_name != null">
-										更新时间：{{item.latest_ts_name}}
+										{{$t('pages.fisheryMonitor.updateTime')}}{{item.latest_ts_name}}
 									</view>
 								</view>
 								
@@ -79,9 +79,9 @@
 								</view>
 								<view class="switch_r" v-if="!sw.disabled">
 									<image src="/static/icon/switch_on.png" @click.stop="changSwitch(item,sw)"
-										v-if="sw.state == 1">
-										<image src="/static/icon/switch_close.png" @click.stop="changSwitch(item,sw)"
-											v-if="sw.state == 0">
+										v-if="sw.state == 1"></image>
+									<image src="/static/icon/switch_close.png" @click.stop="changSwitch(item,sw)"
+										v-if="sw.state == 0"></image>
 								</view>
 							</view>
 						</view> -->
@@ -139,8 +139,8 @@
 		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
 			<view class="logInfo">
 				<view class="info_title">
-					日志详情
-					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()">
+					{{$t('pages.logDetail.title')}}
+					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()"></image>
 				</view>
 				<view class="info_header">
 					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
@@ -153,7 +153,7 @@
 				<view class="info_list">
 					<view class="item">
 						<view class="value">
-							设备名称：
+							{{$t('pages.logDetail.deviceName')}}
 						</view>
 						<view class="label">
 							{{currentLog.device_name}}
@@ -161,7 +161,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							设备分组名称：
+							{{$t('pages.logDetail.deviceGroupName')}}
 						</view>
 						<view class="label">
 							{{currentLog.asset_name}}>{{currentLog.device_name}}
@@ -169,7 +169,7 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							业务名称：
+							{{$t('pages.logDetail.businessName')}}
 						</view>
 						<view class="label">
 							{{currentLog.business_name}}
@@ -177,18 +177,18 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							操作类型：
+							{{$t('pages.logDetail.operationType')}}
 						</view>
 						<view class="label" v-if="currentLog.operation_type == '1'">
-							定时触发
+							{{$t('pages.logDetail.timedTrigger')}}
 						</view>
 						<view class="label" v-if="currentLog.operation_type == '2'">
-							手动控制
+							{{$t('pages.logDetail.manualControl')}}
 						</view>
 					</view>
 					<view class="item">
 						<view class="value">
-							指令：
+							{{$t('pages.logDetail.command')}}
 						</view>
 						<view class="label">
 							{{currentLog.instruct}}
@@ -196,13 +196,13 @@
 					</view>
 					<view class="item">
 						<view class="value">
-							发送结果：
+							{{$t('pages.logDetail.sendResult')}}
 						</view>
 						<view class="label" v-if="currentLog.send_result == '1'">
-							成功
+							{{$t('pages.logDetail.success')}}
 						</view>
 						<view class="label" v-if="currentLog.send_result == '2'">
-							失败
+							{{$t('pages.logDetail.failure')}}
 						</view>
 					</view>
 				</view>

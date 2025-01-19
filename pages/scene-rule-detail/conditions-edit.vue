@@ -19,7 +19,7 @@
               <view class="tp-flex-1 tp-flex">
               <view class="tp-flex-1">
                 <view v-if="ifIndex !== 0" class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-20  uni-bold">
-                    <text class="tag-class">{{ '并且' }}</text>
+                    <text class="tag-class">{{ $t('pages.sceneRuleDetail.and') }}</text>
                 </view>
                 <!-- 条件类型下拉-->
                 <CustomSelect
@@ -27,7 +27,7 @@
                   :options="getIfTypeOptions(ifGroupItem, ifIndex)"
                   option-value="value"
                   option-label="label"
-                  placeholder="请选择条件类型"
+                  :placeholder="$t('pages.sceneRuleDetail.selectConditionType')"
                   @change="(value) => ifTypeChange(ifItem, value)"
                 />
                 <view v-if="ifItem.ifType === '1'" class="flex-1">
@@ -37,7 +37,7 @@
                     :options="deviceConditionOptions"
                     option-value="value"
                     option-label="label"
-                    placeholder="请选择设备条件类型"
+                    :placeholder="$t('pages.sceneRuleDetail.selectDeviceConditionType')"
                     @change="(value) => triggerConditionsTypeChange(ifItem, value)"
                   />
                   <view v-if="ifItem.trigger_conditions_type === '10'">
@@ -47,7 +47,7 @@
                       :options="deviceOptions"
                       option-value="id"
                       option-label="name"
-                      placeholder="请选择设备"
+                      :placeholder="$t('pages.sceneRuleDetail.selectDevice')"
                       @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); }"
                     />
                   </view>
@@ -58,7 +58,7 @@
                       :options="deviceConfigOption"
                       option-value="id"
                       option-label="name"
-                      placeholder="请选择设备类型"
+                      :placeholder="$t('pages.sceneRuleDetail.selectDeviceType')"
                       @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); }"
                     />
                   </view>
@@ -69,7 +69,7 @@
                       :options="ifItem.triggerParamFlattenedOptions"
                       option-value="key"
                       option-label="fullLabel"
-                      placeholder="请选择参数"
+                      :placeholder="$t('pages.sceneRuleDetail.selectParameter')"
                       @change="(value) => triggerParamChange(ifItem, value)"
                       @click="() => actionParamShow(ifItem, true)"
                     />
@@ -80,25 +80,25 @@
                         :options="determineOptions"
                         option-value="value"
                         option-label="label"
-                        placeholder="请选择操作符"
+                        :placeholder="$t('pages.sceneRuleDetail.selectOperator')"
                       />
                       <view v-if="ifItem.trigger_operator === 'in'">
                         <!-- 输入范围值-->
-                        <input v-model="ifItem.trigger_value" placeholder="用逗号分隔多个值" class="uni-input" />
+                        <input v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneRuleDetail.commaSeparatedValues')" class="uni-input" />
                       </view>
                       <view v-else-if="ifItem.trigger_operator == 'between'">
                         <!-- 输入最小值和最大值-->
-                        <input v-model="ifItem.minValue" placeholder="最小值" class="uni-input" />
-                        <input v-model="ifItem.maxValue" placeholder="最大值" class="uni-input" />
+                        <input v-model="ifItem.minValue" :placeholder="$t('pages.sceneRuleDetail.minValue')" class="uni-input" />
+                        <input v-model="ifItem.maxValue" :placeholder="$t('pages.sceneRuleDetail.maxValue')" class="uni-input" />
                       </view>
                       <view v-else>
                         <!-- 输入目标值-->
-                        <input v-model="ifItem.trigger_value" placeholder="值" class="uni-input" />
+                        <input v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneRuleDetail.value')" class="uni-input" />
                       </view>
                     </view>
                     <view v-if="ifItem.trigger_param_type === 'event'">
                       <!-- 输入事件参数-->
-                      <input v-model="ifItem.trigger_value" placeholder="参数，如：{'param1':1}" class="uni-input" @blur="() => actionValueChange(ifItem)" />
+                      <input v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneRuleDetail.eventParamExample')" class="uni-input" @blur="() => actionValueChange(ifItem)" />
                     </view>
                   </view>
                 </view>
@@ -110,7 +110,7 @@
                     :options="getTimeConditionOptions(ifGroupItem)"
                     option-value="value"
                     option-label="label"
-                    placeholder="请选择时间条件类型"
+                    :placeholder="$t('pages.sceneRuleDetail.selectTimeConditionType')"
                     @change="(value) => { ifItem.trigger_conditions_type = value; ifItem.task_type = null; this.$forceUpdate(); }"
                   />
                   <view v-if="ifItem.trigger_conditions_type === '20'">
@@ -120,7 +120,7 @@
                       return-type="timestamp"
                       format="yyyy-MM-dd HH:mm"
                       :clear-icon="false"
-                      placeholder="请选择日期和时间"
+                      :placeholder="$t('pages.sceneRuleDetail.selectDateTime')"
                       :fields="['year', 'month', 'day', 'hour', 'minute']"
                       :hide-second="true"
                     />
@@ -130,7 +130,7 @@
                       :options="expirationTimeOptions"
                       option-value="value"
                       option-label="label"
-                      placeholder="请选择过期时间"
+                      :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
                     />
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '21'">
@@ -139,7 +139,7 @@
                       <CustomSelect
                         v-model="ifItem.task_type"
                         :options="cycleOptions"
-                        placeholder="请选择周期"
+                        :placeholder="$t('pages.sceneRuleDetail.selectCycle')"
                         @change="(value) => handleCycleChange(ifItem, value)"
                       />
                     </view>
@@ -152,12 +152,12 @@
                         :value="formatMinuteTime(ifItem.hourTimeValue)"
                         @change="(e) => onHourTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatMinuteTime(ifItem.hourTimeValue) || '请选择分钟' }}</view>
+                        <view class="uni-input">{{ formatMinuteTime(ifItem.hourTimeValue) || $t('pages.sceneRuleDetail.selectMinute') }}</view>
                       </picker>
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
-                        placeholder="请选择过期时间"
+                        :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
                       />
                     </view>
 
@@ -169,12 +169,12 @@
                         :value="formatTime(ifItem.dayTimeValue)"
                         @change="(e) => onDayTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatTime(ifItem.dayTimeValue) || '请选择时间' }}</view>
+                        <view class="uni-input">{{ formatTime(ifItem.dayTimeValue) || $t('pages.sceneRuleDetail.selectTime') }}</view>
                       </picker>
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
-                        placeholder="请选择过期时间"
+                        :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
                       />
                     </view>
 
@@ -201,12 +201,12 @@
                         :value="formatTime(ifItem.weekTimeValue)"
                         @change="(e) => onWeekTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatTime(ifItem.weekTimeValue) || '请选择时间' }}</view>
+                        <view class="uni-input">{{ formatTime(ifItem.weekTimeValue) || $t('pages.sceneRuleDetail.selectTime') }}</view>
                       </picker>
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
-                        placeholder="请选择过期时间"
+                        :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
                       />
                     </view>
 
@@ -216,7 +216,7 @@
                         v-model="ifItem.monthChoseValue"
                         :value="ifItem.monthChoseValue"
                         :options="monthRangeOptions"
-                        placeholder="请选择日期"
+                        :placeholder="$t('pages.sceneRuleDetail.selectDate')"
                       />
                       <picker
                         mode="time"
@@ -224,12 +224,12 @@
                         :value="formatTime(ifItem.monthTimeValue)"
                         @change="(e) => onMonthTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatTime(ifItem.monthTimeValue) || '请选择时间' }}</view>
+                        <view class="uni-input">{{ formatTime(ifItem.monthTimeValue) || $t('pages.sceneRuleDetail.selectTime') }}</view>
                       </picker>
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
-                        placeholder="请选择过期时间"
+                        :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
                       />
                     </view>
                   </view>
@@ -267,7 +267,7 @@
                         :value="formatTime(ifItem.startTimeValue)"
                         @change="(e) => onStartTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatTime(ifItem.startTimeValue) || '请选择开始时间' }}</view>
+                        <view class="uni-input">{{ formatTime(ifItem.startTimeValue) || $t('pages.sceneRuleDetail.selectStartTime') }}</view>
                       </picker>
                       -
                       <picker
@@ -276,7 +276,7 @@
                         :value="formatTime(ifItem.endTimeValue)"
                         @change="(e) => onEndTimeChange(e, ifItem)"
                       >
-                        <view class="uni-input">{{ formatTime(ifItem.endTimeValue) || '请选择结束时间' }}</view>
+                        <view class="uni-input">{{ formatTime(ifItem.endTimeValue) || $t('pages.sceneRuleDetail.selectEndTime') }}</view>
                       </picker>
                     </view>
                   </view>
@@ -373,102 +373,102 @@
         premiseFormRules: {
           ifType: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           trigger_conditions_type: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           trigger_source: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           trigger_param: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           trigger_operator: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           trigger_value: {
             required: true,
-            message: '请输入',
+            message: this.$t('common.pleaseInput'),
             trigger: 'blur'
           },
           minValue: {
             required: true,
-            message: '请输入',
+            message: this.$t('common.pleaseInput'),
             trigger: 'blur'
           },
           maxValue: {
             required: true,
-            message: '请输入',
+            message: this.$t('common.pleaseInput'),
             trigger: 'blur'
           },
           onceTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           expiration_time: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           task_type: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           },
           hourTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           dayTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           weekChoseValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           weekTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           monthChoseValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           monthTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           startTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           endTimeValue: {
             required: true,
-            message: '请选择'
+            message: this.$t('common.pleaseSelect')
           },
           weatherValue: {
             required: true,
-            message: '请选择',
+            message: this.$t('common.pleaseSelect'),
             trigger: 'change'
           }
         },
         deviceConditionOptions: [
           {
-            label: '单个设备',
+            label: this.$t('pages.sceneRuleDetail.singleDevice'),
             value: '10'
           },
           {
-            label: '单类设备',
+            label: this.$t('pages.sceneRuleDetail.singleDeviceType'),
             value: '11'
           }
         ],
@@ -489,35 +489,35 @@
         },
         determineOptions: [
           {
-            label: '等于',
+            label: this.$t('pages.sceneRuleDetail.equal'),
             value: '='
           },
           {
-            label: '不等于',
+            label: this.$t('pages.sceneRuleDetail.notEqual'),
             value: '!='
           },
           {
-            label: '大于',
+            label: this.$t('pages.sceneRuleDetail.greaterThan'),
             value: '>'
           },
           {
-            label: '小于',
+            label: this.$t('pages.sceneRuleDetail.lessThan'),
             value: '<'
           },
           {
-            label: '大于等于',
+            label: this.$t('pages.sceneRuleDetail.greaterThanOrEqual'),
             value: '>='
           },
           {
-            label: '小于等于',
+            label: this.$t('pages.sceneRuleDetail.lessThanOrEqual'),
             value: '<='
           },
           {
-            label: '介于',
+            label: this.$t('pages.sceneRuleDetail.between'),
             value: 'between'
           },
           {
-            label: '包含在',
+            label: this.$t('pages.sceneRuleDetail.in'),
             value: 'in'
           }
         ],
@@ -552,54 +552,54 @@
         // 时间条件类型下选项2使用的下拉
         timeConditionOptions: [
           {
-            label: '单次',
+            label: this.$t('pages.sceneRuleDetail.singleTime'),
             value: '20'
           },
           {
-            label: '重复',
+            label: this.$t('pages.sceneRuleDetail.repeat'),
             value: '21'
           },
           {
-            label: '时间范围',
+            label: this.$t('pages.sceneRuleDetail.timeRange'),
             value: '22'
           }
         ],
         expirationTimeOptions: [
           {
-            label: '5分钟',
+            label: this.$t('pages.sceneRuleDetail.fiveMinutes'),
             value: 5
           },
           {
-            label: '10分钟',
+            label: this.$t('pages.sceneRuleDetail.tenMinutes'),
             value: 10
           },
           {
-            label: '30分钟',
+            label: this.$t('pages.sceneRuleDetail.thirtyMinutes'),
             value: 30
           },
           {
-            label: '1小时',
+            label: this.$t('pages.sceneRuleDetail.oneHour'),
             value: 60
           },
           {
-            label: '1天',
+            label: this.$t('pages.sceneRuleDetail.oneDay'),
             value: 1140
           }
         ],
         cycleOptions: [
-          { label: '每小时', value: 'HOUR' },
-          { label: '每天', value: 'DAY' },
-          { label: '每周', value: 'WEEK' },
-          { label: '每月', value: 'MONTH' },
+          { label: this.$t('pages.sceneRuleDetail.everyHour'), value: 'HOUR' },
+          { label: this.$t('pages.sceneRuleDetail.everyDay'), value: 'DAY' },
+          { label: this.$t('pages.sceneRuleDetail.everyWeek'), value: 'WEEK' },
+          { label: this.$t('pages.sceneRuleDetail.everyMonth'), value: 'MONTH' },
         ],
         weekOptions: [
-          { label: '星期一', value: '1' },
-          { label: '星期二', value: '2' },
-          { label: '星期三', value: '3' },
-          { label: '星期四', value: '4' },
-          { label: '星期五', value: '5' },
-          { label: '星期六', value: '6' },
-          { label: '星期日', value: '7' },
+          { label: this.$t('pages.sceneRuleDetail.monday'), value: '1' },
+          { label: this.$t('pages.sceneRuleDetail.tuesday'), value: '2' },
+          { label: this.$t('pages.sceneRuleDetail.wednesday'), value: '3' },
+          { label: this.$t('pages.sceneRuleDetail.thursday'), value: '4' },
+          { label: this.$t('pages.sceneRuleDetail.friday'), value: '5' },
+          { label: this.$t('pages.sceneRuleDetail.saturday'), value: '6' },
+          { label: this.$t('pages.sceneRuleDetail.sunday'), value: '7' },
         ],
         monthRangeOptions: Array.from({ length: 31 }, (_, i) => ({
           label: String(i + 1),
@@ -627,14 +627,14 @@
       getIfTypeOptions(ifGroup, ifIndex) {
         const options = [
           {
-            label: '设备条件',
+            label: this.$t('pages.sceneRuleDetail.deviceCondition'),
             value: '1',
             disabled: ifGroup.some(item => {
               return (item.trigger_conditions_type === '20' || item.trigger_conditions_type === '21') && ifIndex > 0;
             })
           },
           {
-            label: '时间条件',
+            label: this.$t('pages.sceneRuleDetail.timeCondition'),
             value: '2'
           }
         ];
@@ -716,21 +716,21 @@
           }
           const statusData = {
             value: 'status',
-            label: 'status(状态)',
+            label: this.$t('pages.sceneRuleDetail.status'),
             options: [
               {
                 value: 'On-line',
-                label: 'On-line(上线)',
+                label: this.$t('pages.sceneRuleDetail.online'),
                 key: 'On-line'
               },
               {
                 value: 'Off-line',
-                label: 'Off-line(下线)',
+                label: this.$t('pages.sceneRuleDetail.offline'),
                 key: 'Off-line'
               },
               {
                 value: 'All',
-                label: 'All(全部)',
+                label: this.$t('pages.sceneRuleDetail.all'),
                 key: 'All'
               }
             ]
@@ -992,4 +992,3 @@
     color: #fff;
   }
   </style>
-  

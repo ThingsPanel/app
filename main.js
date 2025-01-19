@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import App from './App'
 import store from './store'
-import i18n, { updatePageTitles } from './lang/index'
+import i18n, { updateTabbarText } from './lang/index'
 //
 Vue.prototype.$store = store
 //
@@ -33,19 +33,9 @@ const app = new Vue({
     ...App
 })
 
-// Update titles when page shows
-uni.addInterceptor('navigateTo', {
-  success: () => {
-    setTimeout(updatePageTitles, 100)
-  }
-})
-
-uni.addInterceptor('switchTab', {
-  success: () => {
-    setTimeout(updatePageTitles, 100)
-  }
-})
-
 app.$mount()
+
+// Update titles on initial load
+updateTabbarText()
 
 export default app

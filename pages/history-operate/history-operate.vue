@@ -3,7 +3,7 @@
 		
 		<view class="tp-datetime-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-fixed tp-box-sizing tp-pd-t-b-25 tp-pd-l-r-30">
 			<view class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @tap="doOpenSelectDateTime">
-				<text class="tp-mg-r-10">{{date}}年{{month}}月</text>
+				<text class="tp-mg-r-10">{{date}}{{$t('pages.history.year')}}{{month}}{{$t('pages.history.month')}}</text>
 				<view class="iconfont iconjiantou"></view>
 			</view>
 		</view>
@@ -12,7 +12,7 @@
 		
 		<block v-for="(item,index) in logData" :key="index">
 			<view class="tp-log tp-flex tp-flex-col tp-mg-t-15 tp-mg-l-r-30">
-				<view class="tp-log-title tp-mg-t-15 tp-mg-b-20">{{item.date}}<text>/{{item.month}}月</text></view>
+				<view class="tp-log-title tp-mg-t-15 tp-mg-b-20">{{item.date}}<text>/{{item.month}}{{$t('pages.history.month')}}</text></view>
 				<view class="tp-panel tp-flex tp-flex-col tp-box-sizing tp-pd-20">
 					<block v-for="(items,indexs) in item.list" :key="indexs">
 						<view class="tp-log-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c">
@@ -56,28 +56,28 @@
 							{
 								id:1000,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1001,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-oxygen.png',
 								status:1
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							}
@@ -90,28 +90,28 @@
 							{
 								id:1000,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1001,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-oxygen.png',
 								status:1
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							}
@@ -124,28 +124,28 @@
 							{
 								id:1000,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1001,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-oxygen.png',
 								status:1
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							}
@@ -158,28 +158,28 @@
 							{
 								id:1000,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1001,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-oxygen.png',
 								status:1
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							},
 							{
 								id:1002,
 								time:'14:22',
-								log:'PH值>7时，自动打开水泵',
+								log: this.$t('pages.history.pumpOnWhenPHHigh'),
 								icon:'/static/icon/icon-small-ph.png',
 								status:0
 							}
@@ -187,6 +187,11 @@
 					}
 				]
 			}
+		},
+		onShow() {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.historyOperation')
+			})
 		},
 		methods: {
 			//
@@ -227,7 +232,7 @@
 .tp-datetime-select>view>text{
 	font-size: 30rpx;
 	font-weight: bold;
-	color: ##333333;
+	color: #333333;
 }
 .tp-datetime-select>view>view.iconfont{
 	color: #333333;
@@ -259,7 +264,7 @@
 	height: 140rpx;
 	border-left: 1rpx solid #F2F2F3;
 	position: absolute;
-	top: -10;
+	top: -10rpx;
 	left: 110rpx;
 	z-index: -1;
 }

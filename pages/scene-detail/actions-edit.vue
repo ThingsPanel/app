@@ -14,7 +14,7 @@
           <CustomSelect
               v-model="actionGroupItem.actionType"
               :options="actionOptions"
-              :placeholder="'选择动作类型'"
+              :placeholder="$t('pages.sceneDetail.actionsEdit.selectActionType')"
               @change="(data) => actionChange(actionGroupItem, actionGroupIndex, data)"
           ></CustomSelect>
         </view>
@@ -32,7 +32,7 @@
               <CustomSelect
                   v-model="instructItem.action_type"
                   :options="actionTypeOptions"
-                  :placeholder="'选择设备类型'"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDeviceType')"
                   @change="(data) => actionTypeChange(actionGroupIndex, instructIndex, data)"
               ></CustomSelect>
             </view>
@@ -42,7 +42,7 @@
               <CustomSelect
                   v-model="instructItem.action_target"
                   :options="deviceOptions"
-                  :placeholder="'选择设备'"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDevice')"
                   option-value="id"
                   option-label="name"
                   @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
@@ -54,7 +54,7 @@
               <CustomSelect
                   v-model="instructItem.action_target"
                   :options="deviceConfigOption"
-                  :placeholder="'选择单类设备'"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDeviceCategory')"
                   option-value="id"
                   option-label="name"
                   @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
@@ -67,7 +67,7 @@
                 <CustomSelect
                   v-model="instructItem.action_param_type"
                   :options="instructItem.actionParamTypeOptions"
-                  :placeholder="'选择指标类型'"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectMetricType')"
                   @change="(data) => actionParamTypeChange(actionGroupIndex, instructIndex, data)"
                 ></CustomSelect>
               </view>
@@ -76,7 +76,7 @@
               <view v-if="instructItem.showSubSelect" class="max-w-40 w-full">
                 <CustomSelect
                   v-model="instructItem.action_param"
-                  :placeholder="'选择指标'"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectMetric')"
                   :options="instructItem.actionParamOptions"
                   @change="(data) => actionParamChange(actionGroupIndex, instructIndex, data)"
                 ></CustomSelect>
@@ -87,7 +87,7 @@
                   <input
                   v-if="instructItem.actionParamData.data_type === 'string'"
                   v-model="instructItem.actionValue"
-                  :placeholder="'例如：' + instructItem.placeholder"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.examplePrefix') + instructItem.placeholder"
                   @blur="() => actionValueChange(actionGroupIndex, instructIndex)"
                   class="w-full uni-input"
                   />
@@ -160,7 +160,7 @@
         <view v-if="actionGroupItem.actionType === '20'" class="ml-6 max-w-40 w-auto">
           <CustomSelect
             v-model="actionGroupItem.action_target"
-            :placeholder="'选择场景'"
+            :placeholder="$t('pages.sceneDetail.actionsEdit.selectScene')"
             :options="sceneList"
             option-value="id"
             option-label="name"
@@ -172,7 +172,7 @@
           <CustomSelect
             v-model="actionGroupItem.action_target"
             :options="alarmList"
-            :placeholder="'选择告警'"
+            :placeholder="$t('pages.sceneDetail.actionsEdit.selectAlarm')"
             option-value="id"
             option-label="name"
           ></CustomSelect>
@@ -266,28 +266,28 @@
         popUpVisible: false,
         actionOptions: [
             {
-            label: '操作设备',
+            label: this.$t('pages.sceneRuleDetail.actionType1'),
             value: '1',
             disabled: false
             },
             {
-            label: '激活场景',
+            label: this.$t('pages.sceneRuleDetail.actionType3'),
             value: '20',
             disabled: false
             },
             {
-            label: '触发告警',
+            label: this.$t('pages.sceneRuleDetail.actionType2'),
             value: '30',
             disabled: false
             }
         ],
         actionTypeOptions: [
             {
-            label: '单个设备',
+            label: this.$t('pages.sceneRuleDetail.singleDevice'),
             value: '10'
             },
             {
-            label: '单类设备',
+            label: this.$t('pages.sceneRuleDetail.singleDeviceType'),
             value: '11'
             }
         ],
@@ -533,4 +533,3 @@
   <style>
 	@import '@/common/alert-strategy.css';
   </style>
-  

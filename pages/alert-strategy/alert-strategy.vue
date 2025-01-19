@@ -3,35 +3,35 @@
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略名称</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入名称" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.strategyName') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.alertStrategy.enterName')" placeholder-class="tp-plc"
 						v-model="formData.name" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>策略描述</view>
-					<input type="text" class="tp-flex-1 tp-mg-l-20" placeholder="请输入描述" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.strategyDescription') }}</view>
+					<input type="text" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.alertStrategy.enterDescription')" placeholder-class="tp-plc"
 						v-model="formData.describe" />
 				</view>
 			</view>
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80">
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备分组</view>
+					<view>{{ $t('pages.alertStrategy.selectDeviceGroup') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectGroup">
 						<text class="tp-mg-r-10" v-if="formData.groupName">{{formData.groupName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择设备</view>
+					<view>{{ $t('pages.alertStrategy.selectDevice') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectEqp">
 						<text class="tp-mg-r-10" v-if="formData.eqpName">{{formData.eqpName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 			</view>
-			<view class="tp-txt tp-box-sizing tp-pd-30">触发条件
+			<view class="tp-txt tp-box-sizing tp-pd-30">{{ $t('pages.alertStrategy.triggerCondition') }}
 				<view class="add_btn" @click="toAdd">
-					+新增一行
+					{{ $t('pages.alertStrategy.addNewRow') }}
 				</view>
 			</view>
 			<view class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30 tp_pd_l_r_80" v-for="(rule,index) in rulesList"
@@ -44,43 +44,42 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择条件</view>
+					<view>{{ $t('pages.alertStrategy.selectCondition') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectTj(rule)">
 						<text class="tp-mg-r-10" v-if="rule.tjName">{{rule.tjName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择符号</view>
+					<view>{{ $t('pages.alertStrategy.selectSymbol') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectFh(rule)">
 						<text class="tp-mg-r-10" v-if="rule.fhName">{{rule.fhName}}</text>
 						<view class="iconfont iconjiantou1"></view>
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请输入值</view>
-					<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值" placeholder-class="tp-plc"
+					<view>{{ $t('pages.alertStrategy.enterValue') }}</view>
+					<input type="number" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.alertStrategy.enterNumberValue')" placeholder-class="tp-plc"
 						v-model="rule.num" v-if="rule.filedType == 3" />
-					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+					<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.alertStrategy.enterValue')"
 						placeholder-class="tp-plc" v-model="rule.num" />
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index!=0">
 					<view class="del_btn" @click="toDel(data,index)">
-						<image src="../../static/icon/del.png" alt="">删除
+						<image src="../../static/icon/del.png" alt="">{{$t('common.delete')}}
 					</view>
 				</view>
 			</view>
 			<view class="tp-panel tp-panel-textarea tp-flex tp-flex-col tp-mg-30 tp-box-sizing tp-pd-20">
-				<view class="tp-mg-b-20">信息</view>
+				<view class="tp-mg-b-20">{{ $t('pages.alertStrategy.message') }}</view>
 				<view>
-					<textarea placeholder="请在此处填写信息" class="tp-box-sizing tp-pd-20" placeholder-class="tp-plc-i"
+					<textarea :placeholder="$t('pages.alertStrategy.enterMessage')" class="tp-box-sizing tp-pd-20" placeholder-class="tp-plc-i"
 						v-model="formData.message"></textarea>
 				</view>
 			</view>
 			<view class="tp-box-sizing tp-pd-l-r-30">
-				<button class="tp-btn" @click="doUpdateSubmit">保
-					存</button>
+				<button class="tp-btn" @click="doUpdateSubmit">{{ $t('common.save') }}</button>
 			</view>
 			<!-- 分组 -->
 			<uni-popup ref="groupPopup" type="bottom">
@@ -143,7 +142,7 @@
 			<uni-popup ref="addFormPopup" type="bottom" :mask="true" :maskClick="true">
 				<view class="logInfo">
 					<view class="info_title">
-						新增触发条件
+						{{ $t('pages.alertStrategy.addTriggerCondition') }}
 						<image src="../../static/icon/close.png" alt="" @click="$refs.addFormPopup.close()">
 					</view>
 					<view class="info_header">
@@ -159,7 +158,7 @@
 					<view class="info_list">
 						<view class="item" @click="toSelectTjAdd">
 							<view class="value">
-								请选择条件：
+								{{ $t('pages.alertStrategy.selectCondition') }}：
 							</view>
 							<view class="label">
 								{{addForm.tjName}}
@@ -168,7 +167,7 @@
 						</view>
 						<view class="item" @click="toSelectFhAdd">
 							<view class="value">
-								请选择符号：
+								{{ $t('pages.alertStrategy.selectSymbol') }}：
 							</view>
 							<view class="label">
 								{{addForm.fhName}}
@@ -177,7 +176,7 @@
 						</view>
 						<view class="item">
 							<view class="value">
-								数值：
+								{{ $t('pages.alertStrategy.value') }}：
 							</view>
 							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
 								placeholder-class="tp-plc" v-model="addForm.num" v-if="addForm.filedType == 3" />
@@ -186,9 +185,9 @@
 						</view>
 					</view>
 					<view class="info_btn">
-						<view class="btn_del" @click="$refs.addFormPopup.close()">取消</view>
+						<view class="btn_del" @click="$refs.addFormPopup.close()">{{ $t('common.cancel') }}</view>
 						<view class="btn_save" @click="saveAddForm()">
-							保存
+							{{ $t('common.save') }}
 						</view>
 					</view>
 				</view>
@@ -284,7 +283,9 @@
 			}
 		},
 		onShow() {
-
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.addAlertStrategy')
+      })
 		},
 		onLoad() {},
 		methods: {

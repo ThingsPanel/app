@@ -10,7 +10,7 @@
         <view style="align-self: center;" class="tp-panel tp-flex-1 feedback-body">
           <CustomSelect
             class="item2"
-            placeholder="条件类型"
+            :placeholder="$t('pages.sceneRuleDetail.conditionType')"
             :options="conditionTypeOptions"
             @change="conditionTypeChange($event, index)"
             v-model="condition.condition_type"
@@ -83,12 +83,12 @@
         	msg: ''
         },
         relations: [
-          { text: '且', value: 'and' }, 
-          { text: '或', value: 'or' },
+          { text: this.$t('pages.sceneRuleDetail.and'), value: 'and' }, 
+          { text: this.$t('pages.sceneRuleDetail.or'), value: 'or' },
         ],
         conditionTypeOptions: [
-          { value: '1', label: '设备条件' },
-          { value: '2', label: '时间条件' },
+          { value: '1', label: this.$t('pages.sceneRuleDetail.deviceCondition') },
+          { value: '2', label: this.$t('pages.sceneRuleDetail.timeCondition') },
         ],
         conditions: [],
       }
@@ -213,11 +213,11 @@
         }
         
         if (invalidRelationNum < 0) {
-          return '请选择“且/或”'
+          return this.$t('pages.sceneRuleDetail.selectRelation')
         }
         
         if (invalidRelationNum > 0) {
-          return '时间条件的“单次”与“单次”、“单次”与“重复”、“重复”与“单次”只能使用“或”连接，请检查您的条件'
+          return this.$t('pages.sceneRuleDetail.timeConditionValidation')
         }
 
         return ''
@@ -250,69 +250,69 @@
           } = condition
           
           if (!condition_type) {
-            msg = '请选择条件类型'
+            msg = this.$t('pages.sceneRuleDetail.selectConditionType')
             break;
           } else if (condition_type === '1') { // 校验设备条件
             if (!business_id || !asset_id || !device_id || !device_condition_type) {
-              msg = '请将“设备条件”信息补充完整（“设备条件”中所有字段均为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeDeviceCondition')
               break;
             }
             
             if (device_condition_type === '1' && (!v2 || !v3)) { // 选择了属性
-              msg = '请将“设备条件”信息补充完整（“设备条件”中所有字段均为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeDeviceCondition')
               break;
             }
           } else if (condition_type === '2') { // 时间条件
             if (!time_condition_type) {
-              msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
               break;
             } else if (time_condition_type === '0') { // 时间条件-范围
               if (!v1 || !v2) {
-                msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                 break;
               }
             } else if (time_condition_type === '1') { // 时间条件-单次
               if (!v1) {
-                msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                 break;
               }
             } else if (time_condition_type === '2') { // 时间条件-重复
               console.log(v1)
               if (!v1) {
-                msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                 break;
               } else if (v1 === '1') {
                 if (!v3) {
-                  msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                  msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                   break;
                 }
               } else if (v1 === '2') {
                 if (!v3) {
-                  msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                  msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                   break;
                 }
               } else if (v1 === '3') {
                 if (!v3 || !v4) {
-                  msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                  msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                   break;
                 }
               } else if (v1 === '4') {
                 console.log(v3)
                 const [dd, hh] = v3.split(':')
                 if (!dd || !hh) {
-                  msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                  msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                   break;
                 }
               } else if (v1 === '5') {
                 console.log(1234)
                 if (!v3) {
-                  msg = '请将“时间条件”信息补充完整（“时间条件”中所有字段均为必填）'
+                  msg = this.$t('pages.sceneRuleDetail.completeTimeCondition')
                   break;
                 }
               }
             }
           } else {
-            msg = '未知的条件类型'// 异常
+            msg = this.$t('pages.sceneRuleDetail.unknownConditionType')// 异常
             break;
           }
         }

@@ -4,22 +4,22 @@
 		<view class="tp-pd-t-b-30"></view>
 
 		<view class="tp-flex tp-login-welcome tp-flex-col tp-mg-t-b-50">
-			<view class="fishTitle">物联网平台</view>
+			<view class="fishTitle">{{$t('pages.login.title')}}</view>
 		</view>
 
 		<view
 			class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 			<view class="inputicon">
-				<image src="/static/image/username.png" alt="">
+				<image src="/static/image/username.png" alt="" />
 			</view>
-			<input type="text" placeholder-class="tp-plc" placeholder="请输入邮箱" v-model="email" />
+			<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.emailPlaceholder')" v-model="email" />
 		</view>
 		<view
 			class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 			<view class="inputicon">
-				<image src="/static/image/password.png" alt="">
+				<image src="/static/image/password.png" alt="" />
 			</view>
-			<input type="text" placeholder-class="tp-plc" placeholder="请输入密码" password=true v-model="password" />
+			<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.passwordPlaceholder')" password=true v-model="password" />
 			<!-- <view class="inputcode">
 				获取验证码
 			</view> -->
@@ -27,16 +27,16 @@
 		<view
 			class="tp-ipt tp-box-sizing tp-mg-t-b-20 tp-pd-t-b-15 tp-pd-l-r-30 tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 			<view class="inputicon">
-				<image src="/static/image/server.png" alt="">
+				<image src="/static/image/server.png" alt="" />
 			</view>
 			<input type="text" placeholder-class="tp-plc" placeholder="http://demo.thingspanel.cn" v-model="server" @input="serverChange"/>
 		</view>
 		<view class="btn">
 			<!-- <button class="tp-btn-cancle tp-mg-t-50 cancel_btn">取消登录</button> -->
-			<button class="tp-btn tp-mg-t-50" :loading="loading" @tap="doLoginSubmit">登 录</button>
-			<button class="tp-btn tp-mg-t-50" @tap="goToRegister">注 册</button>
+			<button class="tp-btn tp-mg-t-50" :loading="loading" @tap="doLoginSubmit">{{$t('pages.login.loginButton')}}</button>
+			<button class="tp-btn tp-mg-t-50" @tap="goToRegister">{{$t('pages.login.registerButton')}}</button>
 		</view>
-		<view class="tp-getpwd tp-mg-t-40 tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @tap="doLoginCancel">取消登录</view>
+		<view class="tp-getpwd tp-mg-t-40 tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @tap="doLoginCancel">{{$t('pages.login.cancelLogin')}}</view>
 		<!-- 授权登录 -->
 		<uni-popup ref="authPopup" type="bottom">
 			<authorize @getuserinfo="getAuth" @cancel="toCloseLogin"></authorize>
@@ -78,6 +78,9 @@ import login from "../../store/login";
 			}
 		},
 		onShow(){
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.loginTitle')
+			})
 			this.server  = uni.getStorageSync('serverAddress') || ''
 			if(uni.getStorageSync('email') && uni.getStorageSync('password')) {
 				this.email = uni.getStorageSync('email')
@@ -130,7 +133,7 @@ import login from "../../store/login";
 					uni.setStorageSync('serverAddress', 'http://demo.thingspanel.cn')
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.login.loading')
 				});
 				let data = {
 					email:this.email,
@@ -148,14 +151,14 @@ import login from "../../store/login";
 							url: '../fishery-monitor/fishery-monitor'
 						});
 						uni.showToast({
-							title: '登录成功',
+							title: this.$t('pages.login.loginSuccess'),
 							icon: 'none'
 						});
 					} else {
 						this.handleError(res.message);
 					}
 				}).catch(err => {
-					this.handleError('网络错误，请稍后再试!'); // 处理网络错误
+					this.handleError(this.$t('pages.login.networkError')); // 处理网络错误
 				}).finally(() => {
 					uni.hideLoading()
 				})
@@ -173,7 +176,7 @@ import login from "../../store/login";
 				var that = this;
 				//判断是否授权
 				uni.getUserProfile({
-					desc: '登录',
+					desc: this.$t('pages.login.authDescription'),
 					success(infoRes) {
 						const userInfo = infoRes.userInfo;
 						uni.setStorageSync('isAuth', '1')

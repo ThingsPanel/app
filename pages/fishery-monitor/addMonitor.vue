@@ -1,15 +1,15 @@
 <template>
 	<view :style="{ height: pageHeight, background: '#f5f5f5' }">
-		<customNav pageTitle="添加设备" iconColor='#fff' background='#246FDD' fontColor="#fff"></customNav>
+		<customNav :pageTitle="$t('pages.addMonitor.pageTitle')" iconColor='#fff' background='#246FDD' fontColor="#fff"></customNav>
 		<view class="addpage" :style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%' }">
 			<image src="../../static/image/search_icon.png" class="image"></image>
 			<view class="addform">
 				<view class="add_name">
-					<label for="">设备名称：</label>
-					<input type="text" placeholder="智能控制器" v-model="name">
+					<label for="">{{ $t('pages.addMonitor.deviceName') }}</label>
+					<input type="text" :placeholder="$t('pages.addMonitor.deviceNamePlaceholder')" v-model="name">
 				</view>
 				<view class="add_btn" @click="onCommit">
-					完成
+					{{ $t('pages.addMonitor.completeButton') }}
 				</view>
 			</view>
 		</view>
@@ -37,6 +37,9 @@
 			this.groupId = option.groupId
 		},
 		onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.addDevice')
+      })
 			this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
 			this.pageHeight = uni.getStorageSync('pageHeight');
 		},
@@ -44,7 +47,7 @@
 			onCommit() {
 				if (this.name) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('common.loading')
 					});
 					this.API.apiRequest('/api/v1/device/active', {
 						device_number: this.code,
@@ -61,7 +64,7 @@
 						uni.hideLoading()
 					})
 				} else {
-					this.toast.msg = '请输入设备名称';
+					this.toast.msg = this.$t('pages.addMonitor.deviceNameRequired');
 					this.$refs.toast.show();
 				}
 			}

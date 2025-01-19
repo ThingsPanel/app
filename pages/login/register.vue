@@ -1,7 +1,7 @@
 <template>
     <view class="container">
       <view class="tp-flex tp-login-welcome tp-flex-col tp-mg-t-b-50">
-        <text class="fishTitle">注册</text>
+        <text class="fishTitle">{{ $t('pages.register.title') }}</text>
       </view>
       <form @submit.prevent="handleSubmit">
         <!-- 邮箱输入 -->
@@ -10,7 +10,7 @@
             class="uni-input"
             type="text"
             v-model="formData.email"
-            placeholder="请输入邮箱"
+            :placeholder="$t('pages.register.emailPlaceholder')"
             @blur="validateEmail"
           />
           <text class="error-tip" v-if="errors.email">{{errors.email}}</text>
@@ -22,14 +22,14 @@
             class="uni-input"
             type="text"
             v-model="formData.code"
-            placeholder="请输入验证码"
+            :placeholder="$t('pages.register.codePlaceholder')"
             @blur="validateCode"
           />
           <button 
             class="code-btn" 
             @click="handleSmsCode"
             :disabled="loading"
-          >获取验证码</button>
+          >{{ $t('pages.register.getCode') }}</button>
           <text class="error-tip" v-if="errors.code">{{errors.code}}</text>
         </view>
   
@@ -39,7 +39,7 @@
             class="uni-input"
             type="number"
             v-model="formData.phone"
-            placeholder="请输入手机号"
+            :placeholder="$t('pages.register.phonePlaceholder')"
             @blur="validatePhone"
           />
           <text class="error-tip" v-if="errors.phone">{{errors.phone}}</text>
@@ -51,7 +51,7 @@
             class="uni-input"
             type="password"
             v-model="formData.pwd"
-            placeholder="请输入密码"
+            :placeholder="$t('pages.register.passwordPlaceholder')"
             @blur="validatePassword"
           />
           <text class="error-tip" v-if="errors.pwd">{{errors.pwd}}</text>
@@ -63,7 +63,7 @@
             class="uni-input"
             type="password"
             v-model="formData.confirmPwd"
-            placeholder="请确认密码"
+            :placeholder="$t('pages.register.confirmPasswordPlaceholder')"
             @blur="validateConfirmPassword"
           />
           <text class="error-tip" v-if="errors.confirmPwd">{{errors.confirmPwd}}</text>
@@ -82,11 +82,11 @@
             type="primary" 
             @click="handleSubmit"
             :disabled="!isFormValid"
-          >确认注册</button>
+          >{{ $t('pages.register.registerButton') }}</button>
           <button 
             class="back-btn" 
             @click="handleBack"
-          >返回登录</button>
+          >{{ $t('pages.register.backToLogin') }}</button>
         </view>
       </form>
     </view>
@@ -96,6 +96,11 @@
   import { fetchEmailCode, registerByEmail } from '@/service/auth'
   
   export default {
+    onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.register')
+      })
+    },
     data() {
       return {
         formData: {
@@ -129,11 +134,11 @@
       validateEmail() {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
         if (!this.formData.email) {
-          this.errors.email = '请输入邮箱'
+          this.errors.email = this.$t('pages.register.errors.emailRequired')
           return false
         }
         if (!emailRegex.test(this.formData.email)) {
-          this.errors.email = '请输入正确的邮箱格式'
+          this.errors.email = this.$t('pages.register.errors.invalidEmail')
           return false
         }
         this.errors.email = ''
@@ -143,11 +148,11 @@
       // 验证手机号
       validatePhone() {
         if (!this.formData.phone) {
-          this.errors.phone = '请输入手机号'
+          this.errors.phone = this.$t('pages.register.errors.phoneRequired')
           return false
         }
         if (!/^1[3-9]\d{9}$/.test(this.formData.phone)) {
-          this.errors.phone = '请输入正确的手机号'
+          this.errors.phone = this.$t('pages.register.errors.invalidPhone')
           return false
         }
         this.errors.phone = ''
@@ -157,15 +162,15 @@
       // 验证密码
       validatePassword() {
         if (!this.formData.pwd) {
-          this.errors.pwd = '请输入密码'
+          this.errors.pwd = this.$t('pages.register.errors.passwordRequired')
           return false
         }
         if (this.formData.pwd.length < 8 || this.formData.pwd.length > 18) {
-          this.errors.pwd = '密码长度需在8-18位之间'
+          this.errors.pwd = this.$t('pages.register.errors.passwordLength')
           return false
         }
         if (!this.validPasswordByExp(this.formData.pwd)) {
-          this.errors.pwd = '密码必须包含英文字母和数字'
+          this.errors.pwd = this.$t('pages.register.errors.passwordComplexity')
           return false
         }
         this.errors.pwd = ''
@@ -175,11 +180,11 @@
       // 验证确认密码
       validateConfirmPassword() {
         if (!this.formData.confirmPwd) {
-          this.errors.confirmPwd = '请确认密码'
+          this.errors.confirmPwd = this.$t('pages.register.errors.confirmPasswordRequired')
           return false
         }
         if (this.formData.confirmPwd !== this.formData.pwd) {
-          this.errors.confirmPwd = '两次输入的密码不一致'
+          this.errors.confirmPwd = this.$t('pages.register.errors.passwordMismatch')
           return false
         }
         this.errors.confirmPwd = ''
@@ -189,7 +194,7 @@
       // 验���码
       validateCode() {
         if (!this.formData.code) {
-          this.errors.code = '请输入验证码'
+          this.errors.code = this.$t('pages.register.errors.codeRequired')
           return false
         }
         this.errors.code = ''
@@ -222,18 +227,18 @@
           const resp = await fetchEmailCode(this.formData.email)
           if(resp.code > 200000) {
             uni.showToast({
-                title: '验证码发送失败: ' + resp.message,
+                title: this.$t('pages.register.messages.codeFailed') + ': ' + resp.message,
                 icon: 'none'
             })
           } else {
             uni.showToast({
-                title: '验证码已发送',
+                title: this.$t('pages.register.messages.codeSent'),
                 icon: 'none'
             })
           }
         } catch (error) {
           uni.showToast({
-            title: error.message || '验证码发送失败',
+            title: error.message || this.$t('pages.register.messages.codeFailed'),
             icon: 'none'
           })
         } finally {
@@ -264,12 +269,12 @@
             })
             if (resp.code > 200000) {
                 uni.showToast({
-                    title: '注册失败: ' + resp.message,
+                    title: this.$t('pages.register.messages.registerFailed') + ': ' + resp.message,
                     icon: 'none'
                 })
             } else {
                 uni.showToast({
-                    title: '注册成功',
+                    title: this.$t('pages.register.messages.registerSuccess'),
                     icon: 'success'
                 })
                 setTimeout(() => {
@@ -278,7 +283,7 @@
             }
         } catch (error) {
           uni.showToast({
-            title: error.message || '注册失败',
+            title: error.message || this.$t('pages.register.messages.registerFailed'),
             icon: 'none'
           })
         } finally {

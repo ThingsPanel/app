@@ -11,6 +11,11 @@ export default {
       url: ''
     };
   },
+  onShow(){
+    uni.setNavigationBarTitle({
+        title: this.$t('pages.deviceDetailTitle')
+      })
+  },
   onLoad(options) {
     this.url = decodeURIComponent(options.url);
   }

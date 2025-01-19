@@ -12,13 +12,13 @@
       <!-- 右 -->
       <view class="tp-flex-1 tp-strategy-select tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="isMore=!isMore"
         style="position: relative;">
-        <text>{{clName}}</text>
+         <text> {{ clName === '场景联动' ? $t('pages.intelligentControl.sceneLinkage') :  $t('pages.intelligentControl.sceneManagement')}}</text>
         <view class="iconfont iconjiantou tp-mg-l-10"></view>
       </view>
 
       <!-- 右下拉列表 -->
       <view class="moreitem" v-if="isMore">
-        <view class="item_i" v-for="(m,i) in clData" :key="i" @click="changCl(m)">{{m.label}}</view>
+        <view class="item_i" v-for="(m,i) in clData" :key="i" @click="changCl(m)"> {{ m.label === '场景联动' ? $t('pages.intelligentControl.sceneLinkage') : $t('pages.intelligentControl.sceneManagement') }} </view>
       </view>
     </view>
 
@@ -26,8 +26,7 @@
       <view style="height: 52rpx;"></view>
 
       <view class="tp-strategy-add-btn tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @click="toEdit(null)">
-        <text v-if="clName === '场景联动'">+新增场景联动</text>
-        <text v-if="clName === '场景管理'">+新增场景</text>
+        <text>{{ $t('pages.intelligentControl.add' + (clName === '场景联动' ? 'SceneLinkage' : 'Scene')) }}</text>
       </view>
 
       <view class="tp-panel tp-flex tp-flex-col" v-if="dataList.length>0">
@@ -35,25 +34,25 @@
           <view class="tp-strategy-item tp-flex tp-flex-col tp-mg-t-25 tp-box-sizing tp-pd-20">
             <template v-if="clName === '场景联动'">
               <view class="tp-pd-t-b-05 uni-ellipsis">{{item.name}}</view>
-              <view class="tp-pd-t-b-05 uni-ellipsis">规则说明：{{item.description || '无'}}</view>
+              <view class="tp-pd-t-b-05 uni-ellipsis">{{ $t('pages.intelligentControl.ruleDescription') }}{{item.description || $t('common.none') }}</view>
             </template>
             
             <template v-if="clName === '场景管理'">
               <view class="tp-pd-t-b-05">{{item.name}}</view>
-              <view class="tp-pd-t-b-05">场景描述：{{item.description || '无'}}</view>
+              <view class="tp-pd-t-b-05">{{ $t('pages.intelligentControl.sceneDescription') }}{{item.description || $t('common.none') }}</view>
             </template>
             
             <view class="tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c tp-pd-t-b-15">
               <template v-if="clName == '场景管理'">
                 <view :style="{ color: '#5bdc1b' }" class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toggleSwitch(item)">
-                   激活
+                   {{ $t('pages.intelligentControl.activate') }}
                 </view>
                 
                 <view class="tp-mg-l-r-25">|</view>
               </template>
 			        <template v-if="clName == '场景联动'">
                 <view :style="{ color: item.enabled === '0' ? '#5bdc1b' : '#ff9900' }" class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toggleStatue(item)">
-                  {{item.enabled === '0' ? '启动' : '停用'}}
+                  {{item.enabled === '0' ? $t('pages.intelligentControl.start') : $t('pages.intelligentControl.stop') }}
                 </view>
                 
                 <view class="tp-mg-l-r-25">|</view>
@@ -61,13 +60,13 @@
               
               
               <view class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toEdit(item)">
-                <view class="iconfont iconbianji tp-mg-r-10"></view>编辑
+                <view class="iconfont iconbianji tp-mg-r-10"></view>{{ $t('pages.intelligentControl.edit') }}
               </view>
               
               <view class="tp-mg-l-r-25">|</view>
               
               <view class="tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c" @click="toDel(item)">
-                <view class="iconfont iconshanchu tp-mg-r-10"></view>删除
+                <view class="iconfont iconshanchu tp-mg-r-10"></view>{{ $t('pages.intelligentControl.delete') }}
               </view>
             </view>
           </view>
@@ -75,7 +74,7 @@
 
         <view class="tp-strategy-add-btn tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" v-if="loadMoreShow"
           @click="loadData">
-          <text>更多</text>
+          <text>{{ $t('pages.intelligentControl.more') }}</text>
         </view>
       </view>
     </view>
@@ -112,7 +111,7 @@
         tabIndex: 0,
         tabData: [{
             id: 1000,
-            title: '猪场'
+            title: this.$t('pages.intelligentControl.farm')
           },
           // {
           // 	id: 1001,
@@ -124,14 +123,14 @@
         clData: [
           {
             value: '2',
-            label: '场景联动'
+            label: '场景联动', //this.$t('pages.intelligentControl.sceneLinkage')
           },
           {
             value: '3',
-            label: '场景管理'
+            label: '场景管理', //this.$t('pages.intelligentControl.sceneManagement')
           },
         ],
-        clName: '场景联动',
+        clName: '场景联动', //this.$t('pages.intelligentControl.sceneLinkage'),
         currentDelId: '',
         loadMoreShow: false,
       }
@@ -151,13 +150,16 @@
       
     },
     onShow() {
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.intelligentControlTitle')
+      })
       this.$store.commit('zerOingOffser'); //清空日志页码
       this.tabData = [{
         id: uni.getStorageSync('ywid'),
         title: uni.getStorageSync('ywName')
       }]
       // this.$store.commit('zerOingPage'); //清空页码
-      
+      console.log('clName: %o', this.clName)
       this.changCl({ label: this.clName })
     },
     methods: {

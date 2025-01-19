@@ -5,7 +5,7 @@
         <view style="align-self: center;" class="tp-panel tp-flex-1 feedback-body">            
           <CustomSelect
             class="item2"
-            placeholder="执行动作"
+            :placeholder="$t('pages.sceneRuleDetail.actionPlaceholder')"
             :options="getOptions(action.action_type)"
             @change="actionTypeChange($event, index)"
             v-model="action.action_type"
@@ -56,9 +56,9 @@
   import SelectActionDevices from './select-action-devices.vue'
   
   const actionTypeOptions = [
-    { value: '1', label: '操作设备' },
-    { value: '2', label: '触发告警' },
-    { value: '3', label: '激活场景' },
+    { value: '1', label: this.$t('pages.sceneRuleDetail.actionType1') },
+    { value: '2', label: this.$t('pages.sceneRuleDetail.actionType2') },
+    { value: '3', label: this.$t('pages.sceneRuleDetail.actionType3') },
   ]
   
   export default {
@@ -205,11 +205,11 @@
           } = action
           
           if (!action_type) {
-            msg = '请选择需要执行的动作类型'
+            msg = this.$t('pages.sceneRuleDetail.selectActionType')
             break;
           } else if (action_type === '1') { // 1-操作设备
             if (!business_id || !asset_id || !device_id || !device_condition_type || !v1 || (!v3 && v3 !== 0)) { // device_condition_type 为空表示未选择属性
-              msg = '请将“操作设备”信息补充完整'
+              msg = this.$t('pages.sceneRuleDetail.completeDeviceInfo')
               break;
             }
           } else if (action_type === '2') { // 2-触发告警
@@ -221,21 +221,21 @@
             } = action.warning_strategy || {}
             
             if (!warning_level) { //
-              msg = '请将“触发告警”信息补充完整（“告警级别”为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeWarningInfo')
               break;
             }
             
             if (!inform_way) { //
-              msg = '请将“触发告警”信息补充完整（“通知组”为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeNotificationInfo')
               break;
             }
           } else if (action_type === '3') { // 3-激活场景
             if (!scenario_strategy_id) {
-              msg = '请将“激活场景”信息补充完整（“场景”为必填）'
+              msg = this.$t('pages.sceneRuleDetail.completeSceneInfo')
               break;
             }
           } else {
-            msg = '未知的操作类型'// 异常
+            msg = this.$t('pages.sceneRuleDetail.unknownActionType')
             break;
           }
         }

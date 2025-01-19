@@ -90,7 +90,7 @@
 			<view class="server">
 				<view class="server-title">
 					{{ $t('ucenter.serverAddress') }}
-					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup">
+					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup" />
 					</view>
 				<view class="server-input">
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('ucenter.enterServerAddress')" v-model="address" />
@@ -106,7 +106,7 @@
 	import {
 		mapState
 	} from "vuex";
-	import { AVAILABLE_LANGUAGES } from '@/lang/index.js'
+	import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 	// 
 	export default {
 		// 
@@ -136,12 +136,14 @@
 				// userInfo: state => state.userInfo
 			})
 		},
-		onShow() {
-			this.getUserInfo()
-		},
-		onLoad() {
-			
-		},
+	onLoad() {
+	},
+	onShow() {
+		this.getUserInfo()
+		uni.setNavigationBarTitle({
+			title: this.$t('pages.userCenter')
+		})
+	},
 		methods: {
 			//退出登录
 			toQuitLogin() {
@@ -356,11 +358,7 @@
 					itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
 					success: (res) => {
 						const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];
-						uni.setStorageSync('language', selectedLang.code);
-						this.currentLanguage = selectedLang.label;
-						
-						// Update i18n instance and reload app
-						this.$i18n.locale = selectedLang.code;
+						changeLanguage(selectedLang.code);
 						setTimeout(() => {
 							uni.reLaunch({
 								url: '/pages/ucenter/ucenter'

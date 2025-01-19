@@ -3,7 +3,7 @@
 		{
 			"path": "pages/login/login",
 			"style": {
-				"navigationBarTitleText": "%pages.login%",
+				"navigationBarTitleText": "%pages.loginTitle%",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -35,7 +35,7 @@
 		{
 			"path": "pages/intelligent-control/intelligent-control",
 			"style": {
-				"navigationBarTitleText": "%pages.intelligentControl%",
+				"navigationBarTitleText": "%pages.intelligentControlTitle%",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -59,7 +59,7 @@
 		{
 			"path": "pages/fishery-monitor/deviceDetail",
 			"style": {
-				"navigationBarTitleText": "%pages.deviceDetail%",
+				"navigationBarTitleText": "%pages.deviceDetailTitle%",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
@@ -241,18 +241,21 @@
 		"list": [
 			{
 				"pagePath": "pages/fishery-monitor/fishery-monitor",
+				"key": "pages.deviceList",
 				"text": "%pages.deviceList%",
 				"iconPath": "static/tabbar/eqp.png",
 				"selectedIconPath": "static/tabbar/eqp_on.png"
 			},
 			{
 				"pagePath": "pages/intelligent-control/intelligent-control",
-				"text": "%pages.intelligentControl%",
+				"key": "pages.intelligentControlTitle",
+				"text": "%pages.intelligentControlTitle%",
 				"iconPath": "static/tabbar/intelligentControl.png",
 				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
 			},
 			{
 				"pagePath": "pages/ucenter/ucenter",
+				"key": "pages.myAccount",
 				"text": "%pages.myAccount%",
 				"iconPath": "static/tabbar/ucenter.png",
 				"selectedIconPath": "static/tabbar/ucenterSel.png"

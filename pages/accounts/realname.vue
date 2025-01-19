@@ -42,9 +42,10 @@
 		},
 		//
 		onShow() {
-			//
+      uni.setNavigationBarTitle({
+        title: this.$t('pages.modifyName')
+      })
 			this.getAccount();
-			//
 		},
 		methods: {
 			//
