@@ -94,7 +94,7 @@
                   <input
                   v-if="instructItem.actionParamData.data_type === 'number'"
                   v-model.number="instructItem.actionValue"
-                  :placeholder="'例如：' + instructItem.placeholder"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.examplePrefix') + instructItem.placeholder"
                   class="w-full uni-input"
                   />
                   <switch
@@ -107,7 +107,7 @@
               <view v-else class="w-60">
                   <input
                   v-model="instructItem.actionValue"
-                  :placeholder="'例如：' + instructItem.placeholder"
+                  :placeholder="$t('pages.sceneDetail.actionsEdit.examplePrefix') + instructItem.placeholder"
                   @blur="() => actionValueChange(actionGroupIndex, instructIndex)"
                   class="w-full uni-input"
                   />
