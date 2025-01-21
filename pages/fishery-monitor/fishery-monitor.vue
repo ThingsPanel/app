@@ -304,9 +304,9 @@ export default {
 			statusType: 'more', //分页状态
 			loadMoreShow: true,
 			contentText: {
-				contentdown: '上拉显示更多数据',
-				contentrefresh: '正在加载...',
-				contentnomore: '没有数据了'
+				contentdown: this.$t('pages.fisheryMonitor.pullUpForMore'),
+				contentrefresh: this.$t('common.loading'),
+				contentnomore: this.$t('pages.fisheryMonitor.noMoreData')
 			},
 			statusEqupType: 'more', //分页状态
 			loadMoreEqupShow: true,
@@ -591,7 +591,7 @@ export default {
 		},
 		getGroupData() {
 			uni.showLoading({
-				title: '加载中'
+				title: this.$t('pages.fisheryMonitor.loading')
 			});
 			this.API.apiRequest('/api/v1/device/group/tree', {
 			}, 'get').then(res => {
@@ -619,13 +619,13 @@ export default {
 			console.log('已选择的数据', chooseList)
 			if(chooseList && chooseList.length > 4) {
 
-				return '最多可以选择4个节点'
+				return this.$t('pages.fisheryMonitor.maxFourNode')
 			}
 		},
 		//获取操作日志
 		getWarningList() {
 			uni.showLoading({
-				title: '加载中'
+				title: this.$t('pages.fisheryMonitor.loading')
 			});
 			this.API.apiRequest('/api/conditions/log/index', {
 				current_page: this.$store.state.list.offset,
@@ -708,7 +708,7 @@ export default {
 			clearInterval(this.timer)
 			var newData = {};
 			uni.showLoading({
-				title: '加载中'
+				title: this.$t('pages.fisheryMonitor.loading')
 			});
 			deviceListApi({
 				group_id: this.selectedGroupId,
@@ -790,7 +790,7 @@ export default {
 		// 插件查询
 		getDetail(device) {
 			uni.showLoading({
-				title: '加载中'
+				title: this.$t('pages.fisheryMonitor.loading')
 			});
 			this.API.apiRequest('/api/device/model/list', {
 				id: device.type,

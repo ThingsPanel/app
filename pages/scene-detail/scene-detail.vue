@@ -45,7 +45,7 @@
       <Modal 
         v-model="visible" 
         :title="$t('common.save')" 
-        :text="$t('pages.sceneDetail.saveConfirmation')" 
+        :text="$t('pages.sceneDetail.saveConfirm')" 
         @cancel="cancel" 
         @confirm="confirm" 
       />
@@ -98,7 +98,7 @@ export default {
   onLoad(options) {
     this.editId = options.id;
       uni.setNavigationBarTitle({
-      title: `${this.editId ? $t('common.edit') : $t('common.add')} ${$t('pages.sceneDetail.scene')}`
+      title: this.editId ? this.$t('pages.sceneDetail.editScene') :  this.$t('pages.sceneDetail.newScene')
     });
   },
   created() {

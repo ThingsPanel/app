@@ -73,8 +73,8 @@
 										{{sw.typeName}}
 									</view>
 									<view class="switch_l_state">
-										<span v-if="sw.state == 1">开</span>
-										<span v-if="sw.state == 0">关</span>
+									<span v-if="sw.state == 1">{{$t('pages.fisheryMonitor.switchOn')}}</span>
+									<span v-if="sw.state == 0">{{$t('pages.fisheryMonitor.switchOff')}}</span>
 									</view>
 								</view>
 								<view class="switch_r" v-if="!sw.disabled">
@@ -269,9 +269,9 @@
 				statusType: 'more', //分页状态
 				loadMoreShow: true,
 				contentText: {
-					contentdown: '上拉显示更多数据',
-					contentrefresh: '正在加载...',
-					contentnomore: '没有数据了'
+					contentdown: this.$t('pages.fisheryMonitor.pullUpForMore'),
+					contentrefresh: this.$t('common.loading'),
+					contentnomore: this.$t('pages.fisheryMonitor.noMoreData')
 				},
 				statusEqupType: 'more', //分页状态
 				loadMoreEqupShow: true,
@@ -462,14 +462,14 @@
 					[sw.name]: stateNum
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('common.loading')
 				});
 				this.API.apiRequest('/api/device/operating_device', {
 					device_id: dev.device_id,
 					values: values
 				}, 'post').then(res => {
 					if (res.code === 200) {
-						this.toast.msg = '修改状态成功';
+						this.toast.msg = this.$t('pages.fisheryMonitor.stateChangeSuccess');
 						this.$refs.toast.show();
 						this.getContorl(dev, sw)
 					}
@@ -482,7 +482,7 @@
 			// 获取业务列表
 			getYwData() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.fisheryMonitor.loading')
 				});
 				this.API.apiRequest('/api/business/index', {
 					page: 1,
@@ -544,7 +544,7 @@
 			//获取操作日志
 			getWarningList() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.fisheryMonitor.loading')
 				});
 				this.API.apiRequest('/api/conditions/log/index', {
 					current_page: this.$store.state.list.offset,
@@ -625,7 +625,7 @@
 			getDeviceList() {
 				var newData = {};
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.fisheryMonitor.loading')
 				});
 				this.API.apiRequest('/api/device/list', {
 					asset_id: this.currentGroup.id,
@@ -684,7 +684,7 @@
 			// 插件查询
 			getDetail(device) {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.fisheryMonitor.loading')
 				});
 				this.API.apiRequest('/api/device/model/list', {
 					id: device.type,

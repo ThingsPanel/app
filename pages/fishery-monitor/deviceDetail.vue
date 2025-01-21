@@ -169,12 +169,12 @@
 						<view class="value">
 							{{$t('pages.deviceDetail.operationType')}}：
 						</view>
-						<view class="label" v-if="currentLog.operation_type == '1'">
-							定时触发
-						</view>
-						<view class="label" v-if="currentLog.operation_type == '2'">
-							手动控制
-						</view>
+								<view class="label" v-if="currentLog.operation_type == '1'">
+									{{$t('pages.deviceDetail.timedTrigger')}}
+								</view>
+								<view class="label" v-if="currentLog.operation_type == '2'">
+									{{$t('pages.deviceDetail.manualControl')}}
+								</view>
 					</view>
 					<view class="item">
 						<view class="value">
@@ -188,12 +188,12 @@
 						<view class="value">
 							{{$t('pages.deviceDetail.sendResult')}}：
 						</view>
-						<view class="label" v-if="currentLog.send_result == '1'">
-							成功
-						</view>
-						<view class="label" v-if="currentLog.send_result == '2'">
-							失败
-						</view>
+								<view class="label" v-if="currentLog.send_result == '1'">
+									{{$t('pages.deviceDetail.success')}}
+								</view>
+								<view class="label" v-if="currentLog.send_result == '2'">
+									{{$t('pages.deviceDetail.failure')}}
+								</view>
 					</view>
 				</view>
 			</view>
@@ -221,24 +221,24 @@ export default {
 			currentLog: {},
 			statusType: 'more', //分页状态
 			loadMoreShow: true,
-			contentText: {
-				contentdown: '上拉显示更多日志',
-				contentrefresh: '正在加载...',
-				contentnomore: '没有日志了'
-			},
-			deviceSwtichList: [{
-				value: 0,
-				name: '风机'
-			},
-			{
-				value: 1,
-				name: '水帘'
-			},
-			{
-				value: 1,
-				name: '照明'
-			}
-			],
+      contentText: {
+        contentdown: this.$t('pages.deviceDetail.pullUpForMoreLogs'),
+        contentrefresh: this.$t('common.loading'),
+        contentnomore: this.$t('pages.deviceDetail.noMoreLogs')
+      },
+      deviceSwtichList: [{
+        value: 0,
+        name: this.$t('pages.deviceDetail.fan')
+      },
+      {
+        value: 1,
+        name: this.$t('pages.deviceDetail.waterCurtain')
+      },
+      {
+        value: 1,
+        name: this.$t('pages.deviceDetail.lighting')
+      }
+      ],
 			pageHeight: 0,
 			marginTopHeight: 0,
 			chartDataA: {
@@ -250,7 +250,7 @@ export default {
 			chartDataB: {
 				categories: ["2016", "2017", "2018", "2019", "2020", "2021"],
 				series: [{
-					name: "目标值",
+					name: this.$t('pages.deviceDetail.targetValue'),
 					data: [35, 36, 31, 33, 13, 34]
 				}]
 			},
@@ -274,9 +274,9 @@ export default {
 			statusType: 'more', //分页状态
 			loadMoreShow: true,
 			contentText: {
-				contentdown: '上拉显示更多数据',
-				contentrefresh: '正在加载...',
-				contentnomore: '没有数据了'
+				contentdown: this.$t('pages.deviceDetail.pullUpForMoreData'),
+				contentrefresh: this.$t('common.loading'),
+				contentnomore: this.$t('pages.deviceDetail.noMoreData')
 			},
 			warningData: [],
 			currentValueData: [],
@@ -341,7 +341,7 @@ export default {
 					console.log("websocket连接成功");
 				},
 				fail(){
-					uni.showToast('链接websocket失败，端口必须是9999')
+					uni.showToast(this.$t('pages.deviceDetail.socketLinkFailure'))
 				}
 			});
 
@@ -400,7 +400,7 @@ export default {
 			if (this.is_open_socket) {
 				// websocket的服务器的原理是:发送一次消息,同时返回一组数据【否则服务器会进去死循环崩溃】
 				this.socketTask.send({
-					data: "请求一次发送一次message",
+					data: this.$t('pages.deviceDetail.requestSendOneTimeMsg'),
 					async success() {
 						console.log("消息发送成功");
 					},
@@ -444,7 +444,7 @@ export default {
 					}
 				});
 			} else {
-				uni.showToast('非法输入')
+				uni.showToast(this.$t('pages.deviceDetail.IllegalInput'))
 			}
 		},
 		// 获取设备的历史数据
@@ -542,9 +542,9 @@ export default {
 										let y = params[0].value.y
 										if (key === 'Motiondetect') {
 											if (y == 1) {
-												y = '有人'
+												y = this.$t('pages.deviceDetail.motionDetectSomeone')
 											} else {
-												y = '无人'
+												y = this.$t('pages.deviceDetail.motionDetectNoOne')
 											}
 										}
 										return `${params[0].value.x}
@@ -820,9 +820,9 @@ ${im.title}: ${y} ${im.unit || ''}
 									}
 									if (['status', 'signalStatus'].includes(item.type)) {
 										if (item.valueOld === 'Motiondetect') {
-											item.value = { 0: '无人', 1: '有人' }[item.value]
+												item.value = { 0: this.$t('pages.deviceDetail.motionDetectNoOne'), 1: this.$t('pages.deviceDetail.motionDetectSomeone') }[item.value]
 										} else {
-											item.value = { 0: '关闭', 1: '开启' }[item.value]
+												item.value = { 0: this.$t('pages.deviceDetail.statusClosed'), 1: this.$t('pages.deviceDetail.statusOpen') }[item.value]
 										}
 									}
 								}
@@ -847,9 +847,9 @@ ${im.title}: ${y} ${im.unit || ''}
 							}
 							if (['status', 'signalStatus'].includes(item.type)) {
 								if (item.valueOld === 'Motiondetect') {
-									item.value = { 0: '无人', 1: '有人' }[item.value]
+										item.value = { 0: this.$t('pages.deviceDetail.motionDetectNoOne'), 1: this.$t('pages.deviceDetail.motionDetectSomeone') }[item.value]
 								} else {
-									item.value = { 0: '关闭', 1: '开启' }[item.value]
+										item.value = { 0: this.$t('pages.deviceDetail.statusClosed'), 1: this.$t('pages.deviceDetail.statusOpen') }[item.value]
 								}
 							}
 						}
