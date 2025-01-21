@@ -40,7 +40,7 @@ export default {
   pages: {
     loginTitle: '登录',
     register: '注册',
-    notify: '告警信息',
+    notifyTitle: '告警信息',
     deviceList: '设备列表',
     intelligentControlTitle: '智能控制',
     userCenter: '个人中心',
@@ -51,13 +51,6 @@ export default {
     modifyPhone: '修改手机',
     modifyEmail: '修改邮箱',
     modifyPassword: '修改密码',
-    changePassword: {
-      passwordPlaceholder: '请输入登录密码!',
-      confirmPlaceholder: '请确认登录密码!',
-      passwordTip: '请设置6位及以上包含数字、字母和特殊符号中至少两种组合的密码！',
-      confirmBtn: '确认修改',
-      successMsg: '设置成功！'
-    },
     historyOperation: '历史操作',
     myDevices: '我的设备',
     editAlertStrategy: '编辑告警策略',
@@ -163,6 +156,7 @@ export default {
       greaterThanOrEqual: '大于等于',
       lessThanOrEqual: '小于等于',
       everyDay: '每天',
+      selectConditionAndOr: '请选择条件为且还是或',
     },
     changePwd: {
       inputPwdPlaceholder: '请输入登录密码!',
@@ -190,15 +184,10 @@ export default {
       cancel: '取消',
       delete: '删除',
       addTriggerCondition: '新增触发条件',
-      relation: '且',
+      and: '且',
       or: '或',
-      pleaseSelectCondition: '请选择条件',
-      pleaseSelectSymbol: '请选择符号',
       value: '数值',
-      enterValue: '请输入数值',
       noSelectableData: '暂无可选择数据',
-      pleaseSelectDeviceFirst: '请选择设备',
-      pleaseSelectDeviceGroupFirst: '请选择设备分组',
       pleaseSelectRelation: '请选择关系',
       pleaseEnterValue: '请输入值',
       saveSuccess: '保存成功',
@@ -207,7 +196,9 @@ export default {
       enterMessage: '请在此处填写信息',
       save: '保存',
       triggerCondition: '触发条件',
-      addNewRow: '+新增一行'
+      addNewRow: '+新增一行',
+      inputStrategyName: '请输入策略名称',
+      inputDescription: '请输入策略描述',
     },
     controlStrategy: {
       strategyName: '策略名称',
@@ -294,7 +285,11 @@ export default {
       targetValue: '目标值',
       socketLinkFailure: '链接websocket失败，端口必须是9999',
       requestSendOneTimeMsg: '请求一次发送一次message',
-      IllegalInput: '非法输入'
+      IllegalInput: '非法输入',
+      pump1: '水泵1',
+      pump2: '水泵2',
+      pump3: '水泵3',
+      pump4: '水泵4'
     },
     fisheryMonitor: {
       title: '设备监控',
@@ -337,7 +332,23 @@ export default {
       linePercent: '折线LineChart percent',
       lineNumber: '折线LineChart Number',
       pieChart: '饼状图PieChart',
-      ringChart: '环状图 RingChart'
+      ringChart: '环状图 RingChart',
+      volume1: '成交量1',
+      volume2: '成交量2',
+      category1: '类别一',
+      category2: '类别二',
+      category3: '类别三',
+      accuracy: '正确率',
+      errorRate: '错误率',
+      mistakeRate: '失误率',
+      volumeA: '成交量A',
+      volumeB: '成交量B',
+      volumeC: '成交量C',
+      class1: '一班',
+      class2: '二班',
+      class3: '三班',
+      class4: '四班',
+      class5: '五班'
     },
     intelligentControl: {
       sceneLinkage: '场景联动',
@@ -354,14 +365,9 @@ export default {
       more: '更多',
       loading: '加载中',
       farm: '猪场',
-      sceneLinkageLabel: '场景联动',
-      sceneManagementLabel: '场景管理',
-      activate: '激活',
-      start: '启动',
-      stop: '停用',
-      edit: '编辑',
-      delete: '删除',
-      more: '更多'
+      confirmDeleteRecord: '确定要删除该条记录？',
+      success: '操作成功',
+      failed: '操作失败，请稍后再试'
     },
     login: {
       title: '物联网平台',
@@ -446,7 +452,7 @@ export default {
       actionPlaceholder: '执行动作',
       deviceCondition: '设备条件',
       timeCondition: '时间条件',
-      jsonFormatError: '请输入JSON格式',
+      jsonFormat: '请输入JSON格式',
       singleDevice: '单个设备',
       singleDeviceType: '单类设备',
       equal: '等于',

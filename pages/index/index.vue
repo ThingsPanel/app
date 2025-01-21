@@ -123,7 +123,7 @@ export default {
 				categories: ['2042', '2013', '2014', '2015', '2016', '2017', '2018'],
 				series: [
 					{
-						name: '成交量1', //数据名称
+						name: this.$t('pages.charts.volume1'), //数据名称
 						data: [
 							15,
 							{
@@ -143,7 +143,7 @@ export default {
 						//如涉及混合图表请看 http://doc.ucharts.cn/1172126
 					},
 					{
-						name: '成交量2',
+						name: this.$t('pages.charts.volume2'),
 						data: [
 							30,
 							{
@@ -174,15 +174,15 @@ export default {
 				categories: ['2013', '2014', '2015', '2016', '2017', '2018'],
 				series: [
 					{
-						name: '类别一',
+						name: this.$t('pages.charts.category1'),
 						data: [35, 36, 31, 33, 13, 34]
 					},
 					{
-						name: '类别二',
+						name: this.$t('pages.charts.category2'),
 						data: [18, 27, 21, 24, 6, 28]
 					},
 					{
-						name: '类别三',
+						name: this.$t('pages.charts.category2'),
 						data: [18, 27, 21, 24, 6, 28]
 					}
 				]
@@ -192,7 +192,7 @@ export default {
 				{
 					series: [
 						{
-							name: '正确率',
+							name: this.$t('pages.charts.accuracy'),
 							data: 0.2912
 						}
 					]
@@ -200,7 +200,7 @@ export default {
 				{
 					series: [
 						{
-							name: '错误率',
+							name: this.$t('pages.charts.errorRate'),
 							data: 0.6921
 						}
 					]
@@ -208,7 +208,7 @@ export default {
 				{
 					series: [
 						{
-							name: '失误率',
+							name: this.$t('pages.charts.mistakeRate'),
 							data: 0.8232
 						}
 					]
@@ -218,41 +218,41 @@ export default {
 				//带百分比的图--折线图数据
 				categories: ['2012', '2013', '2014', '2015', '2016', '2017'],
 				series: [
-					{ name: '成交量A', data: [0.3511, 0.8233, 0.25, 0.37, 0.4, 0.2] },
-					{ name: '成交量B', data: [0.7, 0.4, 0.65, 0.1, 0.44, 0.68] },
-					{ name: '成交量C', data: [0.1, 0.8, 0.95, 0.15, 0.112, 0.132] }
+					{ name: this.$t('pages.charts.volumeA'), data: [0.3511, 0.8233, 0.25, 0.37, 0.4, 0.2] },
+					{ name: this.$t('pages.charts.volumeB'), data: [0.7, 0.4, 0.65, 0.1, 0.44, 0.68] },
+					{ name: this.$t('pages.charts.volumeC'), data: [0.1, 0.8, 0.95, 0.15, 0.112, 0.132] }
 				]
 			},
 			lineData2: {
 				//数字的图--折线图数据
 				categories: ['2012', '2013', '2014', '2015', '2016', '2017'],
 				series: [
-					{ name: '成交量A', data: [35, 8, 25, 37, 4, 20] },
-					{ name: '成交量B', data: [70, 40, 65, 100, 44, 68] },
-					{ name: '成交量C', data: [100, 80, 95, 150, 112, 132] }
+					{ name: this.$t('pages.charts.volumeA'), data: [35, 8, 25, 37, 4, 20] },
+					{ name: this.$t('pages.charts.volumeB'), data: [70, 40, 65, 100, 44, 68] },
+					{ name: this.$t('pages.charts.volumeC'), data: [100, 80, 95, 150, 112, 132] }
 				]
 			},
 			pieData: {
 				//饼状图数据
 				series: [
 					{
-						name: '一班',
+						name: this.$t('pages.charts.class1'),
 						data: 50
 					},
 					{
-						name: '二班',
+						name: this.$t('pages.charts.class2'),
 						data: 30
 					},
 					{
-						name: '三班',
+						name: this.$t('pages.charts.class3'),
 						data: 20
 					},
 					{
-						name: '四班',
+						name: this.$t('pages.charts.class4'),
 						data: 18
 					},
 					{
-						name: '五班',
+						name: this.$t('pages.charts.class5'),
 						data: 8
 					}
 				]

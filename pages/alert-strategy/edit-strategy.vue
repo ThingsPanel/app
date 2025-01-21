@@ -51,7 +51,7 @@
 					</view>
 				</view>
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-					<view>请选择符号</view>
+					<view>{{ $t('pages.alertStrategy.selectSymbol') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @click="toSelectFh(rule)">
 						<text class="tp-mg-r-10" v-if="rule.fhName">{{rule.fhName}}</text>
 						<view class="iconfont iconjiantou1"></view>
@@ -226,11 +226,11 @@
 				type: '',
 				addType: '',
 				relationshipList: [{
-						name: '且',
+						name: this.$t('pages.alertStrategy.and'),
 						id: '&&'
 					},
 					{
-						name: '或',
+						name:this.$t('pages.alertStrategy.or'),
 						id: '||'
 					}
 				], // 关系
@@ -259,23 +259,23 @@
 					message: ''
 				},
 				fuhaoList: [{
-						name: '大于',
+						name: this.$t('pages.addControl.greaterThan'),
 						id: '>'
 					},
 					{
-						name: '小于',
+						name: this.$t('pages.addControl.lessThan'),
 						id: '<'
 					},
 					{
-						name: '等于',
+						name: this.$t('pages.addControl.equal'),
 						id: '='
 					},
 					{
-						name: '大于等于',
+						name: this.$t('pages.addControl.greaterThanOrEqual'),
 						id: '≥'
 					},
 					{
-						name: '小于等于',
+						name: this.$t('pages.addControl.greaterThanOrEqual'),
 						id: '≤'
 					},
 				],
@@ -295,7 +295,7 @@
 			// 获取修改信息
 			getInfo(){
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.alertStrategy.loading')
 				});
 				this.API.apiRequest('/api/warning/update', {
 					id: this.editId
@@ -347,22 +347,22 @@
 			},
 			validate() {
 				if(!this.formData.name){
-					this.toast.msg = '请输入策略名称';
+					this.toast.msg = this.$t('pages.alertStrategy.inputStrategyName');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.describe){
-					this.toast.msg = '请输入策略描述';
+					this.toast.msg = this.$t('pages.alertStrategy.inputDescription');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.group){
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDeviceGroup');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.eqp){
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 					return false
 				}
@@ -393,7 +393,7 @@
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.alertStrategy.loading')
 				});
 				this.API.apiRequest('/api/warning/edit', params, 'post').then(res => {
 					if (res.code == 200) {
@@ -424,22 +424,22 @@
 			// 验证保存触发条件
 			validateSave() {
 				if (!this.addForm.gx) {
-					this.toast.msg = '请选择关系';
+					this.toast.msg = this.$t('pages.alertStrategy.pleaseSelectRelation');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.tj) {
-					this.toast.msg = '请选择条件';
+					this.toast.msg = this.$t('pages.alertStrategy.selectCondition');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.fh) {
-					this.toast.msg = '请选择符号';
+					this.toast.msg = this.$t('pages.alertStrategy.selectSymbol');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.num) {
-					this.toast.msg = '请输入值';
+					this.toast.msg = this.$t('pages.alertStrategy.enterNumberValue');
 					this.$refs.toast.show();
 					return false
 				}
@@ -524,7 +524,7 @@
 				this.addType = '1'
 				if (this.formData.eqp) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/automation/show', {
 						bid: this.formData.eqp
@@ -535,7 +535,7 @@
 								this.$refs.tiaojianPopup.open()
 								this.conditionList = res.data
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -544,7 +544,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 				}
 			},
@@ -555,7 +555,7 @@
 				this.currentRule = rule
 				if (this.formData.eqp) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/automation/show', {
 						bid: this.formData.eqp
@@ -575,7 +575,7 @@
 								}
 								this.conditionList = res.data
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -584,7 +584,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 				}
 			},
@@ -598,7 +598,7 @@
 			toSelectEqp(type) {
 				if (this.formData.group) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/kv/current/asset/a', {
 						asset_id: this.formData.group
@@ -616,7 +616,7 @@
 								}
 								this.eqpList = res.data.devices
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -625,7 +625,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDeviceGroup');
 					this.$refs.toast.show();
 				}
 			},
@@ -638,7 +638,7 @@
 			// 选择设备分组
 			toSelectGroup(type) {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.alertStrategy.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -656,7 +656,7 @@
 							}
 							this.eqpGroupsList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 							this.$refs.toast.show();
 						}
 					}

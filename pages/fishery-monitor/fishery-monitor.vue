@@ -262,6 +262,7 @@ import {
 } from "vuex";
 import dayjs from 'dayjs';
 import { deviceList as deviceListApi } from '@/service/device'
+import { updateTabbarText } from '@/lang/index'
 //
 export default {
 	data() {
@@ -377,6 +378,7 @@ export default {
 		// this.ywData = []
 		// this.showData()
 
+
 	},
 	onLoad() {
 	},
@@ -387,8 +389,10 @@ export default {
 		this.showData();
 		//this.checkNotify()
 		uni.setNavigationBarTitle({
-				title: this.$t('pages.deviceList')
-			})
+			title: this.$t('pages.deviceList')
+		})
+		// Force update tabbar text
+		updateTabbarText()
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {

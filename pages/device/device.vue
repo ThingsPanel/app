@@ -32,7 +32,7 @@
 					{
 						id:1000,
 						icon:'iconbengzhan',
-						title:'水泵1',
+						title:this.$t('pages.deviceDetail.pump1'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -41,7 +41,7 @@
 					{
 						id:1001,
 						icon:'iconbengzhan',
-						title:'水泵2',
+						title:this.$t('pages.deviceDetail.pump2'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -50,7 +50,7 @@
 					{
 						id:1002,
 						icon:'iconbengzhan',
-						title:'水泵3',
+						title:this.$t('pages.deviceDetail.pump3'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -59,7 +59,7 @@
 					{
 						id:1003,
 						icon:'iconbengzhan',
-						title:'水泵4',
+						title:this.$t('pages.deviceDetail.pump4'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -68,7 +68,7 @@
 					{
 						id:1000,
 						icon:'iconbengzhan',
-						title:'水泵1',
+						title:this.$t('pages.deviceDetail.pump1'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -77,7 +77,7 @@
 					{
 						id:1001,
 						icon:'iconbengzhan',
-						title:'水泵2',
+						title:this.$t('pages.deviceDetail.pump2'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -86,7 +86,7 @@
 					{
 						id:1002,
 						icon:'iconbengzhan',
-						title:'水泵3',
+						title:this.$t('pages.deviceDetail.pump3'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -95,7 +95,7 @@
 					{
 						id:1003,
 						icon:'iconbengzhan',
-						title:'水泵4',
+						title:this.$t('pages.deviceDetail.pump4'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -104,7 +104,7 @@
 					{
 						id:1000,
 						icon:'iconbengzhan',
-						title:'水泵1',
+						title:this.$t('pages.deviceDetail.pump1'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -113,7 +113,7 @@
 					{
 						id:1001,
 						icon:'iconbengzhan',
-						title:'水泵2',
+						title:this.$t('pages.deviceDetail.pump2'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -122,7 +122,7 @@
 					{
 						id:1002,
 						icon:'iconbengzhan',
-						title:'水泵3',
+						title:this.$t('pages.deviceDetail.pump3'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -131,7 +131,7 @@
 					{
 						id:1003,
 						icon:'iconbengzhan',
-						title:'水泵4',
+						title:this.$t('pages.deviceDetail.pump4'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -140,7 +140,7 @@
 					{
 						id:1000,
 						icon:'iconbengzhan',
-						title:'水泵1',
+						title:this.$t('pages.deviceDetail.pump1'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -149,7 +149,7 @@
 					{
 						id:1001,
 						icon:'iconbengzhan',
-						title:'水泵2',
+						title:this.$t('pages.deviceDetail.pump2'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -158,7 +158,7 @@
 					{
 						id:1002,
 						icon:'iconbengzhan',
-						title:'水泵3',
+						title:this.$t('pages.deviceDetail.pump3'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -167,7 +167,7 @@
 					{
 						id:1003,
 						icon:'iconbengzhan',
-						title:'水泵4',
+						title:this.$t('pages.deviceDetail.pump4'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -176,7 +176,7 @@
 					{
 						id:1000,
 						icon:'iconbengzhan',
-						title:'水泵1',
+						title:this.$t('pages.deviceDetail.pump1'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -185,7 +185,7 @@
 					{
 						id:1001,
 						icon:'iconbengzhan',
-						title:'水泵2',
+						title:this.$t('pages.deviceDetail.pump2'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -194,7 +194,7 @@
 					{
 						id:1002,
 						icon:'iconbengzhan',
-						title:'水泵3',
+						title:this.$t('pages.deviceDetail.pump3'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',
@@ -203,7 +203,7 @@
 					{
 						id:1003,
 						icon:'iconbengzhan',
-						title:'水泵4',
+						title:this.$t('pages.deviceDetail.pump4'),
 						time:'2021-04-06 10:36:01',
 						value:'1',
 						type:'Device',

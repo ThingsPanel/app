@@ -667,7 +667,7 @@
 						switchOnTwo = 0
 					}
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.addControl.loading')
 					});
 					var trigList = []
 					if (this.trigList[0].conditionType == 1) {
@@ -1012,20 +1012,20 @@
 				if (this.trigList[0].conditionType == 1) {
 					if (type == 'trig') {
 						if (!this.addTrigForm.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.selectDevice');
 							this.$refs.toast.show();
 							return
 						}
 					} else if (type == 'con') {
 						if (!this.addConForm.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.selectDevice');
 							this.$refs.toast.show();
 							return
 						}
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/automation/show', {
 					bid: type == 'trig' ? this.addTrigForm.eqp : this.addConForm.eqp
@@ -1040,7 +1040,7 @@
 							}
 							this.$refs.conditionPopup.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1057,21 +1057,21 @@
 					if (type == 'trig') {
 						this.currentTrigData = data
 						if (!this.currentTrigData.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.selectDevice');;
 							this.$refs.toast.show();
 							return
 						}
 					} else if (type == 'con') {
 						this.currentConData = data
 						if (!this.currentConData.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.selectDevice');
 							this.$refs.toast.show();
 							return
 						}
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/automation/show', {
 					bid: type == 'trig' ? this.currentTrigData.eqp : this.currentConData.eqp
@@ -1081,7 +1081,7 @@
 							this.$refs.conditionPopup.open()
 							this.conditionList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');;
 							this.$refs.toast.show();
 						}
 					}
@@ -1128,20 +1128,20 @@
 				if (this.trigList[0].conditionType == 1) {
 					if (type == 'trig') {
 						if (!this.addTrigForm.eqpGroup) {
-							this.toast.msg = '请选择设备分组';
+							this.toast.msg = this.$t('pages.addControl.selectDeviceGroup');
 							this.$refs.toast.show();
 							return
 						}
 					} else if (type == 'con') {
 						if (!this.addConForm.eqpGroup) {
-							this.toast.msg = '请选择设备分组';
+							this.toast.msg = this.$t('pages.addControl.selectDeviceGroup');
 							this.$refs.toast.show();
 							return
 						}
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/kv/current/asset/a', {
 					asset_id: type == 'trig' ? this.addTrigForm.eqpGroup : this.addConForm.eqpGroup
@@ -1156,7 +1156,7 @@
 							}
 							this.$refs.eqpPopup.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');;
 							this.$refs.toast.show();
 						}
 					}
@@ -1175,7 +1175,7 @@
 					this.currentConData = data
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/kv/current/asset/a', {
 					asset_id: type == 'trig' ? this.currentTrigData.eqpGroup : this.currentConData.eqpGroup
@@ -1185,7 +1185,7 @@
 							this.$refs.eqpPopup.open()
 							this.eqpList = res.data.devices
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');;
 							this.$refs.toast.show();
 						}
 					}
@@ -1244,7 +1244,7 @@
 					this.currentConData = data
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -1254,7 +1254,7 @@
 							this.$refs.eqpGroups.open()
 							this.eqpGroupsList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');;
 							this.$refs.toast.show();
 						}
 					}
@@ -1268,7 +1268,7 @@
 				this.addType = type
 				this.type = ''
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -1283,7 +1283,7 @@
 							}
 							this.$refs.eqpGroups.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');;
 							this.$refs.toast.show();
 						}
 					}
