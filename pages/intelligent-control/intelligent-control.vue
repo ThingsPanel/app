@@ -87,7 +87,7 @@
     <!-- 消息提示框 -->
     <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
 
-    <Modal v-model="visible" title='删除' text='确定要删除该条记录？' @cancel='cancel' @confirm='confirm' />
+    <Modal v-model="visible" :title="$t('pages.intelligentControl.delete')" :text="$t('pages.intelligentControl.confirmDeleteRecord')" @cancel='cancel' @confirm='confirm' />
   </view>
 </template>
 
@@ -181,7 +181,7 @@
         }
         
         uni.showLoading({
-          title: '加载中'
+          title: this.$t('pages.intelligentControl.loading')
         });
         
         this.API.apiRequest(apis[this.clName], {
@@ -220,7 +220,7 @@
       // 切换启停状态（仅场景联动）
       toggleStatue (item) {
         uni.showLoading({
-          title: '加载中'
+          title: this.$t('pages.intelligentControl.loading')
         });
         
         const enabled = item.enabled === '0' ? '1' : '0'
@@ -236,19 +236,19 @@
 	  // 切换启停状态（仅场景管理）
 	  toggleSwitch (item) {
 	    uni.showLoading({
-	      title: '加载中'
+	      title: this.$t('pages.intelligentControl.loading')
 	    });
 	     
 	    this.API.apiRequest('/api/v1/scene/active/'+item.id, {
 	    }, 'post').then(res => {
 	      if (res.code == 200) {
           uni.showToast({
-            title: '操作成功',
+            title: this.$t('pages.intelligentControl.success'),
             icon: 'none'
           });
 	      }else{
           uni.showToast({
-            title: '操作失败，请稍后再试',
+            title: this.$t('pages.intelligentControl.failed'),
             icon: 'none'
           });
 		    }
@@ -279,7 +279,7 @@
       // 确定删除
       confirm() {
         uni.showLoading({
-          title: '加载中'
+          title: this.$t('pages.intelligentControl.loading')
         });
         
         let apis = {
@@ -336,12 +336,12 @@
                 name: JSON.parse(uni.getStorageSync('userWxInfo')).nickName,
               };
               uni.showLoading({
-                title: '加载中'
+                title: this.$t('pages.intelligentControl.loading')
               });
               that.API.apiRequest(url, data, 'post').then(res => {
                 if (res.code == 200) {
                   uni.showToast({
-                    title: '登录成功',
+                    title: this.$t('pages.login.loginSuccess'),
                     icon: 'none'
                   });
                   uni.setStorageSync('access_token', res.data.access_token)
@@ -369,7 +369,7 @@
         var that = this;
         //判断是否授权
         uni.getUserProfile({
-          desc: '登录',
+          desc: this.$t('pages.login.authDescription'),
           success(infoRes) {
             const userInfo = infoRes.userInfo;
             uni.setStorageSync('userWxInfo', JSON.stringify(userInfo))

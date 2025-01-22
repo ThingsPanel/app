@@ -499,14 +499,14 @@
               instructItem.inputValidationStatus = undefined;
             } else {
               uni.showToast({
-                title: '请输入JSON格式',
+                title: this.$t('pages.sceneRuleDetail.jsonFormat'),
                 icon: 'none'
               });
               instructItem.inputValidationStatus = 'error';
             }
           } catch (e) {
             uni.showToast({
-              title: '请输入JSON格式',
+              title: this.$t('pages.sceneRuleDetail.jsonFormat'),
               icon: 'none'
             });
             instructItem.inputValidationStatus = 'error';

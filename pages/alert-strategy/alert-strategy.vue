@@ -178,9 +178,9 @@
 							<view class="value">
 								{{ $t('pages.alertStrategy.value') }}：
 							</view>
-							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
+							<input type="number" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.alertStrategy.enterNumberValue')"
 								placeholder-class="tp-plc" v-model="addForm.num" v-if="addForm.filedType == 3" />
-							<input v-else type="text" class="tp-flex-1 tp-mg-l-20 add_input" placeholder="请输入数值"
+							<input v-else type="text" class="tp-flex-1 tp-mg-l-20 add_input" :placeholder="$t('pages.alertStrategy.enterNumberValue')"
 								placeholder-class="tp-plc" v-model="addForm.num" />
 						</view>
 					</view>
@@ -227,11 +227,11 @@
 				type: '',
 				addType: '',
 				relationshipList: [{
-						name: '且',
+						name: this.$t('pages.alertStrategy.and'),
 						id: '&&'
 					},
 					{
-						name: '或',
+						name: this.$t('pages.alertStrategy.or'),
 						id: '||'
 					}
 				], // 关系
@@ -260,23 +260,23 @@
 					message: ''
 				},
 				fuhaoList: [{
-						name: '大于',
+						name: this.$t('pages.addControl.greaterThan'),
 						id: '>'
 					},
 					{
-						name: '小于',
+						name: this.$t('pages.addControl.lessThan'),
 						id: '<'
 					},
 					{
-						name: '等于',
+						name: this.$t('pages.addControl.equal'),
 						id: '='
 					},
 					{
-						name: '大于等于',
+						name: this.$t('pages.addControl.greaterThanOrEqual'),
 						id: '≥'
 					},
 					{
-						name: '小于等于',
+						name: this.$t('pages.addControl.greaterThanOrEqual'),
 						id: '≤'
 					},
 				],
@@ -291,22 +291,22 @@
 		methods: {
 			validate() {
 				if(!this.formData.name){
-					this.toast.msg = '请输入策略名称';
+					this.toast.msg = this.$t('pages.alertStrategy.inputStrategyName');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.describe){
-					this.toast.msg = '请输入策略描述';
+					this.toast.msg = this.$t('pages.alertStrategy.inputDescription');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.group){
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDeviceGroup');
 					this.$refs.toast.show();
 					return false
 				}
 				if(!this.formData.eqp){
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 					return false
 				}
@@ -337,7 +337,7 @@
 				}
 				console.log('params==', params)
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.alertStrategy.loading')
 				});
 				this.API.apiRequest('/api/warning/add', params, 'post').then(res => {
 					if (res.code == 200) {
@@ -368,22 +368,22 @@
 			// 验证保存触发条件
 			validateSave() {
 				if (!this.addForm.gx) {
-					this.toast.msg = '请选择关系';
+					this.toast.msg = this.$t('pages.alertStrategy.pleaseSelectRelation');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.tj) {
-					this.toast.msg = '请选择条件';
+					this.toast.msg = this.$t('pages.alertStrategy.selectCondition');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.fh) {
-					this.toast.msg = '请选择符号';
+					this.toast.msg = this.$t('pages.alertStrategy.selectSymbol');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addForm.num) {
-					this.toast.msg = '请输入值';
+					this.toast.msg = this.$t('pages.alertStrategy.enterNumberValue');
 					this.$refs.toast.show();
 					return false
 				}
@@ -468,7 +468,7 @@
 				this.addType = '1'
 				if (this.formData.eqp) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/automation/show', {
 						bid: this.formData.eqp
@@ -479,7 +479,7 @@
 								this.$refs.tiaojianPopup.open()
 								this.conditionList = res.data
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -488,7 +488,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 				}
 			},
@@ -499,7 +499,7 @@
 				this.currentRule = rule
 				if (this.formData.eqp) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/automation/show', {
 						bid: this.formData.eqp
@@ -509,7 +509,7 @@
 								this.$refs.tiaojianPopup.open()
 								this.conditionList = res.data
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -518,7 +518,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDevice');
 					this.$refs.toast.show();
 				}
 			},
@@ -532,7 +532,7 @@
 			toSelectEqp() {
 				if (this.formData.groupName) {
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.alertStrategy.loading')
 					});
 					this.API.apiRequest('/api/kv/current/asset/a', {
 						asset_id: this.formData.group
@@ -542,7 +542,7 @@
 								this.$refs.epqPopup.open()
 								this.eqpList = res.data.devices
 							} else {
-								this.toast.msg = '暂无可选择数据';
+								this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 								this.$refs.toast.show();
 							}
 						}
@@ -551,7 +551,7 @@
 						uni.hideLoading()
 					});
 				} else {
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.alertStrategy.selectDeviceGroup');
 					this.$refs.toast.show();
 				}
 			},
@@ -564,7 +564,7 @@
 			// 选择设备分组
 			toSelectGroup() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.alertStrategy.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -574,7 +574,7 @@
 							this.$refs.groupPopup.open()
 							this.eqpGroupsList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.alertStrategy.noSelectableData');
 							this.$refs.toast.show();
 						}
 					}

@@ -850,14 +850,14 @@
               ifItem.inputValidationStatus = undefined;
             } else {
               uni.showToast({
-                title: '请输入JSON格式',
+                title: this.$t('pages.sceneRuleDetail.jsonFormat'),
                 icon: 'none'
               });
               ifItem.inputValidationStatus = 'error';
             }
           } catch (e) {
             uni.showToast({
-              title: '请输入JSON格式',
+              title: this.$t('pages.sceneRuleDetail.jsonFormat'),
               icon: 'none'
             });
             ifItem.inputValidationStatus = 'error';
@@ -907,15 +907,15 @@
       getTimeConditionOptions(ifGroup) {
         return [
           {
-            label: '单次',
+            label: this.$t('pages.sceneRuleDetail.singleTime'),
             value: '20'
           },
           {
-            label: '重复',
+            label: this.$t('pages.sceneRuleDetail.repeat'),
             value: '21'
           },
           {
-            label: '时间范围',
+            label: this.$t('pages.sceneRuleDetail.timeRange'),
             value: '22'
           }
         ];

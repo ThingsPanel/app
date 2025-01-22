@@ -327,7 +327,7 @@
 						</view>
 						<view class="item" @click="toSelectConditionAdd('trig')">
 							<view class="value">
-								条件：
+								{{$t('pages.addControl.condition')}}：
 							</view>
 							<view class="label">
 								{{addTrigForm.conditionName}}
@@ -336,7 +336,7 @@
 						</view>
 						<view class="item" @click="toSelectSymbolAdd('trig')">
 							<view class="value">
-								符号：
+								{{ $t('pages.addControl.symbol') }}：
 							</view>
 							<view class="label">
 								{{addTrigForm.symbolName}}
@@ -356,7 +356,7 @@
 					<view class="info_list" v-if="trigList[0].conditionType == 2">
 						<view class="item" @click="toSelectCishuAdd()">
 							<view class="value">
-								次数：
+								{{ $t('pages.addControl.times') }} ：
 							</view>
 							<view class="label">
 								{{addTrigForm.cishuName}}
@@ -365,7 +365,7 @@
 						</view>
 						<view class="item" v-if="addTrigForm.cishu == 0">
 							<view class="value">
-								日期：
+								{{ $t('pages.addControl.times') }}：
 							</view>
 							<view class="label">
 								<uni-datetime-picker type="datetime" v-model="addTrigForm.dateTime"
@@ -375,7 +375,7 @@
 						</view>
 						<view class="item" v-if="addTrigForm.cishu == 1">
 							<view class="value">
-								时间：
+								{{ $t('pages.addControl.time') }}：
 							</view>
 							<view class="label">
 								<picker mode="time" :value="addTrigForm.dateTime" start="00:00" end="23:59"
@@ -420,7 +420,7 @@
 						</view>
 						<view class="item" @click="toSelectConditionAdd('con')">
 							<view class="value">
-								条件：
+								{{$t('pages.addControl.condition')}}：
 							</view>
 							<view class="label">
 								{{addConForm.conditionName}}
@@ -429,12 +429,12 @@
 						</view>
 						<view class="item">
 							<view class="value">
-								数值：
+								{{ $t('pages.addControl.value') }}：
 							</view>
-							<input type="number" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+							<input type="number" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')"
 								placeholder-class="tp-plc" v-model="addConForm.conNum"
 								v-if="addConForm.filedType == 3" />
-							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" placeholder="请输入数值"
+							<input v-else type="text'" class="tp-flex-1 tp-mg-l-20" :placeholder="$t('pages.addControl.inputValue')"
 								placeholder-class="tp-plc" v-model="addConForm.conNum" />
 						</view>
 					</view>
@@ -469,7 +469,7 @@
 					relationship: '',
 					relationshipName: '',
 					cishu: 0,
-					cishuName: '单次',
+					cishuName: this.$t('pages.addControl.single'),
 					dateTime: ''
 				},
 				addConForm: {
@@ -486,7 +486,7 @@
 				},
 				trigList: [{
 					conditionType: 1,
-					conditionTypeName: '设备条件类型',
+					conditionTypeName: this.$t('pages.addControl.deviceConditionType'),
 					eqpGroup: '',
 					eqpGroupName: '',
 					eqp: '',
@@ -500,7 +500,7 @@
 					relationship: '',
 					relationshipName: '',
 					cishu: 0,
-					cishuName: '单次',
+					cishuName: this.$t('pages.addControl.single'),
 					dateTime: ''
 				}], // 触发条件
 				controlList: [{
@@ -514,43 +514,43 @@
 					conNum: ''
 				}],
 				relationshipList: [{
-						name: '且',
+						name: this.$t('pages.addControl.and'),
 						id: '&&'
 					},
 					{
-						name: '或',
+						name: this.$t('pages.addControl.or'),
 						id: '||'
 					}
 				], // 关系
 				conditionList: [], // 条件
 				eqpGroupsList: [], // 设备分组
 				conditionTypeList: [{
-						label: '设备条件类型',
+						label: this.$t('pages.addControl.deviceConditionType'),
 						value: 1
 					},
 					{
-						label: '时间条件类型',
+						label: this.$t('pages.addControl.timeConditionType'),
 						value: 2
 					}
 				], // 条件类型
 				symbolList: [{
-						name: '大于',
+						name: this.$t('pages.addControl.greaterThan'),
 						id: '>'
 					},
 					{
-						name: '小于',
+						name: this.$t('pages.addControl.lessThan'),
 						id: '<'
 					},
 					{
-						name: '等于',
+						name: this.$t('pages.addControl.equal'),
 						id: '='
 					},
 					{
-						name: '大于等于',
+						name: this.$t('pages.addControl.greaterThanOrEqual'),
 						id: '≥'
 					},
 					{
-						name: '小于等于',
+						name: this.$t('pages.addControl.lessThanOrEqual'),
 						id: '≤'
 					},
 				], // 符号
@@ -571,11 +571,11 @@
 				currentTrigData: {}, // 当前触发条件
 				currentConData: {}, //当前执行命令
 				cishuList: [{
-						name: '单次',
+						name: this.$t('pages.addControl.single'),
 						id: 0
 					},
 					{
-						name: '每天',
+						name: this.$t('pages.addControl.everyDay'),
 						id: 1
 					}
 				]
@@ -594,7 +594,7 @@
 			// 获取策略信息
 			getInfo() {
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/automation/details', {
 					id: this.editId
@@ -638,7 +638,7 @@
 											return c.id == item.operator
 										})[0].name : '',
 									cishu: 0,
-									cishuName: '单次',
+									cishuName: this.$t('pages.addControl.single'),
 									dateTime: ''
 								}
 								trigList.push(obj)
@@ -745,12 +745,12 @@
 					return !item.eqpGroup || !item.eqp || !item.condition || !item.conNum
 				})
 				if (this.formData.name == '') {
-					this.toast.msg = '请输入策略名称';
+					this.toast.msg = this.$t('pages.addControl.validateError.nameRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (this.formData.describe == '') {
-					this.toast.msg = '请输入描述';
+					this.toast.msg = this.$t('pages.addControl.validateError.descriptionRequired');
 					this.$refs.toast.show();
 					return false
 				}
@@ -765,7 +765,7 @@
 						}
 					})
 					if (trig.length > 0) {
-						this.toast.msg = '存在数据项不符合触发条件，请检查触发条件数据项';
+						this.toast.msg = this.$t('pages.addControl.validateError.triggerConditionInvalid');
 						this.$refs.toast.show();
 						return false
 					}
@@ -774,13 +774,13 @@
 						return !item.cishuName || !item.dateTime
 					})
 					if (trig.length > 0) {
-						this.toast.msg = '存在数据项不符合触发条件，请检查触发条件数据项';
+						this.toast.msg = this.$t('pages.addControl.validateError.triggerConditionInvalid');
 						this.$refs.toast.show();
 						return false
 					}
 				}
 				if (control.length > 0) {
-					this.toast.msg = '存在数据项不符合执行命令，请检查执行命令数据项';
+					this.toast.msg = this.$t('pages.addControl.validateError.executeCommandInvalid');
 					this.$refs.toast.show();
 					return false
 				}
@@ -801,7 +801,7 @@
 						switchOnTwo = 0
 					}
 					uni.showLoading({
-						title: '加载中'
+						title: this.$t('pages.addControl.loading')
 					});
 					var trigList = []
 					if (this.trigList[0].conditionType == 1) {
@@ -944,22 +944,22 @@
 				// 	return false
 				// }
 				if (!this.addConForm.eqpGroup) {
-					this.toast.msg = '请选择设备分组';
+					this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.eqp) {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.condition) {
-					this.toast.msg = '请选择条件';
+					this.toast.msg = this.$t('pages.addControl.validateError.conditionRequired');
 					this.$refs.toast.show();
 					return false
 				}
 				if (!this.addConForm.conNum) {
-					this.toast.msg = '请输入数值';
+					this.toast.msg = this.$t('pages.addControl.inputValue');
 					this.$refs.toast.show();
 					return false
 				}
@@ -969,48 +969,48 @@
 			saveTrigValidate() {
 				if (this.trigList[0].conditionType == 1) {
 					if (!this.addTrigForm.relationship) {
-						this.toast.msg = '请选择条件为且还是或';
+						this.toast.msg = this.$t('pages.addControl.selectConditionAndOr');;
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.eqpGroup) {
-						this.toast.msg = '请选择设备分组';
+						this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.eqp) {
-						this.toast.msg = '请选择设备';
+						this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.condition) {
-						this.toast.msg = '请选择条件';
+						this.toast.msg = this.$t('pages.addControl.validateError.conditionRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.symbol) {
-						this.toast.msg = '请选择符号';
+						this.toast.msg = this.$t('pages.addControl.validateError.symbolRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.trigNum) {
-						this.toast.msg = '请输入数值';
+						this.toast.msg = this.$t('pages.addControl.inputValue');
 						this.$refs.toast.show();
 						return false
 					}
 				} else {
 					if (!this.addTrigForm.relationship) {
-						this.toast.msg = '请选择条件为且还是或';
+						this.toast.msg = this.$t('pages.addControl.selectConditionAndOr');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.cishuName) {
-						this.toast.msg = '请选择次数';
+						this.toast.msg = this.$t('pages.addControl.validateError.timesRequired');
 						this.$refs.toast.show();
 						return false
 					}
 					if (!this.addTrigForm.dateTime) {
-						this.toast.msg = '请选择日期或时间';
+						this.toast.msg = this.$t('pages.addControl.validateError.dateTimeRequired');
 						this.$refs.toast.show();
 						return false
 					}
@@ -1148,20 +1148,20 @@
 				if (this.trigList[0].conditionType == 1) {
 					if (type == 'trig') {
 						if (!this.addTrigForm.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 							this.$refs.toast.show();
 							return
 						}
 					} else if (type == 'con') {
 						if (!this.addConForm.eqp) {
-							this.toast.msg = '请选择设备';
+							this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 							this.$refs.toast.show();
 							return
 						}
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/automation/show', {
 					bid: type == 'trig' ? this.addTrigForm.eqp : this.addConForm.eqp
@@ -1176,7 +1176,7 @@
 							}
 							this.$refs.conditionPopup.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1197,12 +1197,12 @@
 					}
 				}
 				if (!data.eqp) {
-					this.toast.msg = '请选择设备';
+					this.toast.msg = this.$t('pages.addControl.validateError.deviceRequired');
 					this.$refs.toast.show();
 					return
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/automation/show', {
 					bid: data.eqp
@@ -1229,7 +1229,7 @@
 							}
 							this.conditionList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1276,20 +1276,20 @@
 				if (this.trigList[0].conditionType == 1) {
 					if (type == 'trig') {
 						if (!this.addTrigForm.eqpGroup) {
-							this.toast.msg = '请选择设备分组';
+							this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 							this.$refs.toast.show();
 							return
 						}
 					} else if (type == 'con') {
 						if (!this.addConForm.eqpGroup) {
-							this.toast.msg = '请选择设备分组';
+							this.toast.msg = this.$t('pages.addControl.validateError.deviceGroupRequired');
 							this.$refs.toast.show();
 							return
 						}
 					}
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/kv/current/asset/a', {
 					asset_id: type == 'trig' ? this.addTrigForm.eqpGroup : this.addConForm.eqpGroup
@@ -1304,7 +1304,7 @@
 							}
 							this.$refs.eqpPopup.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1323,7 +1323,7 @@
 					this.currentConData = data
 				} 
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/kv/current/asset/a', {
 					asset_id:  data.eqpGroup
@@ -1348,7 +1348,7 @@
 							}
 							this.eqpList = res.data.devices
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1408,7 +1408,7 @@
 					this.currentConData = data
 				}
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -1437,7 +1437,7 @@
 							}
 							this.eqpGroupsList = res.data
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}
@@ -1451,7 +1451,7 @@
 				this.addType = type
 				this.type = ''
 				uni.showLoading({
-					title: '加载中'
+					title: this.$t('pages.addControl.loading')
 				});
 				this.API.apiRequest('/api/asset/list/d', {
 					business_id: uni.getStorageSync('ywId')
@@ -1466,7 +1466,7 @@
 							}
 							this.$refs.eqpGroups.open()
 						} else {
-							this.toast.msg = '暂无可选择数据';
+							this.toast.msg = this.$t('pages.addControl.noData');
 							this.$refs.toast.show();
 						}
 					}

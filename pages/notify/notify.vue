@@ -72,7 +72,7 @@ import NotofyDialog from '@/components/notify-dialog'
 		},
 		onShow() {
 			uni.setNavigationBarTitle({
-				title: this.$t('pages.notify')
+				title: this.$t('pages.notifyTitle')
 			})
 		},
 		methods: {

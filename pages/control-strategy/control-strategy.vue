@@ -94,8 +94,8 @@
 				<view class="tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c">{{$t('pages.controlStrategy.strategyStatus')}}</view>
 				<view class="tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c">
 					<radio-group @change="radioChange">
-						<label class="tp-radio"><radio value="r1" color="#32BAC0" checked="true" />关</label>
-						<label class="tp-radio"><radio value="r2" color="#32BAC0" />开</label>
+						<label class="tp-radio"><radio value="r1" color="#32BAC0" checked="true" />{{$t('pages.controlStrategy.off')}}</label>
+						<label class="tp-radio"><radio value="r2" color="#32BAC0" />{{$t('pages.controlStrategy.on')}}</label>
 					</radio-group>
 				</view>
 			</view>

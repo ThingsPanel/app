@@ -242,12 +242,12 @@
 								name: JSON.parse(uni.getStorageSync('userWxInfo')).nickName,
 							};
 							uni.showLoading({
-								title: '加载中'
+								title: this.$t('ucenter.loading')
 							});
 							that.API.apiRequest(url, data, 'post').then(res => {
 								if (res.code == 200) {
 									uni.showToast({
-										title: '登录成功',
+										title: this.$t('pages.loging.loginSuccess'),
 										icon: 'none'
 									});
 									uni.setStorageSync('access_token', res.data.access_token)
