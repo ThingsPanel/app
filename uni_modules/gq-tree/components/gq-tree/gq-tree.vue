@@ -4,15 +4,15 @@
     <view class="tree-cnt" :class="{'show':showTree}">
       <view class="tree-bar">
         <view class="tree-bar-cancel" :style="{'color':cancelColor}" hover-class="hover-c" @tap="_cancel">
-          关闭
+          {{ $t('common.close')}}
         </view>
         <view class="midInput" v-if="showSearch">
-          <input class="searchArea" @input="filterOp" :placeholder="'请输入'+title"/>
+          <input class="searchArea" @input="filterOp" :placeholder=`${{$t('common.pleaseInput') + title}}`/>
           <icon  class="searchIcon" type="search" />
         </view>
         <view class="tree-bar-title" v-else :style="{'color':titleColor}">{{title}}</view>
         <view class="tree-bar-confirm" :style="{'color':confirmColor}" hover-class="hover-c"
-              @tap="_confirm">确定</view>
+              @tap="_confirm">{{ $t('common.ok')}}</view>
       </view>
       <view class="tree-view">
         <scroll-view class="tree-view-sc" :scroll-y="true">

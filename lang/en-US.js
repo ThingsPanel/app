@@ -7,7 +7,9 @@ export default {
     loading: 'Loading...',
     pleaseSelect: 'Please select',
     pleaseInput: 'Please input',
-    none: 'None'
+    none: 'None',
+    close: 'Close',
+    ok: 'OK',
   },
   login: {
     title: 'Login',
