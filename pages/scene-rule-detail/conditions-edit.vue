@@ -48,7 +48,7 @@
                       option-value="id"
                       option-label="name"
                       :placeholder="$t('pages.sceneRuleDetail.selectDevice')"
-                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); }"
+                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); actionParamShow(ifItem, true); }"
                     />
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '11'">
@@ -59,7 +59,7 @@
                       option-value="id"
                       option-label="name"
                       :placeholder="$t('pages.sceneRuleDetail.selectDeviceType')"
-                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); }"
+                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); actionParamShow(ifItem, true); }"
                     />
                   </view>
                   <view v-if="ifItem.trigger_source">
@@ -70,8 +70,7 @@
                       option-value="key"
                       option-label="fullLabel"
                       :placeholder="$t('pages.sceneRuleDetail.selectParameter')"
-                      @change="(value) => triggerParamChange(ifItem, value)"
-                      @click="() => actionParamShow(ifItem, true)"
+                      @change="(value) => { triggerParamChange(ifItem, value); actionParamShow(ifItem, true); } "
                     />
                     <view v-if="ifItem.trigger_param_type === 'telemetry' || ifItem.trigger_param_type === 'attributes'">
                       <!-- 选择操作符-->
@@ -753,15 +752,15 @@
         });
         return flattened;
       },
-      triggerParamChange(ifItem, fullLabel) {
+      triggerParamChange(ifItem, key) {
         const flattenedOptions = ifItem.triggerParamFlattenedOptions;
-        const selectedOption = flattenedOptions.find(option => option.fullLabel === fullLabel);
+        const selectedOption = flattenedOptions.find(option => option.key === key);
         if (selectedOption) {
           const group = ifItem.triggerParamOptions[selectedOption.value.groupIndex];
           const item = group.options[selectedOption.value.itemIndex];
           ifItem.trigger_param_type = group.value;
           ifItem.trigger_param = item.key;
-          ifItem.trigger_param_key = fullLabel;
+          ifItem.trigger_param_key = key;
         }
         this.$forceUpdate();
       },
