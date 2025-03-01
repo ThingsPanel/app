@@ -734,7 +734,7 @@ export default {
 						let pauArry = data;
 						/* 分页 */
 						let pageSize = 20;
-						if (pageSize == data.length) {
+						if (pageSize == newData.length) {
 							this.statusEqupType = 'more';
 							this.loadMoreEqupShow = true;
 						} else {
