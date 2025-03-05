@@ -17,12 +17,12 @@ export default {
       })
   },
   onLoad(options) {
-    const url = new URL(decodeURIComponent(options.url));
+    const decodedUrl = decodeURIComponent(options.url);
     const lang = uni.getStorageSync('language'); // 获取当前系统语言
     
     // 将lang作为参数添加到URL中
-    url.searchParams.set('lang', lang);
-    this.url = url.toString();
+    const separator = decodedUrl.includes('?') ? '&' : '?';
+    this.url = `${decodedUrl}${separator}lang=${lang}`;
   }
 };
 </script>

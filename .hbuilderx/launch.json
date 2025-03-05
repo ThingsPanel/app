@@ -10,9 +10,13 @@
             "default" : {
                 "launchtype" : "remote"
             },
+            "h5" : {
+                "launchtype" : "local"
+            },
             "mp-weixin" : {
                 "launchtype" : "remote"
             },
+            "provider" : "aliyun",
             "type" : "uniCloud"
         },
         {
@@ -20,7 +24,7 @@
             "type" : "uni-app:app-ios"
         },
         {
-            "playground" : "standard",
+            "playground" : "custom",
             "type" : "uni-app:app-android"
         }
     ]
