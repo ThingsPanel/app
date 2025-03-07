@@ -13,6 +13,7 @@ exports.main = async (event) => {
 		"category": obj.category, // HarmonyOS NEXT系统（纯血鸿蒙、非安卓鸿蒙）的消息分类，要给鸿蒙设备推送时才必传  
 		"request_id": obj.request_id,
 		"options":obj.options,
+		force_notification:true,
 	})
 	return res;  
 };

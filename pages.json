@@ -25,6 +25,14 @@
 			}
 		},
 		{
+			"path": "pages/notify/detail",
+			"style": {
+				"navigationBarTitleText": "%pages.notifyDetail%",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
 			"path": "pages/fishery-monitor/fishery-monitor",
 			"style": {
 				"navigationBarTitleText": "%pages.deviceList%",

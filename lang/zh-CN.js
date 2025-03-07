@@ -43,6 +43,7 @@ export default {
     loginTitle: '登录',
     register: '注册',
     notifyTitle: '告警信息',
+    notifyDetailTitle: '告警详情',
     deviceList: '设备列表',
     intelligentControlTitle: '智能控制',
     userCenter: '个人中心',
@@ -416,13 +417,25 @@ export default {
       noAlerts: '暂无新的告警内容',
       alertLevel: '告警级别',
       alertName: '告警名称',
-      alertContent: '告警内容',
+      alertContent: '告警原因',
       alertTime: '告警时间',
       alarmLevels: {
         L: '低',
         M: '中', 
         H: '高'
-      }
+      },
+      alarmStatus: '告警状态',
+      alarmStatuses: {
+        N: '正常',
+        L: '低级报警',
+        M: '中级报警',
+        H: '高级报警',
+      },
+      sceneLinkageName: '关联场景联动名称',
+      alarmDescription: '告警描述',
+      alarmDevices: '告警设备列表',
+      deviceID: '设备编码',
+      deviceName: '设备名称',
     },
     sceneRuleDetail: {
       ruleName: '规则名称',

@@ -4,7 +4,7 @@
 			{{$t('pages.notify.noAlerts')}}
 		</view>
 		<view class="list">
-			<view class="item" v-for="item in list" :key="item.id">
+			<view class="item" v-for="item in list" :key="item.id" @click.stop="goDetail(item)">
 				<view class="desc">{{item.warning_description}}</view>
 				<view class="opt">
 					<view class="name">
@@ -54,99 +54,130 @@
 <script>
 import dayjs from 'dayjs'
 import NotofyDialog from '@/components/notify-dialog'
- 	export default {
-		components: {NotofyDialog},
-		data() {
-			return {
-				page: 1,
-				pageSize: 10,
-				loadEnd: false,
-				loading: false,
-				list: [],
-				showDialog: false,
-				handleInfo: {
-					id: '',
-					status: ''
-				}
-			}
-		},
-		onShow() {
-			uni.setNavigationBarTitle({
-				title: this.$t('pages.notifyTitle')
-			})
-		},
-		methods: {
-			formatDate(date) {
-				return dayjs(date).format('YYYY-MM-DD HH:mm')
-			},
-			closeDialog(refresh){
-				this.showDialog = false
-				if(refresh){
-					// this.getList()
-					this.list = this.list.filter(l => l.id !== this.handleInfo.id)
-				}
-				this.handleInfo = {id :'', status: ''}
-			},
-			process(id, status) {
-				this.showDialog = true
-				this.handleInfo = {id, status}
-				// uni.showModal({
-				// 	title: `点击确定${status === '1' ? '处理' : '忽略'}警告`,
-				// 	confirmText: '确定',
-				// 	cancelText: '取消',
-				// 	editable: status === '1',
-				// 	placeholderText: '选填',
-				// 	success: res => {
-				// 		if (res.confirm) {
-				// 			this.API.apiRequest('/api/v1/warning/information/edit', {
-				// 				id, processing_result: status, processing_instructions: res.content
-				// 			}, 'post').then(res => {
-				// 				if (res.code === 200) {
-				// 					uni.showToast({
-				// 						title: '操作成功'
-				// 					})
-				// 					this.list = this.list.filter(l => l.id !== id)
-				// 				}
-				// 			})
-				// 		}
-				// 	}
-				// })
-			},
-			getList() {
-				this.loading = true
-				this.API.apiRequest('/api/v1/alarm/info/history', {
-					page: this.page,
-					page_size: this.pageSize
-				}, 'get').then(res => {
-					if (res.code === 200) {
-						const list = res.data.list || []
-						this.list = this.list.concat(list)
-						if (list.length < this.pageSize) {
-							this.loadEnd = true
-						}
-					}
-				}).finally(() => {
-					this.loading = false
-				})
-			}
-		},
-		onLoad() {
-			this.getList()
-		},
-		onReachBottom() {
-			if (!this.loadEnd && !this.loading) {
-				this.page++
-				this.getList()
-			}
-		},
-		onPullDownRefresh() {
-			if (!this.loading) {
-				this.page = 1
-				this.loadEnd = false
-				this.getList()		
+
+export default {
+	components: {NotofyDialog},
+	data() {
+		return {
+			page: 1,
+			pageSize: 10,
+			loadEnd: false,
+			loading: false,
+			list: [],
+			showDialog: false,
+			handleInfo: {
+				id: '',
+				status: ''
 			}
 		}
+	},
+	onShow() {
+		uni.setNavigationBarTitle({
+			title: this.$t('pages.notifyTitle')
+		})
+	},
+	methods: {
+		formatDate(date) {
+			return dayjs(date).format('YYYY-MM-DD HH:mm')
+		},
+		closeDialog(refresh){
+			this.showDialog = false
+			if(refresh){
+				this.list = this.list.filter(l => l.id !== this.handleInfo.id)
+			}
+			this.handleInfo = {id :'', status: ''}
+		},
+		
+		async goDetail(item) {
+			if (!item) {
+				console.error('Invalid item data:', item);
+				return;
+			}
+			try {
+				const res = await new Promise((resolve, reject) => {
+					uni.navigateTo({
+						url: '/pages/notify/detail',
+						events: {
+							acceptData: (data) => {
+								console.log('Data received:', data);
+							}
+						},
+						success: resolve,
+						fail: reject
+					});
+				});
+				if (res.eventChannel) {
+					// 添加延迟确保监听器已设置
+					await new Promise(resolve => setTimeout(resolve, 100));
+					res.eventChannel.emit('acceptData', { item: item });
+				} else {
+					console.error('Failed to get event channel');
+				}
+			} catch (err) {
+				console.error('Navigation failed:', err);
+			}
+		},
+
+		process(id, status) {
+			this.showDialog = true
+			this.handleInfo = {id, status}
+			// uni.showModal({
+			// 	title: `点击确定${status === '1' ? '处理' : '忽略'}警告`,
+			// 	confirmText: '确定',
+			// 	cancelText: '取消',
+			// 	editable: status === '1',
+			// 	placeholderText: '选填',
+			// 	success: res => {
+			// 		if (res.confirm) {
+			// 			this.API.apiRequest('/api/v1/warning/information/edit', {
+			// 				id, processing_result: status, processing_instructions: res.content
+			// 			}, 'post').then(res => {
+			// 				if (res.code === 200) {
+			// 					uni.showToast({
+			// 						title: '操作成功'
+			// 					})
+			// 					this.list = this.list.filter(l => l.id !== id)
+			// 				}
+			// 			})
+			// 		}
+			// 	}
+			// })
+		},
+		getList() {
+			this.loading = true
+			this.API.apiRequest('/api/v1/alarm/info/history', {
+				page: this.page,
+				page_size: this.pageSize
+			}, 'get').then(res => {
+				if (res.code === 200) {
+					const list = res.data.list || []
+					this.list = this.list.concat(list)
+					if (list.length < this.pageSize) {
+						this.loadEnd = true
+					}
+				}
+			}).finally(() => {
+				this.loading = false
+			})
+		}
+	},
+	onLoad() {
+		this.getList()
+	},
+	onReachBottom() {
+		if (!this.loadEnd && !this.loading) {
+			this.page++
+			this.getList()
+		}
+	},
+	onPullDownRefresh() {
+		if (!this.loading) {
+			this.page = 1
+			this.loadEnd = false
+			this.getList()		
+		}
 	}
+}
 </script>
 
 <style scoped>
@@ -158,6 +189,7 @@ import NotofyDialog from '@/components/notify-dialog'
 	padding: 6px;
 	border-radius: 4px;
 	background-color: #fff;
+	cursor: pointer;
 }
 .item ~ .item{
 	margin-top: 12px;
