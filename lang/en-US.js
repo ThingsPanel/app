@@ -42,7 +42,8 @@ export default {
   pages: {
     loginTitle: 'Log In',
     register: 'Register',
-    notifyTitle: 'Notifications',
+    notifyTitle: 'Alerts',
+    notifyDetailTitle: 'Alert Details',
     deviceList: 'Device List',
     intelligentControlTitle: 'Intelligent Control',
     userCenter: 'User Center',
@@ -423,7 +424,19 @@ export default {
         L: 'Low',
         M: 'Medium',
         H: 'High'
-      }
+      },
+      alarmStatus: 'Alert Status',
+      alarmStatuses: {
+        N: 'Normal',
+        L: 'Low Alert',
+        M: 'Intermediate Alert',
+        H: 'High Alert',
+      },
+      sceneLinkageName: 'Associated Automation Name',
+      alarmDescription: 'Alert Description',
+      alarmDevices: 'List of alert devices',
+      deviceID: 'Device Code',
+      deviceName: 'Device Name',
     },
     sceneRuleDetail: {
       ruleName: 'Rule Name',

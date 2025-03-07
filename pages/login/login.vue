@@ -139,11 +139,36 @@ import login from "../../store/login";
 					email:this.email,
 					password:this.password
 				};
+				let cid = '';
 				this.API.apiRequest('/api/v1/login', {
 					email:this.email,
 					password:this.password
 				}, 'post').then(res => {
 					if (res.code == 200) {
+						// Get push ID
+						uni.getPushClientId({
+							success: (res) => {
+								cid = res.cid;
+								console.log("Client Id for push notification: " + cid);
+							},
+							fail(err) {
+								console.log(err)
+							}
+						});
+						this.API.apiRequest('/api/v1/push-id', {
+							// according to design spec, user id and device tyep is also required param, 
+							// user_id: this.email
+							// device_type: ???
+							push_id: cid
+						}, 'post').then(res => {
+							if(res.statusCode === 200){
+								uni.setStorageSync('push_id', cid);
+								console.log("Register client push ID in server successfully");
+							}
+						}).catch(err => {
+							uni.setStorageSync('push_id', cid);
+							console.log("Failed to register client push ID in server");
+						})
 						uni.setStorageSync('email', this.email)
 						uni.setStorageSync('password', this.password)
 						uni.setStorageSync('access_token',res.data.token)

@@ -151,12 +151,24 @@
 					title: this.$t('ucenter.loading')
 				});
 				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
+					const push_id = uni.getStorageSync('push_id');
+					console.log('get push id from storage: ', push_id);
 					if (res.code == 200) {
 							uni.removeStorageSync('access_token')
 							uni.removeStorageSync('wx_code')
 							uni.removeStorageSync('ywId')
 							uni.removeStorageSync('email')
 							uni.removeStorageSync('password')
+							this.API.apiRequest('/api/v1/push-id/logout', {
+								push_id: push_id
+							}, 'post').then(res => {
+								uni.removeStorageSync('push_id');
+								if (res.code == 200) {
+									console.log('unregister push id success');
+								} else {
+									console.log('unregister push id failed');
+								}
+							})
 							uni.reLaunch({
 								url: '../login/login'
 							})
