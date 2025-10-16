@@ -16,7 +16,8 @@
 
 ## 演示
 
-[演示平台（扫码）](http://wiki.thingspanel.cn/index.php?title=%E6%BC%94%E7%A4%BA%E5%B9%B3%E5%8F%B0)
+- 安卓 [中文官网（扫码下载）](http://thingspanel.cn) 
+- 苹果iOS请到Appstore 搜索 ThingsPanel
 
 ## 截图
 
