@@ -286,24 +286,24 @@
   .placeholder {
     color: #999;
   }
-  /deep/.uni-icons.uniui-calendar {
+  ::v-deep .uni-icons.uniui-calendar {
     display: none;
   }
-  /deep/.uni-date-x {
+  ::v-deep .uni-date-x {
     padding: 0 26rpx;
     background-color: transparent;
   }
-  /deep/.uni-date__x-input {
+  ::v-deep .uni-date__x-input {
     font-size: 26rpx;
     text-align: left;
     height: 80rpx;
     padding: 0;
   }
-  /deep/.uni-input-placeholder.input-placeholder {
+  ::v-deep .uni-input-placeholder.input-placeholder {
     color: #999;
   }
   
-  /deep/.tooltip-c > .uni-tooltip-popup {
+  ::v-deep .tooltip-c > .uni-tooltip-popup {
     max-width: 70vmin;
   }
 </style>

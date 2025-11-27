@@ -293,7 +293,7 @@ export default {
 <style>
 	@import '@/common/alert-strategy.css';
   
-  .tooltip /deep/.uni-tooltip-popup {
+  .tooltip ::v-deep .uni-tooltip-popup {
     width: max-content;
     left: initial;
     right: 0;
@@ -303,31 +303,31 @@ export default {
     font-size: 26rpx;
   }
   
-  /deep/.uni-input {
+  ::v-deep .uni-input {
     font-size: 26rpx;
   }
-  /deep/.uni-input-input {
+  ::v-deep .uni-input-input {
     color: #000;
   }
   
-  /deep/.uni-input .uni-input-placeholder.input-placeholder {
+  ::v-deep .uni-input .uni-input-placeholder.input-placeholder {
     color: #999;
   }
   
   
-  /deep/.uniui-forward, 
-  /deep/.uniui-clear {
+  ::v-deep .uniui-forward, 
+ ::v-deep .uniui-clear {
     font-size: 28rpx !important;
     color: #999 !important;
     vertical-align: middle;
     margin-right: 12rpx;
   }
   
-  /deep/.uniui-clear {
+::v-deep .uniui-clear {
     font-size: 36rpx !important;
   }
   
-  /deep/.uni-icons {
+  ::v-deep .uni-icons {
     display: block;
   }
   
@@ -335,22 +335,22 @@ export default {
     color: #333;
   }
   
-  /deep/.checklist-text > span {
+  ::v-deep .checklist-text > span {
     font-size: 26rpx;
   }
   
-  /deep/.tp-panel {
+  ::v-deep .tp-panel {
     border-radius: 10rpx;
     overflow: hidden;
   }
   
-  /deep/.item2 {
+  ::v-deep .item2 {
     border-bottom: 1rpx solid #dfdfdf;
   }
-  /deep/.item > .tp-flex-1 + .tp-flex-1 {
+  ::v-deep .item > .tp-flex-1 + .tp-flex-1 {
     margin-left: 20rpx;
   }
-  /deep/.item + .item {
+  ::v-deep .item + .item {
     border-top: 1rpx solid #f1f1f1;
   }
 </style>

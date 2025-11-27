@@ -1521,7 +1521,7 @@
 		border: none
 	}
 
-	/deep/ .uni-icons {
+	::v-deep .uni-icons {
 		display: none !important;
 	}
 

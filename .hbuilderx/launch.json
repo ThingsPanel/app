@@ -4,6 +4,9 @@
     "version" : "0.0",
     "configurations" : [
         {
+            "app" : {
+                "launchtype" : "local"
+            },
             "app-plus" : {
                 "launchtype" : "remote"
             },
@@ -24,7 +27,8 @@
             "type" : "uni-app:app-ios"
         },
         {
-            "playground" : "custom",
+            "customPlaygroundType" : "device",
+            "playground" : "standard",
             "type" : "uni-app:app-android"
         }
     ]
