@@ -12,11 +12,13 @@ export default {
     ok: 'OK',
   },
   login: {
-    title: 'Login',
+    title: 'Sign In',
     username: 'Username',
     password: 'Password',
-    loginBtn: 'Login',
-    registerBtn: 'Register'
+    loginBtn: 'Sign In',
+    registerBtn: 'Sign Up',
+    noAccount: 'No account?',
+    language: 'Language',
   },
   ucenter: {
     notLoggedIn: 'Not Logged In/Register',
@@ -378,7 +380,7 @@ export default {
       emailPlaceholder: 'Please enter email',
       passwordPlaceholder: 'Please enter password',
       loginButton: 'Login',
-      registerButton: 'Register',
+      registerButton: 'Sign Up',
       cancelLogin: 'Cancel Login',
       loginSuccess: 'Login successful',
       networkError: 'Network error, please try again later',
@@ -387,8 +389,10 @@ export default {
     },
     register: {
       title: 'Register',
+      subtitle: 'Create your ThingsPanel account',
+      hasAccount: 'Already have an account?',
       emailPlaceholder: 'Please enter email',
-      codePlaceholder: 'Please enter verification code',
+      codePlaceholder: 'verification code',
       getCode: 'Get verification code',
       phonePlaceholder: 'Please enter phone number',
       passwordPlaceholder: 'Please enter password',
@@ -409,6 +413,7 @@ export default {
       },
       messages: {
         codeSent: 'Verification code sent',
+        codeSending: 'Sending...',
         codeFailed: 'Failed to send verification code',
         registerSuccess: 'Registration successful',
         registerFailed: 'Registration failed'

@@ -377,15 +377,18 @@ export default {
       emailPlaceholder: '请输入邮箱',
       passwordPlaceholder: '请输入密码',
       loginButton: '登录',
-      registerButton: '注册',
+      registerButton: '免费注册',
       cancelLogin: '取消登录',
       loginSuccess: '登录成功',
       networkError: '网络错误，请稍后再试',
       loading: '加载中',
-      authDescription: '登录'
+      authDescription: '登录',
+      noAccount: '没有账号？',
     },
     register: {
       title: '注册',
+      subtitle: '创建您的 ThingsPanel 账号',
+      hasAccount: '已经有账号？',
       emailPlaceholder: '请输入邮箱',
       codePlaceholder: '请输入验证码',
       getCode: '获取验证码',
@@ -408,6 +411,7 @@ export default {
       },
       messages: {
         codeSent: '验证码已发送',
+        codeSending: '发送中...',
         codeFailed: '验证码发送失败',
         registerSuccess: '注册成功',
         registerFailed: '注册失败'
