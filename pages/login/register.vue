@@ -9,42 +9,53 @@
 		<view class="plain-container">
 			<view class="card-title plain-title">{{ $t('pages.register.title') }}</view>
 			<view class="card-subtitle plain-subtitle">{{ $t('pages.register.subtitle') || $t('pages.register.messages.codeSent') }}</view>
-			<form class="form-area" @submit.prevent="handleSubmit">
+			<view class="form-area" @submit.prevent="handleSubmit">
 				<!-- 邮箱输入 -->
 				<view class="form-item">
-					<input class="uni-input" type="text" v-model="formData.email"
-						:placeholder="$t('pages.register.emailPlaceholder')" @blur="validateEmail" />
+					<view class="tp-ipt">
+						<input class="uni-input" type="text" v-model="formData.email"
+							:placeholder="$t('pages.register.emailPlaceholder')" @blur="validateEmail" />
+					</view>
 					<text class="error-tip" v-if="errors.email">{{errors.email}}</text>
 				</view>
 
 				<!-- 验证码输入 -->
-				<view class="form-item code-input">
-					<input class="uni-input" type="text" v-model="formData.code"
-						:placeholder="$t('pages.register.codePlaceholder')" @blur="validateCode" />
-					<button class="code-btn" type="button" @click="handleSmsCode" :disabled="loading">
-						{{ loading ? $t('pages.register.messages.codeSending') || '...' : $t('pages.register.getCode') }}
-					</button>
+				<view class="form-item">
+					<view class="tp-ipt has-code-btn" style="padding: 0 12px;padding-right: 0;">
+						<input class="uni-input" type="text" v-model="formData.code"
+							:placeholder="$t('pages.register.codePlaceholder')" @blur="validateCode" />
+						<button class="code-btn" type="button" @click="handleSmsCode" :disabled="loading">
+							{{ loading ? $t('pages.register.messages.codeSending') || '...' : $t('pages.register.getCode') }}
+						</button>
+					</view>
 					<text class="error-tip" v-if="errors.code">{{errors.code}}</text>
 				</view>
 
 				<!-- 手机号输入 -->
 				<view class="form-item">
-					<input class="uni-input" type="number" v-model="formData.phone"
-						:placeholder="$t('pages.register.phonePlaceholder')" @blur="validatePhone" />
+					<view class="tp-ipt">
+						<input class="uni-input" type="number" v-model="formData.phone"
+							:placeholder="$t('pages.register.phonePlaceholder')" @blur="validatePhone" />
+					</view>
 					<text class="error-tip" v-if="errors.phone">{{errors.phone}}</text>
 				</view>
 
 				<!-- 密码输入 -->
 				<view class="form-item">
-					<input class="uni-input" type="password" v-model="formData.pwd"
-						:placeholder="$t('pages.register.passwordPlaceholder')" @blur="validatePassword" />
+					<view class="tp-ipt">
+						<input class="uni-input" type="password" v-model="formData.pwd"
+							:placeholder="$t('pages.register.passwordPlaceholder')" @blur="validatePassword" />
+					</view>
 					<text class="error-tip" v-if="errors.pwd">{{errors.pwd}}</text>
 				</view>
 
 				<!-- 确认密码 -->
 				<view class="form-item">
-					<input class="uni-input" type="password" v-model="formData.confirmPwd"
-						:placeholder="$t('pages.register.confirmPasswordPlaceholder')" @blur="validateConfirmPassword" />
+					<view class="tp-ipt">
+						<input class="uni-input" type="password" v-model="formData.confirmPwd"
+							:placeholder="$t('pages.register.confirmPasswordPlaceholder')"
+							@blur="validateConfirmPassword" />
+					</view>
 					<text class="error-tip" v-if="errors.confirmPwd">{{errors.confirmPwd}}</text>
 				</view>
 				<view class="btn-group">
@@ -53,7 +64,7 @@
 						{{ $t('pages.register.registerButton') }}
 					</button>
 				</view>
-			</form>
+			</view>
 
 			<view class="foot-tip center">
 				<text>{{ $t('pages.register.hasAccount') || 'Already have an account?' }}</text>
@@ -306,10 +317,15 @@ export default {
 	justify-content: flex-start;
 	gap: 40rpx;
 	min-height: 100vh;
+  background-image: url('/static/image/bg.png');
+	background-size: cover;
+	background-position: top center;
+	background-repeat: no-repeat;
 }
 
 .plain-header {
 	width: 100%;
+  margin-top: 30rpx;
 	max-width: 640rpx;
 	display: flex;
 	align-items: center;
@@ -327,10 +343,6 @@ export default {
 	background: rgba(100, 108, 255, 0.08);
 	color: #646cff;
 	font-size: 24rpx;
-}
-
-.lang-label {
-	font-weight: 600;
 }
 
 .plain-container {
@@ -359,6 +371,10 @@ export default {
 	width: 100%;
 }
 
+.form-area {
+	gap: 24rpx;
+}
+
 .plain-container .form-area,
 .plain-container .btn-group,
 .plain-container .foot-tip {
@@ -368,36 +384,40 @@ export default {
 }
 
 .form-item {
-	margin-bottom: 20rpx;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	gap: 12rpx;
 }
 
 .uni-input {
-	width: 100%;
-	height: 92rpx;
-	border-radius: 20rpx;
-	border: 1rpx solid #dfe3ec;
-	background: #fff;
-	padding: 0 26rpx;
+	flex: 1;
+	height: 52rpx;
+	border: none;
+	background: transparent;
+	padding: 0;
 	font-size: 28rpx;
 	color: #111826;
 	box-sizing: border-box;
 }
 
-.code-input {
-	position: relative;
+.tp-ipt.has-code-btn {
+	gap: 16rpx;
+}
+
+.form-area .tp-ipt {
+	border: 0.5px solid #e2e8f0;
+	background: #f8fafc;
 }
 
 .code-btn {
-	position: absolute;
-	right: 0;
-	top: 50%;
-	transform: translateY(-50%);
 	font-size: 24rpx;
 	background: #4f46e5;
 	color: #fff;
 	border-radius: 16rpx;
 	padding: 12rpx 26rpx;
 	border: none;
+	flex-shrink: 0;
 }
 
 .code-btn[disabled] {

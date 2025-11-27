@@ -38,7 +38,7 @@
 					@tap="doLoginSubmit">{{ $t('pages.login.loginButton') }}</button>
 			</view>
 
-			<view class="foot-tip center">
+			<view class="foot-tip center" style="margin-top: 0;">
 				<!-- <text>{{ $t('pages.login.noAccount') || 'No account?' }}</text> -->
 				<text class="link-text" @tap="goToRegister">{{ $t('pages.login.registerButton') }}</text>
 			</view>
@@ -272,11 +272,16 @@ export default {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
+	background-image: url('/static/image/bg.png');
+	background-size: cover;
+	background-position: top center;
+	background-repeat: no-repeat;
 	gap: 40rpx;
 	min-height: 100vh;
 }
 
 .plain-header {
+	margin-top: 30rpx;
 	width: 100%;
 	max-width: 640rpx;
 	display: flex;
@@ -295,10 +300,6 @@ export default {
 	background: rgba(100, 108, 255, 0.08);
 	color: #646cff;
 	font-size: 24rpx;
-}
-
-.lang-label {
-	font-weight: 600;
 }
 
 .plain-container {
