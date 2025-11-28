@@ -10,6 +10,8 @@ export default {
     none: '无',
     close: '关闭',
     ok: '确定',
+    search: '搜索',
+    noData: '暂无数据',
   },
   login: {
     title: '登录',
@@ -385,6 +387,17 @@ export default {
       loading: '加载中',
       authDescription: '登录',
       noAccount: '没有账号？',
+      errors: {
+        emailRequired: '请输入邮箱',
+        invalidEmail: '请输入正确的邮箱格式',
+        passwordRequired: '请输入密码',
+        passwordTooShort: '密码至少需要6个字符',
+        emailOrPasswordError: '邮箱或密码错误',
+        userNotFound: '用户不存在',
+        accountDisabled: '账号已被禁用',
+        loginFailed: '登录失败，请稍后再试',
+        unauthorized: '未授权，请重新登录'
+      },
     },
     register: {
       title: '注册',

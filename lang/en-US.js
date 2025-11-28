@@ -10,6 +10,8 @@ export default {
     none: 'None',
     close: 'Close',
     ok: 'OK',
+    search: 'Search',
+    noData: 'No Data',
   },
   login: {
     title: 'Sign In',
@@ -386,7 +388,18 @@ export default {
       loginSuccess: 'Login successful',
       networkError: 'Network error, please try again later',
       loading: 'Loading',
-      authDescription: 'Login'
+      authDescription: 'Login',
+      errors: {
+        emailRequired: 'Please enter email',
+        invalidEmail: 'Please enter a valid email address',
+        passwordRequired: 'Please enter password',
+        passwordTooShort: 'Password must be at least 6 characters',
+        emailOrPasswordError: 'Email or password is incorrect',
+        userNotFound: 'User not found',
+        accountDisabled: 'Account has been disabled',
+        loginFailed: 'Login failed, please try again later',
+        unauthorized: 'Unauthorized, please login again'
+      }
     },
     register: {
       title: 'Register',

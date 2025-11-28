@@ -146,8 +146,60 @@ export default {
 			}
 			this.disabled = true;
 		},
+		// 验证邮箱格式
+		validateEmail() {
+			if (!this.email || !this.email.trim()) {
+				this.handleError(this.$t('pages.login.errors.emailRequired'));
+				return false;
+			}
+			const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+			if (!emailRegex.test(this.email.trim())) {
+				this.handleError(this.$t('pages.login.errors.invalidEmail'));
+				return false;
+			}
+			return true;
+		},
+		// 验证密码
+		validatePassword() {
+			if (!this.password || !this.password.trim()) {
+				this.handleError(this.$t('pages.login.errors.passwordRequired'));
+				return false;
+			}
+			return true;
+		},
+		// 翻译服务器错误消息
+		translateErrorMessage(message) {
+			if (!message) {
+				return this.$t('pages.login.errors.loginFailed');
+			}
+			// 常见错误消息映射
+			const errorMap = {
+				'邮箱或密码错误': 'pages.login.errors.emailOrPasswordError',
+				'用户不存在': 'pages.login.errors.userNotFound',
+				'账号已被禁用': 'pages.login.errors.accountDisabled',
+				'未授权': 'pages.login.errors.unauthorized',
+				'Email or password is incorrect': 'pages.login.errors.emailOrPasswordError',
+				'User not found': 'pages.login.errors.userNotFound',
+				'Account has been disabled': 'pages.login.errors.accountDisabled',
+				'Unauthorized': 'pages.login.errors.unauthorized',
+			};
+			// 检查密码长度验证错误（支持多种格式）
+			if (message.includes('Password') && (message.includes('failed validation') || message.includes('At least') || message.includes('至少'))) {
+				return this.$t('pages.login.errors.passwordTooShort');
+			}
+			// 检查是否有对应的翻译键
+			if (errorMap[message]) {
+				return this.$t(errorMap[message]);
+			}
+			// 如果没有匹配，返回原始消息（可能是已经翻译过的）
+			return message;
+		},
 		//登录
 		doLoginSubmit: function () {
+			// 前端校验
+			if (!this.validateEmail() || !this.validatePassword()) {
+				return;
+			}
 			// #ifdef MP-WEIXIN
 			if (uni.getStorageSync('isAuth') == '1') {
 				this.toLogin()
@@ -217,7 +269,9 @@ export default {
 						icon: 'none'
 					});
 				} else {
-					this.handleError(res.message);
+					// 翻译服务器返回的错误消息
+					const translatedMessage = this.translateErrorMessage(res.message);
+					this.handleError(translatedMessage);
 				}
 			}).catch(err => {
 				this.handleError(this.$t('pages.login.networkError')); // 处理网络错误
@@ -246,7 +300,7 @@ export default {
 					that.toLogin()
 				},
 				fail: err => {
-					console.log('未授权err==', err);
+					console.log('Authorization failed:', err);
 				}
 			});
 		},

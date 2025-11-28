@@ -50,9 +50,6 @@
         </view>
       </view>
 
-      <!-- 消息提示框 -->
-      <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
-
       <Modal 
         v-model="visible" 
         :title="$t('common.save')" 
@@ -83,9 +80,6 @@ export default {
   },
   data() {
     return {
-      toast: {
-        msg: ''
-      },
       editId: '',
       formData: {
         info: {
@@ -160,8 +154,11 @@ export default {
             this.formData = { ...res.data, actions: this.convertActionsData(res.data.actions) };
             //this.formData.actions = this.convertActionsData(this.formData.actions);
           } else {
-            this.toast.msg = res.message;
-            this.$refs.toast.show();
+            uni.showToast({
+              title: res.message,
+              icon: 'none',
+              duration: 2000
+            });
           }
         })
         .finally(() => {
@@ -213,8 +210,11 @@ export default {
       const { actions } = this.formData;
 
       if (!name) {
-          this.toast.msg = this.$t('pages.sceneDetail.enterSceneTitle');
-        this.$refs.toast.show();
+        uni.showToast({
+          title: this.$t('pages.sceneDetail.enterSceneTitle'),
+          icon: 'none',
+          duration: 2000
+        });
         return;
       }
 
@@ -246,8 +246,11 @@ export default {
           if (res.code == 200) {
             uni.navigateBack(-1);
           } else {
-            this.toast.msg = res.message;
-            this.$refs.toast.show();
+            uni.showToast({
+              title: res.message,
+              icon: 'none',
+              duration: 2000
+            });
           }
         })
         .finally(() => {
@@ -440,46 +443,30 @@ export default {
 
   /* Modern Button */
   .button-wrapper {
-    padding: 0 30rpx;
-    margin-top: 40rpx;
+    position: relative;
+    padding: 40rpx 0;
   }
 
   .modern-btn {
     width: 100%;
-    height: 96rpx;
-    line-height: 96rpx;
-    background: linear-gradient(135deg, #646cff 0%, #7c3aed 100%);
-    border-radius: 24rpx;
-    font-size: 32rpx;
+    height: 88rpx;
+    line-height: 88rpx;
+    background: #646cff;
+    border-radius: 32rpx;
+    font-size: 30rpx;
     font-weight: 600;
     color: #ffffff;
     border: none;
-    box-shadow: 0 8rpx 24rpx rgba(100, 108, 255, 0.3);
+    box-shadow: 0 8rpx 24rpx rgba(100, 108, 255, 0.3), 0 2rpx 8rpx rgba(100, 108, 255, 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-
-    &::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.3);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
-    }
-
+    
     &:active {
       transform: scale(0.98);
-      box-shadow: 0 4rpx 12rpx rgba(100, 108, 255, 0.2);
-
-      &::before {
-        width: 300rpx;
-        height: 300rpx;
-      }
+      box-shadow: 0 4rpx 12rpx rgba(100, 108, 255, 0.25), 0 1rpx 4rpx rgba(100, 108, 255, 0.15);
+    }
+    
+    &::after {
+      border: none;
     }
   }
 

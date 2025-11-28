@@ -66,9 +66,6 @@
 			</view>
 		</view>
     
-		<!-- 消息提示框 -->
-		<cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
-    
 		<Modal v-model="visible" :title="$t('pages.sceneRuleDetail.save')" :text="$t('pages.sceneRuleDetail.saveConfirm')" @cancel='cancel' @confirm='confirm' />
 	</view>
 </template>
@@ -89,9 +86,6 @@
     },
 		data() {
 			return {
-        toast: {
-        	msg: ''
-        },
         visible: false,
         
 				formData: {},
@@ -151,8 +145,11 @@
               ]
             }
       		} else {
-      			this.toast.msg = res.message
-      			this.$refs.toast.show();
+      			uni.showToast({
+      				title: res.message,
+      				icon: 'none',
+      				duration: 2000
+      			});
       		}
       	}).finally(() => {
       		uni.hideLoading()
@@ -372,8 +369,11 @@
         
         const baseInfo = this.validateBaseInfo()
         if (baseInfo.result !== true) {
-          this.toast.msg = baseInfo.result
-          this.$refs.toast.show()
+          uni.showToast({
+            title: baseInfo.result,
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.tenant_id = this.formData.tenant_id
@@ -384,8 +384,11 @@
         }
         const conditionsInfo = this.handleConditionsData(this.$refs.conditions.ifGroupsData());
         if (!conditionsInfo || conditionsInfo.length === 0) {
-          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleConditions')
-          this.$refs.toast.show()
+          uni.showToast({
+            title: this.$t('pages.sceneRuleDetail.enterRuleConditions'),
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.trigger_condition_groups = conditionsInfo
@@ -400,8 +403,11 @@
         }*/
         const actionsInfo = this.handleActionData(this.formData.actions);
         if (!actionsInfo || actionsInfo.length === 0) {
-          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleActions')
-          this.$refs.toast.show()
+          uni.showToast({
+            title: this.$t('pages.sceneRuleDetail.enterRuleActions'),
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.actions = actionsInfo
@@ -434,8 +440,11 @@
         	if (res.code == 200) {
         		uni.navigateBack(-1)
         	} else {
-        		this.toast.msg = res.message
-        		this.$refs.toast.show();
+        		uni.showToast({
+        			title: res.message,
+        			icon: 'none',
+        			duration: 2000
+        		});
         	}
         }).finally(() => {
         	uni.hideLoading()

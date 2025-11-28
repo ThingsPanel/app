@@ -182,6 +182,10 @@ radio-group label, checkbox-group label{
 	color: #646cff;
 }
 
+.modal-container .modal-content .modal-row .modal-confirm {
+	color: #646cff !important;
+}
+
 .uni-form-item .with-fun{
 	display:flex;
 	flex-wrap:nowrap;

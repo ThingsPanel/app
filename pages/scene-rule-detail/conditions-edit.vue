@@ -22,65 +22,94 @@
                     <text class="tag-class">{{ $t('pages.sceneRuleDetail.and') }}</text>
                 </view>
                 <!-- 条件类型下拉-->
-                <CustomSelect
-                  v-model="ifItem.ifType"
-                  :options="getIfTypeOptions(ifGroupItem, ifIndex)"
-                  option-value="value"
-                  option-label="label"
-                  :placeholder="$t('pages.sceneRuleDetail.selectConditionType')"
-                  @change="(value) => ifTypeChange(ifItem, value)"
-                />
+                <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                  <picker
+                    mode="selector"
+                    :range="getIfTypeOptions(ifGroupItem, ifIndex)"
+                    range-key="label"
+                    :value="getPickerIndex(getIfTypeOptions(ifGroupItem, ifIndex), ifItem.ifType, 'value')"
+                    @change="(e) => onIfTypePickerChange(e, ifItem)"
+                    class="tp-flex-1"
+                  >
+                    <view class="uni-input" :class="!ifItem.ifType && 'placeholder'">
+                      {{ getPickerDisplayText(getIfTypeOptions(ifGroupItem, ifIndex), ifItem.ifType, 'value', 'label') || $t('pages.sceneRuleDetail.selectConditionType') }}
+                    </view>
+                  </picker>
+                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                </view>
                 <view v-if="ifItem.ifType === '1'" class="flex-1">
                   <!-- 设备条件类型下拉-->
-                  <CustomSelect
-                    v-model="ifItem.trigger_conditions_type"
-                    :options="deviceConditionOptions"
-                    option-value="value"
-                    option-label="label"
-                    :placeholder="$t('pages.sceneRuleDetail.selectDeviceConditionType')"
-                    @change="(value) => triggerConditionsTypeChange(ifItem, value)"
-                  />
+                  <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                    <picker
+                      mode="selector"
+                      :range="deviceConditionOptions"
+                      range-key="label"
+                      :value="getPickerIndex(deviceConditionOptions, ifItem.trigger_conditions_type, 'value')"
+                      @change="(e) => onDeviceConditionTypePickerChange(e, ifItem)"
+                      class="tp-flex-1"
+                    >
+                      <view class="uni-input" :class="!ifItem.trigger_conditions_type && 'placeholder'">
+                        {{ getPickerDisplayText(deviceConditionOptions, ifItem.trigger_conditions_type, 'value', 'label') || $t('pages.sceneRuleDetail.selectDeviceConditionType') }}
+                      </view>
+                    </picker>
+                    <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                  </view>
                   <view v-if="ifItem.trigger_conditions_type === '10'">
                     <!-- 选择设备-->
-                    <CustomSelect
-                      v-model="ifItem.trigger_source"
-                      :options="deviceOptions"
-                      option-value="id"
-                      option-label="name"
-                      :placeholder="$t('pages.sceneRuleDetail.selectDevice')"
-                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); actionParamShow(ifItem, true); }"
-                    />
+                    <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                      <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDevicePopup(ifItem, ifIndex)">
+                        <view class="uni-input" :class="!ifItem.trigger_source && 'placeholder'">
+                          {{ getDeviceDisplayText(ifItem.trigger_source) || $t('pages.sceneRuleDetail.selectDevice') }}
+                        </view>
+                      </view>
+                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    </view>
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '11'">
                     <!-- 选择设备类型-->
-                    <CustomSelect
-                      v-model="ifItem.trigger_source"
-                      :options="deviceConfigOption"
-                      option-value="id"
-                      option-label="name"
-                      :placeholder="$t('pages.sceneRuleDetail.selectDeviceType')"
-                      @change="(value) => { ifItem.trigger_source = value; triggerSourceChange(ifItem, ifIndex); actionParamShow(ifItem, true); }"
-                    />
+                    <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                      <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDeviceConfigPopup(ifItem, ifIndex)">
+                        <view class="uni-input" :class="!ifItem.trigger_source && 'placeholder'">
+                          {{ getDeviceConfigDisplayText(ifItem.trigger_source) || $t('pages.sceneRuleDetail.selectDeviceType') }}
+                        </view>
+                      </view>
+                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    </view>
                   </view>
                   <view v-if="ifItem.trigger_source">
                     <!-- 选择触发参数-->
-                    <CustomSelect
-                      v-model="ifItem.trigger_param_key"
-                      :options="ifItem.triggerParamFlattenedOptions"
-                      option-value="key"
-                      option-label="fullLabel"
-                      :placeholder="$t('pages.sceneRuleDetail.selectParameter')"
-                      @change="(value) => { triggerParamChange(ifItem, value); actionParamShow(ifItem, true); } "
-                    />
+                    <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                      <picker
+                        mode="selector"
+                        :range="ifItem.triggerParamFlattenedOptions || []"
+                        range-key="fullLabel"
+                        :value="getPickerIndex(ifItem.triggerParamFlattenedOptions || [], ifItem.trigger_param_key, 'key')"
+                        @change="(e) => onTriggerParamPickerChange(e, ifItem)"
+                        class="tp-flex-1"
+                      >
+                        <view class="uni-input" :class="!ifItem.trigger_param_key && 'placeholder'">
+                          {{ getPickerDisplayText(ifItem.triggerParamFlattenedOptions || [], ifItem.trigger_param_key, 'key', 'fullLabel') || $t('pages.sceneRuleDetail.selectParameter') }}
+                        </view>
+                      </picker>
+                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    </view>
                     <view v-if="ifItem.trigger_param_type === 'telemetry' || ifItem.trigger_param_type === 'attributes'">
                       <!-- 选择操作符-->
-                      <CustomSelect
-                        v-model="ifItem.trigger_operator"
-                        :options="determineOptions"
-                        option-value="value"
-                        option-label="label"
-                        :placeholder="$t('pages.sceneRuleDetail.selectOperator')"
-                      />
+                      <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                        <picker
+                          mode="selector"
+                          :range="determineOptions"
+                          range-key="label"
+                          :value="getPickerIndex(determineOptions, ifItem.trigger_operator, 'value')"
+                          @change="(e) => onTriggerOperatorPickerChange(e, ifItem)"
+                          class="tp-flex-1"
+                        >
+                          <view class="uni-input" :class="!ifItem.trigger_operator && 'placeholder'">
+                            {{ getPickerDisplayText(determineOptions, ifItem.trigger_operator, 'value', 'label') || $t('pages.sceneRuleDetail.selectOperator') }}
+                          </view>
+                        </picker>
+                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      </view>
                       <view v-if="ifItem.trigger_operator === 'in'">
                         <!-- 输入范围值-->
                         <input v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneRuleDetail.commaSeparatedValues')" class="uni-input" />
@@ -104,14 +133,21 @@
                 <!-- 时间条件 -->
                 <view v-if="ifItem.ifType === '2'" class="flex-1">
                   <!-- 时间条件类型下拉-->
-                  <CustomSelect
-                    v-model="ifItem.trigger_conditions_type"
-                    :options="getTimeConditionOptions(ifGroupItem)"
-                    option-value="value"
-                    option-label="label"
-                    :placeholder="$t('pages.sceneRuleDetail.selectTimeConditionType')"
-                    @change="(value) => { ifItem.trigger_conditions_type = value; ifItem.task_type = null; this.$forceUpdate(); }"
-                  />
+                  <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                    <picker
+                      mode="selector"
+                      :range="getTimeConditionOptions(ifGroupItem)"
+                      range-key="label"
+                      :value="getPickerIndex(getTimeConditionOptions(ifGroupItem), ifItem.trigger_conditions_type, 'value')"
+                      @change="(e) => onTimeConditionTypePickerChange(e, ifItem)"
+                      class="tp-flex-1"
+                    >
+                      <view class="uni-input" :class="!ifItem.trigger_conditions_type && 'placeholder'">
+                        {{ getPickerDisplayText(getTimeConditionOptions(ifGroupItem), ifItem.trigger_conditions_type, 'value', 'label') || $t('pages.sceneRuleDetail.selectTimeConditionType') }}
+                      </view>
+                    </picker>
+                    <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                  </view>
                   <view v-if="ifItem.trigger_conditions_type === '20'">
                     <uni-datetime-picker
                       v-model="ifItem.onceTimeValue"
@@ -124,23 +160,40 @@
                       :hide-second="true"
                     />
                     <!-- 过期时间-->
-                    <CustomSelect
-                      v-model="ifItem.expiration_time"
-                      :options="expirationTimeOptions"
-                      option-value="value"
-                      option-label="label"
-                      :placeholder="$t('pages.sceneRuleDetail.selectExpirationTime')"
-                    />
+                    <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                      <picker
+                        mode="selector"
+                        :range="expirationTimeOptions"
+                        range-key="label"
+                        :value="getPickerIndex(expirationTimeOptions, ifItem.expiration_time, 'value')"
+                        @change="(e) => onExpirationTimePickerChange(e, ifItem)"
+                        class="tp-flex-1"
+                      >
+                        <view class="uni-input" :class="!ifItem.expiration_time && 'placeholder'">
+                          {{ getPickerDisplayText(expirationTimeOptions, ifItem.expiration_time, 'value', 'label') || $t('pages.sceneRuleDetail.selectExpirationTime') }}
+                        </view>
+                      </picker>
+                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    </view>
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '21'">
                     <!-- 时间条件下 -> 重复 -> 选择周期 -->
                     <view class="form-item">
-                      <CustomSelect
-                        v-model="ifItem.task_type"
-                        :options="cycleOptions"
-                        :placeholder="$t('pages.sceneRuleDetail.selectCycle')"
-                        @change="(value) => handleCycleChange(ifItem, value)"
-                      />
+                      <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                        <picker
+                          mode="selector"
+                          :range="cycleOptions"
+                          range-key="label"
+                          :value="getPickerIndex(cycleOptions, ifItem.task_type, 'value')"
+                          @change="(e) => onCyclePickerChange(e, ifItem)"
+                          class="tp-flex-1"
+                        >
+                          <view class="uni-input" :class="!ifItem.task_type && 'placeholder'">
+                            {{ getPickerDisplayText(cycleOptions, ifItem.task_type, 'value', 'label') || $t('pages.sceneRuleDetail.selectCycle') }}
+                          </view>
+                        </picker>
+                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      </view>
                     </view>
 
                     <!-- 每小时 -> 选择分 -->
@@ -211,12 +264,21 @@
 
                     <!-- 每月 -> 选择日期和时间 -->
                     <view v-if="ifItem.task_type === 'MONTH'" class="form-item">
-                      <CustomSelect
-                        v-model="ifItem.monthChoseValue"
-                        :value="ifItem.monthChoseValue"
-                        :options="monthRangeOptions"
-                        :placeholder="$t('pages.sceneRuleDetail.selectDate')"
-                      />
+                      <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                        <picker
+                          mode="selector"
+                          :range="monthRangeOptions"
+                          range-key="label"
+                          :value="getPickerIndex(monthRangeOptions, ifItem.monthChoseValue, 'value')"
+                          @change="(e) => onMonthChoseValuePickerChange(e, ifItem)"
+                          class="tp-flex-1"
+                        >
+                          <view class="uni-input" :class="!ifItem.monthChoseValue && 'placeholder'">
+                            {{ getPickerDisplayText(monthRangeOptions, ifItem.monthChoseValue, 'value', 'label') || $t('pages.sceneRuleDetail.selectDate') }}
+                          </view>
+                        </picker>
+                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      </view>
                       <picker
                         mode="time"
                         v-model="ifItem.monthTimeValue"
@@ -347,11 +409,76 @@
             <button @click.prevent="addIfGroupItem(null)" class="tp-btn">新增条件组</button>
         </view> -->
       </form>
+      
+      <!-- 设备选择弹窗（带搜索） -->
+      <uni-popup ref="devicePopup" type="bottom" backgroundColor="#fff">
+        <view class="popup-header">
+          <view class="popup-title">{{ $t('pages.sceneRuleDetail.selectDevice') }}</view>
+          <view class="popup-close" @tap="closeDevicePopup">
+            <uni-icons type="close" size="24" color="#333"></uni-icons>
+          </view>
+        </view>
+        <view class="popup-search">
+          <input 
+            class="search-input" 
+            :placeholder="$t('common.search')" 
+            v-model="deviceSearchKeyword"
+            @input="onDeviceSearchInput"
+          />
+        </view>
+        <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
+          <view class="selectlist">
+            <view 
+              class="select_item" 
+              v-for="(item, index) in filteredDeviceOptions" 
+              :key="index"
+              @click="onDeviceSelect(item)"
+            >
+              {{ item.name }}
+            </view>
+            <view v-if="filteredDeviceOptions.length === 0" class="select_item empty">
+              {{ $t('common.noData') }}
+            </view>
+          </view>
+        </scroll-view>
+      </uni-popup>
+      
+      <!-- 设备类型选择弹窗（带搜索） -->
+      <uni-popup ref="deviceConfigPopup" type="bottom" backgroundColor="#fff">
+        <view class="popup-header">
+          <view class="popup-title">{{ $t('pages.sceneRuleDetail.selectDeviceType') }}</view>
+          <view class="popup-close" @tap="closeDeviceConfigPopup">
+            <uni-icons type="close" size="24" color="#333"></uni-icons>
+          </view>
+        </view>
+        <view class="popup-search">
+          <input 
+            class="search-input" 
+            :placeholder="$t('common.search')" 
+            v-model="deviceConfigSearchKeyword"
+            @input="onDeviceConfigSearchInput"
+          />
+        </view>
+        <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
+          <view class="selectlist">
+            <view 
+              class="select_item" 
+              v-for="(item, index) in filteredDeviceConfigOptions" 
+              :key="index"
+              @click="onDeviceConfigSelect(item)"
+            >
+              {{ item.name }}
+            </view>
+            <view v-if="filteredDeviceConfigOptions.length === 0" class="select_item empty">
+              {{ $t('common.noData') }}
+            </view>
+          </view>
+        </scroll-view>
+      </uni-popup>
     </view>
   </template>
   
   <script>
-  import CustomSelect from '@/components/custom-select.vue';
   import {
     configMetricsConditionMenu,
     deviceConfigAll,
@@ -361,7 +488,6 @@
   
   export default {
     components: {
-      CustomSelect
     },
     data() {
       return {
@@ -604,7 +730,20 @@
           label: String(i + 1),
           value: String(i + 1),
         })),
+        // 设备选择弹窗相关
+        deviceSearchKeyword: '',
+        filteredDeviceOptions: [],
+        currentDeviceIfItem: null,
+        currentDeviceIfIndex: null,
+        // 设备类型选择弹窗相关
+        deviceConfigSearchKeyword: '',
+        filteredDeviceConfigOptions: [],
+        currentDeviceConfigIfItem: null,
+        currentDeviceConfigIfIndex: null,
       };
+    },
+    computed: {
+      // 计算过滤后的设备选项
     },
     props: {
       conditionData: {
@@ -640,10 +779,18 @@
         return options;
       },
       ifTypeChange(ifItem, value) {
+        // 重置相关字段
         ifItem.trigger_conditions_type = null;
-        // eslint-disable-next-line no-param-reassign
-        ifItem = this.judgeItem;
+        ifItem.trigger_source = null;
+        ifItem.trigger_param_type = null;
+        ifItem.trigger_param = null;
+        ifItem.trigger_param_key = null;
+        ifItem.trigger_operator = null;
+        ifItem.trigger_value = null;
+        ifItem.minValue = null;
+        ifItem.maxValue = null;
         ifItem.ifType = value;
+        this.$forceUpdate();
       },
       triggerConditionsTypeChange(ifItem, value) {
         ifItem.trigger_conditions_type = value;
@@ -661,6 +808,7 @@
           this.deviceConfigDisabled = true;
         }
         this.$emit('conditionChose', value);
+        this.$forceUpdate();
       },
       async getDevice(groupId, name) {
         this.queryDevice.group_id = groupId || null;
@@ -670,6 +818,12 @@
         const res = await deviceListAll(this.queryDevice);
         this.btnloading = true;
         this.deviceOptions = res.data || [];
+        // 更新过滤列表
+        this.filteredDeviceOptions = [...this.deviceOptions];
+        // 数据加载完成后强制更新视图，确保回显正确
+        this.$nextTick(() => {
+          this.$forceUpdate();
+        });
       },
       triggerSourceChange(ifItem, ifIndex) {
         ifItem.trigger_param_type = null;
@@ -688,6 +842,12 @@
         this.queryDeviceConfig.device_config_name = name || '';
         const res = await deviceConfigAll(this.queryDeviceConfig);
         this.deviceConfigOption = res.data || [];
+        // 更新过滤列表
+        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+        // 数据加载完成后强制更新视图，确保回显正确
+        this.$nextTick(() => {
+          this.$forceUpdate();
+        });
       },
       async actionParamShow(ifItem, data) {
         if (data === true && ifItem.trigger_source) {
@@ -921,6 +1081,211 @@
       },
       ifGroupsData() {
         return this.premiseForm.ifGroups;
+      },
+      // Picker 相关方法
+      getPickerIndex(options, value, valueKey = 'value') {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return 0;
+        }
+        if (value === null || value === undefined || value === '') {
+          return 0;
+        }
+        const index = options.findIndex(item => {
+          if (!item) return false;
+          const itemValue = item[valueKey];
+          if (itemValue === value) {
+            return true;
+          }
+          if (String(itemValue) === String(value)) {
+            return true;
+          }
+          const numItem = Number(itemValue);
+          const numValue = Number(value);
+          if (!isNaN(numItem) && !isNaN(numValue) && numItem === numValue) {
+            return true;
+          }
+          return false;
+        });
+        return index >= 0 ? index : 0;
+      },
+      getPickerDisplayText(options, value, valueKey = 'value', labelKey = 'label') {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return '';
+        }
+        if (value === null || value === undefined || value === '') {
+          return '';
+        }
+        const option = options.find(item => {
+          if (!item) return false;
+          const itemValue = item[valueKey];
+          if (itemValue === value) {
+            return true;
+          }
+          if (String(itemValue) === String(value)) {
+            return true;
+          }
+          const numItem = Number(itemValue);
+          const numValue = Number(value);
+          if (!isNaN(numItem) && !isNaN(numValue) && numItem === numValue) {
+            return true;
+          }
+          return false;
+        });
+        return option && option[labelKey] !== undefined && option[labelKey] !== null ? String(option[labelKey]) : '';
+      },
+      // 设备显示文本
+      getDeviceDisplayText(deviceId) {
+        if (!deviceId) return '';
+        const device = this.deviceOptions.find(item => item.id === deviceId || String(item.id) === String(deviceId));
+        return device ? device.name : '';
+      },
+      // 设备类型显示文本
+      getDeviceConfigDisplayText(deviceConfigId) {
+        if (!deviceConfigId) return '';
+        const deviceConfig = this.deviceConfigOption.find(item => item.id === deviceConfigId || String(item.id) === String(deviceConfigId));
+        return deviceConfig ? deviceConfig.name : '';
+      },
+      // Picker change 事件处理
+      onIfTypePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        // 找到包含当前 ifItem 的组
+        let ifGroupItem = null;
+        let ifIndex = -1;
+        for (let i = 0; i < this.premiseForm.ifGroups.length; i++) {
+          const group = this.premiseForm.ifGroups[i];
+          const itemIndex = group.findIndex(item => item === ifItem);
+          if (itemIndex >= 0) {
+            ifGroupItem = group;
+            ifIndex = itemIndex;
+            break;
+          }
+        }
+        const options = this.getIfTypeOptions(ifGroupItem, ifIndex);
+        const selectedValue = options[index] ? options[index].value : null;
+        this.ifTypeChange(ifItem, selectedValue);
+      },
+      onDeviceConditionTypePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = this.deviceConditionOptions[index] ? this.deviceConditionOptions[index].value : null;
+        this.triggerConditionsTypeChange(ifItem, selectedValue);
+      },
+      onTriggerParamPickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = ifItem.triggerParamFlattenedOptions[index] ? ifItem.triggerParamFlattenedOptions[index].key : null;
+        this.triggerParamChange(ifItem, selectedValue);
+        this.actionParamShow(ifItem, true);
+      },
+      onTriggerOperatorPickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = this.determineOptions[index] ? this.determineOptions[index].value : null;
+        ifItem.trigger_operator = selectedValue;
+        this.$forceUpdate();
+      },
+      onTimeConditionTypePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        // 找到包含当前 ifItem 的组
+        let ifGroupItem = null;
+        for (let i = 0; i < this.premiseForm.ifGroups.length; i++) {
+          const group = this.premiseForm.ifGroups[i];
+          if (group.includes(ifItem)) {
+            ifGroupItem = group;
+            break;
+          }
+        }
+        const options = this.getTimeConditionOptions(ifGroupItem);
+        const selectedValue = options[index] ? options[index].value : null;
+        ifItem.trigger_conditions_type = selectedValue;
+        ifItem.task_type = null;
+        this.$forceUpdate();
+      },
+      onExpirationTimePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = this.expirationTimeOptions[index] ? this.expirationTimeOptions[index].value : null;
+        ifItem.expiration_time = selectedValue;
+        this.$forceUpdate();
+      },
+      onCyclePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = this.cycleOptions[index] ? this.cycleOptions[index].value : null;
+        this.handleCycleChange(ifItem, selectedValue);
+        ifItem.task_type = selectedValue;
+        this.$forceUpdate();
+      },
+      onMonthChoseValuePickerChange(e, ifItem) {
+        const index = e.detail.value;
+        const selectedValue = this.monthRangeOptions[index] ? this.monthRangeOptions[index].value : null;
+        ifItem.monthChoseValue = selectedValue;
+        this.$forceUpdate();
+      },
+      // 设备选择弹窗相关方法
+      showDevicePopup(ifItem, ifIndex) {
+        this.currentDeviceIfItem = ifItem;
+        this.currentDeviceIfIndex = ifIndex;
+        this.deviceSearchKeyword = '';
+        this.filteredDeviceOptions = [...this.deviceOptions];
+        this.$refs.devicePopup.open();
+      },
+      closeDevicePopup() {
+        this.$refs.devicePopup.close();
+        this.currentDeviceIfItem = null;
+        this.currentDeviceIfIndex = null;
+        this.deviceSearchKeyword = '';
+      },
+      onDeviceSelect(device) {
+        if (this.currentDeviceIfItem) {
+          this.$set(this.currentDeviceIfItem, 'trigger_source', device.id);
+          this.triggerSourceChange(this.currentDeviceIfItem, this.currentDeviceIfIndex);
+          this.actionParamShow(this.currentDeviceIfItem, true);
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
+        }
+        this.closeDevicePopup();
+      },
+      onDeviceSearchInput() {
+        const keyword = this.deviceSearchKeyword.toLowerCase().trim();
+        if (!keyword) {
+          this.filteredDeviceOptions = [...this.deviceOptions];
+        } else {
+          this.filteredDeviceOptions = this.deviceOptions.filter(device => 
+            device.name && device.name.toLowerCase().includes(keyword)
+          );
+        }
+      },
+      // 设备类型选择弹窗相关方法
+      showDeviceConfigPopup(ifItem, ifIndex) {
+        this.currentDeviceConfigIfItem = ifItem;
+        this.currentDeviceConfigIfIndex = ifIndex;
+        this.deviceConfigSearchKeyword = '';
+        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+        this.$refs.deviceConfigPopup.open();
+      },
+      closeDeviceConfigPopup() {
+        this.$refs.deviceConfigPopup.close();
+        this.currentDeviceConfigIfItem = null;
+        this.currentDeviceConfigIfIndex = null;
+        this.deviceConfigSearchKeyword = '';
+      },
+      onDeviceConfigSelect(deviceConfig) {
+        if (this.currentDeviceConfigIfItem) {
+          this.$set(this.currentDeviceConfigIfItem, 'trigger_source', deviceConfig.id);
+          this.triggerSourceChange(this.currentDeviceConfigIfItem, this.currentDeviceConfigIfIndex);
+          this.actionParamShow(this.currentDeviceConfigIfItem, true);
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
+        }
+        this.closeDeviceConfigPopup();
+      },
+      onDeviceConfigSearchInput() {
+        const keyword = this.deviceConfigSearchKeyword.toLowerCase().trim();
+        if (!keyword) {
+          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+        } else {
+          this.filteredDeviceConfigOptions = this.deviceConfigOption.filter(deviceConfig => 
+            deviceConfig.name && deviceConfig.name.toLowerCase().includes(keyword)
+          );
+        }
       }
     },
     watch: {
@@ -928,14 +1293,31 @@
         console.log('valuechanged conditionData', newValue);
         if (newValue) {
           this.premiseForm.ifGroups = this.conditionData;
-          this.$forceUpdate();
+          // 确保设备列表加载完成后，触发参数显示
+          this.$nextTick(() => {
+            this.conditionData.forEach((group, index) => {
+              group.forEach((item, subIndex) => {
+                if(item.ifType === '1') {
+                  this.actionParamShow(item, true);
+                }
+              });
+            });
+            this.$forceUpdate();
+          });
         }
       }
     },
-    created() {
+    async created() {
       this.message = this.$message;
       // this.configId = this.$route.query.id || null;
       console.log('created conditionData', this.conditionData);
+      
+      // 先加载设备列表和设备类型列表
+      await Promise.all([
+        this.getDevice(null, null),
+        this.getDeviceConfig('')
+      ]);
+      
       if (!this.conditionData || this.conditionData.length === 0) {
         const judgeItemData = JSON.parse(JSON.stringify(this.judgeItem));
         if (this.device_id) {
@@ -952,16 +1334,18 @@
         this.addIfGroupItem(judgeItemData);
       } else {
         this.premiseForm.ifGroups = this.conditionData;
-        this.conditionData.forEach((group, index) => {
+        // 等待设备列表加载完成后再触发参数显示
+        this.$nextTick(() => {
+          this.conditionData.forEach((group, index) => {
             group.forEach((item, subIndex) => {
               if(item.ifType === '1') {
                 this.actionParamShow(item, true);
               }
             });
+          });
+          this.$forceUpdate();
         });
       }
-      this.getDevice(null, null);
-      this.getDeviceConfig('');
     }
   };
   </script>
@@ -989,5 +1373,74 @@
   .uni-button--warn {
     background-color: #f56c6c;
     color: #fff;
+  }
+  
+  .picker-wrapper {
+    position: relative;
+  }
+  
+  .picker-wrapper picker {
+    flex: 1;
+  }
+  
+  .picker-wrapper .uni-icons {
+    margin-left: 8rpx;
+    flex-shrink: 0;
+  }
+  
+  .placeholder {
+    color: #999;
+  }
+  
+  /* 弹窗样式 */
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30rpx;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .popup-title {
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #333;
+  }
+  
+  .popup-close {
+    padding: 10rpx;
+  }
+  
+  .popup-search {
+    padding: 20rpx 30rpx;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 20rpx;
+    border: 1px solid #ddd;
+    border-radius: 8rpx;
+    font-size: 28rpx;
+  }
+  
+  .selectlist {
+    padding: 0;
+  }
+  
+  .select_item {
+    padding: 30rpx;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 28rpx;
+    color: #333;
+  }
+  
+  .select_item:active {
+    background-color: #f5f5f5;
+  }
+  
+  .select_item.empty {
+    text-align: center;
+    color: #999;
   }
   </style>
