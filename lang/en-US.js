@@ -431,7 +431,11 @@ export default {
       alarmLevels: {
         L: 'Low',
         M: 'Medium',
-        H: 'High'
+        H: 'High',
+        '1': 'High',
+        '2': 'Medium',
+        '3': 'Low',
+        default: 'Unknown'
       },
       alarmStatus: 'Alert Status',
       alarmStatuses: {
@@ -439,10 +443,12 @@ export default {
         L: 'Low Alert',
         M: 'Intermediate Alert',
         H: 'High Alert',
+        default: 'Unknown Status',
       },
       sceneLinkageName: 'Associated Automation Name',
       alarmDescription: 'Alert Description',
       alarmDevices: 'List of alert devices',
+      noDevices: 'No associated devices',
       deviceID: 'Device Code',
       deviceName: 'Device Name',
     },
