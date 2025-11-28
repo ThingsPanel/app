@@ -359,8 +359,8 @@ export default {
     intelligentControl: {
       sceneLinkage: 'Scene Linkage',
       sceneManagement: 'Scene Management',
-      addSceneLinkage: '+ Add Scene Linkage',
-      addScene: '+ Add Scene',
+      addSceneLinkage: 'Add Scene Linkage',
+      addScene: 'Add Scene',
       ruleDescription: 'Rule Description:',
       sceneDescription: 'Scene Description:',
       activate: 'Activate',

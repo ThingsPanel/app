@@ -356,8 +356,8 @@ export default {
     intelligentControl: {
       sceneLinkage: '场景联动',
       sceneManagement: '场景管理',
-      addSceneLinkage: '+新增场景联动',
-      addScene: '+新增场景',
+      addSceneLinkage: '新增场景联动',
+      addScene: '新增场景',
       ruleDescription: '规则说明：',
       sceneDescription: '场景描述：',
       activate: '激活',

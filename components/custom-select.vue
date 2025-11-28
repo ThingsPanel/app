@@ -97,7 +97,6 @@
       },
       onSelect (option) {
         this.$emit('update:value', option[this.optionValue])
-        this.value = option[this.optionValue]
         this.hidePop()
       },
     },
