@@ -1,151 +1,216 @@
-.quitLogin {
-		width: 690rpx;
-		height: 86rpx;
-		line-height: 86rpx;
-		background: #207AF5;
-		border-radius: 10rpx;
-		margin: 0 auto;
-		margin-top: 56rpx;
-		font-size: 32rpx;
-		font-family: Source Han Sans CN;
-		font-weight: 500;
-		color: #FFFFFF;
-		text-align: center;
-	}
-
-	.deleteAccount {
-		width: 690rpx;
-		height: 86rpx;
-		line-height: 86rpx;
-		background: transparent;
-		border-radius: 10rpx;
-		margin: 0 auto;
-		margin-top: 56rpx;
-		font-size: 28rpx;
-		font-family: Source Han Sans CN;
-		font-weight: 500;
-		color: grey;
-		text-align: center;
-	}
-
-	.tp-box {
+.tp-box {
 		width: 100%;
 		min-height: 100vh;
-		/* background: #FFFFFF; */
+		padding-bottom: 120rpx;
+		position: relative;
+		overflow: hidden;
+		background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 55%, #ffffff 100%);
+		color: #1e293b;
 	}
 
-	.tp-panel {
-		background: #FFFFFF;
+.bg-glow-1,
+.bg-glow-2 {
+		position: absolute;
+		border-radius: 50%;
+		pointer-events: none;
+		filter: blur(40px);
+		z-index: 0;
+}
+
+.bg-glow-1 {
+		top: -15%;
+		left: -15%;
+		width: 700rpx;
+		height: 700rpx;
+		background: radial-gradient(circle, rgba(100, 108, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.bg-glow-2 {
+		bottom: 0;
+		right: -10%;
+		width: 620rpx;
+		height: 620rpx;
+		background: radial-gradient(circle, rgba(167, 139, 250, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+}
+
+.tp-panel {
+		position: relative;
+		z-index: 1;
+		background: rgba(255, 255, 255, 0.8);
+		border-radius: 32rpx;
+		box-shadow: 0 20rpx 60rpx rgba(15, 23, 42, 0.05);
+		border: 1rpx solid rgba(255, 255, 255, 0.8);
+		backdrop-filter: blur(18px);
+		-webkit-backdrop-filter: blur(18px);
+		padding: 30rpx;
 	}
 
-	.tp-uinfo {}
-
-	.tp-uinfo>image {
-		width: 124rpx;
-		height: 124rpx;
-		border: 100%;
+.tp-panel.tp-uinfo {
+		align-items: center;
+		text-align: center;
+		padding-top: 50rpx;
+		padding-bottom: 40rpx;
 	}
 
-	.tp-uinfo>view:nth-child(2) {
+.tp-uinfo>image {
+		width: 140rpx;
+		height: 140rpx;
+		border-radius: 50%;
+		box-shadow: 0 12rpx 35rpx rgba(100, 108, 255, 0.25);
+		border: 6rpx solid rgba(255, 255, 255, 0.9);
+	}
+
+.tp-uinfo>view:nth-child(2) {
+		font-size: 34rpx;
+		font-weight: 600;
+		color: #0f172a;
+		margin-top: 24rpx;
+	}
+
+.tp-uinfo>view:last-child {
+		font-size: 26rpx;
+		color: #64748b;
+		margin-top: 8rpx;
+	}
+
+.tp-panel-item {
+		height: auto;
+		padding: 24rpx 0;
+		margin: 0;
+		position: relative;
+	}
+
+.tp-panel-item::after {
+		content: '';
+		position: absolute;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		height: 1rpx;
+		background: linear-gradient(90deg, rgba(226, 232, 240, 0), rgba(148, 163, 184, 0.35), rgba(226, 232, 240, 0));
+}
+
+.tp-panel-item:last-child::after {
+		display: none;
+}
+
+.tp-panel-item-hover {
+		background: rgba(100, 108, 255, 0.06);
+		border-radius: 24rpx;
+	}
+
+.tp-panel-item>view:first-child {
 		font-size: 32rpx;
-		font-weight: bold;
-		color: #1D1D1D;
+		color: #1e293b;
+		font-weight: 600;
 	}
 
-	.tp-uinfo>view:nth-child(2)>view {
-		font-size: 36rpx;
+.tp-panel-item>view:last-child {
+		min-height: 80rpx;
 	}
 
-	.tp-uinfo>view:last-child {
+.tp-panel-item>view:last-child>view:first-child {
 		font-size: 28rpx;
 		font-weight: 500;
-		color: #7C7C7C;
+		color: #475569;
 	}
 
-	.tp-panel-item {
-		height: 94rpx;
+.tp-panel-item>view:last-child>view:last-child {
+		color: #94a3b8;
+		font-size: 28rpx;
+		margin-left: 12rpx;
 	}
 
-	.tp-panel-item-hover {
-		background: #FAFAFA;
-	}
-
-	.tp-panel-item>view:first-child {
-		font-size: 38rpx;
-		color: #343436;
-	}
-
-	.tp-panel-item>view:last-child {
-		height: 94rpx;
-		border-bottom: 1rpx solid #EDEDED;
-	}
-
-	.tp-panel-item>view:last-child>view:first-child {
+.quitLogin,
+.deleteAccount {
+		width: 690rpx;
+		height: 100rpx;
+		line-height: 100rpx;
+		margin: 40rpx auto 0;
+		border-radius: 999rpx;
 		font-size: 30rpx;
-		font-weight: 500;
-		color: #666666;
-	}
+		font-weight: 600;
+		text-align: center;
+		position: relative;
+		z-index: 1;
+		box-shadow: 0 15rpx 45rpx rgba(15, 23, 42, 0.12);
+}
 
-	.tp-panel-item>view:last-child>view:last-child {
-		color: #999999;
-		font-size: 30rpx;
-	}
+.quitLogin {
+		background: linear-gradient(135deg, #646cff, #8b5cf6);
+		color: #fff;
+}
+
+.deleteAccount {
+		background: rgba(255, 255, 255, 0.85);
+		color: #475569;
+		box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.08);
+}
 	
-	.server {
-		border-radius: 5%;
-		padding: 30rpx;
-		width:300px;
-	}
-	
-	.server-title {
+.server {
+		border-radius: 32rpx;
+		padding: 40rpx 30rpx 60rpx;
+		width: 540rpx;
+		background: #fff;
+		box-shadow: 0 25rpx 50rpx rgba(15, 23, 42, 0.12);
+		position: relative;
+}
+
+.server-title {
 		text-align: center;
 		font-size: 32rpx;
-	}
-	
-	.server-input {
-		margin: 30rpx 0;
-	}
-	
-	.tp-btn {
-		width: 160rpx;
-		line-height: 50rpx;
-		padding: 12rpx 30rpx;
-		background: #246FDD;
-		box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
+		font-weight: 600;
+		color: #0f172a;
+}
+
+.server-input {
+		margin: 40rpx 0 20rpx;
+}
+
+.server-input input {
+		background: #f8fafc;
 		border-radius: 20rpx;
+		padding: 26rpx 30rpx;
+		font-size: 28rpx;
+		color: #1e293b;
+}
+
+.tp-btn {
+		width: 100%;
+		line-height: 100rpx;
+		background: linear-gradient(135deg, #646cff, #8b5cf6);
+		border-radius: 24rpx;
 		font-size: 30rpx;
-		font-family: Source Han Sans CN;
-		font-weight: bold;
+		font-weight: 600;
 		color: #FFFFFF;
-		margin: 0 auto;
-	
-	}
-	
-	.server {
-		background: #FFF;
-	}
-	
-	.close-icon{
-		width: 30rpx;
-		height: 30rpx;
+		text-align: center;
+		box-shadow: 0 18rpx 35rpx rgba(100, 108, 255, 0.35);
+}
+
+.close-icon {
+		width: 36rpx;
+		height: 36rpx;
 		position: absolute;
 		right: 30rpx;
-	}
+		top: 30rpx;
+}
 
-	.language-options {
-		padding: 20px;
-	}
+.language-options {
+		padding: 40rpx 0;
+}
 
-	.language-option {
-		padding: 15px;
+.language-option {
+		padding: 30rpx;
 		text-align: center;
-		border-bottom: 1px solid #eee;
-	}
+		font-size: 30rpx;
+		color: #334155;
+		border-bottom: 1px solid #e2e8f0;
+}
 
-	.language-option:last-child {
+.language-option:last-child {
 		border-bottom: none;
-	}
+}
 
-	.language-option:active {
-		background-color: #f5f5f5;
-	}
+.language-option:active {
+		background-color: rgba(100, 108, 255, 0.08);
+}

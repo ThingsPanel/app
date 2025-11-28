@@ -11,12 +11,21 @@
         <view
           class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing"
           :style="isInSceneEdit ? 'display:none' : ''">
-          <CustomSelect
-              v-model="actionGroupItem.actionType"
-              :options="actionOptions"
-              :placeholder="$t('pages.sceneDetail.actionsEdit.selectActionType')"
-              @change="(data) => actionChange(actionGroupItem, actionGroupIndex, data)"
-          ></CustomSelect>
+          <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+            <picker
+                mode="selector"
+                :range="actionOptions"
+                range-key="label"
+                :value="getPickerIndex(actionOptions, actionGroupItem.actionType, 'value')"
+                @change="onActionTypePickerChange($event, actionGroupItem, actionGroupIndex)"
+                class="tp-flex-1"
+            >
+              <view class="uni-input" :class="!actionGroupItem.actionType && 'placeholder'">
+                {{ getPickerDisplayText(actionOptions, actionGroupItem.actionType, 'value', 'label') || $t('pages.sceneDetail.actionsEdit.selectActionType') }}
+              </view>
+            </picker>
+            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+          </view>
         </view>
 
         <!-- 当 actionType 为 '1' 时（操作设备） -->
@@ -24,62 +33,102 @@
           <view
               v-for="(instructItem, instructIndex) in actionGroupItem.actionInstructList"
               :key="instructIndex"
-              style="border: 1px solid #ccc;"
-              class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-flex-wrap tp-mg-10 tp-pd-b-10"
+              class="action-item-card item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-flex-wrap tp-mg-10 tp-pd-b-10"
           >
           <view class="tp-flex-1">
             <view class="max-w-30 w-full">
-              <CustomSelect
-                  v-model="instructItem.action_type"
-                  :options="actionTypeOptions"
-                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDeviceType')"
-                  @change="(data) => actionTypeChange(actionGroupIndex, instructIndex, data)"
-              ></CustomSelect>
+              <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                <picker
+                    mode="selector"
+                    :range="actionTypeOptions"
+                    range-key="label"
+                    :value="getPickerIndex(actionTypeOptions, instructItem.action_type, 'value')"
+                    @change="onDeviceTypePickerChange($event, actionGroupIndex, instructIndex)"
+                    class="tp-flex-1"
+                >
+                  <view class="uni-input" :class="!instructItem.action_type && 'placeholder'">
+                    {{ getPickerDisplayText(actionTypeOptions, instructItem.action_type, 'value', 'label') || $t('pages.sceneDetail.actionsEdit.selectDeviceType') }}
+                  </view>
+                </picker>
+                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+              </view>
             </view>
 
             <!-- 单个设备 -->
             <view v-if="instructItem.action_type === '10'" class="max-w-40 w-full">
-              <CustomSelect
-                  v-model="instructItem.action_target"
-                  :options="deviceOptions"
-                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDevice')"
-                  option-value="id"
-                  option-label="name"
-                  @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
-              ></CustomSelect>
+              <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                <picker
+                    mode="selector"
+                    :range="deviceOptions"
+                    range-key="name"
+                    :value="getPickerIndex(deviceOptions, instructItem.action_target, 'id')"
+                    @change="onDevicePickerChange($event, actionGroupIndex, instructIndex)"
+                    class="tp-flex-1"
+                >
+                  <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
+                    {{ getPickerDisplayText(deviceOptions, instructItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectDevice') }}
+                  </view>
+                </picker>
+                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+              </view>
             </view>
 
             <!-- 单类设备 -->
             <view v-if="instructItem.action_type === '11'" class="max-w-40 w-full">
-              <CustomSelect
-                  v-model="instructItem.action_target"
-                  :options="deviceConfigOption"
-                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectDeviceCategory')"
-                  option-value="id"
-                  option-label="name"
-                  @change="() => actionTargetChange(actionGroupIndex, instructIndex)"
-              ></CustomSelect>
+              <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                <picker
+                    mode="selector"
+                    :range="deviceConfigOption"
+                    range-key="name"
+                    :value="getPickerIndex(deviceConfigOption, instructItem.action_target, 'id')"
+                    @change="onDeviceConfigPickerChange($event, actionGroupIndex, instructIndex)"
+                    class="tp-flex-1"
+                >
+                  <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
+                    {{ getPickerDisplayText(deviceConfigOption, instructItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectDeviceCategory') }}
+                  </view>
+                </picker>
+                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+              </view>
             </view>
 
             <view v-if="instructItem.action_type">
               <!-- 选择属性类型 -->
               <view class="max-w-30 w-full">
-                <CustomSelect
-                  v-model="instructItem.action_param_type"
-                  :options="instructItem.actionParamTypeOptions"
-                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectMetricType')"
-                  @change="(data) => actionParamTypeChange(actionGroupIndex, instructIndex, data)"
-                ></CustomSelect>
+                <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                  <picker
+                      mode="selector"
+                      :range="instructItem.actionParamTypeOptions"
+                      range-key="label"
+                      :value="getPickerIndex(instructItem.actionParamTypeOptions, instructItem.action_param_type, 'value')"
+                      @change="onActionParamTypePickerChange($event, actionGroupIndex, instructIndex)"
+                      class="tp-flex-1"
+                  >
+                    <view class="uni-input" :class="!instructItem.action_param_type && 'placeholder'">
+                      {{ getPickerDisplayText(instructItem.actionParamTypeOptions, instructItem.action_param_type, 'value', 'label') || $t('pages.sceneDetail.actionsEdit.selectMetricType') }}
+                    </view>
+                  </picker>
+                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                </view>
               </view>
 
               <!-- 选择属性 -->
               <view v-if="instructItem.showSubSelect" class="max-w-40 w-full">
-                <CustomSelect
-                  v-model="instructItem.action_param"
-                  :placeholder="$t('pages.sceneDetail.actionsEdit.selectMetric')"
-                  :options="instructItem.actionParamOptions"
-                  @change="(data) => actionParamChange(actionGroupIndex, instructIndex, data)"
-                ></CustomSelect>
+                <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+                  <picker
+                      mode="selector"
+                      :range="instructItem.actionParamOptions"
+                      range-key="label"
+                      :value="getPickerIndex(instructItem.actionParamOptions, instructItem.action_param, 'key')"
+                      @change="onActionParamPickerChange($event, actionGroupIndex, instructIndex)"
+                      class="tp-flex-1"
+                  >
+                    <view class="uni-input" :class="!instructItem.action_param && 'placeholder'">
+                      {{ getPickerDisplayText(instructItem.actionParamOptions, instructItem.action_param, 'key', 'label') || $t('pages.sceneDetail.actionsEdit.selectMetric') }}
+                    </view>
+                  </picker>
+                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                </view>
               </view>
 
               <!-- 输入动作值 -->
@@ -131,7 +180,7 @@
                 class="tp-mg-t-b-10"
                 type="plus" 
                 size="40rpx"
-                color="#2979ff"
+                color="#4CAF50"
                 @click="addIfGroupsSubItem(actionGroupIndex)"
               ></uni-icons>
             </view>
@@ -158,24 +207,40 @@
 
         <!-- 激活场景 -->
         <view v-if="actionGroupItem.actionType === '20'" class="ml-6 max-w-40 w-auto">
-          <CustomSelect
-            v-model="actionGroupItem.action_target"
-            :placeholder="$t('pages.sceneDetail.actionsEdit.selectScene')"
-            :options="sceneList"
-            option-value="id"
-            option-label="name"
-          ></CustomSelect>
+          <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+            <picker
+                mode="selector"
+                :range="sceneList"
+                range-key="name"
+                :value="getPickerIndex(sceneList, actionGroupItem.action_target, 'id')"
+                @change="onScenePickerChange($event, actionGroupIndex)"
+                class="tp-flex-1"
+            >
+              <view class="uni-input" :class="!actionGroupItem.action_target && 'placeholder'">
+                {{ getPickerDisplayText(sceneList, actionGroupItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectScene') }}
+              </view>
+            </picker>
+            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+          </view>
         </view>
 
         <!-- 触发告警 -->
         <view v-if="actionGroupItem.actionType === '30'" class="ml-6 max-w-40 w-auto">
-          <CustomSelect
-            v-model="actionGroupItem.action_target"
-            :options="alarmList"
-            :placeholder="$t('pages.sceneDetail.actionsEdit.selectAlarm')"
-            option-value="id"
-            option-label="name"
-          ></CustomSelect>
+          <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
+            <picker
+                mode="selector"
+                :range="alarmList"
+                range-key="name"
+                :value="getPickerIndex(alarmList, actionGroupItem.action_target, 'id')"
+                @change="onAlarmPickerChange($event, actionGroupIndex)"
+                class="tp-flex-1"
+            >
+              <view class="uni-input" :class="!actionGroupItem.action_target && 'placeholder'">
+                {{ getPickerDisplayText(alarmList, actionGroupItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectAlarm') }}
+              </view>
+            </picker>
+            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+          </view>
           <!-- <button @click="popUpVisible = true" class="tp-btn">
           创建告警
           </button> -->
@@ -198,7 +263,7 @@
             class="tp-mg-t-b-10"
             type="plus" 
             size="40rpx"
-            color="#2979ff"
+            color="#4CAF50"
             @click="addActionGroupItem()"
           ></uni-icons>
         </view>
@@ -218,7 +283,6 @@
 </template>
   
 <script>
-  import CustomSelect from '@/components/custom-select.vue';
   import { warningMessageList } from '@/service/alarm';
   import { deviceMetricsMenu,
     deviceConfigMetricsMenu,
@@ -230,7 +294,6 @@
   export default {
     name: 'ActionsEdit',
     components: {
-      CustomSelect
     },
     props: {
       actions: {
@@ -316,8 +379,11 @@
     watch: {
         actions: {
             handler(newActions, _oldVal) {
+                if (!newActions || !Array.isArray(newActions)) {
+                    return;
+                }
                 newActions.forEach((item, index) => {
-                    if (item.actionType === '1') {
+                    if (item && item.actionType === '1' && item.actionInstructList && Array.isArray(item.actionInstructList)) {
                         item.actionInstructList.map((instructItem, instructIndex) => {
                             this.actionParamShow(index, instructIndex, true);
                         });
@@ -329,13 +395,15 @@
         }
     },
     created() {
-        this.actions.map((item, index) => {
-            if (item.actionType === '1') {
-              item.actionInstructList.map((instructItem, instructIndex) => {
-                this.actionParamShow(index, instructIndex, true);
-              });
-            }
-        });
+        if (this.actions && Array.isArray(this.actions)) {
+            this.actions.map((item, index) => {
+                if (item && item.actionType === '1' && item.actionInstructList && Array.isArray(item.actionInstructList)) {
+                  item.actionInstructList.map((instructItem, instructIndex) => {
+                    this.actionParamShow(index, instructIndex, true);
+                  });
+                }
+            });
+        }
         if( this.deviceOptions.length === 0 ) {
             this.getDevice(null, null);
         }
@@ -379,6 +447,7 @@
         this.actionOptions.map((item) => {
           item.disabled = false;
         });
+        actionGroupItem.actionType = data;
         actionGroupItem.actionInstructList = [];
         actionGroupItem.action_type = null;
         actionGroupItem.action_target = '';
@@ -389,6 +458,7 @@
       },
       actionTypeChange(actionGroupIndex, instructIndex, data) {
         const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.action_type = data;
         instructItem.action_target = null;
         instructItem.action_param_type = null;
         instructItem.action_param = null;
@@ -456,12 +526,13 @@
       },
       actionParamTypeChange(actionGroupIndex, instructIndex, data, updateOptions) {
         const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.action_param_type = data;
         if (!updateOptions) {
           instructItem.action_param = null;
           instructItem.actionParamData = null;
         }
-        instructItem.actionParamOptions =
-          instructItem.actionParamOptionsData.find((item) => item.data_source_type === data)?.options || [];
+        const foundItem = instructItem.actionParamOptionsData.find((item) => item.data_source_type === data);
+        instructItem.actionParamOptions = foundItem ? foundItem.options : [];
         instructItem.placeholder = this.placeholderMap[data];
         if (!updateOptions) instructItem.actionValue = null;
         if (
@@ -477,6 +548,7 @@
       },
       actionParamChange(actionGroupIndex, instructIndex, data, updateOptions) {
         const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.action_param = data;
         if (!updateOptions) instructItem.actionValue = null;
         instructItem.actionParamData = instructItem.actionParamOptions.find((item) => item.key === data) || null;
         if (instructItem.actionParamData && instructItem.actionParamData.data_type) {
@@ -526,10 +598,185 @@
       addActionGroupItem() {
         const actionItemData = JSON.parse(JSON.stringify(this.actionItem));
         this.actions.push(actionItemData);
+      },
+      // Picker change 事件处理方法
+      onActionTypePickerChange(e, actionGroupItem, actionGroupIndex) {
+        const index = e.detail.value;
+        const selectedValue = this.actionOptions[index] ? this.actionOptions[index].value : null;
+        this.actionChange(actionGroupItem, actionGroupIndex, selectedValue);
+      },
+      onDeviceTypePickerChange(e, actionGroupIndex, instructIndex) {
+        const index = e.detail.value;
+        const selectedValue = this.actionTypeOptions[index] ? this.actionTypeOptions[index].value : null;
+        this.actionTypeChange(actionGroupIndex, instructIndex, selectedValue);
+      },
+      onDevicePickerChange(e, actionGroupIndex, instructIndex) {
+        const index = e.detail.value;
+        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.action_target = this.deviceOptions[index] ? this.deviceOptions[index].id : null;
+        this.actionTargetChange(actionGroupIndex, instructIndex);
+      },
+      onDeviceConfigPickerChange(e, actionGroupIndex, instructIndex) {
+        const index = e.detail.value;
+        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.action_target = this.deviceConfigOption[index] ? this.deviceConfigOption[index].id : null;
+        this.actionTargetChange(actionGroupIndex, instructIndex);
+      },
+      onActionParamTypePickerChange(e, actionGroupIndex, instructIndex) {
+        const index = e.detail.value;
+        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        const selectedValue = instructItem.actionParamTypeOptions[index] ? instructItem.actionParamTypeOptions[index].value : null;
+        this.actionParamTypeChange(actionGroupIndex, instructIndex, selectedValue);
+      },
+      onActionParamPickerChange(e, actionGroupIndex, instructIndex) {
+        const index = e.detail.value;
+        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        const selectedValue = instructItem.actionParamOptions[index] ? instructItem.actionParamOptions[index].key : null;
+        this.actionParamChange(actionGroupIndex, instructIndex, selectedValue);
+      },
+      onScenePickerChange(e, actionGroupIndex) {
+        const index = e.detail.value;
+        const actionGroupItem = this.actions[actionGroupIndex];
+        const selectedScene = this.sceneList[index];
+        // 使用 Vue.set 确保响应式更新
+        this.$set(actionGroupItem, 'action_target', selectedScene ? selectedScene.id : null);
+        // 触发视图更新和数据同步
+        this.$nextTick(() => {
+          this.$forceUpdate();
+          this.$emit('update:actions', this.actions);
+        });
+      },
+      onAlarmPickerChange(e, actionGroupIndex) {
+        const index = e.detail.value;
+        const actionGroupItem = this.actions[actionGroupIndex];
+        const selectedAlarm = this.alarmList[index];
+        // 使用 Vue.set 确保响应式更新
+        this.$set(actionGroupItem, 'action_target', selectedAlarm ? selectedAlarm.id : null);
+        // 触发视图更新和数据同步
+        this.$nextTick(() => {
+          this.$forceUpdate();
+          this.$emit('update:actions', this.actions);
+        });
+      },
+      // 获取 picker 的索引值
+      getPickerIndex(options, value, valueKey = 'value') {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return 0;
+        }
+        if (value === null || value === undefined || value === '') {
+          return 0;
+        }
+        const index = options.findIndex(item => {
+          if (!item) return false;
+          const itemValue = item[valueKey];
+          // 严格相等比较
+          if (itemValue === value) {
+            return true;
+          }
+          // 字符串转换比较
+          if (String(itemValue) === String(value)) {
+            return true;
+          }
+          // 数字类型比较
+          const numItem = Number(itemValue);
+          const numValue = Number(value);
+          if (!isNaN(numItem) && !isNaN(numValue) && numItem === numValue) {
+            return true;
+          }
+          return false;
+        });
+        return index >= 0 ? index : 0;
+      },
+      // 获取 picker 的显示文本
+      getPickerDisplayText(options, value, valueKey = 'value', labelKey = 'label') {
+        if (!options || !Array.isArray(options) || options.length === 0) {
+          return '';
+        }
+        if (value === null || value === undefined || value === '') {
+          return '';
+        }
+        const option = options.find(item => {
+          if (!item) return false;
+          const itemValue = item[valueKey];
+          // 严格相等比较
+          if (itemValue === value) {
+            return true;
+          }
+          // 字符串转换比较
+          if (String(itemValue) === String(value)) {
+            return true;
+          }
+          // 数字类型比较
+          const numItem = Number(itemValue);
+          const numValue = Number(value);
+          if (!isNaN(numItem) && !isNaN(numValue) && numItem === numValue) {
+            return true;
+          }
+          return false;
+        });
+        return option && option[labelKey] !== undefined && option[labelKey] !== null ? String(option[labelKey]) : '';
       }
     }
   };
   </script>
   <style>
 	@import '@/common/alert-strategy.css';
+	
+	.action-item-card {
+		background: #f5f5f5;
+		border-radius: 24rpx;
+		padding: 32rpx 28rpx;
+    margin-left: 24rpx;
+    margin-right: 24rpx;
+		margin-bottom: 24rpx;
+		position: relative;
+	}
+	
+	.action-item-card:not(:last-child)::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 28rpx;
+		right: 28rpx;
+		height: 1rpx;
+		background-color: rgba(0, 0, 0, 0.1);
+	}
+	
+	.action-item-card .tp-flex-1 {
+		margin-right: 24rpx;
+	}
+	
+	.action-item-card .tp-flex-1:last-child {
+		margin-right: 0;
+	}
+	
+	.action-item-card .max-w-30,
+	.action-item-card .max-w-40,
+	.action-item-card .max-w-60 {
+		margin-right: 20rpx;
+		margin-bottom: 8rpx;
+	}
+	
+	.action-item-card .max-w-30:last-child,
+	.action-item-card .max-w-40:last-child,
+	.action-item-card .max-w-60:last-child {
+		margin-right: 0;
+	}
+	
+	.placeholder {
+		color: #999;
+	}
+	
+	.picker-wrapper {
+		position: relative;
+	}
+	
+	.picker-wrapper picker {
+		flex: 1;
+	}
+	
+	.picker-wrapper .uni-icons {
+		margin-left: 8rpx;
+		flex-shrink: 0;
+	}
   </style>

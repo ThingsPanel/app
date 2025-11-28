@@ -10,13 +10,17 @@ export default {
     none: 'None',
     close: 'Close',
     ok: 'OK',
+    search: 'Search',
+    noData: 'No Data',
   },
   login: {
-    title: 'Login',
+    title: 'Sign In',
     username: 'Username',
     password: 'Password',
-    loginBtn: 'Login',
-    registerBtn: 'Register'
+    loginBtn: 'Sign In',
+    registerBtn: 'Sign Up',
+    noAccount: 'No account?',
+    language: 'Language',
   },
   ucenter: {
     notLoggedIn: 'Not Logged In/Register',
@@ -37,11 +41,11 @@ export default {
     tip: 'Tip',
     enterServerAddressToast: 'Please enter server address',
     confirm: 'Confirm',
-    authDescription: 'Login authorization'
+    authDescription: 'Sign In authorization'
   },
   pages: {
-    loginTitle: 'Log In',
-    register: 'Register',
+    loginTitle: 'Sign In',
+    register: 'Sign Up',
     notifyTitle: 'Alerts',
     notifyDetailTitle: 'Alert Details',
     deviceList: 'Device List',
@@ -357,8 +361,8 @@ export default {
     intelligentControl: {
       sceneLinkage: 'Scene Linkage',
       sceneManagement: 'Scene Management',
-      addSceneLinkage: '+ Add Scene Linkage',
-      addScene: '+ Add Scene',
+      addSceneLinkage: 'Add Scene Linkage',
+      addScene: 'Add Scene',
       ruleDescription: 'Rule Description:',
       sceneDescription: 'Scene Description:',
       activate: 'Activate',
@@ -371,24 +375,27 @@ export default {
       farm: 'Pig Farm',
       confirmDeleteRecord: 'Are you sure you want to delete this record?',
       success: 'Operation successful',
-      failed: 'Operation failed, please try again later'
+      failed: 'Operation failed, please try again later',
+      noData: 'No Data'
     },
     login: {
       title: 'IoT Platform',
       emailPlaceholder: 'Please enter email',
       passwordPlaceholder: 'Please enter password',
-      loginButton: 'Login',
-      registerButton: 'Register',
-      cancelLogin: 'Cancel Login',
-      loginSuccess: 'Login successful',
+      loginButton: 'Sign In',
+      registerButton: 'Sign Up',
+      cancelLogin: 'Cancel Sign In',
+      loginSuccess: 'Sign In successful',
       networkError: 'Network error, please try again later',
       loading: 'Loading',
-      authDescription: 'Login'
+      authDescription: 'Sign In',
     },
     register: {
-      title: 'Register',
+      title: 'Sign Up',
+      subtitle: 'Create your ThingsPanel account',
+      hasAccount: 'Already have an account?',
       emailPlaceholder: 'Please enter email',
-      codePlaceholder: 'Please enter verification code',
+      codePlaceholder: 'verification code',
       getCode: 'Get verification code',
       phonePlaceholder: 'Please enter phone number',
       passwordPlaceholder: 'Please enter password',
@@ -409,6 +416,7 @@ export default {
       },
       messages: {
         codeSent: 'Verification code sent',
+        codeSending: 'Sending...',
         codeFailed: 'Failed to send verification code',
         registerSuccess: 'Registration successful',
         registerFailed: 'Registration failed'

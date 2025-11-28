@@ -1,245 +1,117 @@
 <template>
-	<view class="pagehome">
-		<view class="tp-fishery-select tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
-			<view style="display: flex; gap: 30rpx;">
-				<view class="iconmore" style="margin-top: 10rpx;" @click='toShowNavDrawer'>
-					<image src="/static/icon/more.png" />
+	<view class="tp-box">
+		<!-- Background Elements for Atmosphere -->
+		<view class="bg-glow-1"></view>
+		<view class="bg-glow-2"></view>
+
+		<!-- Top Header -->
+		<view class="tp-header tp-flex tp-flex-j-s tp-flex-a-c">
+			<!-- Group Selector -->
+			<view class="group-select-box tp-flex tp-flex-a-c" @click='toShowNavDrawer'>
+				<view class="icon-box tp-flex tp-flex-j-c tp-flex-a-c">
+					<image src="/static/icon/more.png" class="menu-icon" />
 				</view>
-				<view style="display: flex; gap: 10rpx">
-					<view class="title" style="margin-top: 10rpx;" >{{ selectedGroupName }}</view>
-					<view v-if="selectedGroupId" style="margin-top: 10rpx;" @click='clearSelectedGroup'>
-						<image src="/static/icon/close.png" style="width: 25rpx; height: 25rpx;" />
+				<view class="group-info tp-flex tp-flex-a-c">
+					<text class="group-name text-ellipsis">{{ selectedGroupName || $t('pages.deviceDetail.groupSelection') }}</text>
+					<view v-if="selectedGroupId" class="clear-btn tp-flex tp-flex-j-c tp-flex-a-c" @click.stop='clearSelectedGroup'>
+						<image src="/static/icon/close.png" class="close-icon" />
+					</view>
+				</view>
+			</view>
+
+			<!-- Notify Button -->
+			<view class="notify-box tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
+				<image :src="!activeNotify ? '/static/icon/notify.svg' : '/static/icon/notify-red.svg'" class="notify-icon"></image>
+				<view class="notify-dot" v-if="activeNotify"></view>
+			</view>
+		</view>
+
+		<!-- Main Content -->
+		<view class="tp-content">
+			<view class="section-header tp-flex tp-flex-j-s tp-flex-a-c">
+				<text class="section-title">{{ $t('pages.deviceDetail.deviceMonitor') }}</text>
+			</view>
+
+			<view class="device-list">
+				<view class="tp-panel device-card" v-for="(item, index) in deviceList" :key="index" @click="clickDevice(item)">
+					<view class="card-inner tp-flex tp-flex-row tp-flex-j-s">
+						
+						<!-- Left: Icon & Info -->
+						<view class="tp-flex tp-flex-row tp-flex-1 tp-overflow-hidden">
+							<!-- Icon -->
+							<view class="device-icon-wrapper tp-flex tp-flex-j-c tp-flex-a-c" :class="+item.is_online == 1 ? 'online' : 'offline'">
+								<image v-if="item.image_url" :src="item.image_url" class="device-img" mode="aspectFit"></image>
+								<text v-else class="iconfont iconequipment"></text>
+							</view>
+							
+							<!-- Info -->
+							<view class="device-info tp-flex tp-flex-col tp-flex-j-c">
+								<view class="device-name text-ellipsis">{{ item.name }}</view>
+								<view class="device-meta" v-if="item.gateway_name">
+									<text class="label">GW:</text> {{ item.gateway_name }}
+								</view>
+								<view class="device-meta">
+									<text class="label">{{ $t('pages.deviceDetail.reportTime') }}:</text> 
+									<text class="time-val">{{ item.latest_ts_name || '--' }}</text>
+								</view>
+							</view>
+						</view>
+
+						<!-- Right: Status -->
+						<view class="device-status tp-flex tp-flex-col tp-flex-a-e tp-flex-j-c">
+							<view class="status-badge" :class="+item.is_online == 1 ? 'status-on' : 'status-off'">
+								<view class="dot"></view>
+								<text>{{ +item.is_online == 1 ? $t('pages.deviceDetail.online') : $t('pages.deviceDetail.offline') }}</text>
+							</view>
+						</view>
 					</view>
 				</view>
 			</view>
 		</view>
-		<view class="tp-box tp-box-sizing tp-pd-l-r-30 pt-30">
-			<!-- 已登录 -->
-			<view>
-				<!-- <view class="tp-status-bar"></view> -->
 
-				<view class="tp-fishery-top"></view>
-				<view class="tp-title" :style="{ marginBottom: '36rpx' }">{{ $t('pages.deviceDetail.deviceMonitor') }}
-					<view class="tp-add" style="margin-left:10px" @click="toNotify">
-						<image src="../../static/icon/notify.svg" v-if="!activeNotify"></image>
-						<image src="../../static/icon/notify-red.svg" v-else></image>
-					</view>
-					<!--
-					<view class="tp-add" @click="addEqp">
-						<image src="../../static/image/scan.png"></image>
-					</view>
-					-->
-				</view>
-				<view class="device_list">
-					<view class="device_item" v-for="(item, index) in deviceList" :key="index" @click="clickDevice(item)">
-						<view class="device_name">
-							<view class="device_name_l">
-								<view class="item-name">
-									{{ item.name }}
-								</view>
-								<view class="item-info">
-									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
-									new Date().getTime() *
-									1000))) <= 30"><i></i>在线</span> -->
-									<span v-if="+item.is_online == 1"><i></i>{{ $t('pages.deviceDetail.online') }}</span>
-									<!-- <span v-if="item.latest_ts && TimeDifference(formatDate(item.latest_ts),formatDate(parseInt(
-									new Date().getTime() *
-									1000))) > 30" class='grey'><i></i>离线</span> -->
-									<span v-else class='grey'><i></i>{{ $t('pages.deviceDetail.offline') }}</span>
-									<view class="item-time">
-										{{ $t('pages.deviceDetail.reportTime') }}：{{ item.latest_ts_name || '--' }}
-									</view>
-								</view>
-							</view>
-							<view class="device_name_r" v-if="item.gateway_name">
-								{{ item.gateway_name }}
-							</view>
-						</view>
-						<!-- <view class="line">
-
-						</view>
-						<view class="device_tab" v-if="item.valuesNew.length > 0">
-							<view v-for="(i,iIndex) in item.valuesNew" :key="iIndex"
-								@click.stop="changeIndex(item,i,iIndex)"
-								:class="item.currentIndex == iIndex ?'device_tab_item active':'device_tab_item'">
-								<view class="tab-label" v-if="i.name">
-									{{i.name}}
-								</view>
-								<view class="tab-value" v-if="i.value">
-									{{i.value}}
-									<view class="value-unit" v-if="i.unit">
-										{{i.unit}}
-									</view>
-								</view>
-							</view>
-						</view>
-						<view class="line" v-if="item.controlData.length > 0">
-
-						</view>
-						<view v-if="item.controlData.length > 0" v-for="(sw,swIndex) in item.controlData"
-							:key="swIndex">
-							<view class="device_switch">
-								<view class="switch_l">
-									<view class="switch_l_name">
-										{{sw.typeName}}
-									</view>
-									<view class="switch_l_state">
-										<span v-if="sw.state == 1">开</span>
-										<span v-if="sw.state == 0">关</span>
-									</view>
-								</view>
-								<view class="switch_r" v-if="!sw.disabled">
-									<image src="/static/icon/switch_on.png" @click.stop="changSwitch(item,sw)"
-										v-if="sw.state == 1">
-										<image src="/static/icon/switch_close.png" @click.stop="changSwitch(item,sw)"
-											v-if="sw.state == 0">
-								</view>
-							</view>
-						</view> -->
-					</view>
-					<!-- 分页加载 -->
-					<!-- <view class="uni-tab-bar-loading" @click="toLoadEqupMore(active)" v-if="loadMoreEqupShow">
-						<uni-load-more :status="statusEqupType" :contentText="contentText"></uni-load-more>
-					</view> -->
-				</view>
-				<!-- <view class="tp-title tp-mg-t-25" style="margin-top: 75rpx; margin-bottom: 36rpx;">操作日志与状态</view>
-				<block>
-					<view class="tp-log tp-flex tp-flex-col tp-mg-t-15">
-						<view class="tp-panel tp-flex tp-flex-col tp-box-sizing tp-pd-20"
-							v-for="(item,index) in logData" :key="index" @click="logInfo(item, index)">
-							<view class="tp-log-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c">
-								<view class="tp-time">{{item.cteate_time}}</view>
-								<view class="tp-circle tp-mg-l-r-20" :class="index==currentIndex?'tp-active':'' "
-									style="margin-left: 10rpx;">
-								</view>
-								<view class="tp-flex-1">{{item.remark}}</view>
-								<view v-if="index==currentIndex">
-									<image src="../../static/icon/log_icon_on.png"></image>
-								</view>
-								<view v-else>
-									<image src="../../static/icon/log_icon.png"></image>
-								</view>
-							</view>
-						</view>
-						<view class="uni-tab-bar-loading" @click="toLoadMore(active)" v-if="loadMoreShow">
-							<uni-load-more :status="statusType" :contentText="contentText"></uni-load-more>
-						</view>
-					</view>
-				</block>
-				<view class="tp-tmp"></view> -->
-			</view>
-		</view>
+		<!-- Components -->
 		<gq-tree
-		        ref="gqTree"
-		        :range="deviceGroupData"
-		        idKey="id"
-		        nameKey="name"
-		        allKey="value"
-		        childKey="children"
-		        pidKey="pid"
-		        :showSearch="false"
-		        :multiple="false"
-		        :cascade="false"
-		        :selectParent="true"
-		        :foldAll="false"
-		        confirmColor="#007aff"
-		        cancelColor="#757575"
-		        :title="$t('pages.deviceDetail.groupSelection')"
-		        titleColor="#757575"
-		        @cancel="treeCancel"
-		        @confirm="treeConfirm"
-		    >
-		    </gq-tree>
-		<!-- 菜单抽屉 -->
+			ref="gqTree"
+			:range="deviceGroupData"
+			idKey="id"
+			nameKey="name"
+			allKey="value"
+			childKey="children"
+			pidKey="pid"
+			:showSearch="false"
+			:multiple="false"
+			:cascade="false"
+			:selectParent="true"
+			:foldAll="false"
+			confirmColor="#646cff"
+			cancelColor="#757575"
+			:title="$t('pages.deviceDetail.groupSelection')"
+			titleColor="#333333"
+			@cancel="treeCancel"
+			@confirm="treeConfirm"
+		>
+		</gq-tree>
+
 		<uni-drawer ref="navDrawer" :mask="true" :maskClick="true" :width="300" :drawerTop='topHeight'>
 			<scroll-view scroll-y :style="{ height: height - 80 + 'px' }" style="padding-top: 50rpx;">
-				<!--  <TreeSelector :treeData="deviceGroupData" :selectedId="selectedGroupId" @groupSelect="handleGroupSelect" :style="{ '--indent-size': '20px' }"/> -->
-				<!-- <next-tree
-					:changeVerify="changeVerify" 
-					ref="nextTreeRef"
-					:uiMode="uiMode"
-					:selectParent="true"
-					:funcMode="funcMode"
-					:ifSearch="false"
-					:treeData="deviceGroupData">
-				</next-tree> -->
-				
 			</scroll-view>
 		</uni-drawer>
-		<!-- 日志详情 -->
+
 		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
-			<view class="logInfo">
+			<view class="logInfo tp-panel-popup">
 				<view class="info_title">
 					{{ $t('pages.deviceDetail.logTitle') }}
-					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()" />
-				</view>
-				<view class="info_header">
-					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
-					</view>
-					<view class="info_header_d">
-						{{ currentLog.remark }}
-					</view>
-					<span class="info_header_t">{{ currentLog.cteate_time }}</span>
-				</view>
-				<view class="info_list">
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.deviceNameLabel') }}
-						</view>
-						<view class="label">
-							{{ currentLog.device_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.deviceGroupNameLabel') }}
-						</view>
-						<view class="label">
-							{{ currentLog.asset_name }}>{{ currentLog.device_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.businessNameLabel') }}
-						</view>
-						<view class="label">
-							{{ currentLog.business_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.operationTypeLabel') }}
-						</view>
-						<view class="label" v-if="currentLog.operation_type == '1'">
-							{{ $t('pages.deviceDetail.timedTrigger') }}
-						</view>
-						<view class="label" v-if="currentLog.operation_type == '2'">
-							{{ $t('pages.deviceDetail.manualControl') }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.commandLabel') }}
-						</view>
-						<view class="label">
-							{{ currentLog.instruct }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{ $t('pages.deviceDetail.sendResultLabel') }}
-						</view>
-						<view class="label" v-if="currentLog.send_result == '1'">
-							{{ $t('pages.deviceDetail.success') }}
-						</view>
-						<view class="label" v-if="currentLog.send_result == '2'">
-							{{ $t('pages.deviceDetail.failure') }}
-						</view>
-					</view>
+					<image src="/static/icon/close.png" class="close-popup" @click="$refs.logoPopup.close()" />
 				</view>
 			</view>
 		</uni-popup>
+
 		<cys-toast ref="toast" :msg="toast.msg" direction="row" location="top"></cys-toast>
+		
+		<!-- Scroll to Top Button -->
+		<view class="scroll-to-top" v-if="showScrollTop" @click="scrollToTop">
+			<image src="/static/icon/top.png" class="scroll-icon-img" mode="aspectFit" />
+		</view>
 	</view>
 </template>
 
@@ -320,7 +192,8 @@ export default {
 			deviceGroupData: [],
 			// treeData: this.formatData(this.deviceGroupData.data), // 假设deviceGroupData是你的数据源
 			selectedGroupId: '' ,// 当前选中的group id
-			selectedGroupName: ''
+			selectedGroupName: '',
+			showScrollTop: false // 控制回到顶部按钮显示
 		}
 	},
 	// 
@@ -380,8 +253,6 @@ export default {
 
 
 	},
-	onLoad() {
-	},
 	onShow() {
 		this.isLogin = this.$login.isLoginType().isLogin
 		this.$store.state.list.equpPage = 1
@@ -393,6 +264,11 @@ export default {
 		})
 		// Force update tabbar text
 		updateTabbarText()
+	},
+	// 监听页面滚动
+	onPageScroll(e) {
+		// 当滚动超过300px时显示回到顶部按钮
+		this.showScrollTop = e.scrollTop > 300;
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {
@@ -433,6 +309,13 @@ export default {
 	// },
 	//
 	methods: {
+		// 滚动到顶部
+		scrollToTop() {
+			uni.pageScrollTo({
+				scrollTop: 0,
+				duration: 300 // 动画持续时间，单位ms
+			});
+		},
 		checkNotify() {
 			this.API.apiRequest('/api/v1/alarm/info/history', {
 				page: 1,
@@ -457,28 +340,6 @@ export default {
 		showData() {
 			this.deviceList = []
 			this.getDeviceList()
-			// 获取日志接口
-			// this.getWarningList()
-			// let count = 0;
-			// setInterval(() => {
-			// 	count++;
-			// 	if (count % 10 === 0) {
-			// 		// this.getYwData()
-			// 		if (uni.getStorageSync("currentYw").id) {
-			// 			if (uni.getStorageSync("currentGroup").id) {
-			// 				this.deviceList = []
-			// 				this.currentGroup = uni.getStorageSync("currentGroup")
-			// 				this.getDeviceList()
-			// 			} else {
-			// 				this.getYTData(uni.getStorageSync("currentYw"))
-			// 			}
-			// 		} else {
-			// 			this.getYwData()
-			// 		}
-			// 		// 获取日志接口
-			// 		// this.getWarningList()
-			// 	}
-			// }, 1000)
 		},
 		changeIndex(item, i, iIndex) {
 			item.currentIndex = iIndex
@@ -486,22 +347,6 @@ export default {
 		},
 		// 点击设备
 		clickDevice(data, dataIndex) {
-			/*var state = ''
-			if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
-				new Date().getTime() *
-				1000))) > 30) {
-				state = 0
-			}
-			if (data.latest_ts && this.TimeDifference(this.formatDate(data.latest_ts), this.formatDate(parseInt(
-				new Date().getTime() *
-				1000))) <= 30) {
-				state = 1
-			}
-			this.currentDataIndex = dataIndex
-			uni.navigateTo({
-				url: './deviceDetail?type=' + data.type + '&device_id=' + data.id + '&device_name=' +
-					data.name + '&latest_ts_name=' + data.latest_ts_name + '&state=' + data.is_online
-			})*/
 			const token = uni.getStorageSync("access_token");
 			const serverUrl = uni.getStorageSync('serverAddress');
 			const url = `${serverUrl}/device-details-app?d_id=${data.id}&token=${token}`;
@@ -617,6 +462,11 @@ export default {
 			this.$refs.navDrawer.close()
 			this.$store.state.list.equpPage = 1
 			this.getDeviceList()
+		},
+		treeCancel() {
+			// 处理树形选择器取消事件
+			// 可以在这里添加取消时的逻辑，比如关闭抽屉等
+			// this.$refs.navDrawer.close()
 		},
 		changeVerify: function(current, chooseList) {
 			console.log('当前变化的数据', current)
@@ -748,10 +598,16 @@ export default {
 					}
 					this.deviceList = lastTableData;
 					var ids = []
+					const serverUrl = uni.getStorageSync('serverAddress');
+					const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '') : '';
+
 					this.deviceList.forEach(item => {
 						item.currentIndex = 0
 						if (item.ts && item.ts != null) {
 							item.latest_ts_name = item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : ''; //this.formatDate(item.ts)
+						}
+						if (item.image_url) {
+							item.image_url = baseUrl + '/' + item.image_url;
 						}
 						item.chart_data = {}
 						ids.push(item.id)
@@ -952,6 +808,12 @@ export default {
 			var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2));
 
 			//两个分钟数相减得到时间部分的差值，以分钟为单位
+			//time1.substr(11,2)截取字符串得到时间的小时数
+			//parseInt(time1.substr(11,2))*60把小时数转化成为分钟
+			var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2));
+			var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2));
+
+			//两个分钟数相减得到时间部分的差值，以分钟为单位
 			var n = min2 - min1;
 
 			//将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
@@ -976,52 +838,352 @@ export default {
 }
 </script>
 
-<style scoped lang="css">
-@import '@/common/fishery-monitor.css';
-.title {
-	font-size: large;
-}
-.rightIcons {}
-
-.draw-title {}
-
-.draw-title h3 {
-	height: 109rpx;
-	line-height: 109rpx;
-	border-bottom: 1rpx solid #EDEEF2;
+<style lang="scss">
+/* Global Reset & Base */
+.tp-box {
+	width: 100%;
+	min-height: 100vh;
+	background: #f5f7fa; /* Light airy background */
+	position: relative;
+	overflow: hidden;
+	color: #334155;
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
-	font-weight: 500;
-	color: #494857;
-	padding-left: 44rpx;
+}
+
+/* Ambient Background Glows */
+.bg-glow-1 {
+	position: absolute;
+	top: -10%;
+	left: -10%;
+	width: 700rpx;
+	height: 700rpx;
+	background: radial-gradient(circle, rgba(100, 108, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+	border-radius: 50%;
+	z-index: 0;
+	pointer-events: none;
+	filter: blur(40px);
+}
+.bg-glow-2 {
+	position: absolute;
+	bottom: 5%;
+	right: -5%;
+	width: 600rpx;
+	height: 600rpx;
+	background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+	border-radius: 50%;
+	z-index: 0;
+	pointer-events: none;
+	filter: blur(40px);
+}
+
+/* Header */
+.tp-header {
+	position: relative;
+	z-index: 10;
+	padding: 30rpx 30rpx 10rpx;
+}
+
+.group-select-box {
+	background: rgba(255, 255, 255, 0.6);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 40rpx;
+	padding: 8rpx 24rpx 8rpx 12rpx;
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+	
+	.icon-box {
+		width: 56rpx;
+		height: 56rpx;
+		background: #646cff;
+		border-radius: 50%;
+		margin-right: 16rpx;
+		
+		.menu-icon {
+			width: 32rpx;
+			height: 32rpx;
+			filter: brightness(0) invert(1); /* Make icon white */
+		}
+	}
+	
+	.group-info {
+		.group-name {
+			font-size: 28rpx;
+			font-weight: 600;
+			color: #1e293b;
+			max-width: 300rpx;
+		}
+		
+		.clear-btn {
+			width: 32rpx;
+			height: 32rpx;
+			margin-left: 16rpx;
+			background: rgba(0, 0, 0, 0.05);
+			border-radius: 50%;
+			
+			.close-icon {
+				width: 16rpx;
+				height: 16rpx;
+				opacity: 0.6;
+			}
+		}
+	}
+}
+
+.notify-box {
+	width: 80rpx;
+	height: 80rpx;
+	background: rgba(255, 255, 255, 0.6);
+	backdrop-filter: blur(10px);
+	border-radius: 24rpx;
+	position: relative;
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
+	
+	.notify-icon {
+		width: 40rpx;
+		height: 40rpx;
+	}
+	
+	.notify-dot {
+		position: absolute;
+		top: 20rpx;
+		right: 20rpx;
+		width: 12rpx;
+		height: 12rpx;
+		background: #ef4444;
+		border-radius: 50%;
+		border: 2rpx solid #fff;
+	}
+}
+
+/* Content */
+.tp-content {
+	position: relative;
+	z-index: 1;
+	padding: 30rpx;
+}
+
+.section-header {
+	margin-bottom: 30rpx;
+	
+	.section-title {
+		font-size: 36rpx;
+		font-weight: 700;
+		color: #1e293b;
+		letter-spacing: 0.5rpx;
+	}
+}
+
+/* Device List */
+.device-list {
+	padding-bottom: 40rpx;
+}
+
+.tp-panel {
+	background: rgba(255, 255, 255, 0.7);
+	backdrop-filter: blur(20px);
+	-webkit-backdrop-filter: blur(20px);
+	border: 1px solid rgba(255, 255, 255, 0.9);
+	border-radius: 32rpx;
+	box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.04);
+	margin-bottom: 30rpx;
+	transition: all 0.3s ease;
+	overflow: hidden;
+}
+
+.device-card:active {
+	transform: scale(0.98);
+	background: rgba(255, 255, 255, 0.9);
+}
+
+.card-inner {
+	padding: 30rpx;
+}
+
+/* Device Icon */
+.device-icon-wrapper {
+	width: 100rpx;
+	height: 100rpx;
+	border-radius: 28rpx;
+	background: #f1f5f9;
+	margin-right: 30rpx;
+	flex-shrink: 0;
+	
+	.iconfont {
+		font-size: 48rpx;
+		color: #94a3b8;
+	}
+	
+	&.online {
+		background: rgba(100, 108, 255, 0.1);
+		
+		.iconfont {
+			color: #646cff;
+		}
+	}
+	
+	&.offline {
+		background: #f1f5f9;
+		
+		.iconfont {
+			color: #cbd5e1;
+		}
+	}
+}
+
+/* Device Info */
+.device-info {
+	.device-name {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #1e293b;
+		margin-bottom: 12rpx;
+	}
+	
+	.device-meta {
+		font-size: 24rpx;
+		color: #64748b;
+		margin-bottom: 6rpx;
+		
+		.label {
+			color: #94a3b8;
+			margin-right: 8rpx;
+		}
+		
+		.time-val {
+			font-family: monospace;
+			color: #64748b;
+		}
+	}
+}
+
+/* Status Badge */
+.status-badge {
+	display: flex;
+	align-items: center;
+	padding: 8rpx 20rpx;
+	border-radius: 50rpx;
+	font-size: 22rpx;
+	font-weight: 600;
+	background: #f1f5f9;
+	color: #94a3b8;
+	
+	.dot {
+		width: 12rpx;
+		height: 12rpx;
+		border-radius: 50%;
+		background: #cbd5e1;
+		margin-right: 10rpx;
+	}
+	
+	&.status-on {
+		background: rgba(100, 108, 255, 0.1);
+		color: #646cff;
+		
+		.dot {
+			background: #646cff;
+			box-shadow: 0 0 8rpx rgba(100, 108, 255, 0.4);
+		}
+	}
+	
+	&.status-off {
+		background: #f1f5f9;
+		color: #94a3b8;
+		
+		.dot {
+			background: #cbd5e1;
+		}
+	}
+}
+
+/* Utilities */
+.text-ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tp-flex { display: flex; }
+.tp-flex-col { flex-direction: column; }
+.tp-flex-row { flex-direction: row; }
+.tp-flex-j-s { justify-content: space-between; }
+.tp-flex-j-c { justify-content: center; }
+.tp-flex-a-c { align-items: center; }
+.tp-flex-a-e { align-items: flex-end; }
+.tp-flex-1 { flex: 1; }
+.tp-overflow-hidden { overflow: hidden; }
+
+/* Popup Styles */
+.tp-panel-popup {
+	background: #ffffff;
+	border-radius: 32rpx 32rpx 0 0;
+	padding: 40rpx;
+	color: #334155;
+}
+
+.info_title {
+	font-size: 32rpx;
+	font-weight: 600;
+	margin-bottom: 30rpx;
 	display: flex;
 	justify-content: space-between;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	width: 500rpx;
+	align-items: center;
+	color: #0f172a;
+	
+	.close-popup {
+		width: 32rpx;
+		height: 32rpx;
+		opacity: 0.5;
+	}
 }
 
-.draw-title h3 .rightIcons {
-	margin-right: 57rpx;
+.device-img {
+	width: 100%;
+	height: 100%;
 }
 
-.draw-title .draw-title-list {
-	height: 109rpx;
-	line-height: 109rpx;
-	border-bottom: 1rpx solid #EDEEF2;
-	font-size: 28rpx;
-	font-family: Source Han Sans CN;
-	font-weight: 500;
-	color: #494857;
-	padding-left: 82rpx;
-
+/* Scroll to Top Button */
+.scroll-to-top {
+	position: fixed;
+	right: 40rpx;
+	bottom: 140rpx;
+	width: 88rpx;
+	height: 88rpx;
+	background: rgba(255, 255, 255, 0.9);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+	border: 1px solid rgba(255, 255, 255, 0.8);
+	z-index: 999;
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	
+	.scroll-icon-img {
+		width: 44rpx;
+		height: 44rpx;
+		opacity: 0.8;
+	}
+	
+	&:active {
+		transform: scale(0.92);
+		background: rgba(255, 255, 255, 1);
+		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+	}
 }
 
-.draw-title .draw-title-list .item_text {
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
-	width: 400rpx;
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(20rpx);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 </style>

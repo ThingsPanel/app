@@ -1,178 +1,182 @@
-.fishlogo {
-		width: 274rpx;
-		height: 132rpx;
-		margin: 0 auto;
-		margin-top: 223rpx;
-		margin-bottom: 165rpx;
-		padding-top: 0rpx;
-	}
+.tp-login-box {
+	width: 100%;
+	min-height: 100vh;
+	padding: 80rpx 40rpx;
+	box-sizing: border-box;
+	background: linear-gradient(180deg, #eef0ff 0%, #f6f7fb 50%, #ffffff 100%);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
 
-	.fishlogo image {
-		width: 274rpx;
-		height: 132rpx;
-	}
+.auth-wrapper {
+	padding: 60rpx 24rpx;
+}
 
-	.tp-login-box {
-		width: 100%;
-	}
+.plain-layout {
+	background: #ffffff;
+	padding: 80rpx 48rpx;
+	align-items: center;
+}
 
-	.tp-login-welcome {
-		margin-bottom: 152rpx;
-	}
+.plain-container {
+	width: 100%;
+	max-width: 640rpx;
+}
 
-	/* .tp-login-welcome>view:first-child {
-		font-size: 42rpx;
-		font-weight: bold;
-		color: #0F0F0F;
-	}
+.plain-title,
+.plain-subtitle {
+	text-align: left;
+}
 
-	.tp-login-welcome>view:last-child {
-		font-size: 26rpx;
-		font-weight: 500;
-		color: #999999;
-	} */
+.plain-title {
+	margin-bottom: 12rpx;
+}
 
-	.tp-login-box>.tp-ipt {
-		width: 549rpx;
-		margin: 0 auto;
-		border-bottom: 1px solid #8E96AC;
-		margin-bottom: 66rpx;
-		padding-right: 10rpx;
-		display: flex;
-	}
+.auth-card {
+	width: 100%;
+	max-width: 720rpx;
+	background: #ffffff;
+	border-radius: 40rpx;
+	box-shadow: 0 25rpx 80rpx rgba(15, 23, 42, 0.08);
+	overflow: hidden;
+}
 
-	.tp-login-box>.tp-ipt>view.iconfont {
-		font-size: 28rpx;
-		color: #3A3A3A;
-		font-weight: bold;
-	}
+.hero-img {
+	width: 100%;
+	height: 260rpx;
+	object-fit: cover;
+}
 
-	.tp-login-box>.tp-ipt>input {
-		width: 100%;
-		color: #3A3A3A;
-		font-size: 28rpx;
-	}
+.card-body {
+	padding: 50rpx 48rpx 60rpx;
+}
 
-	.tp-remember-password {}
+.card-title {
+	font-size: 44rpx;
+	font-weight: 700;
+	color: #0f172a;
+}
 
-	.tp-remember-password>label {
-		font-size: 28rpx;
-		font-weight: 500;
-		color: #3A3A3A;
-	}
+.card-subtitle {
+	margin-top: 12rpx;
+	font-size: 26rpx;
+	color: #64748b;
+}
 
-	.tp-remember-password>label>checkbox {
-		transform: scale(0.6);
-	}
+.form-area {
+	display: flex;
+	flex-direction: column;
+	gap: 24rpx;
+	margin-top: 36rpx;
+}
 
-	.btn {
-		display: flex;
-		justify-content: space-between;
-		margin: 0 50rpx;
-		margin-top: 129rpx;
-	}
+.tp-ipt {
+	width: 100%;
+	padding: 20rpx 24rpx;
+	border-radius: 18rpx;
+	border: 1rpx solid #e2e8f0;
+	background: #f8fafc;
+	box-sizing: border-box;
+	display: flex;
+	align-items: center;
+	gap: 20rpx;
+}
 
-	.tp-btn {
-		width: 282rpx;
-		height: 77rpx;
-		background: #246FDD;
-		box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
-		border-radius: 39rpx;
-		line-height: 77rpx;
-		font-size: 34rpx;
-		font-family: Source Han Sans CN;
-		font-weight: bold;
-		color: #FFFFFF;
-		margin: 0 auto;
+.tp-ipt input {
+	flex: 1;
+	font-size: 28rpx;
+	color: #111826;
+	text-align: left;
+}
 
-	}
+.inputicon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36rpx;
+	height: 36rpx;
+	border-radius: 50%;
+	background: #eef2ff;
+}
 
-	.cancel_btn {
-		width: 282rpx;
-		height: 77rpx;
-		line-height: 77rpx;
-		background: #F2F2F2;
-		border-radius: 8rpx;
-		font-size: 34rpx;
-		font-family: Source Han Sans CN;
-		font-weight: bold;
-		color: #246FDD;
-		box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
-		margin-right: 27rpx;
-		border-radius: 39rpx;
-		border: none;
-		margin: 0 auto;
-	}
+.inputicon image {
+	width: 36rpx;
+	height: 36rpx;
+	margin-right: 16rpx;
+}
 
-	.vc-btn-disabled {
-		background: #888888;
-	}
+.link-text {
+	font-size: 26rpx;
+	font-weight: 600;
+	color: #646cff;
+}
 
-	.tp-getpwd {
-		font-size: 26rpx;
-		font-weight: 500;
-		color: #9999999;
-		margin-top: 25rpx;
-		text-align: center;
-	}
+.btn-group {
+	margin-top: 30rpx;
+}
 
-	.tp-plc {
-		font-size: 30rpx;
-		font-weight: 500;
-		color: #999999;
-	}
+.tp-btn {
+	width: 100%;
+	height: 92rpx;
+	line-height: 92rpx;
+	border-radius: 18rpx;
+	font-size: 30rpx;
+	font-weight: 600;
+	border: none;
+}
 
-	.fishTitle {
-		font-size: 56rpx;
-		font-family: Source Han Sans CN;
-		font-weight: bold;
-		color: #0659AA;
-		text-align: center;
-		padding-top: 203rpx;
-	}
+.tp-btn.primary {
+	background: #646cff !important;
+	color: #ffffff;
+	box-shadow: 0 18rpx 35rpx rgba(100, 108, 255, 0.35);
+}
 
-	.fishinfo {
-		margin-top: 30rpx;
-		text-align: center;
-	}
+.tp-btn[disabled] {
+	opacity: 0.45;
+}
 
-	.fishinfo image {
-		width: 200rpx;
-		height: 50rpx;
-		vertical-align: text-bottom;
-		margin-right: 6rpx;
-	}
+.foot-tip {
+	margin-top: 32rpx;
+	font-size: 26rpx;
+	color: #475569;
+	display: flex;
+	justify-content: center;
+	gap: 12rpx;
+}
 
-	.inputicon image {
-		width: 64rpx;
-		height: 64rpx;
-		margin-right: 18rpx;
-	}
+.foot-tip.center {
+	justify-content: center;
+}
 
-	.tp-login-box>.tp-ipt>input::-webkit-input-placeholder {
-		color: #3A3A3A;
-		font-size: 28rpx;
-	}
+.tp-getpwd {
+	font-size: 26rpx;
+	color: #94a3b8;
+	margin-top: 40rpx;
+	text-align: center;
+}
 
-	.tp-login-box>.tp-ipt>input:-moz-placeholder {
-		color: #3A3A3A;
-		font-size: 28rpx;
-	}
+.tp-plc {
+	font-size: 26rpx;
+	color: #94a3b8;
+}
 
-	.tp-login-box>.tp-ipt>input::-moz-placeholder {
-		color: #3A3A3A;
-		font-size: 28rpx;
-	}
+.tp-ipt input::-webkit-input-placeholder,
+.uni-input::-webkit-input-placeholder {
+	color: #94a3b8;
+}
 
-	.tp-login-box>.tp-ipt>input:-ms-input-placeholder {
-		color: #3A3A3A;
-		font-size: 28rpx;
-	}
+.tp-ipt input:-moz-placeholder,
+.uni-input:-moz-placeholder {
+	color: #94a3b8;
+}
 
-	.inputcode {
-		font-size: 28rpx;
-		font-family: Source Han Sans CN;
-		font-weight: 500;
-		color: #246FDD;
-		width: 230rpx;
-	}
+.tp-ipt input::-moz-placeholder,
+.uni-input::-moz-placeholder {
+	color: #94a3b8;
+}
+
+.tp-ipt input:-ms-input-placeholder,
+.uni-input::-ms-input-placeholder {
+	color: #94a3b8;
+}

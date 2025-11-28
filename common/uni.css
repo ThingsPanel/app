@@ -128,7 +128,7 @@ form {
 	background:#09BB07; color:#FFFFFF;
 }
 .uni-bg-blue{
-	background:#007AFF; color:#FFFFFF;
+	background:#646cff; color:#FFFFFF;
 }
 /* 标题 */
 .uni-h1 {font-size: 80rpx; font-weight:700;}
@@ -177,6 +177,19 @@ radio-group, checkbox-group{
 radio-group label, checkbox-group label{
 	padding-right:20rpx;
 }
+
+.uni-picker-container .uni-picker-action.uni-picker-action-confirm {
+	color: #646cff;
+}
+
+.modal-container .modal-content .modal-row .modal-confirm {
+	color: #646cff !important;
+}
+
+.uni-modal .uni-modal__btn_primary {
+	color: #646cff !important;
+}
+
 .uni-form-item .with-fun{
 	display:flex;
 	flex-wrap:nowrap;
@@ -215,11 +228,11 @@ radio-group label, checkbox-group label{
 }
 .uni-badge-primary {
 	color: #FFFFFF;
-	background-color: #007aff
+	background-color: #646cff
 }
 .uni-badge-blue.uni-badge-inverted,
 .uni-badge-primary.uni-badge-inverted {
-	color: #007aff;
+	color: #646cff;
 	background-color: transparent
 }
 .uni-badge-green,

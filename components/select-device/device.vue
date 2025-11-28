@@ -138,7 +138,7 @@
 </script>
 
 <style scoped>
-  /deep/.tree-cnt {
+  ::v-deep .tree-cnt {
     top: 65%;
   }
 </style>

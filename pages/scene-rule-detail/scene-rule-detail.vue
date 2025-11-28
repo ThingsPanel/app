@@ -1,49 +1,72 @@
 <template>
 	<view class="pagehome">
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col">
-			<view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
+			<!-- Background Elements for Atmosphere -->
+			<view class="bg-glow-1"></view>
+			<view class="bg-glow-2"></view>
+
+			<!-- Form Panel -->
+			<view class="form-panel tp-panel">
+				<view class="form-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 					<view class="form-item-label">{{ $t('pages.sceneRuleDetail.ruleName') }}</view>
-					<input maxlength="20" type="text" class="tp-flex-1" :placeholder="$t('pages.sceneRuleDetail.ruleName')" placeholder-class="tp-plc"
-						v-model="formData.name" />
+					<input 
+						maxlength="20" 
+						type="text" 
+						class="form-input tp-flex-1" 
+						:placeholder="$t('pages.sceneRuleDetail.ruleName')" 
+						placeholder-class="form-placeholder"
+						v-model="formData.name" 
+					/>
 				</view>
         
-				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
+				<view class="form-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
 					<view class="form-item-label">{{ $t('pages.sceneRuleDetail.ruleDescription') }}</view>
-					<input maxlength="40" type="text" class="tp-flex-1" :placeholder="$t('pages.sceneRuleDetail.ruleDescription')" placeholder-class="tp-plc"
-						v-model="formData.description" />
+					<input 
+						maxlength="40" 
+						type="text" 
+						class="form-input tp-flex-1" 
+						:placeholder="$t('pages.sceneRuleDetail.ruleDescription')" 
+						placeholder-class="form-placeholder"
+						v-model="formData.description" 
+					/>
 				</view>
 			</view>
       
-      <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30  uni-bold">
-        <text class="title">{{ $t('pages.sceneRuleDetail.ifText') }}</text>
-      </view>
+			<!-- Section: If -->
+			<view class="section-header">
+				<text class="section-title">{{ $t('pages.sceneRuleDetail.ifText') }}</text>
+			</view>
 
-      <!-- 条件列表 -->
-      <conditions-edit
-        v-if="formData.trigger_condition_groups" ref="conditions"
-        :condition-data.sync="formData.trigger_condition_groups" />
+			<!-- 条件列表 -->
+			<view class="section-content">
+				<conditions-edit
+					v-if="formData.trigger_condition_groups" 
+					ref="conditions"
+					:condition-data.sync="formData.trigger_condition_groups" 
+				/>
+			</view>
       
-      <view class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-30 uni-bold">
-        <text class="title">{{ $t('pages.sceneRuleDetail.thenText') }}</text>
-      </view>
+			<!-- Section: Then -->
+			<view class="section-header">
+				<text class="section-title">{{ $t('pages.sceneRuleDetail.thenText') }}</text>
+			</view>
 
-      <!-- 操作列表 -->
-      <actions-edit
-        v-if="formData.actions"
-        ref="actions" 
-        :actions.sync="formData.actions"
-      ></actions-edit>
+			<!-- 操作列表 -->
+			<view class="section-content">
+				<actions-edit
+					v-if="formData.actions"
+					ref="actions" 
+					:actions.sync="formData.actions"
+				></actions-edit>
+			</view>
       
-			<view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
-				<button class="tp-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
+			<!-- Save Button -->
+			<view class="save-button-container">
+				<button class="save-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
 			</view>
 		</view>
     
-    <!-- 消息提示框 -->
-    <cys-toast ref="toast" :msg="toast.msg" location="top"></cys-toast>
-    
-    <Modal v-model="visible" :title="$t('pages.sceneRuleDetail.save')" :text="$t('pages.sceneRuleDetail.saveConfirm')" @cancel='cancel' @confirm='confirm' />
+		<Modal v-model="visible" :title="$t('pages.sceneRuleDetail.save')" :text="$t('pages.sceneRuleDetail.saveConfirm')" @cancel='cancel' @confirm='confirm' />
 	</view>
 </template>
 
@@ -63,9 +86,6 @@
     },
 		data() {
 			return {
-        toast: {
-        	msg: ''
-        },
         visible: false,
         
 				formData: {},
@@ -125,8 +145,11 @@
               ]
             }
       		} else {
-      			this.toast.msg = res.message
-      			this.$refs.toast.show();
+      			uni.showToast({
+      				title: res.message,
+      				icon: 'none',
+      				duration: 2000
+      			});
       		}
       	}).finally(() => {
       		uni.hideLoading()
@@ -346,8 +369,11 @@
         
         const baseInfo = this.validateBaseInfo()
         if (baseInfo.result !== true) {
-          this.toast.msg = baseInfo.result
-          this.$refs.toast.show()
+          uni.showToast({
+            title: baseInfo.result,
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.tenant_id = this.formData.tenant_id
@@ -358,8 +384,11 @@
         }
         const conditionsInfo = this.handleConditionsData(this.$refs.conditions.ifGroupsData());
         if (!conditionsInfo || conditionsInfo.length === 0) {
-          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleConditions')
-          this.$refs.toast.show()
+          uni.showToast({
+            title: this.$t('pages.sceneRuleDetail.enterRuleConditions'),
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.trigger_condition_groups = conditionsInfo
@@ -374,8 +403,11 @@
         }*/
         const actionsInfo = this.handleActionData(this.formData.actions);
         if (!actionsInfo || actionsInfo.length === 0) {
-          this.toast.msg = this.$t('pages.sceneRuleDetail.enterRuleActions')
-          this.$refs.toast.show()
+          uni.showToast({
+            title: this.$t('pages.sceneRuleDetail.enterRuleActions'),
+            icon: 'none',
+            duration: 2000
+          });
           return;
         } else {
           submitData.actions = actionsInfo
@@ -408,8 +440,11 @@
         	if (res.code == 200) {
         		uni.navigateBack(-1)
         	} else {
-        		this.toast.msg = res.message
-        		this.$refs.toast.show();
+        		uni.showToast({
+        			title: res.message,
+        			icon: 'none',
+        			duration: 2000
+        		});
         	}
         }).finally(() => {
         	uni.hideLoading()
@@ -420,98 +455,239 @@
 </script>
 
 <style scoped lang="scss">
-	@import '@/common/alert-strategy.css';
-  
-  .form-item-label {
-    width: 120rpx;
-  }
-  
-  /deep/.uni-numbox {
-    .uni-numbox-btns {
-      width: 32rpx;
-    }
-    
-    .uni-numbox__value {
-      width: 128rpx;
-      margin: 0 20rpx;
-    }
-  }
+/* Global Reset & Base */
+.pagehome {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7fa;
+  position: relative;
+  overflow: hidden;
+}
 
-  .tooltip /deep/.uni-tooltip-popup {
+.tp-box {
+  width: 100%;
+  min-height: 100vh;
+  background: #f5f7fa;
+  position: relative;
+  color: #334155;
+  font-size: 28rpx;
+  padding-bottom: 40rpx;
+}
+
+/* Ambient Background Glows */
+.bg-glow-1 {
+  position: absolute;
+  top: -10%;
+  left: -10%;
+  width: 700rpx;
+  height: 700rpx;
+  background: radial-gradient(circle, rgba(100, 108, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+.bg-glow-2 {
+  position: absolute;
+  bottom: 5%;
+  right: -5%;
+  width: 600rpx;
+  height: 600rpx;
+  background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+  border-radius: 50%;
+  z-index: 0;
+  pointer-events: none;
+  filter: blur(40px);
+}
+
+/* Form Panel */
+.form-panel {
+  position: relative;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 32rpx;
+  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+  margin: 30rpx;
+  padding: 0;
+  overflow: hidden;
+}
+
+.form-item {
+  padding: 32rpx 30rpx;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.form-item-label {
+  width: 180rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1e293b;
+  flex-shrink: 0;
+}
+
+.form-input {
+  font-size: 28rpx;
+  color: #1e293b;
+  padding: 0;
+  background: transparent;
+}
+
+.form-placeholder {
+  color: #94a3b8;
+  font-size: 28rpx;
+}
+
+/* Section Header */
+.section-header {
+  position: relative;
+  padding: 30rpx 30rpx 20rpx;
+  
+  .section-title {
+    font-size: 36rpx;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.5rpx;
+  }
+}
+
+.section-content {
+  position: relative;
+  padding: 0 30rpx;
+}
+
+/* Save Button */
+.save-button-container {
+  position: relative;
+  padding: 40rpx 30rpx;
+}
+
+.save-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #646cff;
+  border-radius: 32rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(100, 108, 255, 0.3), 0 2rpx 8rpx rgba(100, 108, 255, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:active {
+    transform: scale(0.98);
+    box-shadow: 0 4rpx 12rpx rgba(100, 108, 255, 0.25), 0 1rpx 4rpx rgba(100, 108, 255, 0.15);
+  }
+  
+  &::after {
+    border: none;
+  }
+}
+
+/* Utilities */
+.tp-flex { display: flex; }
+.tp-flex-col { flex-direction: column; }
+.tp-flex-row { flex-direction: row; }
+.tp-flex-j-s { justify-content: space-between; }
+.tp-flex-j-c { justify-content: center; }
+.tp-flex-j-l { justify-content: flex-start; }
+.tp-flex-a-c { align-items: center; }
+.tp-flex-1 { flex: 1; }
+.tp-box-sizing { box-sizing: border-box; }
+
+/* Deep Styles */
+::v-deep .uni-numbox {
+  .uni-numbox-btns {
+    width: 32rpx;
+  }
+  
+  .uni-numbox__value {
+    width: 128rpx;
+    margin: 0 20rpx;
+  }
+}
+
+.tooltip ::v-deep .uni-tooltip-popup {
+  width: max-content;
+  left: initial;
+  right: 0;
+}
+
+::v-deep .uni-input {
+  font-size: 28rpx;
+  background-color: transparent;
+}
+
+::v-deep .uni-input-input {
+  color: #1e293b;
+}
+
+::v-deep .uni-input .uni-input-placeholder.input-placeholder {
+  color: #94a3b8;
+}
+
+::v-deep .uniui-forward, 
+::v-deep .uniui-clear {
+  font-size: 28rpx !important;
+  color: #94a3b8 !important;
+  vertical-align: middle;
+  margin-right: 12rpx;
+}
+
+::v-deep .uniui-clear {
+  font-size: 36rpx !important;
+}
+
+::v-deep .uni-icons {
+  display: block;
+}
+
+uni-text {
+  color: #1e293b;
+}
+
+::v-deep .checklist-text > span {
+  font-size: 26rpx;
+}
+
+::v-deep .tp-panel {
+  border-radius: 32rpx;
+}
+
+::v-deep .item2 + .item2 {
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+::v-deep .item > .tp-flex-1 + .tp-flex-1 {
+  margin-left: 20rpx;
+}
+
+::v-deep .item + .item {
+  border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+}
+
+::v-deep .uni-tooltip.tooltip {
+  margin-right: 8rpx;
+  
+  .uni-tooltip-popup {
+    color: #1e293b;
     width: max-content;
-    left: initial;
+    left: unset;
     right: 0;
+    bottom: 44rpx;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 16rpx;
+    border-radius: 16rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
   }
-  
-  .title {
-    font-size: 26rpx;
-  }
-  
-  /deep/.uni-input {
-    font-size: 26rpx;
-    background-color: transparent;
-  }
-  /deep/.uni-input-input {
-    color: #000;
-  }
-  
-  /deep/.uni-input .uni-input-placeholder.input-placeholder {
-    color: #999;
-  }
-  
-  
-  /deep/.uniui-forward, 
-  /deep/.uniui-clear {
-    font-size: 28rpx !important;
-    color: #999 !important;
-    vertical-align: middle;
-    margin-right: 12rpx;
-  }
-  
-  /deep/.uniui-clear {
-    font-size: 36rpx !important;
-  }
-  
-  /deep/.uni-icons {
-    display: block;
-  }
-  
-  uni-text {
-    color: #333;
-  }
-  
-  /deep/.checklist-text > span {
-    font-size: 26rpx;
-  }
-  
-  /deep/.tp-panel {
-    border-radius: 10rpx;
-    // overflow: hidden;
-  }
-  
-  /deep/.item2 + .item2 {
-    border-top: 1rpx solid #dfdfdf;
-  }
-  /deep/.item > .tp-flex-1 + .tp-flex-1 {
-    margin-left: 20rpx;
-  }
-  /deep/.item + .item {
-    border-top: 1rpx solid #f1f1f1;
-  }
-  
-  /deep/.uni-tooltip.tooltip {
-    margin-right: 8rpx;
-    
-    .uni-tooltip-popup {
-      color: #333;
-      width: max-content;
-      left: unset;
-      right: 0;
-      bottom: 44rpx;
-      background-color: #fff;
-      border: 1rpx solid #999;
-      padding: 10rpx;
-      border-radius: 8rpx;
-    }
-  }
+}
 </style>

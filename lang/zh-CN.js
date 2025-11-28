@@ -10,6 +10,8 @@ export default {
     none: '无',
     close: '关闭',
     ok: '确定',
+    search: '搜索',
+    noData: '暂无数据',
   },
   login: {
     title: '登录',
@@ -356,8 +358,8 @@ export default {
     intelligentControl: {
       sceneLinkage: '场景联动',
       sceneManagement: '场景管理',
-      addSceneLinkage: '+新增场景联动',
-      addScene: '+新增场景',
+      addSceneLinkage: '新增场景联动',
+      addScene: '新增场景',
       ruleDescription: '规则说明：',
       sceneDescription: '场景描述：',
       activate: '激活',
@@ -370,22 +372,37 @@ export default {
       farm: '猪场',
       confirmDeleteRecord: '确定要删除该条记录？',
       success: '操作成功',
-      failed: '操作失败，请稍后再试'
+      failed: '操作失败，请稍后再试',
+      noData: '暂无数据'
     },
     login: {
       title: '物联网平台',
       emailPlaceholder: '请输入邮箱',
       passwordPlaceholder: '请输入密码',
       loginButton: '登录',
-      registerButton: '注册',
+      registerButton: '免费注册',
       cancelLogin: '取消登录',
       loginSuccess: '登录成功',
       networkError: '网络错误，请稍后再试',
       loading: '加载中',
-      authDescription: '登录'
+      authDescription: '登录',
+      noAccount: '没有账号？',
+      errors: {
+        emailRequired: '请输入邮箱',
+        invalidEmail: '请输入正确的邮箱格式',
+        passwordRequired: '请输入密码',
+        passwordTooShort: '密码至少需要6个字符',
+        emailOrPasswordError: '邮箱或密码错误',
+        userNotFound: '用户不存在',
+        accountDisabled: '账号已被禁用',
+        loginFailed: '登录失败，请稍后再试',
+        unauthorized: '未授权，请重新登录'
+      },
     },
     register: {
       title: '注册',
+      subtitle: '创建您的 ThingsPanel 账号',
+      hasAccount: '已经有账号？',
       emailPlaceholder: '请输入邮箱',
       codePlaceholder: '请输入验证码',
       getCode: '获取验证码',
@@ -408,6 +425,7 @@ export default {
       },
       messages: {
         codeSent: '验证码已发送',
+        codeSending: '发送中...',
         codeFailed: '验证码发送失败',
         registerSuccess: '注册成功',
         registerFailed: '注册失败'
