@@ -330,7 +330,7 @@
                       >
                         <view class="uni-input">{{ formatTime(ifItem.startTimeValue) || $t('pages.sceneRuleDetail.selectStartTime') }}</view>
                       </picker>
-                      -
+                      <view class="time-range-divider">-</view>
                       <picker
                         mode="time"
                         v-model="ifItem.endTimeValue"
@@ -1418,9 +1418,10 @@
   
   .search-input {
     width: 100%;
-    padding: 20rpx;
+    padding: 36rpx;
     border: 1px solid #ddd;
     border-radius: 8rpx;
+    box-sizing: border-box;
     font-size: 28rpx;
   }
   
@@ -1429,7 +1430,6 @@
   }
   
   .select_item {
-    padding: 30rpx;
     border-bottom: 1px solid #f0f0f0;
     font-size: 28rpx;
     color: #333;
@@ -1443,4 +1443,38 @@
     text-align: center;
     color: #999;
   }
+
+.checkbox-space {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: 12rpx;
+  row-gap: 16rpx;
+  width: 100%;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #1e293b;
+}
+
+.checkbox-label checkbox {
+  transform: scale(0.82);
+  margin-right: 12rpx;
+}
+
+.time-range {
+  display: flex;
+  align-items: center;
+  column-gap: 20rpx;
+}
+
+.time-range-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  color: #1e293b;
+}
   </style>

@@ -440,7 +440,11 @@ export default {
       alarmLevels: {
         L: '低',
         M: '中', 
-        H: '高'
+        H: '高',
+        '1': '高',
+        '2': '中',
+        '3': '低',
+        default: '未知'
       },
       alarmStatus: '告警状态',
       alarmStatuses: {
@@ -448,10 +452,12 @@ export default {
         L: '低级报警',
         M: '中级报警',
         H: '高级报警',
+        default: '未知状态',
       },
       sceneLinkageName: '关联场景联动名称',
       alarmDescription: '告警描述',
       alarmDevices: '告警设备列表',
+      noDevices: '暂无关联设备',
       deviceID: '设备编码',
       deviceName: '设备名称',
     },
@@ -535,8 +541,8 @@ export default {
       selectMinute: '请选择分钟',
       selectTime: '请选择时间',
       selectDate: '请选择日期',
-      selectStartTime: '请选择开始时间',
-      selectEndTime: '请选择结束时间',
+      selectStartTime: '开始时间',
+      selectEndTime: '结束时间',
       singleTime: '单次',
       repeat: '重复',
       timeRange: '时间范围',
