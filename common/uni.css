@@ -186,6 +186,10 @@ radio-group label, checkbox-group label{
 	color: #646cff !important;
 }
 
+.uni-modal .uni-modal__btn_primary {
+	color: #646cff !important;
+}
+
 .uni-form-item .with-fun{
 	display:flex;
 	flex-wrap:nowrap;

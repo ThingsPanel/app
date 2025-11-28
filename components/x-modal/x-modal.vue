@@ -98,18 +98,18 @@
 
 <style lang="scss">
 	$fontSizeLg: 18px;
-	$fontSizeSm: 14px;
+	$fontSizeSm: 16px;
 	
 	.modal-container{
 		position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 999;background: rgba(0, 0, 0, .6);visibility: hidden;opacity: 0;transition: all .2s;display: flex;align-items: center;justify-content: center;
 		.modal-content{
 			width: 80%;border-radius: 10rpx;background: #fff;overflow: hidden;animation: fadeZoom .15s linear;
 			.modal-title{
-				padding: 30rpx 30rpx 0;text-align: center;color: #404040;font-size: $fontSizeLg;
+				padding: 30rpx 30rpx 0;text-align: center;color: #404040;font-size: $fontSizeLg;font-weight: 600;
 			}
 			.modal-title-padding{padding-bottom: 30rpx;}
 			.modal-article{
-				padding: 40rpx 30rpx 50rpx;font-size: $fontSizeSm;color: #999;
+				padding: 40rpx 30rpx 50rpx;font-size: $fontSizeSm;color: #333;text-align: center;line-height: 1.6;font-weight: 400;
 			}
 			.modal-row{
 				display: flex;text-align: center;font-size: $fontSizeLg;line-height: 100rpx;position: relative;color: #404040;
@@ -117,13 +117,13 @@
 					flex: 1;width: 100%;position: relative;
 				}
 				.modal-col:first-child::after{
-					content: '';position: absolute;top: 0;bottom: 0;right: 0;border-right: 1px solid #ccc;transform: scaleX(.36);
+					content: '';position: absolute;top: 0;bottom: 0;right: 0;border-right: 1px solid #e5e5e5;transform: scaleX(.36);
 				}
-				.modal-confirm{color: rgb(0, 122, 255);}
+				.modal-confirm{color: rgb(0, 122, 255);font-weight: 500;}
 				.modal-hover{background: #f2f2f2;}
 			}
 			.modal-row::after{
-				content: '';position: absolute;left: 0;right: 0;top: 0;border-top: 1px solid #ccc;transform: scaleY(.36);
+				content: '';position: absolute;left: 0;right: 0;top: 0;border-top: 1px solid #e5e5e5;transform: scaleY(.36);
 			}
 		}
 		@keyframes fadeZoom {
