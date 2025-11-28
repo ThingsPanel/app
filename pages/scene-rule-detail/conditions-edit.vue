@@ -300,7 +300,7 @@
                   class="tp-mg-t-b-10"
                   type="plus" 
                   size="40rpx"
-                  color="#2979ff"
+                  color="#4CAF50"
                   @click="addIfGroupsSubItem(ifGroupIndex)"
                 ></uni-icons>
               </view>
@@ -337,7 +337,7 @@
               class="tp-mg-t-b-10"
               type="plus" 
               size="40rpx"
-              color="#2979ff"
+              color="#4CAF50"
               @click="addIfGroupItem(null)"
             ></uni-icons>
           </view>

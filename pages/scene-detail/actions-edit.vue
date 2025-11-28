@@ -131,7 +131,7 @@
                 class="tp-mg-t-b-10"
                 type="plus" 
                 size="40rpx"
-                color="#2979ff"
+                color="#4CAF50"
                 @click="addIfGroupsSubItem(actionGroupIndex)"
               ></uni-icons>
             </view>
@@ -198,7 +198,7 @@
             class="tp-mg-t-b-10"
             type="plus" 
             size="40rpx"
-            color="#2979ff"
+            color="#4CAF50"
             @click="addActionGroupItem()"
           ></uni-icons>
         </view>
@@ -316,8 +316,11 @@
     watch: {
         actions: {
             handler(newActions, _oldVal) {
+                if (!newActions || !Array.isArray(newActions)) {
+                    return;
+                }
                 newActions.forEach((item, index) => {
-                    if (item.actionType === '1') {
+                    if (item && item.actionType === '1' && item.actionInstructList && Array.isArray(item.actionInstructList)) {
                         item.actionInstructList.map((instructItem, instructIndex) => {
                             this.actionParamShow(index, instructIndex, true);
                         });
@@ -329,13 +332,15 @@
         }
     },
     created() {
-        this.actions.map((item, index) => {
-            if (item.actionType === '1') {
-              item.actionInstructList.map((instructItem, instructIndex) => {
-                this.actionParamShow(index, instructIndex, true);
-              });
-            }
-        });
+        if (this.actions && Array.isArray(this.actions)) {
+            this.actions.map((item, index) => {
+                if (item && item.actionType === '1' && item.actionInstructList && Array.isArray(item.actionInstructList)) {
+                  item.actionInstructList.map((instructItem, instructIndex) => {
+                    this.actionParamShow(index, instructIndex, true);
+                  });
+                }
+            });
+        }
         if( this.deviceOptions.length === 0 ) {
             this.getDevice(null, null);
         }

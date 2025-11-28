@@ -1,8 +1,11 @@
 <template>
   <view class="tp-flex-1">
-    <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showPop">
+    <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c select-row" @tap="showPop">
       <view class="label">{{label}}</view>
-    	<input class="uni-input" :placeholder="placeholder" disabled :value="showValue"/>
+    	<view class="input-wrapper">
+        <input class="uni-input" :placeholder="placeholder" disabled :value="showValue"/>
+        <view class="input-overlay" @tap="showPop"></view>
+      </view>
     	<view class="" v-if="!clearable || (clearable && !value)">
         <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
       </view>
@@ -40,7 +43,7 @@
       },
       options: {
         type: Array,
-        default: [],
+        default: () => [],
       },
       optionValue: {
         type: String,
@@ -106,5 +109,20 @@
 <style scoped>
   .label {
     font-size: 26rpx;
+  }
+  .select-row {
+    position: relative;
+  }
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+  .input-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
   }
 </style>
