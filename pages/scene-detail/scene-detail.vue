@@ -1,42 +1,53 @@
 <template>
   <view class="pagehome">
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
-      <view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
-        <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-          <view>{{ $t('pages.sceneDetail.sceneTitle') }}</view>
-          <input
-            maxlength="20"
-            type="text"
-            class="tp-flex-1 tp-mg-l-20"
-            :placeholder="$t('pages.sceneDetail.sceneTitle')"
-            placeholder-class="tp-plc"
-            v-model.trim="formData.info.name"
-          />
-        </view>
-        <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-b-25">
-          <view>{{ $t('pages.sceneDetail.sceneDescription') }}</view>
-          <input
-            maxlength="40"
-            type="text"
-            class="tp-flex-1 tp-mg-l-20"
-            :placeholder="$t('pages.sceneDetail.sceneDescription')"
-            placeholder-class="tp-plc"
-            v-model.trim="formData.info.description"
-          />
-        </view>
-      </view>
-      <view style="border-radius: 0;" class="tp-panel tp-flex tp-flex-col tp-pd-l-r-30">
-      <view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c tp-box-sizing tp-pd-t-25">
-        <view>{{ $t('pages.sceneDetail.actions') }}：</view>
-      </view>
-    </view>
-    <actions-edit
-        :actions.sync="formData.actions"
-        :isInSceneEdit="true"
-      ></actions-edit>
+      <!-- Background Elements for Atmosphere -->
+      <view class="bg-glow-1"></view>
+      <view class="bg-glow-2"></view>
 
-      <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-b-40">
-        <button class="tp-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
+      <!-- Content Container -->
+      <view class="content-wrapper">
+        <!-- Scene Info Card -->
+        <view class="tp-panel scene-card">
+          <view class="tp-ipt-item">
+            <view class="input-label">{{ $t('pages.sceneDetail.sceneTitle') }}</view>
+            <input
+              maxlength="20"
+              type="text"
+              class="modern-input"
+              :placeholder="$t('pages.sceneDetail.sceneTitle')"
+              placeholder-class="input-placeholder"
+              v-model.trim="formData.info.name"
+            />
+          </view>
+          <view class="tp-ipt-item">
+            <view class="input-label">{{ $t('pages.sceneDetail.sceneDescription') }}</view>
+            <input
+              maxlength="40"
+              type="text"
+              class="modern-input"
+              :placeholder="$t('pages.sceneDetail.sceneDescription')"
+              placeholder-class="input-placeholder"
+              v-model.trim="formData.info.description"
+            />
+          </view>
+        </view>
+
+        <!-- Actions Card -->
+        <view class="tp-panel actions-card">
+          <view class="section-header">
+            <text class="section-title">{{ $t('pages.sceneDetail.actions') }}</text>
+          </view>
+          <actions-edit
+            :actions.sync="formData.actions"
+            :isInSceneEdit="true"
+          ></actions-edit>
+        </view>
+
+        <!-- Save Button -->
+        <view class="button-wrapper">
+          <button class="modern-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
+        </view>
       </view>
 
       <!-- 消息提示框 -->
@@ -93,7 +104,6 @@ export default {
     uni.setNavigationBarTitle({
       title: this.$t('pages.addScene')
     })
-    uni.set
   },
   onLoad(options) {
     this.editId = options.id;
@@ -290,9 +300,190 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
 	@import '@/common/alert-strategy.css';
   
+  /* Global Reset & Base */
+  .pagehome {
+    width: 100%;
+    min-height: 100vh;
+    background: #f5f7fa;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tp-box {
+    width: 100%;
+    min-height: 100vh;
+    background: #f5f7fa;
+    position: relative;
+    color: #334155;
+    font-size: 28rpx;
+    padding-bottom: 40rpx;
+  }
+
+  /* Ambient Background Glows */
+  .bg-glow-1 {
+    position: fixed;
+    top: -10%;
+    left: -10%;
+    width: 700rpx;
+    height: 700rpx;
+    background: radial-gradient(circle, rgba(100, 108, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+
+  .bg-glow-2 {
+    position: fixed;
+    bottom: 5%;
+    right: -5%;
+    width: 600rpx;
+    height: 600rpx;
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+    border-radius: 50%;
+    z-index: 0;
+    pointer-events: none;
+    filter: blur(40px);
+  }
+
+  /* Content Wrapper */
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+    padding: 30rpx;
+    padding-bottom: 100rpx;
+  }
+
+  /* Modern Card Styles */
+  .tp-panel {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 32rpx;
+    box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.04);
+    margin-bottom: 30rpx;
+    transition: all 0.3s ease;
+    overflow: hidden;
+  }
+
+  .scene-card {
+    padding: 0;
+    background: #ffffff;
+    box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  }
+
+  .actions-card {
+    padding: 30rpx;
+  }
+
+  /* Section Header */
+  .section-header {
+    margin-bottom: 30rpx;
+    
+    .section-title {
+      font-size: 32rpx;
+      font-weight: 700;
+      color: #1e293b;
+      letter-spacing: 0.5rpx;
+    }
+  }
+
+  /* Input Items */
+  .tp-ipt-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 30rpx;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20rpx;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .input-label {
+      font-size: 28rpx;
+      font-weight: 700;
+      color: #334155;
+      min-width: 140rpx;
+      flex-shrink: 0;
+    }
+  }
+
+  /* Modern Input */
+  .modern-input {
+    flex: 1;
+    height: auto;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    font-size: 28rpx;
+    color: #1e293b;
+    transition: all 0.3s ease;
+
+    &:focus {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  .input-placeholder {
+    color: #94a3b8;
+    font-size: 28rpx;
+  }
+
+  /* Modern Button */
+  .button-wrapper {
+    padding: 0 30rpx;
+    margin-top: 40rpx;
+  }
+
+  .modern-btn {
+    width: 100%;
+    height: 96rpx;
+    line-height: 96rpx;
+    background: linear-gradient(135deg, #646cff 0%, #7c3aed 100%);
+    border-radius: 24rpx;
+    font-size: 32rpx;
+    font-weight: 600;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 8rpx 24rpx rgba(100, 108, 255, 0.3);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 4rpx 12rpx rgba(100, 108, 255, 0.2);
+
+      &::before {
+        width: 300rpx;
+        height: 300rpx;
+      }
+    }
+  }
+
+  /* Tooltip */
   .tooltip ::v-deep .uni-tooltip-popup {
     width: max-content;
     left: initial;
@@ -304,26 +495,27 @@ export default {
   }
   
   ::v-deep .uni-input {
-    font-size: 26rpx;
+    background-color: transparent;
+    font-size: 28rpx;
   }
+
   ::v-deep .uni-input-input {
-    color: #000;
+    color: #1e293b;
   }
   
   ::v-deep .uni-input .uni-input-placeholder.input-placeholder {
-    color: #999;
+    color: #94a3b8;
   }
   
-  
   ::v-deep .uniui-forward, 
- ::v-deep .uniui-clear {
+  ::v-deep .uniui-clear {
     font-size: 28rpx !important;
-    color: #999 !important;
+    color: #94a3b8 !important;
     vertical-align: middle;
     margin-right: 12rpx;
   }
   
-::v-deep .uniui-clear {
+  ::v-deep .uniui-clear {
     font-size: 36rpx !important;
   }
   
@@ -332,25 +524,34 @@ export default {
   }
   
   uni-text {
-    color: #333;
+    color: #1e293b;
   }
   
   ::v-deep .checklist-text > span {
     font-size: 26rpx;
   }
   
-  ::v-deep .tp-panel {
-    border-radius: 10rpx;
-    overflow: hidden;
-  }
-  
   ::v-deep .item2 {
-    border-bottom: 1rpx solid #dfdfdf;
+    border-bottom: 1rpx solid rgba(0, 0, 0, 0.05);
   }
+
   ::v-deep .item > .tp-flex-1 + .tp-flex-1 {
     margin-left: 20rpx;
   }
+
   ::v-deep .item + .item {
-    border-top: 1rpx solid #f1f1f1;
+    border-top: 1rpx solid rgba(0, 0, 0, 0.05);
+  }
+  
+  /* 确保弹窗从页面最外层底部弹出 */
+  ::v-deep .custom-select-popup .uni-popup {
+    position: fixed !important;
+    z-index: 99999 !important;
+  }
+  
+  ::v-deep .custom-select-popup .uni-popup.bottom .uni-transition {
+    position: fixed !important;
+    bottom: 0 !important;
+    z-index: 100000 !important;
   }
 </style>
