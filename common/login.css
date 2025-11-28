@@ -127,7 +127,7 @@
 }
 
 .tp-btn.primary {
-	background: #646cff;
+	background: #646cff !important;
 	color: #ffffff;
 	box-shadow: 0 18rpx 35rpx rgba(100, 108, 255, 0.35);
 }

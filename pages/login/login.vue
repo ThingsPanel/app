@@ -4,6 +4,7 @@
 			<image class="brand-logo" src="/static/icon/logo.png" mode="heightFix" />
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
+				<text class="lang-arrow">›</text>
 			</view>
 		</view>
 		<view class="plain-container">
@@ -60,6 +61,7 @@ import {
 } from "vuex";
 import uniIcons from "@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue";
 import login from "../../store/login";
+import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 // 
 export default {
 	components: {
@@ -72,7 +74,9 @@ export default {
 			email: '',
 			password: '',
 			server: '',
-			currentLanguage: '',
+			currentLanguage: AVAILABLE_LANGUAGES.find(
+				lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
+			)?.label || '中文',
 			toast: {
 				msg: ''
 			},
@@ -88,20 +92,22 @@ export default {
 		}
 	},
 	onShow() {
-		uni.setNavigationBarTitle({
-			title: this.$t('pages.loginTitle')
-		})
-		const savedLang = uni.getStorageSync('LANG');
-		if (savedLang) {
-			this.applyLanguage(savedLang);
-		} else {
-			this.syncLanguageLabel();
+		try {
+			uni.setNavigationBarTitle({
+				title: this.$t('pages.loginTitle')
+			});
+		} catch (e) {
+			console.warn('设置导航栏标题失败:', e);
 		}
-		this.server = uni.getStorageSync('serverAddress') || ''
+		
+		// 同步语言标签
+		this.syncLanguageLabel();
+		
+		this.server = uni.getStorageSync('serverAddress') || '';
 		if (uni.getStorageSync('email') && uni.getStorageSync('password')) {
-			this.email = uni.getStorageSync('email')
-			this.password = uni.getStorageSync('password')
-			this.toLogin()
+			this.email = uni.getStorageSync('email');
+			this.password = uni.getStorageSync('password');
+			this.toLogin();
 		}
 	},
 	methods: {
@@ -110,25 +116,28 @@ export default {
 			// uni.setStorageSync('serverAddress', v.detail.value)
 		},
 		showLanguagePopup() {
-			const nextLocale = this.$i18n && this.$i18n.locale === 'zh-CN' ? 'en-US' : 'zh-CN';
-			this.applyLanguage(nextLocale);
-		},
-		applyLanguage(locale) {
-			if (this.$i18n) {
-				this.$i18n.locale = locale;
-			}
-			if (uni.setLocale) {
-				uni.setLocale(locale);
-			}
-			uni.setStorageSync('LANG', locale);
-			this.syncLanguageLabel();
-			uni.setNavigationBarTitle({
-				title: this.$t('pages.loginTitle')
-			})
+			uni.showActionSheet({
+				itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
+				success: (res) => {
+					const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];
+					changeLanguage(selectedLang.code);
+					this.currentLanguage = selectedLang.label;
+					// 更新导航栏标题
+					try {
+						uni.setNavigationBarTitle({
+							title: this.$t('pages.loginTitle')
+						});
+					} catch (e) {
+						console.warn('设置导航栏标题失败:', e);
+					}
+				}
+			});
 		},
 		syncLanguageLabel() {
 			const locale = this.$i18n ? this.$i18n.locale : 'zh-CN';
-			this.currentLanguage = locale === 'zh-CN' ? '中文' : 'English';
+			this.currentLanguage = AVAILABLE_LANGUAGES.find(
+				lang => lang.code === locale
+			)?.label || '中文';
 		},
 		// 取消授权
 		toCloseLogin() {
@@ -348,12 +357,33 @@ export default {
 }
 
 .lang-switch {
-	padding: 6rpx 18rpx;
-	border-radius: 8rpx;
+	padding: 10rpx 20rpx;
+	border-radius: 12rpx;
 	border: 1rpx solid rgba(100, 108, 255, 0.3);
-	background: rgba(100, 108, 255, 0.08);
+	background: rgba(100, 108, 255, 0.1);
 	color: #646cff;
-	font-size: 24rpx;
+	font-size: 26rpx;
+	cursor: pointer;
+	transition: all 0.3s ease;
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+}
+
+.lang-switch:active {
+	background: rgba(100, 108, 255, 0.2);
+	transform: scale(0.98);
+}
+
+.lang-label {
+	font-weight: 500;
+}
+
+.lang-arrow {
+	font-size: 32rpx;
+	color: #646cff;
+	opacity: 0.6;
+	font-weight: 300;
 }
 
 .plain-container {

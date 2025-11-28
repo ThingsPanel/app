@@ -5,7 +5,7 @@
     "configurations" : [
         {
             "app" : {
-                "launchtype" : "local"
+                "launchtype" : "remote"
             },
             "app-plus" : {
                 "launchtype" : "remote"

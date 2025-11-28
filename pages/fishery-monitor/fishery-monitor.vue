@@ -463,6 +463,11 @@ export default {
 			this.$store.state.list.equpPage = 1
 			this.getDeviceList()
 		},
+		treeCancel() {
+			// 处理树形选择器取消事件
+			// 可以在这里添加取消时的逻辑，比如关闭抽屉等
+			// this.$refs.navDrawer.close()
+		},
 		changeVerify: function(current, chooseList) {
 			console.log('当前变化的数据', current)
 			console.log('已选择的数据', chooseList)

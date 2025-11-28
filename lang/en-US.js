@@ -41,11 +41,11 @@ export default {
     tip: 'Tip',
     enterServerAddressToast: 'Please enter server address',
     confirm: 'Confirm',
-    authDescription: 'Login authorization'
+    authDescription: 'Sign In authorization'
   },
   pages: {
-    loginTitle: 'Log In',
-    register: 'Register',
+    loginTitle: 'Sign In',
+    register: 'Sign Up',
     notifyTitle: 'Alerts',
     notifyDetailTitle: 'Alert Details',
     deviceList: 'Device List',
@@ -382,27 +382,16 @@ export default {
       title: 'IoT Platform',
       emailPlaceholder: 'Please enter email',
       passwordPlaceholder: 'Please enter password',
-      loginButton: 'Login',
+      loginButton: 'Sign In',
       registerButton: 'Sign Up',
-      cancelLogin: 'Cancel Login',
-      loginSuccess: 'Login successful',
+      cancelLogin: 'Cancel Sign In',
+      loginSuccess: 'Sign In successful',
       networkError: 'Network error, please try again later',
       loading: 'Loading',
-      authDescription: 'Login',
-      errors: {
-        emailRequired: 'Please enter email',
-        invalidEmail: 'Please enter a valid email address',
-        passwordRequired: 'Please enter password',
-        passwordTooShort: 'Password must be at least 6 characters',
-        emailOrPasswordError: 'Email or password is incorrect',
-        userNotFound: 'User not found',
-        accountDisabled: 'Account has been disabled',
-        loginFailed: 'Login failed, please try again later',
-        unauthorized: 'Unauthorized, please login again'
-      }
+      authDescription: 'Sign In',
     },
     register: {
-      title: 'Register',
+      title: 'Sign Up',
       subtitle: 'Create your ThingsPanel account',
       hasAccount: 'Already have an account?',
       emailPlaceholder: 'Please enter email',
