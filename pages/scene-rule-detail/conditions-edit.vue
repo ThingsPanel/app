@@ -1418,9 +1418,10 @@
   
   .search-input {
     width: 100%;
-    padding: 20rpx;
+    padding: 36rpx;
     border: 1px solid #ddd;
     border-radius: 8rpx;
+    box-sizing: border-box;
     font-size: 28rpx;
   }
   
@@ -1429,7 +1430,6 @@
   }
   
   .select_item {
-    padding: 30rpx;
     border-bottom: 1px solid #f0f0f0;
     font-size: 28rpx;
     color: #333;
