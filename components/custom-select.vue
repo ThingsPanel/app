@@ -1,5 +1,5 @@
 <template>
-  <view class="tp-flex-1">
+  <view class="tp-flex-1 custom-select-popup">
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c select-row" @tap="showPop">
       <view class="label">{{label}}</view>
     	<view class="input-wrapper">
@@ -99,7 +99,9 @@
         this.$refs.pop.close()
       },
       onSelect (option) {
-        this.$emit('update:value', option[this.optionValue])
+        const newValue = option[this.optionValue]
+        this.$emit('update:value', newValue)
+        this.$emit('change', newValue)
         this.hidePop()
       },
     },
@@ -124,5 +126,25 @@
     right: 0;
     bottom: 0;
     z-index: 1;
+  }
+</style>
+
+<style>
+  /* 确保弹出层从页面底部弹出，不受父元素影响 */
+  .custom-select-popup ::v-deep .uni-popup {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+  }
+  
+  .custom-select-popup ::v-deep .uni-popup.bottom .uni-popup__wrapper {
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: auto !important;
   }
 </style>

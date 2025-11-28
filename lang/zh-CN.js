@@ -370,7 +370,8 @@ export default {
       farm: '猪场',
       confirmDeleteRecord: '确定要删除该条记录？',
       success: '操作成功',
-      failed: '操作失败，请稍后再试'
+      failed: '操作失败，请稍后再试',
+      noData: '暂无数据'
     },
     login: {
       title: '物联网平台',

@@ -24,8 +24,7 @@
           <view
               v-for="(instructItem, instructIndex) in actionGroupItem.actionInstructList"
               :key="instructIndex"
-              style="border: 1px solid #ccc;"
-              class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-flex-wrap tp-mg-10 tp-pd-b-10"
+              class="action-item-card item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-flex-wrap tp-mg-10 tp-pd-b-10"
           >
           <view class="tp-flex-1">
             <view class="max-w-30 w-full">
@@ -537,4 +536,45 @@
   </script>
   <style>
 	@import '@/common/alert-strategy.css';
+	
+	.action-item-card {
+		background: #f5f5f5;
+		border-radius: 24rpx;
+		padding: 32rpx 28rpx;
+    margin-left: 24rpx;
+    margin-right: 24rpx;
+		margin-bottom: 24rpx;
+		position: relative;
+	}
+	
+	.action-item-card:not(:last-child)::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 28rpx;
+		right: 28rpx;
+		height: 1rpx;
+		background-color: rgba(0, 0, 0, 0.1);
+	}
+	
+	.action-item-card .tp-flex-1 {
+		margin-right: 24rpx;
+	}
+	
+	.action-item-card .tp-flex-1:last-child {
+		margin-right: 0;
+	}
+	
+	.action-item-card .max-w-30,
+	.action-item-card .max-w-40,
+	.action-item-card .max-w-60 {
+		margin-right: 20rpx;
+		margin-bottom: 8rpx;
+	}
+	
+	.action-item-card .max-w-30:last-child,
+	.action-item-card .max-w-40:last-child,
+	.action-item-card .max-w-60:last-child {
+		margin-right: 0;
+	}
   </style>

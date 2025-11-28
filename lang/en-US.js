@@ -373,7 +373,8 @@ export default {
       farm: 'Pig Farm',
       confirmDeleteRecord: 'Are you sure you want to delete this record?',
       success: 'Operation successful',
-      failed: 'Operation failed, please try again later'
+      failed: 'Operation failed, please try again later',
+      noData: 'No Data'
     },
     login: {
       title: 'IoT Platform',
