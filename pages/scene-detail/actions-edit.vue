@@ -637,12 +637,26 @@
       onScenePickerChange(e, actionGroupIndex) {
         const index = e.detail.value;
         const actionGroupItem = this.actions[actionGroupIndex];
-        actionGroupItem.action_target = this.sceneList[index] ? this.sceneList[index].id : null;
+        const selectedScene = this.sceneList[index];
+        // 使用 Vue.set 确保响应式更新
+        this.$set(actionGroupItem, 'action_target', selectedScene ? selectedScene.id : null);
+        // 触发视图更新和数据同步
+        this.$nextTick(() => {
+          this.$forceUpdate();
+          this.$emit('update:actions', this.actions);
+        });
       },
       onAlarmPickerChange(e, actionGroupIndex) {
         const index = e.detail.value;
         const actionGroupItem = this.actions[actionGroupIndex];
-        actionGroupItem.action_target = this.alarmList[index] ? this.alarmList[index].id : null;
+        const selectedAlarm = this.alarmList[index];
+        // 使用 Vue.set 确保响应式更新
+        this.$set(actionGroupItem, 'action_target', selectedAlarm ? selectedAlarm.id : null);
+        // 触发视图更新和数据同步
+        this.$nextTick(() => {
+          this.$forceUpdate();
+          this.$emit('update:actions', this.actions);
+        });
       },
       // 获取 picker 的索引值
       getPickerIndex(options, value, valueKey = 'value') {

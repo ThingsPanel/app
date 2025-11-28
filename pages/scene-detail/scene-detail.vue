@@ -406,11 +406,11 @@ export default {
     }
 
     .input-label {
-      font-size: 28rpx;
-      font-weight: 700;
-      color: #334155;
-      min-width: 140rpx;
-      flex-shrink: 0;
+      font-size: 28rpx !important;
+      font-weight: 700 !important;
+      color: #334155 !important;
+      min-width: 140rpx !important;
+      flex-shrink: 0 !important;
     }
   }
 
