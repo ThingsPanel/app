@@ -426,7 +426,7 @@
             @input="onDeviceSearchInput"
           />
         </view>
-        <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
+        <scroll-view class="scroll-view-equipment" :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
           <view class="selectlist">
             <view 
               class="select_item" 
@@ -1418,11 +1418,12 @@
   
   .search-input {
     width: 100%;
-    padding: 36rpx;
+    height: 80rpx;
     border: 1px solid #ddd;
     border-radius: 8rpx;
     box-sizing: border-box;
     font-size: 28rpx;
+    padding-left: 30rpx;
   }
   
   .selectlist {
@@ -1477,4 +1478,27 @@
   width: 40rpx;
   color: #1e293b;
 }
+
+::v-deep .search-input .uni-input-input {
+  padding: 16rpx 30rpx;
+  padding-left: 0;
+  height: 80rpx;
+  line-height: 80rpx;
+  font-size: 28rpx;
+  color: #1e293b;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.scroll-view-equipment {
+  max-height: 600rpx;
+  padding: 0 30rpx;
+  box-sizing: border-box;
+}
+
+.scroll-view-equipment scroll-view {
+  height: 100%;
+  box-sizing: border-box;
+}
+
   </style>
