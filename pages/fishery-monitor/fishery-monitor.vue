@@ -571,17 +571,9 @@ export default {
 			}).then(res => {
 				if (res.code === 200) {
 					var newData = res.data.list || [];
-					var data = []
-					if (newData.length > 0) {
-						newData.forEach(item => {
-							if (item.device_type != 2) {
-								data.push(item)
-							}
-						})
-					}
 					var lastTableData = [];
-					if (data.length > 0) {
-						let pauArry = data;
+					if (newData.length > 0) {
+						let pauArry = newData;
 						/* 分页 */
 						let pageSize = 20;
 						if (pageSize == newData.length) {
