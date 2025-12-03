@@ -49,7 +49,7 @@ export default {
     notifyTitle: 'Alerts',
     notifyDetailTitle: 'Alert Details',
     deviceList: 'Device List',
-    intelligentControlTitle: 'Intelligent Control',
+    intelligentControlTitle: 'Automation',
     userCenter: 'User Center',
     basicInfo: 'Basic Info',
     deviceDetailTitle: 'Device Detail',
@@ -359,9 +359,9 @@ export default {
       class5: 'Class 5'
     },
     intelligentControl: {
-      sceneLinkage: 'Scene Linkage',
-      sceneManagement: 'Scene Management',
-      addSceneLinkage: 'Add Scene Linkage',
+      sceneLinkage: 'Automation Rules',
+      sceneManagement: 'Scenes',
+      addSceneLinkage: 'Add Automation Rule',
       addScene: 'Add Scene',
       ruleDescription: 'Rule Description:',
       sceneDescription: 'Scene Description:',

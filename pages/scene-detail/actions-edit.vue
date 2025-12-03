@@ -57,18 +57,11 @@
             <!-- 单个设备 -->
             <view v-if="instructItem.action_type === '10'" class="max-w-40 w-full">
               <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                <picker
-                    mode="selector"
-                    :range="deviceOptions"
-                    range-key="name"
-                    :value="getPickerIndex(deviceOptions, instructItem.action_target, 'id')"
-                    @change="onDevicePickerChange($event, actionGroupIndex, instructIndex)"
-                    class="tp-flex-1"
-                >
+                <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDevicePopup(instructItem, actionGroupIndex, instructIndex)">
                   <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
-                    {{ getPickerDisplayText(deviceOptions, instructItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectDevice') }}
+                    {{ getDeviceDisplayText(instructItem.action_target) || $t('pages.sceneDetail.actionsEdit.selectDevice') }}
                   </view>
-                </picker>
+                </view>
                 <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
               </view>
             </view>
@@ -76,18 +69,11 @@
             <!-- 单类设备 -->
             <view v-if="instructItem.action_type === '11'" class="max-w-40 w-full">
               <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                <picker
-                    mode="selector"
-                    :range="deviceConfigOption"
-                    range-key="name"
-                    :value="getPickerIndex(deviceConfigOption, instructItem.action_target, 'id')"
-                    @change="onDeviceConfigPickerChange($event, actionGroupIndex, instructIndex)"
-                    class="tp-flex-1"
-                >
+                <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDeviceConfigPopup(instructItem, actionGroupIndex, instructIndex)">
                   <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
-                    {{ getPickerDisplayText(deviceConfigOption, instructItem.action_target, 'id', 'name') || $t('pages.sceneDetail.actionsEdit.selectDeviceCategory') }}
+                    {{ getDeviceConfigDisplayText(instructItem.action_target) || $t('pages.sceneDetail.actionsEdit.selectDeviceCategory') }}
                   </view>
-                </picker>
+                </view>
                 <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
               </view>
             </view>
@@ -279,6 +265,72 @@
         -->
     </view>
     </view>
+    
+    <!-- 设备选择弹窗（带搜索） -->
+    <uni-popup ref="devicePopup" type="bottom" backgroundColor="#fff">
+      <view class="popup-header">
+        <view class="popup-title">{{ $t('pages.sceneDetail.actionsEdit.selectDevice') }}</view>
+        <view class="popup-close" @tap="closeDevicePopup">
+          <uni-icons type="close" size="24" color="#333"></uni-icons>
+        </view>
+      </view>
+      <view class="popup-search">
+        <input 
+          class="search-input" 
+          :placeholder="$t('common.search')" 
+          v-model="deviceSearchKeyword"
+          @input="onDeviceSearchInput"
+        />
+      </view>
+      <scroll-view class="scroll-view-equipment" :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
+        <view class="selectlist">
+          <view 
+            class="select_item" 
+            v-for="(item, index) in filteredDeviceOptions" 
+            :key="index"
+            @click="onDeviceSelect(item)"
+          >
+            {{ item.name }}
+          </view>
+          <view v-if="filteredDeviceOptions.length === 0" class="select_item empty">
+            {{ $t('common.noData') }}
+          </view>
+        </view>
+      </scroll-view>
+    </uni-popup>
+    
+    <!-- 设备类型选择弹窗（带搜索） -->
+    <uni-popup ref="deviceConfigPopup" type="bottom" backgroundColor="#fff">
+      <view class="popup-header">
+        <view class="popup-title">{{ $t('pages.sceneDetail.actionsEdit.selectDeviceCategory') }}</view>
+        <view class="popup-close" @tap="closeDeviceConfigPopup">
+          <uni-icons type="close" size="24" color="#333"></uni-icons>
+        </view>
+      </view>
+      <view class="popup-search">
+        <input 
+          class="search-input" 
+          :placeholder="$t('common.search')" 
+          v-model="deviceConfigSearchKeyword"
+          @input="onDeviceConfigSearchInput"
+        />
+      </view>
+      <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
+        <view class="selectlist">
+          <view 
+            class="select_item" 
+            v-for="(item, index) in filteredDeviceConfigOptions" 
+            :key="index"
+            @click="onDeviceConfigSelect(item)"
+          >
+            {{ item.name }}
+          </view>
+          <view v-if="filteredDeviceConfigOptions.length === 0" class="select_item empty">
+            {{ $t('common.noData') }}
+          </view>
+        </view>
+      </scroll-view>
+    </uni-popup>
 </view>
 </template>
   
@@ -373,7 +425,19 @@
             c_telemetry: '{"switch":1,"switch1":0}',
             c_attribute: '{"addr":1,"port":0}',
             c_command: '{"method":"switch1","params":{"false":0}}'
-        }
+        },
+        // 设备选择弹窗相关
+        deviceSearchKeyword: '',
+        filteredDeviceOptions: [],
+        currentDeviceInstructItem: null,
+        currentDeviceActionGroupIndex: null,
+        currentDeviceInstructIndex: null,
+        // 设备类型选择弹窗相关
+        deviceConfigSearchKeyword: '',
+        filteredDeviceConfigOptions: [],
+        currentDeviceConfigInstructItem: null,
+        currentDeviceConfigActionGroupIndex: null,
+        currentDeviceConfigInstructIndex: null
       };
     },
     watch: {
@@ -419,11 +483,23 @@
           this.queryDevice.device_name = name || null;
           const res = await deviceListAll(this.queryDevice);
           this.deviceOptions = res.data;
+          // 更新过滤列表
+          this.filteredDeviceOptions = [...this.deviceOptions];
+          // 数据加载完成后强制更新视图，确保回显正确
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
       },
       async getDeviceConfig(name) {
           this.queryDeviceConfig.device_config_name = name || '';
           const res = await deviceConfigAll(this.queryDeviceConfig);
           this.deviceConfigOption = res.data || [];
+          // 更新过滤列表
+          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+          // 数据加载完成后强制更新视图，确保回显正确
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
       },
       async getSceneList(name) {
         const params = {
@@ -610,17 +686,89 @@
         const selectedValue = this.actionTypeOptions[index] ? this.actionTypeOptions[index].value : null;
         this.actionTypeChange(actionGroupIndex, instructIndex, selectedValue);
       },
-      onDevicePickerChange(e, actionGroupIndex, instructIndex) {
-        const index = e.detail.value;
-        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
-        instructItem.action_target = this.deviceOptions[index] ? this.deviceOptions[index].id : null;
-        this.actionTargetChange(actionGroupIndex, instructIndex);
+      // 设备显示文本
+      getDeviceDisplayText(deviceId) {
+        if (!deviceId) return '';
+        const device = this.deviceOptions.find(item => item.id === deviceId || String(item.id) === String(deviceId));
+        return device ? device.name : '';
       },
-      onDeviceConfigPickerChange(e, actionGroupIndex, instructIndex) {
-        const index = e.detail.value;
-        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
-        instructItem.action_target = this.deviceConfigOption[index] ? this.deviceConfigOption[index].id : null;
-        this.actionTargetChange(actionGroupIndex, instructIndex);
+      // 设备类型显示文本
+      getDeviceConfigDisplayText(deviceConfigId) {
+        if (!deviceConfigId) return '';
+        const deviceConfig = this.deviceConfigOption.find(item => item.id === deviceConfigId || String(item.id) === String(deviceConfigId));
+        return deviceConfig ? deviceConfig.name : '';
+      },
+      // 设备选择弹窗相关方法
+      showDevicePopup(instructItem, actionGroupIndex, instructIndex) {
+        this.currentDeviceInstructItem = instructItem;
+        this.currentDeviceActionGroupIndex = actionGroupIndex;
+        this.currentDeviceInstructIndex = instructIndex;
+        this.deviceSearchKeyword = '';
+        this.filteredDeviceOptions = [...this.deviceOptions];
+        this.$refs.devicePopup.open();
+      },
+      closeDevicePopup() {
+        this.$refs.devicePopup.close();
+        this.currentDeviceInstructItem = null;
+        this.currentDeviceActionGroupIndex = null;
+        this.currentDeviceInstructIndex = null;
+        this.deviceSearchKeyword = '';
+      },
+      onDeviceSelect(device) {
+        if (this.currentDeviceInstructItem) {
+          this.$set(this.currentDeviceInstructItem, 'action_target', device.id);
+          this.actionTargetChange(this.currentDeviceActionGroupIndex, this.currentDeviceInstructIndex);
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
+        }
+        this.closeDevicePopup();
+      },
+      onDeviceSearchInput() {
+        const keyword = this.deviceSearchKeyword.toLowerCase().trim();
+        if (!keyword) {
+          this.filteredDeviceOptions = [...this.deviceOptions];
+        } else {
+          this.filteredDeviceOptions = this.deviceOptions.filter(device => 
+            device.name && device.name.toLowerCase().includes(keyword)
+          );
+        }
+      },
+      // 设备类型选择弹窗相关方法
+      showDeviceConfigPopup(instructItem, actionGroupIndex, instructIndex) {
+        this.currentDeviceConfigInstructItem = instructItem;
+        this.currentDeviceConfigActionGroupIndex = actionGroupIndex;
+        this.currentDeviceConfigInstructIndex = instructIndex;
+        this.deviceConfigSearchKeyword = '';
+        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+        this.$refs.deviceConfigPopup.open();
+      },
+      closeDeviceConfigPopup() {
+        this.$refs.deviceConfigPopup.close();
+        this.currentDeviceConfigInstructItem = null;
+        this.currentDeviceConfigActionGroupIndex = null;
+        this.currentDeviceConfigInstructIndex = null;
+        this.deviceConfigSearchKeyword = '';
+      },
+      onDeviceConfigSelect(deviceConfig) {
+        if (this.currentDeviceConfigInstructItem) {
+          this.$set(this.currentDeviceConfigInstructItem, 'action_target', deviceConfig.id);
+          this.actionTargetChange(this.currentDeviceConfigActionGroupIndex, this.currentDeviceConfigInstructIndex);
+          this.$nextTick(() => {
+            this.$forceUpdate();
+          });
+        }
+        this.closeDeviceConfigPopup();
+      },
+      onDeviceConfigSearchInput() {
+        const keyword = this.deviceConfigSearchKeyword.toLowerCase().trim();
+        if (!keyword) {
+          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
+        } else {
+          this.filteredDeviceConfigOptions = this.deviceConfigOption.filter(deviceConfig => 
+            deviceConfig.name && deviceConfig.name.toLowerCase().includes(keyword)
+          );
+        }
       },
       onActionParamTypePickerChange(e, actionGroupIndex, instructIndex) {
         const index = e.detail.value;
@@ -778,5 +926,80 @@
 	.picker-wrapper .uni-icons {
 		margin-left: 8rpx;
 		flex-shrink: 0;
+	}
+
+	/* 弹窗样式 */
+	.popup-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 30rpx;
+		border-bottom: 1px solid #eee;
+	}
+	
+	.popup-title {
+		font-size: 32rpx;
+		font-weight: 600;
+		color: #333;
+	}
+	
+	.popup-close {
+		padding: 10rpx;
+	}
+	
+	.popup-search {
+		padding: 20rpx 30rpx;
+		border-bottom: 1px solid #eee;
+	}
+	
+	.search-input {
+		width: 100%;
+		height: 80rpx;
+		border: 1px solid #ddd;
+		border-radius: 8rpx;
+		box-sizing: border-box;
+		font-size: 28rpx;
+		padding-left: 30rpx;
+	}
+	
+	.selectlist {
+		padding: 0;
+	}
+	
+	.select_item {
+		border-bottom: 1px solid #f0f0f0;
+		font-size: 28rpx;
+		color: #333;
+	}
+	
+	.select_item:active {
+		background-color: #f5f5f5;
+	}
+	
+	.select_item.empty {
+		text-align: center;
+		color: #999;
+	}
+
+	.scroll-view-equipment {
+		max-height: 600rpx;
+		padding: 0 30rpx;
+		box-sizing: border-box;
+	}
+	
+	.scroll-view-equipment scroll-view {
+		height: 100%;
+		box-sizing: border-box;
+	}
+
+	::v-deep .search-input .uni-input-input {
+		padding: 16rpx 30rpx;
+		padding-left: 0;
+		height: 80rpx;
+		line-height: 80rpx;
+		font-size: 28rpx;
+		color: #1e293b;
+		box-sizing: border-box;
+		outline: none;
 	}
   </style>

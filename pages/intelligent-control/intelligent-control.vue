@@ -176,11 +176,19 @@
       },
     },
     onLoad() {
-      
+      // 在页面加载时设置标题，确保国际化已初始化
+      this.$nextTick(() => {
+        uni.setNavigationBarTitle({
+          title: this.$t('pages.intelligentControlTitle')
+        })
+      })
     },
     onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.intelligentControlTitle')
+      // 在页面显示时也设置标题，确保标题正确
+      this.$nextTick(() => {
+        uni.setNavigationBarTitle({
+          title: this.$t('pages.intelligentControlTitle')
+        })
       })
       this.$store.commit('zerOingOffser'); //清空日志页码
       this.tabData = [{
