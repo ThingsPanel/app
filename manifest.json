@@ -110,6 +110,22 @@
     "mp-toutiao" : {
         "usingComponents" : true
     },
+    "h5" : {
+        "devServer" : {
+            "https" : false
+        },
+        "router" : {
+            "mode" : "hash",
+            "base" : "./"
+        },
+        "publicPath" : "./",
+        "template" : "",
+        "optimization" : {
+            "treeShaking" : {
+                "enable" : true
+            }
+        }
+    },
     "uniStatistics" : {
         "enable" : false
     },
