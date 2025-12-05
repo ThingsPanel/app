@@ -41,7 +41,30 @@ export default {
     tip: 'Tip',
     enterServerAddressToast: 'Please enter server address',
     confirm: 'Confirm',
-    authDescription: 'Sign In authorization'
+    authDescription: 'Sign In authorization',
+    edit: {
+      title: 'Edit Profile',
+      changeAvatar: 'Change Avatar',
+      namePlaceholder: 'Please enter name',
+      nameRequired: 'Name cannot be empty',
+      phonePlaceholder: 'Please enter phone number',
+      phonePrefixPlaceholder: 'Prefix',
+      phoneInvalid: 'Please enter a valid phone number',
+      emailPlaceholder: 'Please enter email address',
+      emailInvalid: 'Please enter a valid email address',
+      organization: 'Organization',
+      organizationPlaceholder: 'Please enter organization name',
+      timezone: 'Timezone',
+      timezonePlaceholder: 'Please enter timezone',
+      defaultLanguage: 'Default Language',
+      defaultLanguagePlaceholder: 'Please enter default language',
+      uploading: 'Uploading...',
+      uploadSuccess: 'Upload successful',
+      uploadFailed: 'Upload failed',
+      updateSuccess: 'Update successful',
+      updateFailed: 'Update failed',
+      loadFailed: 'Load failed'
+    }
   },
   pages: {
     loginTitle: 'Sign In',
@@ -401,7 +424,7 @@ export default {
       passwordPlaceholder: 'Please enter password',
       confirmPasswordPlaceholder: 'Please confirm password',
       registerButton: 'Confirm registration',
-      backToLogin: 'Back to login',
+      backToLogin: 'Sign In',
       errors: {
         emailRequired: 'Please enter email',
         invalidEmail: 'Please enter a valid email address',

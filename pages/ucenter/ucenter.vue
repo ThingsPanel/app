@@ -9,9 +9,11 @@
 					<image :src="uhead" class="tp-mg-t-20" v-if="!$login.isLoginType().isLogin" @click="isLogin=true">
 					</image>
 					<image :src="userWxInfo.avatarUrl" class="tp-mg-t-20" v-else></image>
-					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15"><text class="tp-mg-r-10"
-							v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.notLoggedIn') }}</text>
-						<!-- <view class="iconfont iconbianji2" v-if="$login.isLoginType().isLogin"></view> -->
+					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15">
+						<text class="tp-mg-r-10" v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.notLoggedIn') }}</text>
+						<view class="edit-icon-btn" v-if="$login.isLoginType().isLogin" @tap.stop="toEditProfile" @click.stop="toEditProfile">
+							<text class="iconfont iconbianji2"></text>
+						</view>
 					</view>
 					<view class="tp-box-sizing tp-mg-t-b-10" v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.clickToLogin') }}</view>
 					<!-- <view class="tp-box-sizing tp-mg-t-b-10" v-else>账户有效期：{{validdate}}</view> -->
@@ -32,7 +34,9 @@
 					</view>
 					<view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover">
+						hover-class="tp-panel-item-hover"
+						@click="toEditProfile"
+						v-if="$login.isLoginType().isLogin">
 						<!-- <view class="iconfont iconequipment"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
 							<view>{{ $t('ucenter.name') }}</view>
@@ -44,19 +48,23 @@
 					</view>
 					<view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover">
+						hover-class="tp-panel-item-hover"
+						@click="toEditProfile"
+						v-if="$login.isLoginType().isLogin">
 						<!-- <view class="iconfont iconlishi"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
 							<view>{{ $t('ucenter.phone') }}</view>
 							<view style="display: flex;">
-								<view class="" v-if="userWxInfo.mobile">{{userWxInfo.mobile}}</view>
+								<view class="" v-if="userWxInfo.phone_number">{{userWxInfo.phone_number}}</view>
 								<view class="iconfont iconjiantou1"></view>
 							</view>
 						</view>
 					</view>
 					<view
 						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover">
+						hover-class="tp-panel-item-hover"
+						@click="toEditProfile"
+						v-if="$login.isLoginType().isLogin">
 						<!-- <view class="iconfont iconlishi"></view> -->
 						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
 							<view>{{ $t('ucenter.email') }}</view>
@@ -390,6 +398,15 @@
 						}, 100);
 					}
 				});
+			},
+			// 跳转到编辑页面
+			toEditProfile() {
+				if (!this.$login.isLoginType().isLogin) {
+					return;
+				}
+				uni.navigateTo({
+					url: './edit'
+				});
 			}
 		}
 	}
@@ -397,4 +414,25 @@
 
 <style>
 	@import '@/common/ucenter.css';
+	
+	/* 编辑按钮样式 */
+	.edit-icon-btn {
+		margin-top: 10rpx;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		-webkit-tap-highlight-color: transparent;
+	}
+	
+	.edit-icon-btn .iconfont {
+		font-size: 44rpx;
+		color: #646cff;
+		line-height: 1;
+	}
+	
+	.edit-icon-btn:active {
+		opacity: 0.6;
+		transform: scale(0.95);
+	}
 </style>

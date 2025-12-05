@@ -34,8 +34,15 @@
 
 				<!-- 手机号输入 -->
 				<view class="form-item">
-					<view class="tp-ipt">
-						<input class="uni-input" type="number" v-model="formData.phone"
+					<view class="tp-ipt phone-input-wrapper">
+						<picker mode="selector" :range="phonePrefixList" range-key="label" 
+							:value="phonePrefixIndex" @change="onPhonePrefixChange">
+							<view class="phone-prefix-selector">
+								<text class="prefix-text">{{ selectedPhonePrefix }}</text>
+								<text class="prefix-arrow">▼</text>
+							</view>
+						</picker>
+						<input class="uni-input phone-input" type="number" v-model="formData.phone"
 							:placeholder="$t('pages.register.phonePlaceholder')" @blur="validatePhone" />
 					</view>
 					<text class="error-tip" v-if="errors.phone">{{errors.phone}}</text>
@@ -105,6 +112,7 @@ export default {
 				email: '',
 				code: '',
 				phone: '',
+				phone_prefix: '+86',
 				pwd: '',
 				confirmPwd: '',
 				agreement: true
@@ -119,7 +127,32 @@ export default {
 			loading: false,
 			currentLanguage: AVAILABLE_LANGUAGES.find(
 				lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
-			)?.label || '中文'
+			)?.label || '中文',
+			// 当前选中的区号索引
+			phonePrefixIndex: 0,
+			// 国际电话区号列表
+			phonePrefixList: [
+				{ code: '+86', label: '+86 中国', country: '中国' },
+				{ code: '+1', label: '+1 美国/加拿大', country: '美国' },
+				{ code: '+44', label: '+44 英国', country: '英国' },
+				{ code: '+81', label: '+81 日本', country: '日本' },
+				{ code: '+82', label: '+82 韩国', country: '韩国' },
+				{ code: '+65', label: '+65 新加坡', country: '新加坡' },
+				{ code: '+852', label: '+852 香港', country: '香港' },
+				{ code: '+853', label: '+853 澳门', country: '澳门' },
+				{ code: '+886', label: '+886 台湾', country: '台湾' },
+				{ code: '+61', label: '+61 澳大利亚', country: '澳大利亚' },
+				{ code: '+64', label: '+64 新西兰', country: '新西兰' },
+				{ code: '+33', label: '+33 法国', country: '法国' },
+				{ code: '+49', label: '+49 德国', country: '德国' },
+				{ code: '+39', label: '+39 意大利', country: '意大利' },
+				{ code: '+34', label: '+34 西班牙', country: '西班牙' },
+				{ code: '+7', label: '+7 俄罗斯', country: '俄罗斯' },
+				{ code: '+91', label: '+91 印度', country: '印度' },
+				{ code: '+55', label: '+55 巴西', country: '巴西' },
+				{ code: '+52', label: '+52 墨西哥', country: '墨西哥' },
+				{ code: '+27', label: '+27 南非', country: '南非' }
+			]
 		}
 	},
 
@@ -127,6 +160,13 @@ export default {
 		isFormValid() {
 			const hasAllFields = Object.values(this.formData).every(value => value !== '')
 			return hasAllFields
+		},
+		// 当前选中的区号显示文本
+		selectedPhonePrefix() {
+			if (this.phonePrefixList && this.phonePrefixList.length > 0 && this.phonePrefixIndex >= 0) {
+				return this.phonePrefixList[this.phonePrefixIndex].code
+			}
+			return '+86'
 		}
 	},
 
@@ -180,9 +220,19 @@ export default {
 				this.errors.phone = this.$t('pages.register.errors.phoneRequired')
 				return false
 			}
-			if (!/^1[3-9]\d{9}$/.test(this.formData.phone)) {
-				this.errors.phone = this.$t('pages.register.errors.invalidPhone')
-				return false
+			// 根据区号进行不同的验证
+			if (this.formData.phone_prefix === '+86') {
+				// 中国手机号验证
+				if (!/^1[3-9]\d{9}$/.test(this.formData.phone)) {
+					this.errors.phone = this.$t('pages.register.errors.invalidPhone')
+					return false
+				}
+			} else {
+				// 其他国家手机号：至少6位数字，最多15位
+				if (!/^\d{6,15}$/.test(this.formData.phone)) {
+					this.errors.phone = this.$t('pages.register.errors.invalidPhone')
+					return false
+				}
 			}
 			this.errors.phone = ''
 			return true
@@ -286,7 +336,7 @@ export default {
 					verify_code: this.formData.code,
 					password: this.formData.pwd,
 					confirm_password: this.formData.confirmPwd,
-					phone_prefix: '+86',
+					phone_prefix: this.formData.phone_prefix,
 					phone_number: this.formData.phone
 				})
 				if (resp.code > 200000) {
@@ -318,6 +368,15 @@ export default {
 			uni.navigateTo({
 				url: '/pages/login/login'
 			})
+		},
+		
+		// 区号选择器变化事件
+		onPhonePrefixChange(e) {
+			const index = e.detail.value
+			this.phonePrefixIndex = index
+			if (this.phonePrefixList && this.phonePrefixList[index]) {
+				this.formData.phone_prefix = this.phonePrefixList[index].code
+			}
 		}
 	}
 }
@@ -353,8 +412,8 @@ export default {
 }
 
 .lang-switch {
-	padding: 10rpx 20rpx;
-	border-radius: 12rpx;
+	padding: 8rpx 20rpx;
+	border-radius: 8rpx;
 	border: 1rpx solid rgba(100, 108, 255, 0.3);
 	background: rgba(100, 108, 255, 0.1);
 	color: #646cff;
@@ -363,6 +422,7 @@ export default {
 	transition: all 0.3s ease;
 	display: flex;
 	align-items: center;
+	justify-content: center;
 	gap: 8rpx;
 }
 
@@ -376,7 +436,8 @@ export default {
 }
 
 .lang-arrow {
-	font-size: 32rpx;
+	font-size: 36rpx;
+	margin-top: -4rpx;
 	color: #646cff;
 	opacity: 0.6;
 	font-weight: 300;
@@ -470,5 +531,38 @@ export default {
 
 button[disabled] {
 	opacity: 0.45;
+}
+
+.phone-input-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 20rpx 24rpx;
+	gap: 24rpx;
+}
+
+.phone-prefix-selector {
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+	padding: 0 16rpx;
+	border-right: 1rpx solid #e2e8f0;
+	flex-shrink: 0;
+	cursor: pointer;
+}
+
+.prefix-text {
+	font-size: 28rpx;
+	color: #111826;
+	font-weight: 500;
+}
+
+.prefix-arrow {
+	font-size: 20rpx;
+	color: #6b7280;
+}
+
+.phone-input {
+	flex: 1;
 }
 </style>

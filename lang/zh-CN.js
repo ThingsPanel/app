@@ -39,7 +39,30 @@ export default {
     tip: '提示',
     enterServerAddressToast: '请输入服务器地址',
     confirm: '确定',
-    authDescription: '登录授权'
+    authDescription: '登录授权',
+    edit: {
+      title: '编辑个人信息',
+      changeAvatar: '更换头像',
+      namePlaceholder: '请输入姓名',
+      nameRequired: '姓名不能为空',
+      phonePlaceholder: '请输入手机号码',
+      phonePrefixPlaceholder: '前缀',
+      phoneInvalid: '请输入正确的手机号码',
+      emailPlaceholder: '请输入邮箱地址',
+      emailInvalid: '请输入正确的邮箱地址',
+      organization: '组织',
+      organizationPlaceholder: '请输入组织名称',
+      timezone: '时区',
+      timezonePlaceholder: '请输入时区',
+      defaultLanguage: '默认语言',
+      defaultLanguagePlaceholder: '请输入默认语言',
+      uploading: '上传中...',
+      uploadSuccess: '上传成功',
+      uploadFailed: '上传失败',
+      updateSuccess: '更新成功',
+      updateFailed: '更新失败',
+      loadFailed: '加载失败'
+    }
   },
   pages: {
     loginTitle: '登录',

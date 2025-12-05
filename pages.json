@@ -57,6 +57,14 @@
 			}
 		},
 		{
+			"path": "pages/ucenter/edit",
+			"style": {
+				"navigationBarTitleText": "%ucenter.edit.title%",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
 			"path": "pages/accounts/accounts",
 			"style": {
 				"navigationBarTitleText": "%pages.basicInfo%",
