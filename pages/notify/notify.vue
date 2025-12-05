@@ -379,13 +379,14 @@ export default {
 	display: flex;
 	flex-direction: row;
 	align-items: flex-start;
+	justify-content: space-between;
 	font-size: 26rpx;
 	
 	.detail-label {
 		color: #94a3b8;
 		margin-right: 16rpx;
 		flex-shrink: 0;
-		min-width: 140rpx;
+		min-width: 180rpx;
 		font-size: 26rpx;
 	}
 	
@@ -394,6 +395,7 @@ export default {
 		color: #1e293b;
 		word-break: break-word;
 		line-height: 1.6;
+		text-align: left;
 		
 		&.time-value {
 			font-family: monospace;

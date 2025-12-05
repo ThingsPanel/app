@@ -409,17 +409,23 @@ export default {
 .info-row {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 	font-size: 26rpx;
 	color: #1e293b;
+	gap: 20rpx;
 
 	.info-label {
 		color: #94a3b8;
+		flex-shrink: 0;
+		white-space: nowrap;
 	}
 
 	.info-value {
 		font-weight: 600;
 		color: #0f172a;
+		flex: 1;
+		text-align: right;
+		word-break: break-all;
 	}
 }
 
