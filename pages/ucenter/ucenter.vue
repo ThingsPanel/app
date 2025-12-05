@@ -11,7 +11,7 @@
 					<image :src="userWxInfo.avatarUrl" class="tp-mg-t-20" v-else></image>
 					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15">
 						<text class="tp-mg-r-10" v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.notLoggedIn') }}</text>
-						<view class="edit-icon-btn" v-if="$login.isLoginType().isLogin" @tap.stop="toEditProfile" @click.stop="toEditProfile">
+						<view class="edit-icon-btn" v-if="$login.isLoginType().isLogin" @click="toEditProfile">
 							<text class="iconfont iconbianji2"></text>
 						</view>
 					</view>
@@ -405,7 +405,7 @@
 					return;
 				}
 				uni.navigateTo({
-					url: './edit'
+					url: '/pages/ucenter/edit'
 				});
 			}
 		}
