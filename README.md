@@ -21,10 +21,9 @@
 
 ## 截图
 
-![登录页](https://oscimg.oschina.net/oscnet/up-0cbb1d922d0a16620e423f33d70771689d4.png)
-![主界面](https://oscimg.oschina.net/oscnet/up-b69d9ef1375b306e866099156210d2404cf.png)
-![策略编辑](https://oscimg.oschina.net/oscnet/up-76886b2f6544188f1d511941303f887e6f1.png)
-![策略编辑](https://oscimg.oschina.net/oscnet/up-5cda9ab136f328c740d9951e3826c3b7c3b.png)
-![策略编辑](https://oscimg.oschina.net/oscnet/up-34abf030a937bb2322d831d485234a0c47b.png)
-![个人账户](https://oscimg.oschina.net/oscnet/up-a1c2eebbfd1a44ba1262308abfdc0b4814b.png)
+<img src="https://github.com/ThingsPanel/app/blob/main/github/iphone-1.png" width="500px">
+<img src="https://github.com/ThingsPanel/app/blob/main/github/iphone-2.png" width="500px">
+<img src="https://github.com/ThingsPanel/app/blob/main/github/iphone-3.png" width="500px">
+<img src="https://github.com/ThingsPanel/app/blob/main/github/iphone-4.png" width="500px">
+
 
