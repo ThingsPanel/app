@@ -347,15 +347,15 @@ export default {
 				uni.hideLoading();
 				if (res.code == 200) {
 					uni.showToast({
-						title: this.$t('ucenter.edit.updateSuccess'),
-						icon: 'success'
+						title: this.$t('ucenter.edit.saveSuccess'),
+						icon: 'none'
 					});
 					setTimeout(() => {
 						uni.navigateBack();
 					}, 1500);
 				} else {
 					uni.showToast({
-						title: res.message || this.$t('ucenter.edit.updateFailed'),
+						title: res.message || this.$t('ucenter.edit.saveFailed'),
 						icon: 'none'
 					});
 				}

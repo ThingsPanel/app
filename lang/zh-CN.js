@@ -60,6 +60,8 @@ export default {
       uploadSuccess: '上传成功',
       uploadFailed: '上传失败',
       updateSuccess: '更新成功',
+      saveSuccess: '保存成功',
+      saveFailed: '保存失败',
       updateFailed: '更新失败',
       loadFailed: '加载失败'
     }
@@ -219,6 +221,7 @@ export default {
       pleaseSelectRelation: '请选择关系',
       pleaseEnterValue: '请输入值',
       saveSuccess: '保存成功',
+      saveFailed: '保存失败',
       loading: '加载中',
       message: '信息',
       enterMessage: '请在此处填写信息',

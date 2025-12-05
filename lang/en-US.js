@@ -62,6 +62,8 @@ export default {
       uploadSuccess: 'Upload successful',
       uploadFailed: 'Upload failed',
       updateSuccess: 'Update successful',
+      saveSuccess: 'Save successful',
+      saveFailed: 'Save failed',
       updateFailed: 'Update failed',
       loadFailed: 'Load failed'
     }
@@ -214,6 +216,7 @@ export default {
       pleaseSelectRelation: 'Please select relation',
       pleaseEnterValue: 'Please enter value',
       saveSuccess: 'Save successful',
+      saveFailed: 'Save failed',
       loading: 'Loading',
       message: 'Message',
       enterMessage: 'Please enter message here',
