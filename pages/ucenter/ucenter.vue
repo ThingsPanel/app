@@ -435,4 +435,9 @@
 		opacity: 0.6;
 		transform: scale(0.95);
 	}
+
+	.iconjiantou1 {
+		font-size: 28rpx;
+		margin-top: 8rpx;
+	}
 </style>
