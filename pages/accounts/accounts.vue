@@ -63,8 +63,12 @@
 		},
 		// 
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.basicInfo')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.basicInfo')
+          })
+        }, 100)
       })
 			this.getAccount();
 			//

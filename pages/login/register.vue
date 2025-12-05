@@ -84,13 +84,17 @@ import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 
 export default {
 	onShow() {
-		try {
-			uni.setNavigationBarTitle({
-				title: this.$t('pages.register')
-			});
-		} catch (e) {
-			console.warn('设置导航栏标题失败:', e);
-		}
+		this.$nextTick(() => {
+			setTimeout(() => {
+				try {
+					uni.setNavigationBarTitle({
+						title: this.$t('pages.register')
+					});
+				} catch (e) {
+					console.warn('设置导航栏标题失败:', e);
+				}
+			}, 100)
+		})
 		
 		// 同步语言标签
 		this.syncLanguageLabel();
@@ -135,13 +139,17 @@ export default {
 					changeLanguage(selectedLang.code);
 					this.currentLanguage = selectedLang.label;
 					// 更新导航栏标题
-					try {
-						uni.setNavigationBarTitle({
-							title: this.$t('pages.register')
-						});
-					} catch (e) {
-						console.warn('设置导航栏标题失败:', e);
-					}
+					this.$nextTick(() => {
+						setTimeout(() => {
+							try {
+								uni.setNavigationBarTitle({
+									title: this.$t('pages.register')
+								});
+							} catch (e) {
+								console.warn('设置导航栏标题失败:', e);
+							}
+						}, 100)
+					})
 				}
 			});
 		},

@@ -47,8 +47,12 @@
 		},
 		//
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.modifyEmail')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.modifyEmail')
+          })
+        }, 100)
       })
 			this.getAccount();
 		},

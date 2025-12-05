@@ -178,17 +178,21 @@
     onLoad() {
       // 在页面加载时设置标题，确保国际化已初始化
       this.$nextTick(() => {
-        uni.setNavigationBarTitle({
-          title: this.$t('pages.intelligentControlTitle')
-        })
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.intelligentControlTitle')
+          })
+        }, 100)
       })
     },
     onShow() {
       // 在页面显示时也设置标题，确保标题正确
       this.$nextTick(() => {
-        uni.setNavigationBarTitle({
-          title: this.$t('pages.intelligentControlTitle')
-        })
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.intelligentControlTitle')
+          })
+        }, 100)
       })
       this.$store.commit('zerOingOffser'); //清空日志页码
       this.tabData = [{
@@ -218,7 +222,8 @@
         }
         
         uni.showLoading({
-          title: this.$t('pages.intelligentControl.loading')
+          title: this.$t('common.loading'),
+          mask: true
         });
         
         this.API.apiRequest(apis[this.clName], {
@@ -257,7 +262,8 @@
       // 切换启停状态（仅场景联动）
       toggleStatue (item) {
         uni.showLoading({
-          title: this.$t('pages.intelligentControl.loading')
+          title: this.$t('common.loading'),
+          mask: true
         });
         
         const enabled = item.enabled === '0' ? '1' : '0'
@@ -316,7 +322,8 @@
       // 确定删除
       confirm() {
         uni.showLoading({
-          title: this.$t('pages.intelligentControl.loading')
+          title: this.$t('common.loading'),
+          mask: true
         });
         
         let apis = {

@@ -283,8 +283,12 @@
 			}
 		},
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.addAlertStrategy')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.addAlertStrategy')
+          })
+        }, 100)
       })
 		},
 		onLoad() {},

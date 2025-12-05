@@ -189,8 +189,12 @@
 			}
 		},
 		onShow() {
-			uni.setNavigationBarTitle({
-				title: this.$t('pages.historyOperation')
+			this.$nextTick(() => {
+				setTimeout(() => {
+					uni.setNavigationBarTitle({
+						title: this.$t('pages.historyOperation')
+					})
+				}, 100)
 			})
 		},
 		methods: {

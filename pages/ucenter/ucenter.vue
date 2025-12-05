@@ -143,15 +143,20 @@
 	},
 	onShow() {
 		this.getUserInfo()
-		uni.setNavigationBarTitle({
-			title: this.$t('pages.userCenter')
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('pages.userCenter')
+				})
+			}, 100)
 		})
 	},
 		methods: {
 			//退出登录
 			toQuitLogin() {
 				uni.showLoading({
-					title: this.$t('ucenter.loading')
+					title: this.$t('common.loading'),
+					mask: true
 				});
 				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
 					const push_id = uni.getStorageSync('push_id');
@@ -182,7 +187,8 @@
 			//获取用户信息
 			getUserInfo() {
 				uni.showLoading({
-					title: this.$t('ucenter.loading')
+					title: this.$t('common.loading'),
+					mask: true
 				});
 				const serverUrl = uni.getStorageSync('serverAddress');
 				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '') : '';

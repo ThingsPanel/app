@@ -41,8 +41,12 @@
 		},
 		//
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.modifyPhone')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.modifyPhone')
+          })
+        }, 100)
       })
 			this.getAccount();
 		},

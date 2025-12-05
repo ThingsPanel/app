@@ -47,8 +47,12 @@
 		},
 		//
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.modifyPassword')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.modifyPassword')
+          })
+        }, 100)
       })
 			this.getAccount();
 		},

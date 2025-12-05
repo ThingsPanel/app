@@ -42,8 +42,12 @@
 		},
 		//
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.modifyName')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.modifyName')
+          })
+        }, 100)
       })
 			this.getAccount();
 		},

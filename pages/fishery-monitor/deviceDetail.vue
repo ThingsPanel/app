@@ -311,8 +311,12 @@ export default {
 	},
 
 	onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.deviceDetailTitle')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.deviceDetailTitle')
+          })
+        }, 100)
       })
 		this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
 		this.pageHeight = uni.getStorageSync('pageHeight');

@@ -78,14 +78,22 @@ export default {
     }
   },
   onShow() {
-    uni.setNavigationBarTitle({
-      title: this.$t('pages.addSceneLinkage')
+    this.$nextTick(() => {
+      setTimeout(() => {
+        uni.setNavigationBarTitle({
+          title: this.$t('pages.addSceneLinkage')
+        })
+      }, 100)
     })
   },
   onLoad(options) {
     this.editId = options.id
-    uni.setNavigationBarTitle({
-      title: this.editId ? this.$t('pages.sceneRuleDetail.editSceneLinkage') : this.$t('pages.sceneRuleDetail.addSceneLinkage'),
+    this.$nextTick(() => {
+      setTimeout(() => {
+        uni.setNavigationBarTitle({
+          title: this.editId ? this.$t('pages.sceneRuleDetail.editSceneLinkage') : this.$t('pages.sceneRuleDetail.addSceneLinkage'),
+        })
+      }, 100)
     })
   },
   mounted() {

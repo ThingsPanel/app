@@ -584,9 +584,13 @@
 			}
 		},
 		onShow() {
-			uni.setNavigationBarTitle({
-				title: this.$t('pages.addControlStrategy')
-			});
+			this.$nextTick(() => {
+				setTimeout(() => {
+					uni.setNavigationBarTitle({
+						title: this.$t('pages.addControlStrategy')
+					});
+				}, 100)
+			})
 		},
 		onLoad() {
 			// this.getZcList()

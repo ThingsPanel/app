@@ -95,15 +95,23 @@ export default {
     };
   },
   onShow() {
-    uni.setNavigationBarTitle({
-      title: this.$t('pages.addScene')
+    this.$nextTick(() => {
+      setTimeout(() => {
+        uni.setNavigationBarTitle({
+          title: this.$t('pages.addScene')
+        })
+      }, 100)
     })
   },
   onLoad(options) {
     this.editId = options.id;
-      uni.setNavigationBarTitle({
-      title: this.editId ? this.$t('pages.sceneDetail.editScene') :  this.$t('pages.sceneDetail.newScene')
-    });
+    this.$nextTick(() => {
+      setTimeout(() => {
+        uni.setNavigationBarTitle({
+          title: this.editId ? this.$t('pages.sceneDetail.editScene') :  this.$t('pages.sceneDetail.newScene')
+        });
+      }, 100)
+    })
   },
   created() {
     if (this.editId) {

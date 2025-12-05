@@ -582,8 +582,12 @@
 			}
 		},
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.editControlStrategy')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.editControlStrategy')
+          })
+        }, 100)
       })
 		},
 		onLoad(options) {

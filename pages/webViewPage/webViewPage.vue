@@ -12,9 +12,13 @@ export default {
     };
   },
   onShow(){
-    uni.setNavigationBarTitle({
-        title: this.$t('pages.deviceDetailTitle')
-      })
+    this.$nextTick(() => {
+      setTimeout(() => {
+        uni.setNavigationBarTitle({
+          title: this.$t('pages.deviceDetailTitle')
+        })
+      }, 100)
+    })
   },
   onLoad(options) {
     const decodedUrl = decodeURIComponent(options.url);

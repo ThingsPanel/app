@@ -259,8 +259,12 @@ export default {
 		this.ywData = []
 		this.showData();
 		//this.checkNotify()
-		uni.setNavigationBarTitle({
-			title: this.$t('pages.deviceList')
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('pages.deviceList')
+				})
+			}, 100)
 		})
 		// Force update tabbar text
 		updateTabbarText()
@@ -399,7 +403,8 @@ export default {
 				[sw.name]: stateNum
 			}
 			uni.showLoading({
-				title: '加载中'
+				title: this.$t('common.loading'),
+				mask: true
 			});
 			this.API.apiRequest('/api/device/operating_device', {
 				device_id: dev.device_id,
@@ -440,7 +445,8 @@ export default {
 		},
 		getGroupData() {
 			uni.showLoading({
-				title: this.$t('pages.fisheryMonitor.loading')
+				title: this.$t('common.loading'),
+				mask: true
 			});
 			this.API.apiRequest('/api/v1/device/group/tree', {
 			}, 'get').then(res => {
@@ -479,7 +485,8 @@ export default {
 		//获取操作日志
 		getWarningList() {
 			uni.showLoading({
-				title: this.$t('pages.fisheryMonitor.loading')
+				title: this.$t('common.loading'),
+				mask: true
 			});
 			this.API.apiRequest('/api/conditions/log/index', {
 				current_page: this.$store.state.list.offset,
@@ -562,7 +569,8 @@ export default {
 			clearInterval(this.timer)
 			var newData = {};
 			uni.showLoading({
-				title: this.$t('pages.fisheryMonitor.loading')
+				title: this.$t('common.loading'),
+				mask: true
 			});
 			deviceListApi({
 				group_id: this.selectedGroupId,
@@ -642,7 +650,8 @@ export default {
 		// 插件查询
 		getDetail(device) {
 			uni.showLoading({
-				title: this.$t('pages.fisheryMonitor.loading')
+				title: this.$t('common.loading'),
+				mask: true
 			});
 			this.API.apiRequest('/api/device/model/list', {
 				id: device.type,

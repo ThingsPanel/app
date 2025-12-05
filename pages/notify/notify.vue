@@ -79,8 +79,12 @@ export default {
 		}
 	},
 	onShow() {
-		uni.setNavigationBarTitle({
-			title: this.$t('pages.notifyTitle')
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('pages.notifyTitle')
+				})
+			}, 100)
 		})
 	},
 	// 监听页面滚动

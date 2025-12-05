@@ -283,8 +283,12 @@
 			}
 		},
 		onShow() {
-      uni.setNavigationBarTitle({
-        title: this.$t('pages.myDevices')
+      this.$nextTick(() => {
+        setTimeout(() => {
+          uni.setNavigationBarTitle({
+            title: this.$t('pages.myDevices')
+          })
+        }, 100)
       })
 		},
 		onLoad(options) {

@@ -109,8 +109,12 @@ export default {
 		}
 	},
 	onShow() {
-		uni.setNavigationBarTitle({
-			title: this.$t('pages.notifyDetailTitle')
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('pages.notifyDetailTitle')
+				})
+			}, 100)
 		})
 	},
 	onLoad() {
