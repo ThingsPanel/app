@@ -53,7 +53,12 @@
                 "push" : {
                     "unipush" : {
                         "version" : "2",
-                        "offline" : true
+                        "offline" : true,
+                        "icons" : {
+                            "small" : {
+                                "ldpi" : ""
+                            }
+                        }
                     }
                 }
             },

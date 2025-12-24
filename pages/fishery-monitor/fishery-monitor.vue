@@ -135,6 +135,7 @@ import {
 import dayjs from 'dayjs';
 import { deviceList as deviceListApi } from '@/service/device'
 import { updateTabbarText } from '@/lang/index'
+import deviceWebSocket from '@/common/deviceWebSocket'
 //
 export default {
 	data() {
@@ -147,6 +148,9 @@ export default {
 			currentD: -1,
 			deviceList: [],
 			currentIndex: 0,
+			// WebSocket相关
+			visibleDeviceIds: [], // 当前可见的设备ID
+			lastVisibleDeviceIds: [], // 上一次可见的设备ID，用于对比
 			currentLog: {},
 			currentYw: '',
 			topHeight: 0,
@@ -273,6 +277,8 @@ export default {
 	onPageScroll(e) {
 		// 当滚动超过300px时显示回到顶部按钮
 		this.showScrollTop = e.scrollTop > 300;
+		// 更新可见设备列表
+		this.updateVisibleDevices();
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {
@@ -300,12 +306,15 @@ export default {
 	},
 	onHide() {
 		this.clearDeviceStatusTimer()
+		deviceWebSocket.close()
 	},
 	beforeDestroy() {
 		// 清除定时器
 		clearInterval(this.timer)
 		// 清除在线/离线状态定时器
 		this.clearDeviceStatusTimer()
+		// 关闭WebSocket连接
+		deviceWebSocket.close()
 	},
 	// onLoad(options) {
 	// 	this.$store.commit('zerOingOffser'); //清空日志页码
@@ -313,6 +322,99 @@ export default {
 	// },
 	//
 	methods: {
+		// WebSocket相关方法
+		// 初始化WebSocket连接
+		initWebSocket() {
+			deviceWebSocket.init({
+				onMessage: (data) => {
+					this.updateDeviceStatus(data);
+				},
+				onError: (err) => {
+					console.error('WebSocket error:', err);
+				},
+				onClose: () => {
+					console.log('WebSocket closed');
+				}
+			});
+		},
+		
+		// 更新设备状态
+		updateDeviceStatus(statusData) {
+			const { device_id, is_online, latest_temp } = statusData;
+			
+			// 查找并更新对应设备
+			const device = this.deviceList.find(d => d.id === device_id);
+			if (device) {
+				device.is_online = is_online;
+				if (latest_temp) {
+					device.ts = latest_temp;
+					device.latest_ts_name = dayjs(latest_temp).format('YYYY-MM-DD HH:mm:ss');
+				}
+				this.$forceUpdate();
+			}
+		},
+		
+		// 更新可见设备（视窗化订阅）
+		updateVisibleDevices() {
+			if (this.deviceList.length === 0) {
+				return;
+			}
+			
+			// 获取当前页面滚动信息
+			uni.createSelectorQuery().selectViewport().scrollOffset((res) => {
+				const scrollTop = res.scrollTop;
+				const windowHeight = uni.getSystemInfoSync().windowHeight;
+				
+				// 计算可见区域（包含上下缓冲区）
+				const bufferHeight = 200; // 缓冲区高度
+				const visibleTop = scrollTop - bufferHeight;
+				const visibleBottom = scrollTop + windowHeight + bufferHeight;
+				
+				// 获取所有设备卡片的位置
+				uni.createSelectorQuery().selectAll('.device-card').boundingClientRect((rects) => {
+					if (!rects || rects.length === 0) {
+						return;
+					}
+					
+					// 筛选可见的设备
+					const visibleIds = [];
+					rects.forEach((rect, index) => {
+						if (rect.top < visibleBottom && rect.bottom > visibleTop) {
+							if (this.deviceList[index]) {
+								visibleIds.push(this.deviceList[index].id);
+							}
+						}
+					});
+					
+					// 检查可见设备是否有变化
+					const idsChanged = JSON.stringify(visibleIds.sort()) !== JSON.stringify(this.lastVisibleDeviceIds.sort());
+					
+					if (idsChanged && visibleIds.length > 0) {
+						this.visibleDeviceIds = visibleIds;
+						this.lastVisibleDeviceIds = [...visibleIds];
+						
+						// 重新连接并订阅新的可见设备
+						this.reconnectAndSubscribe();
+					}
+				}).exec();
+			}).exec();
+		},
+		
+		// 重新连接并订阅（每次订阅都重新连接）
+		reconnectAndSubscribe() {
+			deviceWebSocket.reconnectAndSubscribe(this.visibleDeviceIds, {
+				onMessage: (data) => {
+					this.updateDeviceStatus(data);
+				},
+				onError: (err) => {
+					console.error('WebSocket error:', err);
+				},
+				onClose: () => {
+					console.log('WebSocket closed');
+				}
+			});
+		},
+		
 		// 滚动到顶部
 		scrollToTop() {
 			uni.pageScrollTo({
@@ -389,6 +491,8 @@ export default {
 			this.deviceList = [];
 			this.selectedGroupId = '';
 			this.selectedGroupName = '';
+			// 关闭现有WebSocket连接
+			deviceWebSocket.close();
 			this.getDeviceList();
 		},
 		// 改变设备开关
@@ -467,6 +571,8 @@ export default {
 			this.selectedGroupName = e[0].name
 			this.$refs.navDrawer.close()
 			this.$store.state.list.equpPage = 1
+			// 关闭现有WebSocket连接
+			deviceWebSocket.close()
 			this.getDeviceList()
 		},
 		treeCancel() {
@@ -612,12 +718,13 @@ export default {
 						item.chart_data = {}
 						ids.push(item.id)
 					})
-					/*this.getDetailStatus(ids)
-					this.clearDeviceStatusTimer()
-					this.deviceStatusTimer = setInterval(() => {
-						console.log("getDetailStatus")
-						this.getDetailStatus(ids)
-					}, 5000)*/
+					
+					// 数据加载完成后，初始化WebSocket并订阅可见设备
+					this.$nextTick(() => {
+						setTimeout(() => {
+							this.updateVisibleDevices();
+						}, 300);
+					});
 				} else {
 					this.loadMoreEqupShow = false;
 					this.statusEqupType = 'noMore';
