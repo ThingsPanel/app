@@ -5,6 +5,8 @@
 class DeviceWebSocketManager {
 	constructor() {
 		this.webSocketTask = null;
+		this.isOpen = false;
+		this.pendingSubscribeIds = null;
 		this.onMessageCallback = null;
 		this.onErrorCallback = null;
 		this.onCloseCallback = null;
@@ -21,6 +23,7 @@ class DeviceWebSocketManager {
 	init(options = {}) {
 		// 先关闭已存在的连接
 		this.close();
+		this.isOpen = false;
 
 		const token = uni.getStorageSync('access_token');
 		if (!token) {
@@ -29,7 +32,7 @@ class DeviceWebSocketManager {
 		}
 
 		const serverUrl = uni.getStorageSync('serverAddress') || '';
-		const wsUrl = serverUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/device/online/status/ws/batch';
+		const wsUrl = serverUrl.replace('http://', 'ws://').replace('https://', 'wss://') + '/api/v1/device/online/status/ws/batch';
 
 		// 保存回调函数
 		this.onMessageCallback = options.onMessage;
@@ -50,6 +53,11 @@ class DeviceWebSocketManager {
 		// 监听WebSocket连接打开
 		this.webSocketTask.onOpen(() => {
 			console.log('[DeviceWebSocket] Connected');
+			this.isOpen = true;
+			if (this.pendingSubscribeIds && this.pendingSubscribeIds.length > 0) {
+				this._sendSubscribe(this.pendingSubscribeIds);
+				this.pendingSubscribeIds = null;
+			}
 		});
 
 		// 监听WebSocket消息
@@ -72,6 +80,7 @@ class DeviceWebSocketManager {
 		this.webSocketTask.onClose(() => {
 			console.log('[DeviceWebSocket] Closed');
 			this.webSocketTask = null;
+			this.isOpen = false;
 			this.onCloseCallback && this.onCloseCallback();
 		});
 
@@ -85,6 +94,20 @@ class DeviceWebSocketManager {
 	subscribe(deviceIds) {
 		if (!this.webSocketTask || !deviceIds || deviceIds.length === 0) {
 			console.warn('[DeviceWebSocket] Cannot subscribe: connection not ready or empty device list');
+			return false;
+		}
+
+		// 如果还没真正 OPEN，先缓存，等 onOpen 再发
+		if (!this.isOpen) {
+			this.pendingSubscribeIds = deviceIds;
+			return true;
+		}
+
+		return this._sendSubscribe(deviceIds);
+	}
+
+	_sendSubscribe(deviceIds) {
+		if (!this.webSocketTask) {
 			return false;
 		}
 
@@ -142,18 +165,13 @@ class DeviceWebSocketManager {
 		this.close();
 
 		// 延迟一下再重新连接，确保连接完全关闭
-		setTimeout(() => {
+		this.reconnectTimer = setTimeout(() => {
 			const connected = this.init(options);
-
-			if (connected) {
-				// 等待连接建立后订阅
-				this.reconnectTimer = setTimeout(() => {
-					if (deviceIds && deviceIds.length > 0) {
-						this.subscribe(deviceIds);
-					}
-				}, 500);
+			if (connected && deviceIds && deviceIds.length > 0) {
+				// 这里不直接 send，交给 subscribe() 缓存到 onOpen 再发
+				this.subscribe(deviceIds);
 			}
-		}, 100);
+		}, 200);
 	}
 
 	/**
@@ -165,6 +183,8 @@ class DeviceWebSocketManager {
 			clearTimeout(this.reconnectTimer);
 			this.reconnectTimer = null;
 		}
+		this.pendingSubscribeIds = null;
+		this.isOpen = false;
 
 		if (this.webSocketTask) {
 			this.webSocketTask.close({

@@ -151,6 +151,7 @@ export default {
 			// WebSocket相关
 			visibleDeviceIds: [], // 当前可见的设备ID
 			lastVisibleDeviceIds: [], // 上一次可见的设备ID，用于对比
+			viewportSubscribeTimer: null,
 			currentLog: {},
 			currentYw: '',
 			topHeight: 0,
@@ -277,8 +278,8 @@ export default {
 	onPageScroll(e) {
 		// 当滚动超过300px时显示回到顶部按钮
 		this.showScrollTop = e.scrollTop > 300;
-		// 更新可见设备列表
-		this.updateVisibleDevices();
+		// 滚动停止后再订阅，避免频繁重连
+		this.scheduleViewportSubscription();
 	},
 	// 上拉加载更多,onReachBottom上拉触底函数
 	onReachBottom() {
@@ -306,6 +307,10 @@ export default {
 	},
 	onHide() {
 		this.clearDeviceStatusTimer()
+		if (this.viewportSubscribeTimer) {
+			clearTimeout(this.viewportSubscribeTimer)
+			this.viewportSubscribeTimer = null
+		}
 		deviceWebSocket.close()
 	},
 	beforeDestroy() {
@@ -313,6 +318,10 @@ export default {
 		clearInterval(this.timer)
 		// 清除在线/离线状态定时器
 		this.clearDeviceStatusTimer()
+		if (this.viewportSubscribeTimer) {
+			clearTimeout(this.viewportSubscribeTimer)
+			this.viewportSubscribeTimer = null
+		}
 		// 关闭WebSocket连接
 		deviceWebSocket.close()
 	},
@@ -354,49 +363,69 @@ export default {
 			}
 		},
 		
+		// 滚动停止后再做可见区域计算 + 订阅（防抖）
+		scheduleViewportSubscription() {
+			if (this.viewportSubscribeTimer) {
+				clearTimeout(this.viewportSubscribeTimer)
+			}
+			this.viewportSubscribeTimer = setTimeout(() => {
+				this.viewportSubscribeTimer = null
+				this.updateVisibleDevices()
+			}, 400)
+		},
+		
 		// 更新可见设备（视窗化订阅）
 		updateVisibleDevices() {
 			if (this.deviceList.length === 0) {
 				return;
 			}
-			
-			// 获取当前页面滚动信息
-			uni.createSelectorQuery().selectViewport().scrollOffset((res) => {
-				const scrollTop = res.scrollTop;
-				const windowHeight = uni.getSystemInfoSync().windowHeight;
-				
-				// 计算可见区域（包含上下缓冲区）
-				const bufferHeight = 200; // 缓冲区高度
-				const visibleTop = scrollTop - bufferHeight;
-				const visibleBottom = scrollTop + windowHeight + bufferHeight;
-				
-				// 获取所有设备卡片的位置
-				uni.createSelectorQuery().selectAll('.device-card').boundingClientRect((rects) => {
-					if (!rects || rects.length === 0) {
-						return;
+
+			// 注意：boundingClientRect 的 top/bottom 是相对于“视口”的坐标
+			// 所以这里不能再用 scrollTop 做比较，否则会出现滚动后订阅错位
+			const windowHeight = uni.getSystemInfoSync().windowHeight;
+			const bufferPx = 200; // 上下缓冲像素（预加载区域）
+			const prefetchCount = 10; // 前后各取 N 条，避免滚动停下后漏订阅
+
+			uni.createSelectorQuery().selectAll('.device-card').boundingClientRect((rects) => {
+				if (!rects || rects.length === 0) {
+					return;
+				}
+
+				const visibleIndices = [];
+				rects.forEach((rect, index) => {
+					if (!rect) return;
+					// 视口坐标系：可见范围是 [-bufferPx, windowHeight + bufferPx]
+					if (rect.bottom > -bufferPx && rect.top < (windowHeight + bufferPx)) {
+						visibleIndices.push(index);
 					}
-					
-					// 筛选可见的设备
-					const visibleIds = [];
-					rects.forEach((rect, index) => {
-						if (rect.top < visibleBottom && rect.bottom > visibleTop) {
-							if (this.deviceList[index]) {
-								visibleIds.push(this.deviceList[index].id);
-							}
-						}
-					});
-					
-					// 检查可见设备是否有变化
-					const idsChanged = JSON.stringify(visibleIds.sort()) !== JSON.stringify(this.lastVisibleDeviceIds.sort());
-					
-					if (idsChanged && visibleIds.length > 0) {
-						this.visibleDeviceIds = visibleIds;
-						this.lastVisibleDeviceIds = [...visibleIds];
-						
-						// 重新连接并订阅新的可见设备
-						this.reconnectAndSubscribe();
-					}
-				}).exec();
+				});
+
+				if (visibleIndices.length === 0) {
+					return;
+				}
+
+				let minIndex = Math.min.apply(null, visibleIndices);
+				let maxIndex = Math.max.apply(null, visibleIndices);
+
+				// 扩大订阅范围：可见区前后各 prefetchCount 条
+				minIndex = Math.max(0, minIndex - prefetchCount);
+				maxIndex = Math.min(this.deviceList.length - 1, maxIndex + prefetchCount);
+
+				const subscribeIds = this.deviceList
+					.slice(minIndex, maxIndex + 1)
+					.map(d => d && d.id)
+					.filter(Boolean);
+
+				const norm = (arr) => (arr || []).slice().sort().join(',');
+				const idsChanged = norm(subscribeIds) !== norm(this.lastVisibleDeviceIds);
+
+				if (idsChanged && subscribeIds.length > 0) {
+					this.visibleDeviceIds = subscribeIds;
+					this.lastVisibleDeviceIds = [...subscribeIds];
+
+					// 重新连接并订阅新的可见设备
+					this.reconnectAndSubscribe();
+				}
 			}).exec();
 		},
 		
@@ -722,7 +751,7 @@ export default {
 					// 数据加载完成后，初始化WebSocket并订阅可见设备
 					this.$nextTick(() => {
 						setTimeout(() => {
-							this.updateVisibleDevices();
+							this.scheduleViewportSubscription();
 						}, 300);
 					});
 				} else {
