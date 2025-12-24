@@ -253,6 +253,8 @@ export default {
 		this.marginTop = (ktxStatusHeight || 50) + 'rpx';
 		this.marginConTop = (ktxStatusHeight || 20) + 'rpx'
 		this.isLogin = this.$login.isLoginType().isLogin
+		// 恢复上次选择的设备分组
+		this.restoreSelectedGroup()
 		// this.ywData = []
 		// this.showData()
 
@@ -262,6 +264,8 @@ export default {
 		this.isLogin = this.$login.isLoginType().isLogin
 		this.$store.state.list.equpPage = 1
 		this.ywData = []
+		// 恢复上次选择的设备分组（保持分组选择）
+		this.restoreSelectedGroup()
 		this.showData();
 		//this.checkNotify()
 		this.$nextTick(() => {
@@ -331,6 +335,29 @@ export default {
 	// },
 	//
 	methods: {
+		getSelectedGroupStorageKey() {
+			return 'fishery_monitor_selected_group'
+		},
+		persistSelectedGroup() {
+			const key = this.getSelectedGroupStorageKey()
+			if (this.selectedGroupId) {
+				uni.setStorageSync(key, {
+					id: this.selectedGroupId,
+					name: this.selectedGroupName || ''
+				})
+			} else {
+				uni.removeStorageSync(key)
+			}
+		},
+		restoreSelectedGroup() {
+			const key = this.getSelectedGroupStorageKey()
+			const saved = uni.getStorageSync(key)
+			if (saved && saved.id) {
+				this.selectedGroupId = saved.id
+				this.selectedGroupName = saved.name || ''
+			}
+		},
+		
 		// WebSocket相关方法
 		// 初始化WebSocket连接
 		initWebSocket() {
@@ -520,6 +547,7 @@ export default {
 			this.deviceList = [];
 			this.selectedGroupId = '';
 			this.selectedGroupName = '';
+			this.persistSelectedGroup()
 			// 关闭现有WebSocket连接
 			deviceWebSocket.close();
 			this.getDeviceList();
@@ -598,6 +626,7 @@ export default {
 			this.deviceList = []
 			this.selectedGroupId = e[0].id
 			this.selectedGroupName = e[0].name
+			this.persistSelectedGroup()
 			this.$refs.navDrawer.close()
 			this.$store.state.list.equpPage = 1
 			// 关闭现有WebSocket连接
