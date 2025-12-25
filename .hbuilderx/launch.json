@@ -5,7 +5,7 @@
     "configurations" : [
         {
             "app" : {
-                "launchtype" : "remote"
+                "launchtype" : "local"
             },
             "app-plus" : {
                 "launchtype" : "remote"
@@ -19,7 +19,7 @@
             "mp-weixin" : {
                 "launchtype" : "remote"
             },
-            "provider" : "alipay",
+            "provider" : "aliyun",
             "type" : "uniCloud"
         },
         {

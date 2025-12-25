@@ -1,20 +1,8 @@
 <script>
 	export default {
-		onLaunch: function() {
-			// console.log('App Launch')
-			uni.getPushClientId({  
-				// success: (res) => {
-				// 	console.log('客户端推送标识cid:', res.cid);
-				// },
-				fail(err) {  
-						console.log(err)  
-				}
-			});
-		},
-		async onShow() {
-			// console.log('App Show')
+		onLaunch: async function() {
 			uni.onPushMessage(async (res) => {
-				// console.log("收到推送消息：",res) //监听推送消息
+				console.log('收到推送消息==>:', res);
 				if (res.type == 'receive') {  
 					uni.createPushMessage({  
 						title: res.data.title,  
@@ -39,6 +27,19 @@
 					}
 				}
 			});
+
+			uni.getPushClientId({
+				success: (res) => {
+					const push_clientid = res.cid;
+					console.log('客户端推送标识==>:', push_clientid);
+				},
+				fail(err) {
+					console.log("获取客户端标识错误:", err);
+				}
+			});
+		},
+		onShow: function() {
+			// console.log('App Show')
 		},
 		methods: {
 			async fetchAlarmInfo(url, headers) {

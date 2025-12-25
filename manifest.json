@@ -53,7 +53,7 @@
                 "push" : {
                     "unipush" : {
                         "version" : "2",
-                        "offline" : true,
+                        "offline" : false,
                         "icons" : {
                             "small" : {
                                 "ldpi" : ""
@@ -129,6 +129,9 @@
             "treeShaking" : {
                 "enable" : true
             }
+        },
+        "unipush" : {
+            "enable" : true
         }
     },
     "uniStatistics" : {
