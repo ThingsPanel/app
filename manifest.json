@@ -2,8 +2,8 @@
     "name" : "ThingsPanel",
     "appid" : "__UNI__71E31D5",
     "description" : "ThingsPanel物联网平台",
-    "versionName" : "1.1.11",
-    "versionCode" : 111,
+    "versionName" : "1.1.12",
+    "versionCode" : 112,
     "transformPx" : false,
     /* 5+App特有相关 */
     "app-plus" : {
