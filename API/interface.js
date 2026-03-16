@@ -6,7 +6,7 @@ let baseUrl = ''
 if( uni.getStorageSync('serverAddress')) {
 	baseUrl = uni.getStorageSync('serverAddress')
 } else {
-	baseUrl = "http://demo.thingspanel.cn"
+	baseUrl = "https://demo.thingspanel.cn"
 }
 export default {
 	config: {

@@ -29,7 +29,7 @@
 					<view class="inputicon">
 						<uni-icons type="cloud-upload-filled" size="28" color="#4f46e5" />
 					</view>
-					<input type="text" placeholder-class="tp-plc" placeholder="http://demo.thingspanel.cn"
+					<input type="text" placeholder-class="tp-plc" placeholder="https://demo.thingspanel.cn"
 						v-model="server" @input="serverChange" />
 				</view>
 			</view>
@@ -228,7 +228,7 @@ export default {
 			if (this.server) {
 				uni.setStorageSync('serverAddress', this.server)
 			} else {
-				uni.setStorageSync('serverAddress', 'http://demo.thingspanel.cn')
+				uni.setStorageSync('serverAddress', 'https://demo.thingspanel.cn')
 			}
 			uni.showLoading({
 				title: this.$t('pages.login.loading')
@@ -243,33 +243,28 @@ export default {
 				password: this.password
 			}, 'post').then(res => {
 				if (res.code == 200) {
+					uni.setStorageSync('email', this.email)
+					uni.setStorageSync('password', this.password)
+					uni.setStorageSync('access_token', res.data.token)
 					// Get push ID
 					uni.getPushClientId({
 						success: (res) => {
 							cid = res.cid;
-							console.log("Client Id for push notification: " + cid);
+							this.API.apiRequest('/api/v1/message_push', {
+								deviceType: "" + uni.getSystemInfoSync().platform,
+								pushId: cid
+							}, 'post').then(res => {
+								if (res.statusCode === 200) {
+									uni.setStorageSync('push_id', cid);
+								}
+							}).catch(err => {
+								uni.setStorageSync('push_id', cid);
+							})
 						},
 						fail(err) {
 							console.log(err)
-						}
+						},
 					});
-					this.API.apiRequest('/api/v1/push-id', {
-						// according to design spec, user id and device tyep is also required param, 
-						// user_id: this.email
-						// device_type: ???
-						push_id: cid
-					}, 'post').then(res => {
-						if (res.statusCode === 200) {
-							uni.setStorageSync('push_id', cid);
-							console.log("Register client push ID in server successfully");
-						}
-					}).catch(err => {
-						uni.setStorageSync('push_id', cid);
-						console.log("Failed to register client push ID in server");
-					})
-					uni.setStorageSync('email', this.email)
-					uni.setStorageSync('password', this.password)
-					uni.setStorageSync('access_token', res.data.token)
 					uni.switchTab({
 						url: '../fishery-monitor/fishery-monitor'
 					});
@@ -317,7 +312,7 @@ export default {
 			if (this.server) {
 				uni.setStorageSync('serverAddress', this.server)
 			} else {
-				uni.setStorageSync('serverAddress', 'http://demo.thingspanel.cn')
+				uni.setStorageSync('serverAddress', 'https://demo.thingspanel.cn')
 			}
 			uni.navigateTo({
 				url: './register'
