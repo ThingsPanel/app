@@ -136,6 +136,7 @@ import dayjs from 'dayjs';
 import { deviceList as deviceListApi } from '@/service/device'
 import { updateTabbarText } from '@/lang/index'
 import deviceWebSocket from '@/common/deviceWebSocket'
+import { buildWebViewUrl } from '@/common/platformWeb.js'
 //
 export default {
 	data() {
@@ -510,8 +511,10 @@ export default {
 		// 点击设备
 		clickDevice(data, dataIndex) {
 			const token = uni.getStorageSync("access_token");
-			const serverUrl = uni.getStorageSync('serverAddress');
-			const url = `${serverUrl}/device-details-app?d_id=${data.id}&token=${token}`;
+			const url = buildWebViewUrl('/device-details-app', {
+				d_id: data.id,
+				token
+			});
 			uni.navigateTo({
 			  url: `/pages/webViewPage/webViewPage?url=${encodeURIComponent(url)}`
 			});
@@ -559,7 +562,6 @@ export default {
 				stateNum = 1
 			} else if (sw.state == 1) {
 				stateNum = 0
-			}
 			var values = {
 				[sw.name]: stateNum
 			}

@@ -49,6 +49,14 @@
 			}
 		},
 		{
+			"path": "pages/visualization/visualization",
+			"style": {
+				"navigationBarTitleText": "%pages.visualizationTitle%",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
 			"path": "pages/ucenter/ucenter",
 			"style": {
 				"navigationBarTitleText": "%pages.userCenter%",
@@ -268,6 +276,13 @@
 				"text": "%pages.intelligentControlTitle%",
 				"iconPath": "static/tabbar/intelligentControl.png",
 				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
+			},
+			{
+				"pagePath": "pages/visualization/visualization",
+				"key": "pages.visualizationTitle",
+				"text": "%pages.visualizationTitle%",
+				"iconPath": "static/tabbar/visualization.png",
+				"selectedIconPath": "static/tabbar/visualizationSel.png"
 			},
 			{
 				"pagePath": "pages/ucenter/ucenter",

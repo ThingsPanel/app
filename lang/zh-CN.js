@@ -73,6 +73,7 @@ export default {
     notifyDetailTitle: '告警详情',
     deviceList: '设备列表',
     intelligentControlTitle: '智能控制',
+    visualizationTitle: '可视化',
     userCenter: '个人中心',
     basicInfo: '基本资料',
     deviceDetailTitle: '设备详情',
