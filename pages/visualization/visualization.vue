@@ -1,6 +1,6 @@
 <template>
   <view class="web-view-page">
-    <web-view v-if="url" :src="url" :style="{ width: '100%', height: '100%' }" />
+    <web-view v-if="url" :src="url" :style="{ width: '100%', height: '100%' }" @message="handleWebViewMessage" />
   </view>
 </template>
 
@@ -15,6 +15,14 @@ export default {
   },
   onLoad() {
     this.setNavTitle()
+    // #ifdef H5
+    window.addEventListener('message', this.handleWindowMessage)
+    // #endif
+  },
+  onUnload() {
+    // #ifdef H5
+    window.removeEventListener('message', this.handleWindowMessage)
+    // #endif
   },
   onShow() {
     this.refreshWebViewUrl()
@@ -36,6 +44,26 @@ export default {
       this.url = buildWebViewUrl('/visualization-app', {
         token,
         lang
+      })
+    },
+    handleWebViewMessage(event) {
+      const messages = event?.detail?.data
+      if (!Array.isArray(messages)) return
+      messages.forEach(message => this.openSubWebViewPage(message))
+    },
+    handleWindowMessage(event) {
+      this.openSubWebViewPage(event?.data)
+    },
+    openSubWebViewPage(message) {
+      if (!message || message.type !== 'tp:open-webview-page' || !message.url) return
+
+      const query = [`url=${encodeURIComponent(message.url)}`]
+      if (message.title) {
+        query.push(`title=${encodeURIComponent(message.title)}`)
+      }
+
+      uni.navigateTo({
+        url: `/pages/webViewPage/webViewPage?${query.join('&')}`
       })
     }
   }
