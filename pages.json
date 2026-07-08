@@ -90,7 +90,7 @@
 		{
 			"path": "pages/webViewPage/webViewPage",
 			"style": {
-				"navigationBarTitleText": "%pages.deviceDetail%",
+				"navigationBarTitleText": "%pages.deviceDetailTitle%",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
