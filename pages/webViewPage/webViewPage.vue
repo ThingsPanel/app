@@ -38,12 +38,14 @@ export default {
     this.applyNavTitle()
   },
   methods: {
+    resolveNavTitle() {
+      return this.pageTitle || this.$t('pages.deviceDetailTitle')
+    },
     applyNavTitle() {
-      if (!this.pageTitle) return
       this.$nextTick(() => {
         setTimeout(() => {
           uni.setNavigationBarTitle({
-            title: this.pageTitle
+            title: this.resolveNavTitle()
           })
         }, 100)
       })

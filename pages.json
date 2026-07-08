@@ -90,7 +90,7 @@
 		{
 			"path": "pages/webViewPage/webViewPage",
 			"style": {
-				"navigationBarTitleText": "%pages.deviceDetailTitle%",
+				"navigationBarTitleText": "设备详情",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
