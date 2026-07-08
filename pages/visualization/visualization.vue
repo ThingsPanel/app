@@ -73,6 +73,19 @@ export default {
 <style scoped>
 .web-view-page {
   width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+</style>
+
+<style>
+/* #ifdef H5 */
+body.pages-visualization-visualization uni-page-body {
+  height: calc(100vh - 44px - var(--window-bottom, 0px));
+}
+
+body.pages-visualization-visualization .web-view-page {
   height: 100%;
 }
+/* #endif */
 </style>
