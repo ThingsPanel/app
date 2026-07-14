@@ -264,6 +264,13 @@
 		"borderStyle": "white",
 		"list": [
 			{
+				"pagePath": "pages/visualization/visualization",
+				"key": "pages.visualizationTitle",
+				"text": "%pages.visualizationTitle%",
+				"iconPath": "static/tabbar/visualization.png",
+				"selectedIconPath": "static/tabbar/visualizationSel.png"
+			},
+			{
 				"pagePath": "pages/fishery-monitor/fishery-monitor",
 				"key": "pages.deviceList",
 				"text": "%pages.deviceList%",
@@ -276,13 +283,6 @@
 				"text": "%pages.intelligentControlTitle%",
 				"iconPath": "static/tabbar/intelligentControl.png",
 				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
-			},
-			{
-				"pagePath": "pages/visualization/visualization",
-				"key": "pages.visualizationTitle",
-				"text": "%pages.visualizationTitle%",
-				"iconPath": "static/tabbar/visualization.png",
-				"selectedIconPath": "static/tabbar/visualizationSel.png"
 			},
 			{
 				"pagePath": "pages/ucenter/ucenter",

@@ -75,7 +75,7 @@ export default {
     notifyDetailTitle: 'Alert Details',
     deviceList: 'Device List',
     intelligentControlTitle: 'Automation',
-    visualizationTitle: 'Visualization',
+    visualizationTitle: 'Dashboard',
     userCenter: 'User Center',
     basicInfo: 'Basic Info',
     deviceDetailTitle: 'Device Detail',
