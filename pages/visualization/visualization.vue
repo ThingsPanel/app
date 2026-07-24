@@ -41,9 +41,11 @@ export default {
     refreshWebViewUrl() {
       const token = uni.getStorageSync('access_token')
       const lang = uni.getStorageSync('language')
+      const statusBarHeight = uni.getSystemInfoSync().statusBarHeight || 0
       this.url = buildWebViewUrl('/visualization-app', {
         token,
-        lang
+        lang,
+        statusBarHeight
       })
     },
     handleWebViewMessage(event) {
