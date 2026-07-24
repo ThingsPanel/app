@@ -53,7 +53,8 @@
 			"style": {
 				"navigationBarTitleText": "%pages.visualizationTitle%",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationStyle": "custom"
 			}
 		},
 		{
@@ -92,7 +93,22 @@
 			"style": {
 				"navigationBarTitleText": "设备详情",
 				"navigationBarBackgroundColor": "#FFFFFF",
-				"pageOrientation": "auto"
+				"pageOrientation": "auto",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"color": "#111111",
+								"colorPressed": "#666666",
+								"float": "right",
+								"fontSize": "24px",
+								"fontSrc": "/static/font/MaterialIcons-Regular.ttf",
+								"text": "\ue1c1",
+								"width": "50px"
+							}
+						]
+					}
+				}
 			}
 		},
 		{

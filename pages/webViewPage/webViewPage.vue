@@ -23,7 +23,8 @@ export default {
   data() {
     return {
       url: '',
-      pageTitle: ''
+      pageTitle: '',
+      isLandscape: false
     }
   },
   onLoad(options) {
@@ -37,6 +38,14 @@ export default {
   onShow() {
     this.applyNavTitle()
   },
+  onNavigationBarButtonTap(event) {
+    if (event.index === 0) {
+      this.toggleOrientation()
+    }
+  },
+  onUnload() {
+    this.restorePortrait()
+  },
   methods: {
     resolveNavTitle() {
       return this.pageTitle || this.$t('pages.deviceDetailTitle')
@@ -49,6 +58,20 @@ export default {
           })
         }, 100)
       })
+    },
+    toggleOrientation() {
+      // #ifdef APP-PLUS
+      this.isLandscape = !this.isLandscape
+      plus.screen.lockOrientation(this.isLandscape ? 'landscape-primary' : 'portrait-primary')
+      // #endif
+    },
+    restorePortrait() {
+      // #ifdef APP-PLUS
+      if (this.isLandscape) {
+        plus.screen.lockOrientation('portrait-primary')
+      }
+      this.isLandscape = false
+      // #endif
     }
   }
 }
