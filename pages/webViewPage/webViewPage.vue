@@ -1,6 +1,11 @@
 <template>
   <view class="web-view-page">
-    <web-view v-if="url" :src="url" :style="{ width: '100%', height: '100%' }" />
+    <web-view
+      v-if="url"
+      :src="url"
+      :style="{ width: '100%', height: '100%' }"
+      @load="applyNavTitle"
+    />
   </view>
 </template>
 
