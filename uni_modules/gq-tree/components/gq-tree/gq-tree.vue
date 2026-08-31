@@ -7,7 +7,7 @@
           {{ $t('common.close')}}
         </view>
         <view class="midInput" v-if="showSearch">
-          <input class="searchArea" @input="filterOp" :placeholder=`${{$t('common.pleaseInput') + title}}`/>
+          <input class="searchArea" @input="filterOp" :placeholder="$t('common.pleaseInput') + title" />
           <icon  class="searchIcon" type="search" />
         </view>
         <view class="tree-bar-title" v-else :style="{'color':titleColor}">{{title}}</view>
@@ -16,8 +16,8 @@
       </view>
       <view class="tree-view">
         <scroll-view class="tree-view-sc" :scroll-y="true">
-          <block v-for="(item, index) in treeList" :key="index" v-if="item.isPickerShow == true || item.isPickerShow == undefined">
-            <view class="tree-item" :style="[{
+          <block v-for="(item, index) in treeList" :key="index">
+            <view v-if="item.isPickerShow == true || item.isPickerShow == undefined" class="tree-item" :style="[{
             paddingLeft: item.rank*15 + 'px',
             zIndex: item.rank*-1 +50
             }]" :class="{

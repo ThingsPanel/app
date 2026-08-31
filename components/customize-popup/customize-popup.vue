@@ -1,6 +1,6 @@
 <template>
 	<view 
-		v-if="value"
+		v-if="modelValue"
 		class="customizePopup"
 		@click.stop="maskClosePopup"
 		@touchmove.stop.prevent="stopScrolling"
@@ -58,7 +58,7 @@
 
 		props: {
 			// 显示/隐藏
-			value: {
+			modelValue: {
 				type: Boolean,
 				default: false
 			},
@@ -195,7 +195,7 @@
 			
 			// 关闭弹出框
 			closePopup() {
-				this.$emit('input', false)
+				this.$emit('update:modelValue', false)
 			},
 			
 			// 阻止遮罩滚动穿透

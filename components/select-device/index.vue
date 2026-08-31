@@ -176,8 +176,6 @@
         		this.toast.msg = res.message
         		this.$refs.toast.show();
         	}
-        }).finally(() => {
-        	uni.hideLoading()
         });
       },
       
@@ -203,8 +201,6 @@
         		this.toast.msg = res.message
         		this.$refs.toast.show();
         	}
-        }).finally(() => {
-        	uni.hideLoading()
         });
       },
       
@@ -230,8 +226,6 @@
         		this.toast.msg = res.message
         		this.$refs.toast.show();
         	}
-        }).finally(() => {
-        	uni.hideLoading()
         });
       },
       

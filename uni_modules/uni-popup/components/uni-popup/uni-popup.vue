@@ -161,10 +161,15 @@ export default {
 		}
 		fixSize()
 		// #ifdef H5
+		this._fixSize = fixSize
 		window.addEventListener('resize', fixSize)
-		this.$once('hook:beforeDestroy', () => {
-			window.removeEventListener('resize', fixSize)
-		})
+		// #endif
+	},
+	beforeUnmount() {
+		// #ifdef H5
+		if (this._fixSize) {
+			window.removeEventListener('resize', this._fixSize)
+		}
 		// #endif
 	},
 	created() {

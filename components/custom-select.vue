@@ -3,13 +3,13 @@
     <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c select-row" @tap="showPop">
       <view class="label">{{label}}</view>
     	<view class="input-wrapper">
-        <input class="uni-input" :placeholder="placeholder" disabled :value="currentDisplayText || showValue" :key="`input-${value || ''}-${currentDisplayText || showValue || ''}`"/>
+        <input class="uni-input" :placeholder="placeholder" disabled :value="currentDisplayText || showValue" :key="`input-${modelValue || ''}-${currentDisplayText || showValue || ''}`"/>
         <view class="input-overlay" @tap="showPop"></view>
       </view>
-    	<view class="" v-if="!clearable || (clearable && !value)">
+      <view class="" v-if="!clearable || (clearable && !modelValue)">
         <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
       </view>
-      <view class="" v-if="clearable && value" @tap.stop="clear">
+      <view class="" v-if="clearable && modelValue" @tap.stop="clear">
         <uni-icons color="#999" type="clear" size="40rpx"></uni-icons>
       </view>
     </view>
@@ -29,16 +29,12 @@
 
 <script>
   export default {
-    model:{ // 建议显示把这个写上
-      event:'update:value',
-      prop: 'value'
-    },
     props: {
       clearable: {
         type: Boolean,
         default: false,
       },
-      value: {
+      modelValue: {
         type: [String, Number],
       },
       options: {
@@ -64,7 +60,7 @@
     },
     
     watch: {
-      value: {
+      modelValue: {
         handler(n, o) {
           this.$emit('change', n, o)
           // 当 value 变化时，清空 currentDisplayText，让计算属性重新计算
@@ -91,10 +87,10 @@
     },
     computed: {
       showValue () {
-        console.log('showValue computed - value:', this.value, 'options length:', this.options?.length, 'optionValue:', this.optionValue, 'optionLabel:', this.optionLabel)
+        console.log('showValue computed - value:', this.modelValue, 'options length:', this.options?.length, 'optionValue:', this.optionValue, 'optionLabel:', this.optionLabel)
         
         // 如果 value 为空（包括 null, undefined, ''），返回空字符串
-        if (this.value === null || this.value === undefined || this.value === '') {
+        if (this.modelValue === null || this.modelValue === undefined || this.modelValue === '') {
           console.log('showValue - value is empty')
           return ''
         }
@@ -110,16 +106,16 @@
           if (!item) return false
           const itemValue = item[this.optionValue]
           // 严格相等比较
-          if (itemValue === this.value) {
+          if (itemValue === this.modelValue) {
             return true
           }
           // 字符串转换比较
-          if (String(itemValue) === String(this.value)) {
+          if (String(itemValue) === String(this.modelValue)) {
             return true
           }
           // 数字类型比较（处理 0 和数字字符串的情况）
           const numItem = Number(itemValue)
-          const numValue = Number(this.value)
+          const numValue = Number(this.modelValue)
           if (!isNaN(numItem) && !isNaN(numValue) && numItem === numValue) {
             return true
           }
@@ -128,10 +124,10 @@
         
         if (option && option[this.optionLabel] !== undefined && option[this.optionLabel] !== null) {
           const displayText = String(option[this.optionLabel])
-          console.log('showValue found:', { value: this.value, option, displayText, optionLabel: this.optionLabel })
+          console.log('showValue found:', { value: this.modelValue, option, displayText, optionLabel: this.optionLabel })
           return displayText
         } else {
-          console.log('showValue not found:', { value: this.value, valueType: typeof this.value, options: this.options.map(o => ({ id: o[this.optionValue], name: o[this.optionLabel] })), optionValue: this.optionValue })
+          console.log('showValue not found:', { value: this.modelValue, valueType: typeof this.modelValue, options: this.options.map(o => ({ id: o[this.optionValue], name: o[this.optionLabel] })), optionValue: this.optionValue })
           return ''
         }
       },
@@ -146,7 +142,7 @@
     },
     methods: {
       clear (e) {
-        this.$emit('update:value')
+        this.$emit('update:modelValue')
       },
       showPop (e) {
         console.log('showPop', e)
@@ -163,7 +159,7 @@
         console.log('onSelect:', { option, newValue, displayText, optionValue: this.optionValue, optionLabel: this.optionLabel })
         // 立即更新显示文本
         this.currentDisplayText = String(displayText)
-        this.$emit('update:value', newValue)
+        this.$emit('update:modelValue', newValue)
         this.$emit('change', newValue)
         this.hidePop()
         // 强制更新以确保显示值刷新

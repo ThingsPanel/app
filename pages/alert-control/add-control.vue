@@ -109,7 +109,7 @@
 					<view v-if="data.cishu == 1">{{ $t('pages.addControl.time') }}</view>
 					<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" v-if="data.cishu == 1">
 						<picker mode="time" :value="data.dateTime" start="00:00" end="23:59"
-							@change="bindTimeChange(data,$event)" v-model="data.dateTime">
+							@change="bindTimeChange(data,$event)">
 							<view class="uni-input">{{data.dateTime?data.dateTime:$t('pages.addControl.selectTime')}}</view>
 						</picker>
 						<view class="iconfont iconjiantou1"></view>
@@ -118,7 +118,7 @@
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index!=0">
 					<view class="del_btn" @click="toDeltrig(data,index)">
-						<image src="../../static/icon/del.png" alt="">{{ $t('pages.addControl.delete') }}
+						<image src="../../static/icon/del.png" alt="" />{{ $t('pages.addControl.delete') }}
 					</view>
 				</view>
 			</view>
@@ -171,7 +171,7 @@
 				<view class="tp-ipt-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-25"
 					v-if="index!=0">
 					<view class="del_btn" @click="toDelCon(data,index)">
-						<image src="../../static/icon/del.png" alt="">{{ $t('pages.addControl.delete') }}
+						<image src="../../static/icon/del.png" alt="" />{{ $t('pages.addControl.delete') }}
 					</view>
 				</view>
 			</view>
@@ -293,7 +293,7 @@
 				<view class="logInfo">
 					<view class="info_title">
 						{{ $t('pages.addControl.triggerCondition') }}
-						<image src="../../static/icon/close.png" alt="" @click="$refs.addtrigPopup.close()">
+						<image src="../../static/icon/close.png" alt="" @click="$refs.addtrigPopup.close()" />
 					</view>
 					<view class="info_header">
 						<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
@@ -398,7 +398,7 @@
 				<view class="logInfo">
 					<view class="info_title">
 						{{ $t('pages.addControl.executeCommand') }}
-						<image src="../../static/icon/close.png" alt="" @click="$refs.addConPopup.close()">
+						<image src="../../static/icon/close.png" alt="" @click="$refs.addConPopup.close()" />
 					</view>
 					<view class="info_list">
 						<view class="item" @click="toSelectEqpGroupAdd('con')">
@@ -732,7 +732,6 @@
 							this.toast.msg = res.message
 							this.$refs.toast.show();
 						}
-						uni.hideLoading()
 					}).finally(() => {
 						uni.hideLoading()
 					});
@@ -1048,7 +1047,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});
@@ -1089,7 +1087,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});
@@ -1164,7 +1161,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});
@@ -1193,7 +1189,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});
@@ -1262,7 +1257,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});
@@ -1291,7 +1285,6 @@
 							this.$refs.toast.show();
 						}
 					}
-					uni.hideLoading()
 				}).finally(() => {
 					uni.hideLoading()
 				});

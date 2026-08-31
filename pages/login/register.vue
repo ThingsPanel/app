@@ -95,7 +95,7 @@ export default {
 			setTimeout(() => {
 				try {
 					uni.setNavigationBarTitle({
-						title: this.$t('pages.register')
+						title: this.$t('pages.register.title')
 					});
 				} catch (e) {
 					console.warn('设置导航栏标题失败:', e);
@@ -183,7 +183,7 @@ export default {
 						setTimeout(() => {
 							try {
 								uni.setNavigationBarTitle({
-									title: this.$t('pages.register')
+									title: this.$t('pages.register.title')
 								});
 							} catch (e) {
 								console.warn('设置导航栏标题失败:', e);

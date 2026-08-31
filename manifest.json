@@ -5,6 +5,7 @@
     "versionName" : "1.1.15",
     "versionCode" : 115,
     "transformPx" : false,
+    "vueVersion" : "3",
     /* 5+App特有相关 */
     "app-plus" : {
         "usingComponents" : true,

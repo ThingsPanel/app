@@ -200,7 +200,6 @@
                     <view v-if="ifItem.task_type === 'HOUR'" class="form-item">
                       <picker
                         mode="time"
-                        v-model="ifItem.hourTimeValue"
                         :value="formatMinuteTime(ifItem.hourTimeValue)"
                         @change="(e) => onHourTimeChange(e, ifItem)"
                       >
@@ -217,7 +216,6 @@
                     <view v-if="ifItem.task_type === 'DAY'" class="form-item">
                       <picker
                         mode="time"
-                        v-model="ifItem.dayTimeValue"
                         :value="formatTime(ifItem.dayTimeValue)"
                         @change="(e) => onDayTimeChange(e, ifItem)"
                       >
@@ -249,7 +247,6 @@
                       </checkbox-group>
                       <picker
                         mode="time"
-                        v-model="ifItem.weekTimeValue"
                         :value="formatTime(ifItem.weekTimeValue)"
                         @change="(e) => onWeekTimeChange(e, ifItem)"
                       >
@@ -281,7 +278,6 @@
                       </view>
                       <picker
                         mode="time"
-                        v-model="ifItem.monthTimeValue"
                         :value="formatTime(ifItem.monthTimeValue)"
                         @change="(e) => onMonthTimeChange(e, ifItem)"
                       >
@@ -324,7 +320,6 @@
                     <view class="time-range">
                       <picker
                         mode="time"
-                        v-model="ifItem.startTimeValue"
                         :value="formatTime(ifItem.startTimeValue)"
                         @change="(e) => onStartTimeChange(e, ifItem)"
                       >
@@ -333,7 +328,6 @@
                       <view class="time-range-divider">-</view>
                       <picker
                         mode="time"
-                        v-model="ifItem.endTimeValue"
                         :value="formatTime(ifItem.endTimeValue)"
                         @change="(e) => onEndTimeChange(e, ifItem)"
                       >

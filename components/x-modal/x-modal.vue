@@ -57,22 +57,22 @@
 				type: Boolean,
 				default: true
 			},
-			value: {
+			modelValue: {
 				type: Boolean,
 				default: false
 			}
 		},
 		data(){
 			return{
-				showValue: this.value
+				showValue: this.modelValue
 			}
 		},
 		watch: {
-			value(n, o){
+			modelValue(n, o){
 				this.showValue = n
 			},
 			showValue(n, o){
-				this.$emit('input', n)
+				this.$emit('update:modelValue', n)
 			}
 		},
 		methods: {

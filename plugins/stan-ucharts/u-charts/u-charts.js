@@ -5627,7 +5627,4 @@ Charts.prototype.scrollEnd = function(e) {
     this.scrollOption.distance = 0;
   }
 };
-if (typeof module === "object" && typeof module.exports === "object") {
-  module.exports = Charts;
-  //export default Charts;//建议使用nodejs的module导出方式，如报错请使用export方式导出
-}
+export default Charts;

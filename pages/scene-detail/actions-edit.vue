@@ -134,8 +134,8 @@
                   />
                   <switch
                   v-if="instructItem.actionParamData.data_type === 'boolean'"
-                  v-model="instructItem.actionValue"
-                  @change="() => actionValueChange(actionGroupIndex, instructIndex)"
+                  :checked="instructItem.actionValue"
+                  @change="(event) => booleanActionValueChange(event, actionGroupIndex, instructIndex)"
                   ></switch>
               </view>
 
@@ -660,6 +660,11 @@
             instructItem.inputValidationStatus = 'error';
           }
         }
+      },
+      booleanActionValueChange(event, actionGroupIndex, instructIndex) {
+        const instructItem = this.actions[actionGroupIndex].actionInstructList[instructIndex];
+        instructItem.actionValue = event.detail.value;
+        this.actionValueChange(actionGroupIndex, instructIndex);
       },
       addIfGroupsSubItem(actionGroupIndex) {
         const data = JSON.parse(JSON.stringify(this.instructListItem));

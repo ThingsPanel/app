@@ -1,41 +1,34 @@
-import Vue from 'vue'
 import App from './App'
+import { createSSRApp } from 'vue'
 import store from './store'
-import i18n, { updateTabbarText } from './lang/index'
-//
-Vue.prototype.$store = store
-//
-Vue.config.productionTip = false
-
-Vue.prototype.$login = require('@/store/login') //判断是否登陆
+import i18n from './lang/index'
+import login from '@/store/login'
 
 //登录框提示框
 import needLogin from '@/components/login/needLogin.vue';
- Vue.component('needLogin',needLogin)
 //授权提示框
 import authorize from '@/components/login/authorize.vue';
- Vue.component('authorize',authorize)
 //消息提示框
 import CysToast from '@/components/aui-toast/aui-toast.vue'
-Vue.component('cys-toast',CysToast)
 
 //通用导航栏
 import customNav from '@/components/customNav/customNav.vue';
-Vue.component('customNav',customNav)
 //接口访问请求
 import api from '@/API/'
-Vue.prototype.API = api
-// 
-App.mpType = 'app'
-// 
-const app = new Vue({
-    i18n,
-    ...App
-})
 
-app.$mount()
+export function createApp() {
+    const app = createSSRApp(App)
 
-// Update titles on initial load
-updateTabbarText()
+    app.use(store)
+    app.use(i18n)
+    app.component('needLogin', needLogin)
+    app.component('authorize', authorize)
+    app.component('cys-toast', CysToast)
+    app.component('customNav', customNav)
+    app.config.globalProperties.$login = login
+    app.config.globalProperties.API = api
 
-export default app
+    return {
+        app
+    }
+}

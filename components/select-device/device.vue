@@ -36,12 +36,8 @@
 
 <script>
   export default {
-    model:{ // 建议显示把这个写上
-      event:'update:value',
-      prop: 'value'
-    },
     props: {
-      value: {
+      modelValue: {
         type: String,
       },
       options: {
@@ -56,7 +52,7 @@
     },
     computed: {
       showValue () {
-        const path = this.deepFind(this.value, this.options)
+        const path = this.deepFind(this.modelValue, this.options)
         if (path.length) {
           this.type = path[path.length-1].type
           return path.map(item => item.device_name).join('/')
@@ -66,7 +62,7 @@
       },
     },
     watch: {
-      value (n, o) {
+      modelValue (n, o) {
         console.log('deviceId = change', n, o)
         this.$emit('change', n, o)
       },
@@ -89,7 +85,7 @@
         console.log(option)
         if (option) {
           this.type = option.value
-          this.$emit('update:value', option.id)
+          this.$emit('update:modelValue', option.id)
         }
       },
       

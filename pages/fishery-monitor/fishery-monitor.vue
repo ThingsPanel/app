@@ -318,7 +318,7 @@ export default {
 		}
 		deviceWebSocket.close()
 	},
-	beforeDestroy() {
+	beforeUnmount() {
 		// 清除定时器
 		clearInterval(this.timer)
 		// 清除在线/离线状态定时器

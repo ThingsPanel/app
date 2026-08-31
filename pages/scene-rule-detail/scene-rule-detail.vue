@@ -30,7 +30,7 @@
       <!-- 条件列表 -->
       <view class="section-content">
         <conditions-edit v-if="formData.trigger_condition_groups" ref="conditions"
-          :condition-data.sync="formData.trigger_condition_groups" />
+          v-model:condition-data="formData.trigger_condition_groups" />
       </view>
 
       <!-- Section: Then -->
@@ -40,7 +40,7 @@
 
       <!-- 操作列表 -->
       <view class="section-content">
-        <actions-edit v-if="formData.actions" ref="actions" :actions.sync="formData.actions"></actions-edit>
+        <actions-edit v-if="formData.actions" ref="actions" v-model:actions="formData.actions"></actions-edit>
       </view>
 
       <!-- Save Button -->

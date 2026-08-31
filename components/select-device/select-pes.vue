@@ -36,12 +36,8 @@
 
 <script>
   export default {
-    model:{ // 建议显示把这个写上
-      event:'update:value',
-      prop: 'value'
-    },
     props: {
-      value: {
+      modelValue: {
         type: Object,
         default: () => ({}),
       },
@@ -56,16 +52,16 @@
     },
     computed: {
       showValue () {
-        if (this.value.device_condition_type === '1') { // 当前选中的是 属性
-          const option = this.propOptions.find(item => item.name === this.value.v1)
+        if (this.modelValue.device_condition_type === '1') { // 当前选中的是 属性
+          const option = this.propOptions.find(item => item.name === this.modelValue.v1)
           if (option) {
             this.$emit('valueConfChange', option)
             return option.title
           }
-        } else if (this.value.device_condition_type === '2') {  // 当前选中的是 事件
+        } else if (this.modelValue.device_condition_type === '2') {  // 当前选中的是 事件
           
-        } else if (this.value.device_condition_type === '3') {  // 当前选中的是 状态
-          const option = this.statusOptions.find(item => item.value === this.value.v2)
+        } else if (this.modelValue.device_condition_type === '3') {  // 当前选中的是 状态
+          const option = this.statusOptions.find(item => item.value === this.modelValue.v2)
           if (option) {
             this.$emit('valueConfChange', option)
             return option.label
@@ -76,7 +72,7 @@
       },
     },
     watch: {
-      value (n, o) {
+      modelValue (n, o) {
         this.$emit('change', n, o)
       },
     },
@@ -102,7 +98,7 @@
       onSelect (device_condition_type, option) {
         console.log(JSON.parse(JSON.stringify(option)))
         if (device_condition_type === '1') { // 当前选中的是 属性，v1有值  v2有值  v3有值
-          this.$emit('update:value', {
+          this.$emit('update:modelValue', {
             device_condition_type: '1',
             v1: option.name,
             v2: '',
@@ -110,7 +106,7 @@
         } else if (device_condition_type === '2') { // 当前选中的是 事件
           
         } else if (device_condition_type === '3') { // 当前选中的是 状态，v1为空	  v2有值	  v3为空
-          this.$emit('update:value', {
+          this.$emit('update:modelValue', {
             device_condition_type: '3',
             v1: '',
             v2: option.value,

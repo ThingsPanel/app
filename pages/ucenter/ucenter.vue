@@ -6,8 +6,7 @@
 			<view class="bg-glow-2"></view>
 			<view>
 				<view class="tp-panel tp-uinfo tp-flex tp-flex-col tp-flex-j-c tp-flex-a-c tp-mg-t-50">
-					<image :src="uhead" class="tp-mg-t-20" v-if="!$login.isLoginType().isLogin" @click="isLogin=true">
-					</image>
+					<image :src="uhead" class="tp-mg-t-20" v-if="!$login.isLoginType().isLogin" @click="isLogin=true" />
 					<image :src="userWxInfo.avatarUrl" class="tp-mg-t-20" v-else></image>
 					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15">
 						<text class="tp-mg-r-10" v-if="!$login.isLoginType().isLogin">{{ $t('ucenter.notLoggedIn') }}</text>

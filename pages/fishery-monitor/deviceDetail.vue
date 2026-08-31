@@ -204,7 +204,7 @@
 <script>
 import dayjs from 'dayjs'
 import * as echarts from 'echarts';
-import uCharts from '@/components/u-charts/u-charts.min.js';
+import uCharts from '@/plugins/stan-ucharts/u-charts/u-charts.js';
 import customNav from '@/components/customNav/customNav.vue';
 var canvaLineA = null;
 var canvaLineB = null;
@@ -325,7 +325,7 @@ export default {
 		this.getDetail()
 		this.connectSocketInit();
 	},
-	beforeDestroy() {
+	beforeUnmount() {
 		this.closeSocket();
 		this.clearTimer();
 	},
