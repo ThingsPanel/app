@@ -1,7 +1,7 @@
 <template>
 	<view class="tp-login-box plain-layout">
 		<view class="plain-header tp-flex tp-flex-row tp-flex-a-c">
-			<image class="brand-logo" src="/static/icon/logo.png" mode="heightFix" />
+			<image class="brand-logo" src="/static/icon/app-mark.png" mode="heightFix" />
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
 				<text class="lang-arrow">›</text>
@@ -86,7 +86,7 @@
 import {
 	fetchEmailCode,
 	registerByEmail
-} from '@/service/auth'
+} from '@/api/modules/auth'
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 
 export default {
@@ -366,7 +366,7 @@ export default {
 		// 返回登录页
 		handleBack() {
 			uni.navigateTo({
-				url: '/pages/login/login'
+				url: '/pages/login/index'
 			})
 		},
 		
@@ -383,7 +383,7 @@ export default {
 </script>
   
 <style>
-@import url("@/common/login.css");
+@import url("@/features/auth/styles/auth.css");
 
 .plain-layout {
 	display: flex;

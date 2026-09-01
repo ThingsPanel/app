@@ -1,18 +1,12 @@
 {
-    "id": "echarts-uniapp",
-    "name": "echarts for uniapp",
-    "version": "0.0.1",
-    "description": "echarts适配uni-app",
-    "keywords": [
-        "echarts",
-        "图表"
-    ],
-    "dcloudext": {
-        "category": [
-            "前端组件",
-            "通用组件"
-        ]
+    "name": "thingspanel-app",
+    "version": "1.1.15",
+    "private": true,
+    "description": "ThingsPanel IoT mobile application built with Vue 3 and uni-app",
+    "scripts": {
+        "check": "node scripts/check-project.mjs"
     },
+    "keywords": ["iot", "thingspanel", "uni-app", "vue3"],
     "dependencies": {
         "dayjs": "^1.11.8",
         "echarts": "^5.4.3",

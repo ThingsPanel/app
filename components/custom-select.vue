@@ -87,17 +87,13 @@
     },
     computed: {
       showValue () {
-        console.log('showValue computed - value:', this.modelValue, 'options length:', this.options?.length, 'optionValue:', this.optionValue, 'optionLabel:', this.optionLabel)
-        
         // 如果 value 为空（包括 null, undefined, ''），返回空字符串
         if (this.modelValue === null || this.modelValue === undefined || this.modelValue === '') {
-          console.log('showValue - value is empty')
           return ''
         }
         
         // 如果 options 为空，返回空字符串
         if (!this.options || this.options.length === 0) {
-          console.log('showValue - options is empty')
           return ''
         }
         
@@ -123,11 +119,8 @@
         })
         
         if (option && option[this.optionLabel] !== undefined && option[this.optionLabel] !== null) {
-          const displayText = String(option[this.optionLabel])
-          console.log('showValue found:', { value: this.modelValue, option, displayText, optionLabel: this.optionLabel })
-          return displayText
+          return String(option[this.optionLabel])
         } else {
-          console.log('showValue not found:', { value: this.modelValue, valueType: typeof this.modelValue, options: this.options.map(o => ({ id: o[this.optionValue], name: o[this.optionLabel] })), optionValue: this.optionValue })
           return ''
         }
       },
@@ -145,7 +138,6 @@
         this.$emit('update:modelValue')
       },
       showPop (e) {
-        console.log('showPop', e)
         this.$emit('click')
         this.$refs.pop.open()
       },
@@ -156,7 +148,6 @@
         if (!option) return
         const newValue = option[this.optionValue]
         const displayText = option[this.optionLabel] || ''
-        console.log('onSelect:', { option, newValue, displayText, optionValue: this.optionValue, optionLabel: this.optionLabel })
         // 立即更新显示文本
         this.currentDisplayText = String(displayText)
         this.$emit('update:modelValue', newValue)

@@ -50,7 +50,7 @@
 			},
 			navigateToDetail(data) {
 				uni.navigateTo({
-					url: '/pages/notify/detail',
+					url: '/pages/alarms/detail',
 					success: (navRes) => {
 						if (navRes.eventChannel) {
 							navRes.eventChannel.emit('acceptData', { item: data });
@@ -67,13 +67,13 @@
 
 <style>
 	/* 引入公共样式 */
-	@import './common/uni.css';
+	@import './styles/uni-components.css';
 	/* 引入字体库样式 */
-	@import './common/icon.css';
+	@import './styles/icon-font.css';
 	/* 引入动画库 */
-	@import './common/animate.css';
+	@import './styles/animations.css';
 	/* 引入公共库样式 */
-	@import './common/util.css';
+	@import './styles/utilities.css';
 	/* */ 
-	@import './common/common.css';
+	@import './styles/global.css';
 </style>

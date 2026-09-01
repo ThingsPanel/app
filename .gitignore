@@ -1,4 +1,8 @@
 .idea
 unpackage
 node_modules
-*.json
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example

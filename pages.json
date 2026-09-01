@@ -1,9 +1,9 @@
 {
 	"pages": [
 		{
-			"path": "pages/login/login",
+			"path": "pages/login/index",
 			"style": {
-				"navigationBarTitleText": "%pages.loginTitle%",
+				"navigationBarTitleText": "登录",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
@@ -11,85 +11,77 @@
 		{
 			"path": "pages/login/register",
 			"style": {
-				"navigationBarTitleText": "%pages.register%",
+				"navigationBarTitleText": "注册",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/notify/notify",
+			"path": "pages/alarms/index",
 			"style": {
-				"navigationBarTitleText": "%pages.notify%",
+				"navigationBarTitleText": "告警信息",
 				"enablePullDownRefresh": true,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/notify/detail",
+			"path": "pages/alarms/detail",
 			"style": {
-				"navigationBarTitleText": "%pages.notifyDetail%",
+				"navigationBarTitleText": "告警详情",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/fishery-monitor/fishery-monitor",
+			"path": "pages/devices/index",
 			"style": {
-				"navigationBarTitleText": "%pages.deviceList%",
+				"navigationBarTitleText": "设备列表",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/intelligent-control/intelligent-control",
+			"path": "pages/automation/index",
 			"style": {
-				"navigationBarTitleText": "%pages.intelligentControlTitle%",
+				"navigationBarTitleText": "智能控制",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/visualization/visualization",
+			"path": "pages/dashboard/index",
 			"style": {
-				"navigationBarTitleText": "%pages.visualizationTitle%",
+				"navigationBarTitleText": "看板",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF",
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/ucenter/ucenter",
+			"path": "pages/account/index",
 			"style": {
-				"navigationBarTitleText": "%pages.userCenter%",
+				"navigationBarTitleText": "个人中心",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/ucenter/edit",
+			"path": "pages/account/edit",
 			"style": {
-				"navigationBarTitleText": "%ucenter.edit.title%",
+				"navigationBarTitleText": "编辑个人信息",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/accounts/accounts",
+			"path": "pages/devices/detail",
 			"style": {
-				"navigationBarTitleText": "%pages.basicInfo%",
-				"enablePullDownRefresh": false,
+				"navigationBarTitleText": "设备详情",
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/fishery-monitor/deviceDetail",
-			"style": {
-				"navigationBarTitleText": "%pages.deviceDetailTitle%",
-				"navigationBarBackgroundColor": "#FFFFFF"
-			}
-		},
-		{
-			"path": "pages/webViewPage/webViewPage",
+			"path": "pages/web-view/index",
 			"style": {
 				"navigationBarTitleText": "设备详情",
 				"navigationBarBackgroundColor": "#FFFFFF",
@@ -102,8 +94,8 @@
 								"colorPressed": "#666666",
 								"float": "right",
 								"fontSize": "24px",
-								"fontSrc": "/static/font/MaterialIcons-Regular.ttf",
-								"text": "\ue1c1",
+								"fontSrc": "/static/font/material-icons-regular.ttf",
+								"text": "",
 								"width": "50px"
 							}
 						]
@@ -112,156 +104,41 @@
 			}
 		},
 		{
-			"path": "pages/fishery-monitor/addMonitor",
+			"path": "pages/devices/create",
 			"style": {
-				"navigationBarTitleText": "%pages.addDevice%",
+				"navigationBarTitleText": "添加设备",
 				"enablePullDownRefresh": false,
 				"navigationStyle": "custom"
 			}
 		},
 		{
-			"path": "pages/accounts/realname",
+			"path": "pages/alarm-rules/index",
 			"style": {
-				"navigationBarTitleText": "%pages.modifyName%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FAFAFA",
-				"app-plus": {
-					"scrollIndicator": "none",
-					"bounce": "none",
-					"titleNView": {
-						"buttons": [
-							{ 
-								"color": "#333333",
-								"colorPressed": "#009933",
-								"float": "right",
-								"fontWeight": "normal",
-								"fontSize": "14px",
-								"text": "%common.save%",
-								"width": "40px"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"path": "pages/accounts/phone",
-			"style": {
-				"navigationBarTitleText": "%pages.modifyPhone%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FAFAFA",
-				"app-plus": {
-					"scrollIndicator": "none",
-					"bounce": "none",
-					"titleNView": {
-						"buttons": [
-							{
-								"color": "#333333",
-								"colorPressed": "#009933",
-								"float": "right",
-								"fontWeight": "normal",
-								"fontSize": "14px",
-								"text": "%common.save%",
-								"width": "40px"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"path": "pages/accounts/email",
-			"style": {
-				"navigationBarTitleText": "%pages.modifyEmail%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FAFAFA",
-				"app-plus": {
-					"scrollIndicator": "none",
-					"bounce": "none",
-					"titleNView": {
-						"buttons": [
-							{ 
-								"color": "#333333",
-								"colorPressed": "#009933",
-								"float": "right",
-								"fontWeight": "normal",
-								"fontSize": "14px",
-								"text": "%common.save%",
-								"width": "40px"
-							}
-						]
-					}
-				}
-			}
-		},
-		{
-			"path": "pages/change-pwd/change-pwd",
-			"style": {
-				"navigationBarTitleText": "%pages.modifyPassword%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FAFAFA"
-			}
-		},
-		{
-			"path": "pages/history-operate/history-operate",
-			"style": {
-				"navigationBarTitleText": "%pages.historyOperation%",
+				"navigationBarTitleText": "告警规则",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/device/device",
+			"path": "pages/alarm-rules/editor",
 			"style": {
-				"navigationBarTitleText": "%pages.myDevices%",
+				"navigationBarTitleText": "告警规则",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/alert-strategy/edit-strategy",
+			"path": "pages/automation/rule",
 			"style": {
-				"navigationBarTitleText": "%pages.editAlertStrategy%",
+				"navigationBarTitleText": "新增场景联动",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
 		},
 		{
-			"path": "pages/alert-strategy/alert-strategy",
+			"path": "pages/automation/scene",
 			"style": {
-				"navigationBarTitleText": "%pages.addAlertStrategy%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
-			}
-		},
-		{
-			"path": "pages/alert-control/add-control",
-			"style": {
-				"navigationBarTitleText": "%pages.addControlStrategy%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
-			}
-		},
-		{
-			"path": "pages/alert-control/edit-control",
-			"style": {
-				"navigationBarTitleText": "%pages.editControlStrategy%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
-			}
-		},
-		{
-			"path": "pages/scene-rule-detail/scene-rule-detail",
-			"style": {
-				"navigationBarTitleText": "%pages.addSceneLinkage%",
-				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
-			}
-		},
-		{
-			"path": "pages/scene-detail/scene-detail",
-			"style": {
-				"navigationBarTitleText": "%pages.addScene%",
+				"navigationBarTitleText": "新增场景",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -269,7 +146,7 @@
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
-		"navigationBarTitleText": "ThingsPanel",
+		"navigationBarTitleText": "新增场景",
 		"navigationBarBackgroundColor": "#EEEEEE",
 		"backgroundColor": "#EEEEEE"
 	},
@@ -281,32 +158,32 @@
 		"borderStyle": "white",
 		"list": [
 			{
-				"pagePath": "pages/visualization/visualization",
-				"key": "pages.visualizationTitle",
-				"text": "%pages.visualizationTitle%",
-				"iconPath": "static/tabbar/visualization.png",
-				"selectedIconPath": "static/tabbar/visualizationSel.png"
+				"pagePath": "pages/dashboard/index",
+				"key": "pages.dashboardTitle",
+				"text": "%pages.dashboardTitle%",
+				"iconPath": "static/tabbar/dashboard.png",
+				"selectedIconPath": "static/tabbar/dashboard-selected.png"
 			},
 			{
-				"pagePath": "pages/fishery-monitor/fishery-monitor",
+				"pagePath": "pages/devices/index",
 				"key": "pages.deviceList",
 				"text": "%pages.deviceList%",
-				"iconPath": "static/tabbar/eqp.png",
-				"selectedIconPath": "static/tabbar/eqp_on.png"
+				"iconPath": "static/tabbar/devices.png",
+				"selectedIconPath": "static/tabbar/devices-selected.png"
 			},
 			{
-				"pagePath": "pages/intelligent-control/intelligent-control",
-				"key": "pages.intelligentControlTitle",
-				"text": "%pages.intelligentControlTitle%",
-				"iconPath": "static/tabbar/intelligentControl.png",
-				"selectedIconPath": "static/tabbar/intelligentControlSel.png"
+				"pagePath": "pages/automation/index",
+				"key": "pages.automationTitle",
+				"text": "%pages.automationTitle%",
+				"iconPath": "static/tabbar/automation.png",
+				"selectedIconPath": "static/tabbar/automation-selected.png"
 			},
 			{
-				"pagePath": "pages/ucenter/ucenter",
+				"pagePath": "pages/account/index",
 				"key": "pages.myAccount",
 				"text": "%pages.myAccount%",
-				"iconPath": "static/tabbar/ucenter.png",
-				"selectedIconPath": "static/tabbar/ucenterSel.png"
+				"iconPath": "static/tabbar/account.png",
+				"selectedIconPath": "static/tabbar/account-selected.png"
 			}
 		]
 	}

@@ -1,12 +1,9 @@
 import { createStore } from 'vuex'
-import list from './module/list'
+import list from './modules/list'
 
 const store = createStore({
   modules: {
-		list  
-		},
-  state: {
-    name:'小程序'
-  },
+		list
+	}
 })
 export default store

@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="authorizeBtn">
-			<view class="authorizetitle"><image src="../../static/icon/fisheryLogo.png"/></view>
+			<view class="authorizetitle"><image src="../../static/icon/product-wordmark.png"/></view>
 			<view class="authorizeInfo">{{ $t('components.authorize.info') }}</view>
 			<button @click="toCancel" class="cancel">{{ $t('components.authorize.cancelBtn') }}</button>
 			<!-- #ifdef MP-WEIXIN -->
