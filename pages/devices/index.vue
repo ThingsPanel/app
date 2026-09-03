@@ -65,6 +65,16 @@
 				</view>
 			</view>
 			<view class="device-list">
+				<block v-if="isDeviceLoading && deviceList.length === 0">
+					<view v-for="index in 4" :key="`device-skeleton-${index}`" class="device-skeleton">
+						<view class="skeleton-icon skeleton-shape" />
+						<view class="skeleton-content">
+							<view class="skeleton-name skeleton-shape" />
+							<view class="skeleton-type skeleton-shape" />
+						</view>
+						<view class="skeleton-time skeleton-shape" />
+					</view>
+				</block>
 				<DeviceListItem
 					v-for="item in deviceList"
 					:key="item.id"
@@ -892,7 +902,6 @@ export default {
 		getDeviceList() {
 			clearInterval(this.timer)
 			this.isDeviceLoading = true
-			uni.showLoading({ title: this.$t('common.loading'), mask: true })
 			const filters = {
 				group_id: this.selectedGroupId,
 				search: this.searchKeyword,
@@ -934,7 +943,6 @@ export default {
 				this.$refs.toast.show()
 			}).finally(() => {
 				this.isDeviceLoading = false
-				uni.hideLoading()
 			})
 		},
 		// 插件查询
@@ -1254,6 +1262,39 @@ export default {
 	display: grid;
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12rpx;
+}
+
+.device-skeleton {
+	display: grid;
+	grid-template-columns: 88rpx minmax(0, 1fr);
+	grid-template-rows: 94rpx minmax(30rpx, 1fr);
+	column-gap: 14rpx;
+	height: 170rpx;
+	padding: 15rpx 15rpx 12rpx;
+	background: #fff;
+	border: 2rpx solid #edf0f3;
+	border-radius: 22rpx;
+	box-sizing: border-box;
+	overflow: hidden;
+}
+.skeleton-shape {
+	background: linear-gradient(100deg, #eef1f5 20%, #f8f9fb 38%, #eef1f5 56%);
+	background-size: 220% 100%;
+	animation: device-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+.skeleton-icon { grid-column: 1; grid-row: 1; align-self: center; width: 76rpx; height: 76rpx; margin-left: 6rpx; border-radius: 20rpx; }
+.skeleton-content { grid-column: 2; grid-row: 1; align-self: center; min-width: 0; }
+.skeleton-name { width: 76%; height: 22rpx; border-radius: 8rpx; }
+.skeleton-type { width: 54%; height: 16rpx; margin-top: 14rpx; border-radius: 6rpx; }
+.skeleton-time { grid-column: 2; grid-row: 2; align-self: end; width: 86%; height: 15rpx; border-radius: 6rpx; }
+
+@keyframes device-skeleton-shimmer {
+	0% { background-position: 100% 0; }
+	100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skeleton-shape { animation: none; }
 }
 
 .empty-state {
