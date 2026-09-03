@@ -1,44 +1,33 @@
 <template>
   <view
     class="device-card"
-    :class="{ 'alarm-active': hasAlarm }"
+    :class="{ 'offline-card': !isOnline }"
     @click="$emit('select', device)"
   >
-    <view class="card-inner tp-flex tp-flex-row tp-flex-j-s">
-      <view class="device-main tp-flex tp-flex-row tp-flex-1 tp-overflow-hidden">
-        <view class="device-icon-wrapper tp-flex tp-flex-j-c tp-flex-a-c" :class="isOnline ? 'online' : 'offline'">
-          <image v-if="device.image_url" :src="device.image_url" class="device-img" mode="aspectFit" />
-          <text v-else class="iconfont iconequipment" />
-        </view>
-        <view class="device-info tp-flex tp-flex-col tp-flex-j-c">
-          <view class="device-name text-ellipsis">{{ device.name }}</view>
-          <view class="device-tags">
-            <text v-if="deviceTypeLabel" class="device-tag">{{ deviceTypeLabel }}</text>
-          </view>
-          <view v-if="device.device_config_name" class="device-meta text-ellipsis">
-            <text class="label">{{ $t('pages.devices.deviceTemplate') }}:</text>
-            {{ device.device_config_name }}
-          </view>
-          <view v-if="device.protocol_type" class="device-meta text-ellipsis">
-            <text class="label">{{ $t('pages.devices.accessProtocol') }}:</text>
-            {{ device.protocol_type }}
-          </view>
-          <view class="device-meta">
-            <text class="label">{{ $t('pages.deviceDetail.reportTime') }}:</text>
-            <text class="time-val">{{ device.latest_ts_name || '--' }}</text>
-          </view>
-        </view>
+    <view class="status-dot" :class="statusClass" />
+    <view class="card-inner">
+      <view class="device-icon-wrapper tp-flex tp-flex-j-c tp-flex-a-c">
+        <image
+          :src="deviceImageSrc"
+          class="device-img"
+          :class="{ 'device-img-default': !device.image_url || imageLoadFailed }"
+          mode="aspectFit"
+          @error="handleImageError"
+        />
       </view>
-      <view class="device-status tp-flex tp-flex-col tp-flex-a-e tp-flex-j-c">
-        <view v-if="hasAlarm" class="alarm-indicator">
-          <text class="alarm-symbol">!</text>
-          <text>{{ $t('pages.devices.alarming') }}</text>
+      <view class="device-info tp-flex tp-flex-col tp-flex-j-c">
+        <view class="device-name text-ellipsis">{{ device.name }}</view>
+        <view class="device-context tp-flex tp-flex-a-c">
+          <image v-if="deviceTypeIcon" :src="deviceTypeIcon" class="context-type-icon" mode="aspectFit" />
+          <text v-if="deviceTypeLabel" class="context-type">{{ deviceTypeLabel }}</text>
         </view>
-        <view class="status-badge" :class="isOnline ? 'status-on' : 'status-off'">
-          <view class="dot" />
-          <text>{{ isOnline ? $t('pages.deviceDetail.online') : $t('pages.deviceDetail.offline') }}</text>
-        </view>
-        <text class="row-arrow">›</text>
+        <text v-if="device.display_address" class="device-address text-ellipsis">{{ device.display_address }}</text>
+      </view>
+      <view class="device-meta tp-flex tp-flex-a-c">
+        <block v-if="device.latest_ts_name">
+          <image src="/static/icon/device-clock.svg" class="clock-icon" />
+          <text class="time-val text-ellipsis">{{ device.latest_ts_name }}</text>
+        </block>
       </view>
     </view>
   </view>
@@ -51,12 +40,30 @@ export default {
     device: { type: Object, required: true }
   },
   emits: ['select'],
+  data() {
+    return { imageLoadFailed: false }
+  },
+  watch: {
+    'device.image_url'() {
+      this.imageLoadFailed = false
+    }
+  },
   computed: {
+    deviceImageSrc() {
+      return !this.imageLoadFailed && this.device.image_url
+        ? this.device.image_url
+        : '/static/image/default-device-hub.png'
+    },
     hasAlarm() {
-      return this.device.warn_status === 'Y'
+      const alarmStatus = String(this.device.warn_status || '').trim().toUpperCase()
+      return alarmStatus !== '' && alarmStatus !== 'N'
     },
     isOnline() {
       return Number(this.device.is_online) === 1
+    },
+    statusClass() {
+      if (this.hasAlarm) return 'status-alarm'
+      return this.isOnline ? 'status-on' : 'status-off'
     },
     deviceTypeLabel() {
       return {
@@ -64,6 +71,18 @@ export default {
         2: this.$t('pages.devices.gateway'),
         3: this.$t('pages.devices.subDevice')
       }[String(this.device.device_type)] || ''
+    },
+    deviceTypeIcon() {
+      return {
+        1: '/static/icon/device-type-direct-terminal.svg',
+        2: '/static/icon/device-type-gateway-green.svg',
+        3: '/static/icon/device-type-subdevice.svg'
+      }[String(this.device.device_type)] || ''
+    }
+  },
+  methods: {
+    handleImageError() {
+      this.imageLoadFailed = true
     }
   }
 }
@@ -73,134 +92,86 @@ export default {
 @import '@/styles/tokens.scss';
 
 .device-card {
+  position: relative;
   background: $color-surface;
-  border-bottom: 2rpx solid #e1e9e6;
+  border: 2rpx solid #edf0f3;
+  border-radius: 22rpx;
+  box-shadow: 0 6rpx 18rpx rgba(34, 46, 66, .04);
+  overflow: hidden;
   transition: background-color 0.15s ease;
-  &:active { background: #eaf3f0; }
+  &:active { background: #f6f8fb; }
 
-  &.alarm-active { background: #fffaf7; }
+}
+
+.status-dot { position: absolute; z-index: 2; right: 16rpx; top: 14rpx; width: 10rpx; height: 10rpx; background: #a8b0bd; border: 3rpx solid #fff; border-radius: 50%; }
+.status-dot.status-on { background: #08bf63; }
+.status-dot.status-alarm { background: #ff3b30; animation: device-alarm-blink 1s ease-in-out infinite; }
+
+@keyframes device-alarm-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 59, 48, .25); }
+  50% { opacity: .35; box-shadow: 0 0 0 7rpx rgba(255, 59, 48, 0); }
 }
 
 .card-inner {
-  min-height: 142rpx;
-  padding: 24rpx 20rpx;
+  display: grid;
+  grid-template-columns: 88rpx minmax(0, 1fr);
+  grid-template-rows: 94rpx minmax(30rpx, 1fr);
+  column-gap: 14rpx;
+  height: 170rpx;
+  padding: 15rpx 15rpx 12rpx;
   box-sizing: border-box;
 }
 
-.device-main { min-width: 0; }
-
 .device-icon-wrapper {
-  width: 84rpx;
-  height: 84rpx;
-  margin-right: 22rpx;
-  flex-shrink: 0;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  width: 88rpx;
+  height: 88rpx;
   overflow: hidden;
-  background: #edf1ef;
-  border: 2rpx solid #d8e2de;
-  border-radius: $radius-small;
-
-  &.online {
-    background: #e6f1ed;
-    border-color: #9bc9bd;
-  }
-
-  .iconfont {
-    color: #82928d;
-    font-size: 40rpx;
-  }
+  background: transparent;
 }
 
 .device-img { width: 100%; height: 100%; }
+.device-img-default { width: 82rpx; height: 82rpx; }
 
 .device-info {
+  grid-column: 2;
+  grid-row: 1;
   min-width: 0;
-  padding-right: 16rpx;
+  padding-right: 12rpx;
+  gap: 5rpx;
 }
 
 .device-name {
-  margin-bottom: 6rpx;
-  color: $color-text;
-  font-size: 30rpx;
+  min-width: 0;
+  color: #172033;
+  font-size: 23rpx;
   font-weight: 600;
+  line-height: 34rpx;
 }
 
-.device-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8rpx;
-  margin-bottom: 8rpx;
-}
-
-.device-tag {
-  padding: 2rpx 8rpx;
-  color: #5f716b;
-  background: #eef3f1;
-  border-left: 4rpx solid #9aaba5;
-  font-size: 19rpx;
-  line-height: 28rpx;
-}
+.device-context { min-width: 0; color: #8993a4; font-size: 19rpx; line-height: 30rpx; overflow: hidden; }
+.context-type-icon { width: 24rpx; height: 24rpx; margin-right: 6rpx; flex-shrink: 0; }
+.context-type { flex-shrink: 0; white-space: nowrap; }
+.device-address { width: 100%; color: #8993a4; font-size: 18rpx; line-height: 26rpx; }
 
 .device-meta {
-  color: $color-text-secondary;
-  font-size: 22rpx;
-  line-height: 32rpx;
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;
+  align-self: end;
+	width: 100%;
+  justify-content: flex-start;
+  color: #8a94a6;
+  font-size: 17rpx;
+  line-height: 28rpx;
+  white-space: nowrap;
+  overflow: hidden;
 
-  .label { margin-right: 8rpx; color: #8b9b96; }
-  .time-val { font-family: monospace; }
+  .time-val { min-width: 0; max-width: calc(100% - 28rpx); font-variant-numeric: tabular-nums; }
 }
-
-.device-status { min-width: 88rpx; }
-
-.alarm-indicator {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10rpx;
-  color: #ba3f22;
-  font-size: 22rpx;
-  font-weight: 700;
-}
-
-.alarm-symbol {
-  width: 26rpx;
-  height: 26rpx;
-  margin-right: 8rpx;
-  color: #fff;
-  background: #d95232;
-  border-radius: 50%;
-  font-size: 19rpx;
-  line-height: 26rpx;
-  text-align: center;
-}
-
-.status-badge {
-  display: flex;
-  align-items: center;
-  padding: 6rpx 0 8rpx;
-  color: #7d8985;
-  border-bottom: 2rpx solid #aab6b2;
-  font-size: 22rpx;
-  font-weight: 600;
-
-  .dot {
-    width: 10rpx;
-    height: 10rpx;
-    margin-right: 10rpx;
-    background: #9aa8a3;
-    border-radius: 50%;
-  }
-
-  &.status-on {
-    color: $color-brand-700;
-    border-color: $color-brand-300;
-    .dot { background: $color-brand-700; }
-  }
-}
-
-.row-arrow {
-  margin-top: 16rpx;
-  color: #8b9b96;
-  font: 36rpx/1 serif;
-}
+.clock-icon { width: 22rpx; height: 22rpx; margin-right: 6rpx; flex-shrink: 0; }
 
 .text-ellipsis { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tp-flex { display: flex; }

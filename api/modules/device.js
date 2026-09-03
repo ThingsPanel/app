@@ -54,6 +54,16 @@ export const getDeviceGroup = (params) => {
   export const deviceList = (params) => {
     return api.apiRequest('/api/v1/device', params, 'GET');
   };
+
+  // 获取当前租户/用户的设备汇总
+  export const getDeviceOverview = () => {
+    return api.apiRequest('/api/v1/board/tenant/device/info', null, 'GET');
+  };
+
+  // 获取当前租户处于告警状态的设备数量
+  export const getAlarmDeviceCount = () => {
+    return api.apiRequest('/api/v1/alarm/device/counts', null, 'GET');
+  };
   
   // 删除某个设备
   export const deviceDelete = (params) => {

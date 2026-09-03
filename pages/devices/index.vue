@@ -1,39 +1,36 @@
 <template>
 	<view class="tp-box">
-		<!-- Top Header -->
-		<view class="tp-header tp-flex tp-flex-j-s tp-flex-a-c">
-			<!-- Group Selector -->
-			<view class="group-select-box tp-flex tp-flex-a-c" @click='toShowNavDrawer'>
-				<view class="icon-box tp-flex tp-flex-j-c tp-flex-a-c">
-					<image src="/static/icon/more.png" class="menu-icon" />
+		<view class="tp-header">
+			<view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
+				<view>
+					<view class="page-title">设备</view>
+					<view class="page-subtitle">共 {{ deviceTotal }} 台，在线 {{ onlineCount }} 台</view>
 				</view>
-				<view class="group-info tp-flex tp-flex-a-c">
-					<text class="group-name text-ellipsis">{{ selectedGroupName || $t('pages.deviceDetail.groupSelection') }}</text>
-					<view v-if="selectedGroupId" class="clear-btn tp-flex tp-flex-j-c tp-flex-a-c" @click.stop='clearSelectedGroup'>
-						<image src="/static/icon/close.png" class="close-icon" />
+				<view class="header-actions tp-flex tp-flex-a-c">
+					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
+						<image src="/static/icon/notify.svg" mode="aspectFit" />
 					</view>
 				</view>
-			</view>
-
-			<!-- Notify Button -->
-			<view class="notify-box tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
-				<image :src="!activeNotify ? '/static/icon/notify.svg' : '/static/icon/notify-red.svg'" class="notify-icon" :class="{ 'notify-active': activeNotify }"></image>
-				<view class="notify-dot" v-if="activeNotify"></view>
 			</view>
 		</view>
 
 		<view class="device-toolbar">
-			<view class="device-search">
-				<image src="/static/image/search.png" class="search-icon" mode="aspectFit" />
-				<input
+			<view class="search-row">
+				<view class="device-search">
+					<image src="/static/icon/device-search.svg" class="search-icon" mode="aspectFit" />
+					<input
 					v-model.trim="searchKeyword"
 					class="search-input"
 					confirm-type="search"
 					:placeholder="$t('pages.devices.searchPlaceholder')"
 					@confirm="applyDeviceFilters"
-				/>
-				<text v-if="searchKeyword" class="search-clear" @click="clearSearch">×</text>
-				<text class="search-action" @click="applyDeviceFilters">{{ $t('common.search') }}</text>
+					/>
+					<text v-if="searchKeyword" class="search-clear" @click="clearSearch">×</text>
+				</view>
+				<view class="filter-button tp-flex tp-flex-a-c tp-flex-j-c" @click="toShowNavDrawer">
+					<image src="/static/icon/device-filter.svg" class="filter-icon" />
+					<text>{{ selectedGroupName || '筛选' }}</text>
+				</view>
 			</view>
 			<scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
 				<view class="filter-row">
@@ -44,13 +41,29 @@
 						:class="{ active: activeStatusFilter === option.key }"
 						@click="selectStatusFilter(option.key)"
 					>
-						{{ option.label }}
+						<view v-if="option.dot" class="chip-dot" :class="option.dot" />
+						<text class="chip-label">{{ option.label }}</text>
+						<text v-if="option.count !== undefined" class="chip-count">{{ option.count }}</text>
 					</view>
 				</view>
 			</scroll-view>
 		</view>
 
 		<view class="tp-content">
+			<view class="overview-card">
+				<view class="metric-item">
+					<view class="metric-head"><view class="metric-icon metric-icon-online"><image src="/static/icon/status-online-flat.svg" /></view><text class="metric-value">{{ onlineCount }}</text><text class="trend">↑</text></view>
+					<view class="metric-label">在线设备</view><view class="metric-note">{{ onlineRate }}%</view>
+				</view>
+				<view class="metric-item">
+					<view class="metric-head"><view class="metric-icon metric-icon-offline"><image src="/static/icon/status-offline-flat.svg" /></view><text class="metric-value">{{ offlineCount }}</text></view>
+					<view class="metric-label">离线设备</view><view class="metric-note">{{ offlineRate }}%</view>
+				</view>
+				<view class="metric-item">
+					<view class="metric-head"><view class="metric-icon metric-icon-alarm"><image src="/static/icon/status-alarm-flat.svg" /></view><text class="metric-value">{{ alarmCount }}</text></view>
+					<view class="metric-label">告警设备</view><view class="metric-note alarm-note">{{ alarmCount ? `${alarmCount} 条待处理` : '暂无告警' }}</view>
+				</view>
+			</view>
 			<view class="device-list">
 				<DeviceListItem
 					v-for="item in deviceList"
@@ -59,8 +72,9 @@
 					@select="clickDevice"
 				/>
 				<view class="empty-state" v-if="!isDeviceLoading && deviceList.length === 0">
-					<text class="iconfont iconequipment"></text>
-					<text>{{ $t('common.noData') }}</text>
+					<image src="/static/image/device-empty-state.png" class="empty-illustration" mode="aspectFit" />
+					<text class="empty-title">{{ $t('pages.devices.emptyTitle') }}</text>
+					<text class="empty-description">{{ $t('pages.devices.emptyDescription') }}</text>
 				</view>
 			</view>
 		</view>
@@ -124,12 +138,21 @@ var socketMsgQueue = {
 	}
 };
 var Dissolved_Oxygen1, PH1, temperature1;
+const TENCENT_MAP_KEY = 'A6DBZ-KXPLW-JKSRY-ONZF4-CPHY3-K6BL7'
+const TENCENT_MAP_SDK_URL = `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${TENCENT_MAP_KEY}`
+const REVERSE_GEOCODER_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client'
+let tencentMapSdkPromise = null
+let tencentGeocoder = null
 //
 import {
 	mapState
 } from "vuex";
 import dayjs from 'dayjs';
-import { deviceList as deviceListApi } from '@/api/modules/device'
+import {
+	deviceList as deviceListApi,
+	getDeviceOverview,
+	getAlarmDeviceCount
+} from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
 import { buildWebViewUrl } from '@/utils/platform-web.js'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
@@ -196,16 +219,26 @@ export default {
 			selectedGroupName: '',
 			searchKeyword: '',
 			activeStatusFilter: 'all',
-			showScrollTop: false // 控制回到顶部按钮显示
+			deviceTotal: 0,
+			overviewTotals: { online: 0, offline: 0, alarm: 0 },
+			filterTotals: { total: 0, online: 0, offline: 0, alarm: 0 },
+			statsRequestSequence: 0,
+			showScrollTop: false, // 控制回到顶部按钮显示
+			locationAddressCache: {}
 		}
 	},
 	computed: {
+		onlineCount() { return this.overviewTotals.online },
+		offlineCount() { return this.overviewTotals.offline },
+		alarmCount() { return this.overviewTotals.alarm },
+		onlineRate() { return this.deviceTotal ? (this.onlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		offlineRate() { return this.deviceTotal ? (this.offlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
 		statusFilters() {
 			return [
-				{ key: 'all', label: this.$t('pages.devices.allDevices') },
-				{ key: 'online', label: this.$t('pages.devices.online') },
-				{ key: 'offline', label: this.$t('pages.devices.offline') },
-				{ key: 'alarm', label: this.$t('pages.devices.alarming') }
+				{ key: 'all', label: '全部', count: this.filterTotals.total },
+				{ key: 'online', label: '在线', count: this.filterTotals.online, dot: 'online' },
+				{ key: 'offline', label: '离线', count: this.filterTotals.offline, dot: 'offline' },
+				{ key: 'alarm', label: '告警', count: this.filterTotals.alarm, dot: 'alarm' }
 			]
 		}
 	},
@@ -341,6 +374,71 @@ export default {
 	// },
 	//
 	methods: {
+		loadTencentMapSdk() {
+			if (window.TMap?.service?.Geocoder) return Promise.resolve(window.TMap)
+			if (tencentMapSdkPromise) return tencentMapSdkPromise
+
+			tencentMapSdkPromise = new Promise((resolve, reject) => {
+				const script = document.createElement('script')
+				script.src = TENCENT_MAP_SDK_URL
+				script.onload = () => window.TMap?.service?.Geocoder ? resolve(window.TMap) : reject(new Error('Geocoder unavailable'))
+				script.onerror = reject
+				document.head.appendChild(script)
+			})
+			return tencentMapSdkPromise
+		},
+		resolveLocationAddress(location) {
+			if (!location) return Promise.resolve('')
+			if (this.locationAddressCache[location]) return Promise.resolve(this.locationAddressCache[location])
+
+			const [longitudeText, latitudeText] = String(location).split(',')
+			const longitude = Number(longitudeText)
+			const latitude = Number(latitudeText)
+			if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) return Promise.resolve(String(location))
+
+			// #ifdef H5
+			return this.loadTencentMapSdk()
+				.then(TMap => {
+					tencentGeocoder ||= new TMap.service.Geocoder()
+					return tencentGeocoder.getAddress({ location: new TMap.LatLng(latitude, longitude) })
+				})
+				.then(response => {
+					const address = response?.result?.address || ''
+					if (address) this.locationAddressCache[location] = address
+					return address
+				})
+				.catch(() => '')
+			// #endif
+
+			// #ifndef H5
+			return new Promise(resolve => {
+				uni.request({
+					url: REVERSE_GEOCODER_URL,
+					data: {
+						latitude,
+						longitude,
+						localityLanguage: 'zh'
+					},
+					success: response => {
+						const parts = [
+							response.data?.principalSubdivision,
+							response.data?.city,
+							response.data?.locality
+						].filter((part, index, values) => part && values.indexOf(part) === index)
+						const address = parts.join('')
+						if (address) this.locationAddressCache[location] = address
+						resolve(address)
+					},
+					fail: () => resolve('')
+				})
+			})
+			// #endif
+		},
+		async resolveDeviceAddresses(devices) {
+			await Promise.all(devices.map(async device => {
+				device.display_address = await this.resolveLocationAddress(device.location)
+			}))
+		},
 		getSelectedGroupStorageKey() {
 			return 'device_list_selected_group'
 		},
@@ -511,12 +609,54 @@ export default {
 		},
 		showData() {
 			this.deviceList = []
+			this.getOverviewStats()
+			this.getFilteredDeviceStats()
 			this.getDeviceList()
+		},
+		getOverviewStats() {
+			Promise.all([
+				getDeviceOverview(),
+				getAlarmDeviceCount()
+			]).then(([deviceOverview, alarmOverview]) => {
+				const total = Number(deviceOverview?.data?.device_total ?? 0)
+				const online = Number(deviceOverview?.data?.device_on ?? 0)
+				const offline = Number(deviceOverview?.data?.device_offline ?? Math.max(total - online, 0))
+				const alarm = Number(alarmOverview?.data?.alarm_device_total ?? 0)
+				this.overviewTotals = { online, offline, alarm }
+				this.deviceTotal = total
+			}).catch(error => {
+				console.warn('Failed to load device overview statistics:', error)
+			})
+		},
+		getFilteredDeviceStats() {
+			const requestSequence = ++this.statsRequestSequence
+			const baseFilters = {
+				group_id: this.selectedGroupId,
+				search: this.searchKeyword,
+				page: 1,
+				page_size: 1
+			}
+			Promise.all([
+				deviceListApi(baseFilters),
+				deviceListApi({ ...baseFilters, is_online: 1 }),
+				deviceListApi({ ...baseFilters, is_online: 0 }),
+				deviceListApi({ ...baseFilters, warn_status: 'Y' })
+			]).then(([allResponse, onlineResponse, offlineResponse, alarmResponse]) => {
+				if (requestSequence !== this.statsRequestSequence) return
+				const total = Number(allResponse?.data?.total ?? 0)
+				const online = Number(onlineResponse?.data?.total ?? 0)
+				const offline = Number(offlineResponse?.data?.total ?? 0)
+				const alarm = Number(alarmResponse?.data?.total ?? 0)
+				this.filterTotals = { total, online, offline, alarm }
+			}).catch(error => {
+				console.warn('Failed to load device overview statistics:', error)
+			})
 		},
 		applyDeviceFilters() {
 			this.$store.state.list.devicePage = 1
 			this.deviceList = []
 			deviceStatusSocket.close()
+			this.getFilteredDeviceStats()
 			this.getDeviceList()
 		},
 		clearSearch() {
@@ -527,6 +667,9 @@ export default {
 			if (this.activeStatusFilter === filter) return
 			this.activeStatusFilter = filter
 			this.applyDeviceFilters()
+		},
+		scanDevice() {
+			uni.scanCode({ success: ({ result }) => uni.navigateTo({ url: './create?code=' + encodeURIComponent(result) + '&groupId=' + (this.currentGroup.id || '') }) })
 		},
 		changeIndex(item, i, iIndex) {
 			item.currentIndex = iIndex
@@ -648,7 +791,7 @@ export default {
 				uni.hideLoading()
 			}, 1000);
 		},
-		treeConfirm(e) {
+			treeConfirm(e) {
 			this.deviceList = []
 			this.selectedGroupId = e[0].id
 			this.selectedGroupName = e[0].name
@@ -657,6 +800,7 @@ export default {
 			this.$store.state.list.devicePage = 1
 			// 关闭现有WebSocket连接
 			deviceStatusSocket.close()
+			this.getFilteredDeviceStats()
 			this.getDeviceList()
 		},
 		treeCancel() {
@@ -738,16 +882,7 @@ export default {
 		},
 		//添加设备
 		addEqp() {
-			let _this = this
-			// 允许从相机和相册扫码
-			uni.scanCode({
-				success: function (res) {
-					let result = res.result
-					uni.navigateTo({
-						url: './create?code=' + result + '&groupId=' + _this.currentGroup.id,
-					})
-				}
-			});
+			uni.navigateTo({ url: './create?groupId=' + (this.currentGroup.id || '') })
 		},
 		//查看更多鱼塘
 		toMore() {
@@ -781,15 +916,16 @@ export default {
 				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '').replace(/\/$/, '') : ''
 				const newDevices = (res.data?.list || []).map(item => ({
 					...item,
+					display_address: '',
 					currentIndex: 0,
 					latest_ts_name: item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : '',
 					image_url: item.image_url ? `${baseUrl}/${String(item.image_url).replace(/^\//, '')}` : '',
 					chart_data: {}
 				}))
-
 				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
 				this.showDeviceLoadMore = newDevices.length === pageSize
 				this.deviceList = this.deviceList.concat(newDevices)
+				this.resolveDeviceAddresses(newDevices)
 				this.$nextTick(() => {
 					setTimeout(() => this.scheduleViewportSubscription(), 300)
 				})
@@ -994,130 +1130,69 @@ export default {
 </script>
 
 <style lang="scss">
-/* Global Reset & Base */
 .tp-box {
+	--page-gutter: clamp(22rpx, 5vw, 34rpx);
+	--radius-card: 22rpx;
+	--radius-control: 16rpx;
+	--radius-chip: 12rpx;
 	width: 100%;
 	min-height: 100vh;
-	background: #f2f6f4;
+	background: #f7f8fa;
 	position: relative;
-	color: #18332f;
+	color: #172033;
 	font-size: 28rpx;
 }
 
-/* Header */
 .tp-header {
 	position: relative;
-	padding: 24rpx 28rpx;
-	background: #0f5147;
-	border-bottom: 6rpx solid #63b7a4;
+	padding: calc(env(safe-area-inset-top) + 30rpx) var(--page-gutter) 8rpx;
+	background: #ffffff;
 }
 
-.group-select-box {
-	height: 72rpx;
-	max-width: 540rpx;
-	background: #174f47;
-	border: 2rpx solid rgba(255, 255, 255, 0.34);
-	border-radius: 6rpx;
-	box-sizing: border-box;
-	
-	.icon-box {
-		width: 72rpx;
-		height: 68rpx;
-		border-right: 2rpx solid rgba(255, 255, 255, 0.24);
-		
-		.menu-icon {
-			width: 32rpx;
-			height: 32rpx;
-			filter: brightness(0) invert(1);
-		}
-	}
-	
-	.group-info {
-		min-width: 0;
-		padding: 0 18rpx;
+.header-main { margin-bottom: 6rpx; }
 
-		.group-name {
-			font-size: 28rpx;
-			font-weight: 500;
-			color: #ffffff;
-			max-width: 340rpx;
-		}
-		
-		.clear-btn {
-			width: 36rpx;
-			height: 36rpx;
-			margin-left: 14rpx;
-			border-left: 2rpx solid rgba(255, 255, 255, 0.24);
-			
-			.close-icon {
-				width: 16rpx;
-				height: 16rpx;
-				filter: brightness(0) invert(1);
-				opacity: 0.8;
-			}
-		}
-	}
+.page-title {
+	color: #172033;
+	font-size: 52rpx;
+	font-weight: 600;
+	line-height: 66rpx;
 }
+.page-subtitle { margin-top: 8rpx; color: #7c879a; font-size: 25rpx; line-height: 36rpx; }
 
-.notify-box {
-	width: 72rpx;
-	height: 72rpx;
-	background: #174f47;
-	border-radius: 6rpx;
-	position: relative;
-	border: 2rpx solid rgba(255, 255, 255, 0.34);
-	
-	.notify-icon {
-		width: 34rpx;
-		height: 34rpx;
-		filter: brightness(0) invert(1);
-
-		&.notify-active {
-			filter: none;
-		}
-	}
-	
-	.notify-dot {
-		position: absolute;
-		top: 12rpx;
-		right: 12rpx;
-		width: 10rpx;
-		height: 10rpx;
-		background: #f18a4a;
-		border-radius: 50%;
-		border: 2rpx solid #0f5147;
-	}
-}
+.notify-action { width: 66rpx; height: 66rpx; }
+.notify-action image { width: 44rpx; height: 44rpx; }
 
 .device-toolbar {
-	padding: 22rpx 28rpx 0;
-	background: #f4f7f6;
+	padding: 12rpx var(--page-gutter) 0;
+	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 58%, #f3f6fa 100%);
 }
+.search-row { display: flex; gap: 14rpx; }
 
 .device-search {
 	display: flex;
 	align-items: center;
-	height: 76rpx;
+	height: 56rpx;
+	flex: 1;
 	background: #ffffff;
-	border: 2rpx solid #bdcdc8;
-	border-radius: 4rpx;
+	border: 2rpx solid #dfe4eb;
+	border-radius: var(--radius-control);
 	box-sizing: border-box;
 }
 
 .search-icon {
-	width: 30rpx;
-	height: 30rpx;
-	margin-left: 22rpx;
+	width: 26rpx;
+	height: 26rpx;
+	margin-left: 18rpx;
 	opacity: 0.55;
 }
 
 .search-input {
 	min-width: 0;
-	height: 72rpx;
-	padding: 0 16rpx;
+	height: 52rpx;
+	padding: 0 14rpx;
 	flex: 1;
-	color: #18332f;
-	font-size: 26rpx;
+	color: #172033;
+	font-size: 22rpx;
 }
 
 .search-clear {
@@ -1126,15 +1201,8 @@ export default {
 	font-size: 34rpx;
 }
 
-.search-action {
-	height: 44rpx;
-	padding: 0 22rpx;
-	color: #0f6658;
-	border-left: 2rpx solid #d8e2de;
-	font-size: 25rpx;
-	font-weight: 600;
-	line-height: 44rpx;
-}
+.filter-button { min-width: 112rpx; height: 56rpx; padding: 0 14rpx; gap: 8rpx; box-sizing: border-box; color: #172033; background: #fff; border: 2rpx solid #dfe4eb; border-radius: var(--radius-control); font-size: 22rpx; }
+.filter-icon { width: 26rpx; height: 26rpx; }
 
 .filter-scroll {
 	width: 100%;
@@ -1143,55 +1211,64 @@ export default {
 
 .filter-row {
 	display: inline-flex;
-	gap: 12rpx;
-	padding: 18rpx 0 4rpx;
+	gap: 14rpx;
+	padding: 14rpx 0 16rpx;
 }
 
 .filter-chip {
-	padding: 10rpx 20rpx;
-	color: #61736d;
-	background: #e7eeeb;
-	border-bottom: 4rpx solid transparent;
-	border-radius: 2rpx;
-	font-size: 23rpx;
-	line-height: 32rpx;
+	display: flex; align-items: center;
+	padding: 7rpx 14rpx;
+	color: #667085;
+	background: #ffffff;
+	border: 2rpx solid #dfe4eb;
+	border-radius: var(--radius-chip);
+	box-shadow: 0 4rpx 12rpx rgba(34, 49, 74, .035);
+	font-size: 22rpx;
+	line-height: 31rpx;
 
 	&.active {
-		color: #0f6658;
-		background: #dcebe6;
-		border-color: #147d6b;
-		font-weight: 600;
+		color: #1677ff;
+		background: #f7faff;
+		border-color: #7fb2ff;
+		box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, .06);
 	}
 }
+.chip-dot { width: 10rpx; height: 10rpx; margin-right: 9rpx; border-radius: 50%; background: #aab1bc; }
+.chip-dot.online { background: #08bf63; }.chip-dot.alarm { background: #ff4d35; }
+.chip-count { margin-left: 8rpx; color: #7d8799; }.filter-chip.active .chip-count { color: #1677ff; }
 
 /* Content */
-.tp-content {
-	padding: 20rpx 28rpx 48rpx;
-}
+.tp-content { padding: 16rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx); }
+
+.overview-card { display: flex; margin: 0 0 20rpx; padding: 14rpx 0; background: #fff; border-radius: var(--radius-card); box-shadow: 0 10rpx 28rpx rgba(35,49,72,.055); }
+.metric-item { position: relative; width: 33.333%; padding: 0 24rpx; box-sizing: border-box; }
+.metric-item:not(:last-child)::after { position: absolute; content: ''; top: 12rpx; right: 0; bottom: 12rpx; width: 2rpx; background: #edf0f4; }
+.metric-head { display: flex; align-items: center; height: 62rpx; }
+.metric-icon { display: flex; align-items: center; justify-content: center; width: 50rpx; height: 50rpx; margin-right: 12rpx; flex-shrink: 0; }
+.metric-icon image { width: 50rpx; height: 50rpx; }
+.metric-value { color: #121b2b; font-size: 40rpx; font-weight: 600; line-height: 52rpx; }.trend { margin-left: 5rpx; color: #00ad5d; font-size: 28rpx; }
+.metric-label { margin-top: 13rpx; color: #283244; font-size: 24rpx; }.metric-note { margin-top: 8rpx; color: #8993a5; font-size: 21rpx; }.alarm-note { color: #ff3b30; white-space: nowrap; }
 
 /* Device List */
 .device-list {
-	padding-bottom: 40rpx;
-	background: #ffffff;
-	border-top: 2rpx solid #cbdad5;
-	border-bottom: 2rpx solid #cbdad5;
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12rpx;
 }
 
 .empty-state {
-	min-height: 300rpx;
+	grid-column: 1 / -1;
+	min-height: 420rpx;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	font-size: 24rpx;
-	color: #82928d;
-
-	.iconfont {
-		font-size: 56rpx;
-		color: #aab9b4;
-		margin-bottom: 18rpx;
-	}
+	padding-bottom: 40rpx;
+	box-sizing: border-box;
 }
+.empty-illustration { width: 330rpx; height: 286rpx; margin-bottom: 4rpx; }
+.empty-title { color: #667085; font-size: 26rpx; font-weight: 400; line-height: 38rpx; }
+.empty-description { margin-top: 4rpx; color: #98a2b3; font-size: 20rpx; font-weight: 400; line-height: 30rpx; }
 
 /* Utilities */
 .text-ellipsis {

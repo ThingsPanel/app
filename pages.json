@@ -36,6 +36,7 @@
 			"path": "pages/devices/index",
 			"style": {
 				"navigationBarTitleText": "设备列表",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -151,8 +152,8 @@
 		"backgroundColor": "#EEEEEE"
 	},
 	"tabBar": {
-		"color": "#908F92",
-		"selectedColor": "#646cff",
+		"color": "#7F8CA0",
+		"selectedColor": "#1677FF",
 		"height": "52px",
 		"backgroundColor": "#FFFFFF",
 		"borderStyle": "white",
