@@ -21,7 +21,7 @@
 - `pages/automation/`：自动化列表、场景和场景联动编辑。
 - `pages/dashboard/`：IoT 仪表盘入口。
 - `pages/account/`：账户首页与资料展示编辑。
-- `pages/web-view/`：承载服务端设备详情应用。
+- `pages/web-view/`：承载看板等仍需服务端页面的通用跨端内容；设备详情由 `pages/devices/detail.vue` 原生实现。
 
 ## 命名约定
 

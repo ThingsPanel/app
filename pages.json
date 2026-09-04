@@ -79,7 +79,8 @@
 			"path": "pages/devices/detail",
 			"style": {
 				"navigationBarTitleText": "设备详情",
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationStyle": "custom"
 			}
 		},
 		{

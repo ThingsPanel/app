@@ -1,0 +1,12 @@
+{
+  "status": "implemented-static-shell",
+  "reference": "user-provided mobile device detail screenshot",
+  "sourceVerification": {
+    "mobileEntry": "pages/devices/index.vue",
+    "mobileLegacyDetail": "pages/devices/detail.vue",
+    "pcDetail": "src/views/device/details/index.vue"
+  },
+  "tabs": ["overview", "automation", "alarm", "information"],
+  "overviewData": "intentionally-empty",
+  "dataMode": "device-list-snapshot-only"
+}

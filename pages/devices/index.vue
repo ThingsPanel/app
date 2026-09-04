@@ -164,7 +164,6 @@ import {
 	getAlarmDeviceCount
 } from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
-import { buildWebViewUrl } from '@/utils/platform-web.js'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
 //
 export default {
@@ -687,13 +686,9 @@ export default {
 		},
 		// 点击设备
 		clickDevice(data, dataIndex) {
-			const token = uni.getStorageSync("access_token");
-			const url = buildWebViewUrl('/device-details-app', {
-				d_id: data.id,
-				token
-			});
+			uni.setStorageSync('device_detail_preview', { ...data })
 			uni.navigateTo({
-			  url: `/pages/web-view/index?url=${encodeURIComponent(url)}`
+				url: `/pages/devices/detail?device_id=${encodeURIComponent(data.id || '')}`
 			});
 		},
 		// 日志详情

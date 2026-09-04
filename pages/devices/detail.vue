@@ -1,1036 +1,299 @@
 <template>
-	<view :style="{ height: pageHeight, 'overflow-y': 'auto' }" class="device_list">
-		<view class="content device_item"
-			:style="{ marginTop: marginTopHeight, display: 'inline-block', width: '100%', 'box-sizing': 'border-box' }">
-			<view class="device">
-				<view class="device_img">
-					<image src="/static/image/device.png" mode=""></image>
+	<view class="device-detail-page">
+		<view class="safe-area-top" />
+		<view class="top-bar">
+			<view class="top-action" hover-class="top-action--pressed" aria-label="返回" @click="goBack">
+				<view class="back-icon" />
+			</view>
+			<view class="top-actions">
+				<view class="top-action" hover-class="top-action--pressed" aria-label="扫描设备" @click="showStaticHint">
+					<image class="top-action-icon" src="/static/icon/device-scan.svg" mode="aspectFit" />
 				</view>
-				<view class="device_info">
-					<view class="device_name">
-						<span class="name">{{ device_name }}</span>
-						<span class="state green" v-if="device_state == 1">• {{$t('pages.deviceDetail.online')}}</span>
-						<span class="state" v-if="device_state == 0">• {{$t('pages.deviceDetail.offline')}}</span>
-					</view>
-					<view class="updatetime">
-						{{$t('pages.deviceDetail.updateTime')}}: <span v-if="latest_ts_name">{{ latest_ts_name }}</span>
+				<view class="top-action" hover-class="top-action--pressed" aria-label="更多操作" @click="showStaticHint">
+					<view class="more-icon" aria-hidden="true">
+						<view v-for="index in 3" :key="index" class="more-dot" />
 					</view>
 				</view>
 			</view>
-			<!-- 当前值 -->
-			<view class="device_tab" v-if="textCompData.length > 0">
-				<view v-for="(item, index) in textCompData" :key="index" @click="changeIndex(index)"
-					:class="currentValueIndex == index ? 'device_tab_item active' : 'device_tab_item'">
-					<view class="device_tab_item_container">
-						<view class="tab-label" v-if="item.name">
-							{{ item.name }}
-						</view>
-						<view class="tab-value" :class="item.type ? 'small-font' : ''">
+		</view>
 
-							{{ item.value }}
-							<view class="value-unit" v-if="item.unit">
-								{{ item.unit }}
-							</view>
-						</view>
-					</view>
+		<scroll-view class="page-scroll" scroll-y>
+			<view class="device-summary">
+				<view class="device-image-card">
+					<image
+						class="device-image"
+						:src="deviceImageSrc"
+						mode="aspectFit"
+						@error="imageLoadFailed = true"
+					/>
 				</view>
-			</view>
-			<view class="jiance" v-for="(chart, index) in device.chartData" :key="index">
-				<view style="height: 488rpx;margin-bottom: 40rpx;">
-					<view>{{ chart.name }}</view>
-					<l-echart class="echart-container" ref="chartRef"></l-echart>
-				</view>
-			</view>
-			<view class="control" v-if="device.controlData.length > 0">
-				<view class="control_t">
-					{{$t('pages.deviceDetail.control')}}
-				</view>
-				<view class="control_l" v-if="device.controlData.length > 0">
-					<block v-for="(item, index) in device.controlData" :key="index">
-						<view class="control_l_item">
-							<view class="control_l_item_l">
-								<view class="iconfontImg">
-									<image src="/static/icon/device-close.png" v-if="item.value == 0" />
-									<image src="/static/icon/device-on.png" v-if="item.value == 1" />
-								</view>
-								<view style="margin-left: 24rpx;">
-									<view class="sp_item_title">{{ item.typeName }}</view>
-									<view class="sp_item_status" v-if="item.state == 0 && item.type == 'switch'">{{$t('pages.deviceDetail.off')}}
-									</view>
-									<view class="sp_item_status" v-if="item.state == 1 && item.type == 'switch'">{{$t('pages.deviceDetail.on')}}
-									</view>
-								</view>
-							</view>
-							<view class="control_l_item_r" v-if="item.type == 'switch'">
-								<view class="control_l_item_r_switch" @click="changSwitch(item, index)">
-									<image src="/static/icon/switch-on.png" v-if="item.state == 1" />
-									<image src="/static/icon/switch-off.png" v-if="item.state == 0" />
-								</view>
-							</view>
-							<view v-else class="send">
-								<input v-model="item.num" class="sendNum" type="text" />
-								<button @click="toSendNum(item)">{{$t('pages.deviceDetail.send')}}</button>
-							</view>
-						</view>
-					</block>
-				</view>
-			</view>
-			<!-- <view class="warning" v-if="warningData.length > 0">
-				<view class="warning_t">
-					告警
-				</view>
-				<view class="warning_c" v-for="(warn, index) in warningData" :key="index">
-					<view class="warning_c_l">
-						<view class="warning_c_l_img">
-							<img src="/static/image/warning.png">
-						</view>
-						<view class="warning_c_l_i">
-							<view class="warning_c_l_i_t">
-								{{warn.describe}}
-							</view>
-							<view class="warning_c_l_i_c">
-								超过预警值3℃
-							</view>  
-						</view>
-					</view>
-				</view>
-			</view> -->
-			<view class="history" v-if="logData.length">
-				<view class="tp-title tp-mg-t-25" style="margin-top: 35rpx; margin-left: 20rpx; margin-bottom: 10rpx">{{$t('pages.deviceDetail.logs')}}
-				</view>
-				<block>
-					<view class="tp-log tp-flex tp-flex-col tp-mg-t-15">
-						<view class="tp-panel tp-flex tp-flex-col tp-box-sizing tp-pd-20" v-for="(item, index) in logData" :key="index"
-							@click="logInfo(item, index)">
-							<view class="tp-log-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c">
-								<view class="tp-time">
-									{{ item.cteate_time }}
-									<view class="tp-circle tp-mg-l-r-20" :class="index == currentIndex ? 'tp-active' : ''"
-										style="margin-left: 10rpx;">
-									</view>
-								</view>
 
-								<view class="tp-flex-1">{{ item.remark }}</view>
-								<!-- <view class="tp-flex-1 color-grey">{{item.instruct.name}}</view> -->
-								<view class="tp-flex-1 tp-mg-r-10 color-grey">{{item.showInstructText}}</view>
-								<view v-if="index == currentIndex">
-									<image src="../../static/icon/log-active.png"></image>
-								</view>
-								<view v-else>
-									<image src="../../static/icon/log.png"></image>
+				<view class="device-main">
+					<view class="title-line">
+						<text class="device-name">{{ deviceName }}</text>
+						<view class="status-badge" :class="statusClass">
+							<view class="status-dot" />
+							<text>{{ statusLabel }}</text>
+						</view>
+					</view>
+
+					<view v-if="contextItems.length" class="context-line">
+						<template v-for="(item, index) in contextItems" :key="`${item}-${index}`">
+							<view v-if="index" class="context-divider" />
+							<text class="context-text">{{ item }}</text>
+						</template>
+						<view class="edit-action" hover-class="inline-action--pressed" aria-label="编辑设备信息" @click="showStaticHint">
+							<view class="edit-icon" />
+						</view>
+					</view>
+
+					<view class="meta-list">
+						<view class="meta-row">
+							<text class="meta-label">设备 ID</text>
+							<view class="meta-value-group">
+								<text class="meta-value meta-value--id">{{ deviceId || '--' }}</text>
+								<view class="copy-action" hover-class="inline-action--pressed" aria-label="复制设备 ID" @click="copyDeviceId">
+									<view class="copy-icon copy-icon--back" />
+									<view class="copy-icon copy-icon--front" />
 								</view>
 							</view>
 						</view>
+						<view class="meta-row">
+							<text class="meta-label">固件版本</text>
+							<text class="meta-value">{{ firmwareVersion }}</text>
+						</view>
+						<view class="meta-row">
+							<text class="meta-label">最后上报</text>
+							<text class="meta-value meta-value--time">{{ lastReportedAt }}</text>
+						</view>
 					</view>
-				</block>
+				</view>
+			</view>
+
+			<view class="detail-panel">
+				<view class="detail-tabs" role="tablist">
+					<view
+						v-for="tab in tabs"
+						:key="tab.key"
+						class="detail-tab"
+						:class="{ 'detail-tab--active': activeTab === tab.key }"
+						hover-class="detail-tab--pressed"
+						:aria-label="tab.label"
+						:aria-selected="activeTab === tab.key"
+						role="tab"
+						@click="activeTab = tab.key"
+					>
+						<text>{{ tab.label }}</text>
+						<view v-if="activeTab === tab.key" class="tab-indicator" />
+					</view>
+				</view>
+				<view class="tab-content" :aria-label="`${activeTabLabel}内容区域`" />
+			</view>
+		</scroll-view>
+
+		<view class="bottom-navigation">
+			<view
+				v-for="item in navigationItems"
+				:key="item.pagePath"
+				class="navigation-item"
+				:class="{ 'navigation-item--active': item.key === 'devices' }"
+				hover-class="navigation-item--pressed"
+				@click="openNavigation(item)"
+			>
+				<view class="navigation-icon-wrap">
+					<image
+						class="navigation-icon"
+						:class="{ 'navigation-icon--alarm': item.key === 'alarms' }"
+						:src="item.key === 'devices' ? item.selectedIcon : item.icon"
+						mode="aspectFit"
+					/>
+					<view v-if="item.key === 'alarms' && hasAlarm" class="navigation-badge" />
+				</view>
+				<text>{{ item.label }}</text>
 			</view>
 		</view>
-		<!-- 日志详情 -->
-		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
-			<view class="logInfo">
-				<view class="info_title">
-					{{$t('pages.deviceDetail.logDetail')}}
-					<image src="../../static/icon/close.png" alt="" @click="$refs.logoPopup.close()" />
-				</view>
-				<view class="info_header">
-					<view class="tp-circle tp-mg-l-r-20 tp-active" style="margin-left: 10rpx;">
-					</view>
-					<view class="info_header_d">
-						{{ currentLog.remark }}
-					</view>
-					<span class="info_header_t">{{ currentLog.cteate_time }}</span>
-				</view>
-				<view class="info_list">
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.deviceName')}}：
-						</view>
-						<view class="label">
-							{{ currentLog.device_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.deviceGroupName')}}：
-						</view>
-						<view class="label">
-							{{ currentLog.asset_name }}>{{ currentLog.device_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.businessName')}}：
-						</view>
-						<view class="label">
-							{{ currentLog.business_name }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.operationType')}}：
-						</view>
-								<view class="label" v-if="currentLog.operation_type == '1'">
-									{{$t('pages.deviceDetail.timedTrigger')}}
-								</view>
-								<view class="label" v-if="currentLog.operation_type == '2'">
-									{{$t('pages.deviceDetail.manualControl')}}
-								</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.command')}}：
-						</view>
-						<view class="label">
-							{{ currentLog.showInstructText }}
-						</view>
-					</view>
-					<view class="item">
-						<view class="value">
-							{{$t('pages.deviceDetail.sendResult')}}：
-						</view>
-								<view class="label" v-if="currentLog.send_result == '1'">
-									{{$t('pages.deviceDetail.success')}}
-								</view>
-								<view class="label" v-if="currentLog.send_result == '2'">
-									{{$t('pages.deviceDetail.failure')}}
-								</view>
-					</view>
-				</view>
-			</view>
-		</uni-popup>
 	</view>
 </template>
 
 <script>
-import dayjs from 'dayjs'
-import * as echarts from 'echarts';
-import uCharts from '@/plugins/stan-ucharts/u-charts/u-charts.js';
-import AppNavbar from '@/components/app-navbar/index.vue';
-var canvaLineA = null;
-var canvaLineB = null;
+const DEVICE_SNAPSHOT_KEY = 'device_detail_preview'
+
 export default {
-	components: {
-		AppNavbar
-	},
 	data() {
 		return {
-			propMap: {},
-			textCompData: [],
-			currentIndex: 0,
-			currentLog: {},
-			currentLog: {},
-			statusType: 'more', //分页状态
-			loadMoreShow: true,
-      contentText: {
-        contentdown: this.$t('pages.deviceDetail.pullUpForMoreLogs'),
-        contentrefresh: this.$t('common.loading'),
-        contentnomore: this.$t('pages.deviceDetail.noMoreLogs')
-      },
-      deviceSwtichList: [{
-        value: 0,
-        name: this.$t('pages.deviceDetail.fan')
-      },
-      {
-        value: 1,
-        name: this.$t('pages.deviceDetail.waterCurtain')
-      },
-      {
-        value: 1,
-        name: this.$t('pages.deviceDetail.lighting')
-      }
-      ],
-			pageHeight: 0,
-			marginTopHeight: 0,
-			chartDataA: {
-				categories: ["2016", "2017", "2018", "2019", "2020", "2021"],
-				series: [{
-					data: [35, 36, 31, 33, 13, 34]
-				}]
-			},
-			chartDataB: {
-				categories: ["2016", "2017", "2018", "2019", "2020", "2021"],
-				series: [{
-					name: this.$t('pages.deviceDetail.targetValue'),
-					data: [35, 36, 31, 33, 13, 34]
-				}]
-			},
-			cWidth: '',
-			cHeight: '',
-			pixelRatio: 1,
-			deviceType: '',
-			device: {
-				state: '',
-				controlData: []
-			},
-			device_id: '',
-			device_name: '',
-			latest_ts_name: '',
-			device_state: '',
-			end_time: '',
-			start_time: '',
-			logData: [],
-			statusWarnType: 'more',
-			loadMoreWarnShow: true,
-			statusType: 'more', //分页状态
-			loadMoreShow: true,
-			contentText: {
-				contentdown: this.$t('pages.deviceDetail.pullUpForMoreData'),
-				contentrefresh: this.$t('common.loading'),
-				contentnomore: this.$t('pages.deviceDetail.noMoreData')
-			},
-			warningData: [],
-			currentValueData: [],
-			currentValueIndex: 0,
-			statusBarHeight: 0,
-			socketTask: null,
-			// 确保websocket是打开状态
-			is_open_socket: false,
-			token: '',
-			// 历史曲线计时器
-			timers: []
+			device: {},
+			deviceId: '',
+			activeTab: 'overview',
+			imageLoadFailed: false,
+			tabs: [
+				{ key: 'overview', label: '概览' },
+				{ key: 'automation', label: '自动化' },
+				{ key: 'alarm', label: '告警' },
+				{ key: 'information', label: '信息' }
+			],
+				navigationItems: [
+				{ key: 'dashboard', label: '首页', pagePath: '/pages/dashboard/index', icon: '/static/tabbar/dashboard.png', selectedIcon: '/static/tabbar/dashboard-selected.png' },
+				{ key: 'devices', label: '设备', pagePath: '/pages/devices/index', icon: '/static/tabbar/devices.png', selectedIcon: '/static/tabbar/devices-selected.png' },
+				{ key: 'automation', label: '自动化', pagePath: '/pages/automation/index', icon: '/static/tabbar/automation.png', selectedIcon: '/static/tabbar/automation-selected.png' },
+				{ key: 'alarms', label: '告警', pagePath: '/pages/alarms/index', icon: '/static/icon/notify.svg', selectedIcon: '/static/icon/notify.svg', routeType: 'page' },
+				{ key: 'account', label: '我的', pagePath: '/pages/account/index', icon: '/static/tabbar/account.png', selectedIcon: '/static/tabbar/account-selected.png' }
+			]
+		}
+	},
+	computed: {
+		deviceName() {
+			return this.device.name || '未命名设备'
+		},
+		hasKnownStatus() {
+			return this.device.is_online !== undefined && this.device.is_online !== null && this.device.is_online !== ''
+		},
+		isOnline() {
+			return this.hasKnownStatus && Number(this.device.is_online) === 1
+		},
+		statusLabel() {
+			if (!this.hasKnownStatus) return '状态未知'
+			return this.isOnline ? '在线' : '离线'
+		},
+		statusClass() {
+			if (!this.hasKnownStatus) return 'status-badge--unknown'
+			return this.isOnline ? 'status-badge--online' : 'status-badge--offline'
+		},
+		hasAlarm() {
+			const alarmStatus = String(this.device.warn_status || '').trim().toUpperCase()
+			return alarmStatus !== '' && alarmStatus !== 'N'
+		},
+		deviceImageSrc() {
+			return !this.imageLoadFailed && this.device.image_url
+				? this.device.image_url
+				: '/static/image/default-device-hub.png'
+		},
+		deviceTypeLabel() {
+			return {
+				1: '直连设备',
+				2: '网关设备',
+				3: '子设备'
+			}[String(this.device.device_type)] || ''
+		},
+		contextItems() {
+			return [
+				this.deviceTypeLabel,
+				this.device.device_config_name,
+				this.device.group_name || this.device.device_group_name
+			].filter(Boolean)
+		},
+		firmwareVersion() {
+			return this.device.current_version || this.device.firmware_version || '--'
+		},
+		lastReportedAt() {
+			return this.device.latest_ts_name || '--'
+		},
+		activeTabLabel() {
+			return this.tabs.find(item => item.key === this.activeTab)?.label || ''
 		}
 	},
 	onLoad(options) {
-		let systemInfo = uni.getSystemInfoSync();
-		this.token = uni.getStorageSync("access_token")
-		this.statusBarHeight = (systemInfo.statusBarHeight || 25) + 'px'
-
-		this.$store.commit('resetOffset'); //清空日志页码
-		this.$store.commit('resetDevicePage'); //清空告警页码
-		this.device_name = options.device_name
-		this.deviceType = options.type
-		this.device_id = options.device_id
-		if (options.latest_ts_name != "undefined") {
-			this.latest_ts_name = options.latest_ts_name
+		this.deviceId = options.device_id || ''
+		const snapshot = uni.getStorageSync(DEVICE_SNAPSHOT_KEY)
+		if (snapshot && (!this.deviceId || snapshot.id === this.deviceId)) {
+			this.device = snapshot
+			this.deviceId = snapshot.id || this.deviceId
 		}
-		this.device_state = options.state
-		this.cWidth = uni.upx2px(750);
-		this.cHeight = uni.upx2px(420);
-		this.getCurrentTime()
-
-	},
-
-	onShow() {
-      this.$nextTick(() => {
-        setTimeout(() => {
-          uni.setNavigationBarTitle({
-            title: this.$t('pages.deviceDetailTitle')
-          })
-        }, 100)
-      })
-		this.marginTopHeight = uni.getStorageSync('contentPaddingTop');
-		this.pageHeight = uni.getStorageSync('pageHeight');
-	},
-	onReady() {
-		this.getDetail()
-		this.connectSocketInit();
-	},
-	beforeUnmount() {
-		this.closeSocket();
-		this.clearTimer();
 	},
 	methods: {
-		formatDate(date) {
-			return dayjs(date * 1000).format('YYYY-MM-DD HH:mm')
+		goBack() {
+			uni.navigateBack()
 		},
-		connectSocketInit() {
-			let server = uni.getStorageSync("serverAddress")
-			let httpServer = new URL(server);
-			const hostname = httpServer.hostname
-			// 创建一个this.socketTask对象【发送、接收、关闭socket都由这个对象操作】
-			this.socketTask = uni.connectSocket({
-				// 【非常重要】必须确保你的服务器是成功的,如果是手机测试千万别使用ws://127.0.0.1:9099【特别容易犯的错误】
-				url: `ws://${hostname}:9999/ws/device/current`,
-				success(data) {
-					console.log("websocket连接成功");
-				},
-				fail(){
-					uni.showToast(this.$t('pages.deviceDetail.socketLinkFailure'))
-				}
-			});
-
-			// 消息的发送和接收必须在正常连接打开中,才能发送或接收【否则会失败】
-			this.socketTask.onOpen((res) => {
-				console.log("WebSocket连接正常打开中...！");
-				this.is_open_socket = true;
-				// 注：只有连接正常打开中 ，才能正常成功发送消息
-				this.socketTask.send({
-					data: JSON.stringify({
-						device_id: this.device_id,
-						token: this.token,
-					}),
-					async success() {
-						console.log("消息发送成功");
-					},
-				});
-				// 注：只有连接正常打开中 ，才能正常收到消息
-				this.socketTask.onMessage((res) => {
-					if (res.data) {
-						const resData = JSON.parse(res.data)
-						for (let i = 0; i < this.device.controlData.length; i++) {
-							const con = this.device.controlData[i]
-							for (let key in resData) {
-								const val = String(resData[key])
-								if (con.name == key && val) {
-									console.log(`${key}__${resData[key]}`)
-									con.state = resData[key]
-									con.state = resData[key]
-								}
-							}
-							this.$forceUpdate()
-						}
-						this.setCurrentTextValue(resData)
-					}
-					// console.log("收到服务器内容：" + JSON.stringify(res.data));
-				});
-			})
-			// 这里仅是事件监听【如果socket关闭了会执行】
-			this.socketTask.onClose(() => {
-				console.log("已经被关闭了")
-			})
+		showStaticHint() {
+			uni.showToast({ title: '静态页面，功能待接入', icon: 'none' })
 		},
-		closeSocket() {
-			this.socketTask.close({
-				success(res) {
-					this.is_open_socket = false;
-					console.log("关闭成功", res)
-				},
-				fail(err) {
-					console.log("关闭失败", err)
-				}
-			})
+		copyDeviceId() {
+			if (!this.deviceId) return
+			uni.setClipboardData({ data: this.deviceId })
 		},
-		clickRequest() {
-			if (this.is_open_socket) {
-				// websocket的服务器的原理是:发送一次消息,同时返回一组数据【否则服务器会进去死循环崩溃】
-				this.socketTask.send({
-					data: this.$t('pages.deviceDetail.requestSendOneTimeMsg'),
-					async success() {
-						console.log("消息发送成功");
-					},
-				});
+		openNavigation(item) {
+			if (item.routeType === 'page') {
+				uni.navigateTo({ url: item.pagePath })
+				return
 			}
-		},
-		clearTimer() {
-			if (this.timers && this.timers.length) {
-				for (var i = 0; i < this.timers.length; i++) {
-					clearInterval(this.timers[i])
-				}
-			}
-			this.timers = [];
-		},
-		changeIndex(index) {
-			this.currentValueIndex = index
-			this.$forceUpdate()
-		},
-		// 数值下发
-		toSendNum(item) {
-			if (item.dataType == 'float') {
-				item.num = parseFloat(item.num)
-			} else if (item.dataType == 'String') {
-				item.num = item.num.toString()
-			} else if (item.dataType == 'Integer') {
-				item.num = parseInt(item.num)
-			}
-			if (item.num < item.dataRange.split('-')[1] && item.num >= item.dataRange.split('-')[0]) {
-				const params = {
-					device_id: this.device_id,
-					values: {
-						[item.name]: item.num
-					}
-				}
-				this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
-					if (res.code === 200) {
-						this.getCurrentTime()
-						this.getLogData() //获取日志
-						this.getWarningData() //获取告警信息
-						this.getDetail()
-					}
-				});
-			} else {
-				uni.showToast(this.$t('pages.deviceDetail.IllegalInput'))
-			}
-		},
-		// 获取设备的历史数据
-		getDeviceHistory(itme, num) {
-			let timestamp = (new Date()).getTime();
-			const key = itme.attribute[0]
-			const im = this.propMap[key]
-			this.API.apiRequest('/api/kv/statistic', {
-				device_id: this.device_id,
-				start_time: (timestamp - 60 * 60 * 3 * 1000) * 1000, // 3小时
-				end_time: timestamp * 1000,
-				key,
-				"aggregate_window": "30s",
-				"aggregate_function": "max"
-			}, 'post').then(response => {
-				if (response.code == 200 && response.data) {
-					let time_series = response.data.time_series || []
-					time_series.forEach(x => {
-						x.x = this.formatDate(x.x)
-						x.y = x.y.toFixed(2)
-					})
-					// time_series = time_series.reverse()
-					var data = response.data.systime
-					var yData = [];
-					var newArry = []
-					var xData = []
-					if (data && data.length > 0) {
-						data.forEach((item, i) => {
-							if (item && Math.floor((new Date(this.end_time).getTime() - new Date(item)
-								.getTime()) / 1000 / 60 / 60) <= 0.5 && item.indexOf(' ') > -1) {
-								var index = item.lastIndexOf(' ')
-								newArry.push(item.substring(index, item.length))
-							}
-						})
-					}
-					if (newArry.length > 0) {
-						newArry.forEach(item => {
-							var index = item.lastIndexOf(':')
-							xData.push(item.substring(0, index))
-						})
-					}
-					itme.opts = {
-						colors: ["#1890FF", '#F88B33'],
-						padding: [15, 15, 0, 0],
-						touchMoveLimit: 24,
-						enableScroll: true,
-						legend: {},
-						dataset: {
-							dimensions: ['x', 'y'],
-							source: time_series,
-						},
-						width: this.cWidth * this.pixelRatio,
-						height: this.cHeight * this.pixelRatio,
-						xAxis: {
-							type: 'time',
-							disableGrid: true,
-							scrollShow: true,
-							itemCount: 4
-						},
-						yAxis: {
-							data: [{
-								min: 0
-							}]
-						},
-						extra: {
-							column: {
-								type: "group",
-								width: 30,
-								activeBgColor: "#000000",
-								activeBgOpacity: 0.08
-							}
-						}
-					}
-					let chartData = {
-						categories: response.data.systime,
-						series: yData
-					}
-
-					itme.chartData = JSON.parse(JSON.stringify(chartData));
-					this.$nextTick(() => {
-						const chartRef = this.$refs?.chartRef[num]
-						chartRef.init(echarts, chart => {
-							chart.setOption({
-								animation: false,
-								grid: {
-									left: '15%',
-									right: '10%',
-									bottom: '10%',
-									top: '5%',
-								},
-								tooltip: {
-									trigger: 'axis',
-									formatter(params) {
-										console.log(params, im)
-										let y = params[0].value.y
-										if (key === 'Motiondetect') {
-											if (y == 1) {
-												y = this.$t('pages.deviceDetail.motionDetectSomeone')
-											} else {
-												y = this.$t('pages.deviceDetail.motionDetectNoOne')
-											}
-										}
-										return `${params[0].value.x}
-${im.title}: ${y} ${im.unit || ''}
-												`
-									}
-								},
-								dataZoom: [
-									{
-										type: 'inside'
-									}
-								],
-								xAxis: {
-									type: 'category',
-									boundaryGap: false,
-									// data:  response.data.systime
-								},
-								yAxis: {
-									type: 'value'
-								},
-								dataset: {
-									dimensions: ['x', 'y'],
-									source: time_series,
-								},
-								series: [
-									{
-										type: 'line',
-										smooth: true,
-										seriesLayoutBy: 'row',
-										yAxisIndex: 0,
-										emphasis: { focus: 'series' }
-									}
-									// ...yData
-								]
-							});
-						})
-					})
-					this.$forceUpdate()
-
-				}
-			}).finally(() => { });
-		},
-		// 改变状态
-		changSwitch(item, index) {
-			var state = ''
-			if (item.state == 0) {
-				state = 1
-				this.device.controlData[index].state = 1;
-			} else if (item.state == 1) {
-				state = 0
-				this.device.controlData[index].state = 0;
-			}
-
-			const params = {
-				device_id: this.device_id,
-				values: {
-					[item.name]: state,
-					// state,
-					// name: item.typeName 
-				}
-			}
-			this.API.apiRequest('/api/device/operating_device', params, 'post').then(res => {
-				if (res.code === 200) {
-
-					this.getLogData() //获取日志
-
-				}
-			});
-		},
-		// 获取曲线图
-		showLine(canvasId, xData, yData) {
-			var canvaLine = new uCharts({
-				$this: this,
-				enableScroll: true,
-				colors: ["#1890FF", '#F88B33'],
-				canvasId: canvasId,
-				type: 'line',
-				fontSize: 11,
-				padding: [15, 20, 10, 15], //上右下左
-				legend: {
-					show: false,
-					padding: 5,
-					lineHeight: 11,
-					margin: 0,
-				},
-				dataLabel: true,
-				dataPointShape: false,
-				background: '#FFFFFF',
-				pixelRatio: this.pixelRatio,
-				categories: xData,
-				series: [{
-					data: yData
-				}],
-				animation: true,
-				xAxis: {
-					disableGrid: true,
-					scrollShow: true,
-					itemCount: 5,
-					scrollAlign: 'left', //滚动条初始位置
-				},
-				yAxis: {
-					gridType: 'solid',
-					gridColor: '#f7f7f7',
-					axisLineColor: '#f7f7f7',
-					fontColor: '#999999',
-					dashLength: 5,
-					splitNumber: 5,
-					format: (val) => {
-						return val.toFixed(0)
-					}
-				},
-				extra: {
-					line: {
-						type: "straight",
-						width: 2,
-						activeType: "hollow"
-					}
-				},
-				width: this.cWidth * this.pixelRatio,
-				height: this.cHeight * this.pixelRatio
-			});
-		},
-		// 插件查询
-		getDetail() {
-
-			this.API.apiRequest('/api/device/model/list', {
-				id: this.deviceType,
-				current_page: 1,
-				per_page: 1
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					var data = res.data.data[0];
-					this.device.valuesNew = []
-					this.textCompData = []
-					this.device.controlData = []
-					this.device.chartData = []
-					this.device.chart_data = JSON.parse(data.chart_data)
-					var currentValueData = []
-					if (this.device.chart_data.chart.length > 0) {
-						this.device.chart_data.chart.forEach((ch, index) => {
-							// 当前值
-							if (this.device.chart_data.tsl.properties.length > 0) {
-								this.device.chart_data.tsl.properties.forEach(pro => {
-									this.propMap[pro.name] = { name: pro.name, unit: pro.unit, title: pro.title }
-									if (ch.series && ch.series.length > 0 && ch.name == pro.title) {
-										ch.series.forEach(se => {
-											if (se.type == 'gauge') {
-												this.textCompData.push({ name: ch.name, value: '', valueOld: ch.mapping[0], unit: pro.unit })
-												currentValueData.push({ name: ch.name, value: '', valueOld: ch.mapping[0], unit: pro.unit })
-											}
-										})
-									}
-								})
-							}
-
-							if (ch.controlType == 'dashboard' && ['status', 'signalStatus'].includes(ch.type)) {
-								if (ch.mapping && ch.mapping.length > 0) {
-									// ch.mapping.forEach(map => {
-									var obj = {
-										name: ch.name,
-										value: '',
-										valueOld: Array.isArray(ch.mapping) ? ch.mapping[0] : ch.mapping,
-										unit: '',
-										type: ch.type,
-									}
-									this.textCompData.push(obj)
-									// })
-								}
-							}
-							if (ch.controlType == 'control') {
-								var obj = {
-									name: ch.series[0].mapping.value,
-									typeName: ch.name,
-									state: '',
-									id: ch.id,
-									disabled: ch.disabled,
-									type: ch.type,
-									num: ch.series[0].value,
-									dataType: ch.series[0].mapping.attr.dataType,
-									dataRange: ch.series[0].mapping.attr.dataRange
-								}
-								this.device.controlData.push(obj)
-								console.log(this.device.controlData)
-							}
-							if (ch.controlType == 'history') {
-								this.device.chartData.push({
-									attribute: ch.mapping,
-									name: ch.name,
-									series: ch.series,
-									xAxis: ch.xAxis,
-									yAxis: ch.yAxis,
-									id: 'canvasLine' + index,
-									opts: {},
-									chartData: {},
-								})
-							}
-						})
-						this.currentValueData = currentValueData
-					}
-					if (this.device.valuesNew.length > 0) {
-						this.device.valuesNew.forEach(va => {
-							for (let key in this.device.values) {
-								if (va.name == key) {
-									va.value = this.device.values[key]
-								}
-							}
-						})
-					}
-					if (this.device.chart_data.tsl.properties && this.device.chart_data.tsl.properties.length >
-						0) {
-						this.device.chart_data.tsl.properties.forEach(d => {
-							if (this.device.valuesNew && this.device.valuesNew.length > 0) {
-								this.device.valuesNew.forEach(i => {
-									if (d.name == i.name) {
-										i.unit = d.unit
-									}
-								})
-							}
-						})
-					}
-					console.log('chartData-----', this.device.chartData)
-					this.clearTimer()
-					if (this.device.chartData.length > 0) {
-						this.device.chartData.forEach((itme, index) => {
-							this.getDeviceHistory(itme, index)
-							this.timers[index] = setInterval(() => {
-								this.getDeviceHistory(itme, index)
-							}, 5000)
-						})
-					}
-					if (this.device.controlData.length > 0) {
-						// debugger
-						this.device.controlData.forEach(va => {
-							console.log(this.device.values)
-							for (let key in this.device.values) {
-								if (va.name == key) {
-									va.state = this.device.values[key]
-								}
-							}
-							this.getContorl(this.device, va)
-						})
-						this.getLogData()
-					}
-					this.getCurrentContorl()
-					this.$forceUpdate()
-				} else {
-					this.toast.msg = res.msg;
-					this.$refs.toast.show();
-				}
-				// uni.hideLoading()
-			})
-		},
-		// 定时获取开关
-		getContorl(device, con) {
-			this.getDevieceKv(device, con)
-		},
-		// 获取设备的当前值
-		getCurrentContorl() {
-			const attribute = this.textCompData.map(x => x.valueOld)
-			this.API.apiRequest('/api/kv/current', {
-				entity_id: this.device_id,
-				attribute: ["systime", ...attribute]
-			}, 'post').then(res => {
-				if (res.code === 200 && res.data) {
-					if (this.textCompData.length > 0) {
-						this.textCompData.forEach(item => {
-							for (var key in res.data) {
-
-								if (item.valueOld == key) {
-									item.value = res.data[key]
-									if (item.value && String(item.value).includes('.')) {
-										item.value = Number(item.value).toFixed(2)
-									}
-									if (['status', 'signalStatus'].includes(item.type)) {
-										if (item.valueOld === 'Motiondetect') {
-												item.value = { 0: this.$t('pages.deviceDetail.motionDetectNoOne'), 1: this.$t('pages.deviceDetail.motionDetectSomeone') }[item.value]
-										} else {
-												item.value = { 0: this.$t('pages.deviceDetail.statusClosed'), 1: this.$t('pages.deviceDetail.statusOpen') }[item.value]
-										}
-									}
-								}
-								if (key === 'systime') {
-									this.latest_ts_name = res.data[key]
-								}
-							}
-						})
-					}
-					this.$forceUpdate()
-				}
-			});
-		},
-		setCurrentTextValue(data) {
-			if (this.textCompData.length > 0) {
-				this.textCompData.forEach(item => {
-					for (var key in data) {
-						if (item.valueOld == key) {
-							item.value = data[key]
-							if (item.value && String(item.value).includes('.')) {
-								item.value = Number(item.value).toFixed(2)
-							}
-							if (['status', 'signalStatus'].includes(item.type)) {
-								if (item.valueOld === 'Motiondetect') {
-										item.value = { 0: this.$t('pages.deviceDetail.motionDetectNoOne'), 1: this.$t('pages.deviceDetail.motionDetectSomeone') }[item.value]
-								} else {
-										item.value = { 0: this.$t('pages.deviceDetail.statusClosed'), 1: this.$t('pages.deviceDetail.statusOpen') }[item.value]
-								}
-							}
-						}
-						if (key === 'systime') {
-							this.latest_ts_name = data[key]
-						}
-					}
-				})
-			}
-			this.$forceUpdate()
-		},
-		// 获取设备的开关状态
-		getDevieceKv(device, con) {
-			var newArry = []
-			newArry.push(con.name)
-			// uni.showLoading({
-			// 	title: '加载中'
-			// });
-			this.API.apiRequest('/api/kv/current', {
-				entity_id: this.device_id,
-				attribute: newArry
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					// uni.hideLoading()
-					if (res.data) {
-						for (let key in res.data) {
-							if (con.name == key && res.data[key]) {
-								con.state = res.data[key]
-							}
-						}
-						this.$forceUpdate()
-					}
-				}
-			});
-		},
-		//获取操作日志
-		getLogData() {
-
-			this.API.apiRequest('/api/conditions/log/index', {
-				current_page: 1,
-				per_page: 20,
-				device_id: this.device_id
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					this.logData = (res.data.data || []).map(x => {
-						const instruct = JSON.parse(x.instruct)
-						return {
-							...x,
-							instruct,
-							showInstructText: x.instruct
-						}
-					});
-
-				} else {
-					this.toast.msg = res.message;
-					this.$refs.toast.show();
-				}
-				// uni.hideLoading()
-			});
-		},
-		// 日志详情
-		logInfo(log, index) {
-			this.currentLog = log
-			this.currentIndex = index
-			this.$refs.logoPopup.open()
-		},
-		// 加载更多
-		toLoadMore() {
-			// 还有数据
-			if (this.statusType == 'more') {
-				this.$store.commit('incrementOffset');
-				this.getLogData();
-			} else if (this.statusType == 'noMore') { }
-		},
-		// 获取设备告警信息
-		getWarningData() {
-			// uni.showLoading({
-			// 	title: '加载中'
-			// });
-			this.API.apiRequest('/api/warning/log/list', {
-				// current_page: this.$store.state.list.devicePage,
-				page: 1,
-				limit: 5,
-				device_id: this.device_id,
-				// start_date: this.start_time,
-				// end_date: this.end_time
-			}, 'post').then(res => {
-				if (res.code === 200) {
-					this.warningData = res.data.data;
-
-				} else {
-					this.toast.msg = res.msg;
-					this.$refs.toast.show();
-				}
-				// uni.hideLoading()
-			});
-		},
-		// 加载更多
-		toLoadWarnMore() {
-			// 还有数据
-			if (this.statusWarnType == 'more') {
-				this.$store.commit('incrementDevicePage');
-				this.getWarningData();
-			} else if (this.statusWarnType == 'noMore') { }
-		},
-		// 时间格式转化
-		formatDate(shijianchuo) {
-			//shijianchuo是整数，否则要parseInt转换
-			var time = new Date(shijianchuo / 1000);
-			var y = time.getFullYear();
-			var m = time.getMonth() + 1;
-			var d = time.getDate();
-			var h = time.getHours();
-			var mm = time.getMinutes();
-			var s = time.getSeconds();
-			return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this
-				.add0(s);
-		},
-		add0(m) {
-			return m < 10 ? '0' + m : m
-		},
-		TimeDifference(time1, time2) {
-			//判断开始时间是否大于结束日期
-			if (time1 > time2) {
-				return false;
-			}
-
-			//截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
-			var begin1 = time1.substr(0, 10).split("-");
-			var end1 = time2.substr(0, 10).split("-");
-
-			//将拆分的数组重新组合，并实例成化新的日期对象
-			var date1 = new Date(begin1[1] + - +begin1[2] + - +begin1[0]);
-			var date2 = new Date(end1[1] + - +end1[2] + - +end1[0]);
-
-			//得到两个日期之间的差值m，以分钟为单位
-			//Math.abs(date2-date1)计算出以毫秒为单位的差值
-			//Math.abs(date2-date1)/1000得到以秒为单位的差值
-			//Math.abs(date2-date1)/1000/60得到以分钟为单位的差值
-			var m = parseInt(Math.abs(date2 - date1) / 1000 / 60);
-
-			//小时数和分钟数相加得到总的分钟数
-			//time1.substr(11,2)截取字符串得到时间的小时数
-			//parseInt(time1.substr(11,2))*60把小时数转化成为分钟
-			var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2));
-			var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2));
-
-			//两个分钟数相减得到时间部分的差值，以分钟为单位
-			var n = min2 - min1;
-
-			//将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
-			var minutes = m + n;
-			return minutes
-		},
-		getCurrentTime() {
-			//年
-			let year = new Date().getFullYear();
-			//月份是从0月开始获取的，所以要+1;
-			let month = new Date().getMonth() + 1;
-			//日
-			let day = new Date().getDate();
-			//时
-			let hour = new Date().getHours();
-			//分
-			let minute = new Date().getMinutes();
-			//秒
-			let second = new Date().getSeconds()
-			this.end_time = year + '-' + this.add0(month) + '-' + this.add0(day) + ' ' + this.add0(hour) + ':' + this
-				.add0(minute) + ':' + this.add0(second)
-			this.start_time = year + '-' + this.add0(month) + '-' + this.add0(day - 1) + ' ' + this.add0(hour) + ':' +
-				this.add0(minute) + ':' + this.add0(second)
-		},
+			uni.switchTab({ url: item.pagePath })
+		}
 	}
 }
 </script>
 
-<style scoped>
-@import '@/features/devices/styles/device-detail-layout.css';
-@import '@/features/devices/styles/device-detail.css';
+<style lang="scss">
+.device-detail-page {
+	--detail-primary: #1677ff;
+	--detail-text: #172033;
+	--detail-secondary: #748096;
+	--detail-border: #e8edf3;
+	--detail-canvas: #f6f8fb;
+	position: relative;
+	width: 100%;
+	max-width: 430px;
+	min-height: 100vh;
+	margin: 0 auto;
+	background: #ffffff;
+	color: var(--detail-text);
+}
+
+.safe-area-top { height: env(safe-area-inset-top); background: #ffffff; }
+.top-bar { display: flex; align-items: center; justify-content: space-between; height: 96rpx; padding: 0 20rpx; background: #ffffff; box-sizing: border-box; }
+.top-actions { display: flex; align-items: center; gap: 8rpx; }
+.top-action { display: flex; align-items: center; justify-content: center; width: 88rpx; height: 88rpx; border-radius: 16rpx; }
+.top-action--pressed, .inline-action--pressed, .detail-tab--pressed, .navigation-item--pressed { opacity: .56; }
+.top-action-icon { width: 48rpx; height: 48rpx; }
+.back-icon { width: 25rpx; height: 25rpx; border-left: 4rpx solid #172033; border-bottom: 4rpx solid #172033; transform: rotate(45deg); }
+.more-icon { display: flex; align-items: center; gap: 8rpx; }
+.more-dot { width: 7rpx; height: 7rpx; border-radius: 50%; background: #172033; }
+
+.page-scroll { height: calc(100vh - 96rpx - env(safe-area-inset-top) - 104rpx - env(safe-area-inset-bottom)); background: var(--detail-canvas); }
+.device-summary { display: flex; gap: 26rpx; padding: 20rpx 40rpx 38rpx; background: #ffffff; box-sizing: border-box; }
+.device-image-card { display: flex; align-items: center; justify-content: center; flex: 0 0 208rpx; height: 208rpx; margin-top: 4rpx; background: #ffffff; border: 2rpx solid var(--detail-border); border-radius: 22rpx; overflow: hidden; }
+.device-image { width: 176rpx; height: 176rpx; }
+.device-main { flex: 1; min-width: 0; }
+.title-line { display: flex; align-items: center; min-width: 0; min-height: 52rpx; gap: 14rpx; }
+.device-name { min-width: 0; overflow: hidden; color: var(--detail-text); font-size: 34rpx; font-weight: 650; line-height: 46rpx; white-space: nowrap; text-overflow: ellipsis; }
+.status-badge { display: flex; align-items: center; flex-shrink: 0; gap: 8rpx; color: #68758a; font-size: 24rpx; line-height: 34rpx; }
+.status-dot { width: 13rpx; height: 13rpx; border-radius: 50%; background: #a9b1be; }
+.status-badge--online { color: #263143; }
+.status-badge--online .status-dot { background: #08bf63; }
+.status-badge--offline .status-dot { background: #a9b1be; }
+.status-badge--unknown .status-dot { background: #f0a020; }
+
+.context-line { display: flex; align-items: center; min-width: 0; min-height: 42rpx; margin-top: 2rpx; overflow: hidden; }
+.context-text { flex-shrink: 1; min-width: 0; overflow: hidden; color: #657187; font-size: 26rpx; line-height: 38rpx; white-space: nowrap; text-overflow: ellipsis; }
+.context-divider { flex: 0 0 2rpx; width: 2rpx; height: 25rpx; margin: 0 12rpx; background: #cfd6e0; }
+.edit-action, .copy-action { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 64rpx; width: 64rpx; height: 64rpx; }
+.edit-icon { width: 20rpx; height: 6rpx; border: 3rpx solid #7c879a; border-radius: 3rpx; transform: rotate(-45deg); }
+
+.meta-list { display: flex; flex-direction: column; gap: 12rpx; margin-top: 22rpx; }
+.meta-row { display: grid; grid-template-columns: 106rpx minmax(0, 1fr); align-items: center; min-height: 32rpx; column-gap: 12rpx; }
+.meta-label { color: #657187; font-size: 24rpx; line-height: 34rpx; }
+.meta-value-group { display: flex; align-items: center; min-width: 0; }
+.meta-value { min-width: 0; overflow: hidden; color: #657187; font-size: 24rpx; line-height: 34rpx; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.meta-value--id { flex: 1; }
+.meta-value--time { overflow: visible; white-space: normal; }
+.copy-icon { position: absolute; width: 19rpx; height: 19rpx; border: 2rpx solid #7c879a; border-radius: 4rpx; box-sizing: border-box; }
+.copy-icon--back { margin: -7rpx 0 0 -7rpx; }
+.copy-icon--front { margin: 7rpx 0 0 7rpx; background: #ffffff; }
+
+.detail-panel { min-height: 720rpx; background: var(--detail-canvas); border-radius: 48rpx 48rpx 0 0; overflow: hidden; }
+.detail-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 80rpx; padding: 0 18rpx; background: #ffffff; border-bottom: 2rpx solid var(--detail-border); box-sizing: border-box; }
+.detail-tab { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; color: #566278; font-size: 28rpx; font-weight: 500; line-height: 40rpx; }
+.detail-tab--active { color: var(--detail-primary); font-weight: 600; }
+.tab-indicator { position: absolute; right: 24rpx; bottom: 0; left: 24rpx; height: 5rpx; border-radius: 5rpx 5rpx 0 0; background: var(--detail-primary); }
+.tab-content { min-height: 640rpx; background: var(--detail-canvas); }
+
+.bottom-navigation { position: fixed; z-index: 20; bottom: 0; left: 50%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; max-width: 430px; height: calc(104rpx + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: rgba(255, 255, 255, .98); border-top: 2rpx solid #edf0f4; box-sizing: border-box; transform: translateX(-50%); }
+.navigation-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5rpx; color: #7f8ca0; font-size: 19rpx; line-height: 26rpx; }
+.navigation-item--active { color: var(--detail-primary); }
+.navigation-icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; width: 48rpx; height: 48rpx; }
+.navigation-icon { width: 44rpx; height: 44rpx; }
+.navigation-icon--alarm { width: 42rpx; height: 42rpx; opacity: .55; }
+.navigation-badge { position: absolute; top: -2rpx; right: -2rpx; width: 13rpx; height: 13rpx; background: #ff3b30; border: 3rpx solid #ffffff; border-radius: 50%; }
+
+@media screen and (min-width: 768px) {
+	.device-detail-page { box-shadow: 0 0 0 1px #edf0f4; }
+}
 </style>
