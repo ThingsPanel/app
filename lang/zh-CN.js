@@ -258,6 +258,7 @@ export default {
     automation: {
       sceneLinkage: '场景联动',
       sceneManagement: '场景管理',
+      subtitle: '让设备按规则自动运行',
       addSceneLinkage: '新增场景联动',
       addScene: '新增场景',
       ruleDescription: '规则说明：',
@@ -265,6 +266,8 @@ export default {
       activate: '激活',
       start: '启动',
       stop: '停用',
+      running: '运行中',
+      disabled: '已停用',
       edit: '编辑',
       delete: '删除',
       more: '更多',
@@ -273,7 +276,10 @@ export default {
       confirmDeleteRecord: '确定要删除该条记录？',
       success: '操作成功',
       failed: '操作失败，请稍后再试',
-      noData: '暂无数据'
+      noData: '暂无数据',
+      emptyRuleTitle: '暂无场景联动',
+      emptySceneTitle: '暂无场景',
+      emptyDescription: '创建规则，让设备自动响应条件变化'
     },
     login: {
       title: '物联网平台',

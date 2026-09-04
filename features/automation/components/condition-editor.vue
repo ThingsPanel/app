@@ -15,100 +15,56 @@
               v-for="(ifItem, ifIndex) in ifGroupItem"
               :key="ifIndex"
               class="ifGroupItem-class mb-2 w-100% tp-mg-10 tp-flex tp-panel"
+              :class="{ 'has-relation': ifIndex !== 0 }"
             >
-              <view class="tp-flex-1 tp-flex">
-              <view class="tp-flex-1">
-                <view v-if="ifIndex !== 0" class="tp-box-sizing tp-mg-t-30 tp-mg-b-15 tp-mg-l-r-20  uni-bold">
-                    <text class="tag-class">{{ $t('pages.sceneAutomationEditor.and') }}</text>
+              <view v-if="ifIndex !== 0" class="relation-divider"><text>{{ $t('pages.sceneAutomationEditor.and') }}</text></view>
+              <view
+                v-if="!isConditionEditing(ifGroupIndex, ifIndex)"
+                class="automation-summary"
+                @tap="startConditionEdit(ifGroupIndex, ifIndex)"
+              >
+                <view class="summary-icon" :class="ifItem.ifType === '2' ? 'summary-icon-time' : 'summary-icon-device'">
+                  <uni-icons :type="ifItem.ifType === '2' ? 'calendar' : 'gear'" size="22" :color="ifItem.ifType === '2' ? '#1677FF' : '#12B76A'" />
                 </view>
+                <view class="summary-copy">
+                  <text class="summary-title">{{ getConditionSummary(ifItem).title }}</text>
+                  <text class="summary-line">{{ getConditionSummary(ifItem).subtitle }}</text>
+                  <text class="summary-line">{{ getConditionSummary(ifItem).detail }}</text>
+                </view>
+                <view class="summary-menu"><uni-icons type="more-filled" size="18" color="#172033" /></view>
+              </view>
+              <view v-show="isConditionEditing(ifGroupIndex, ifIndex)" class="condition-form-fields tp-flex-1 tp-flex">
+              <view class="tp-flex-1">
                 <!-- 条件类型下拉-->
                 <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                  <picker
-                    mode="selector"
-                    :range="getIfTypeOptions(ifGroupItem, ifIndex)"
-                    range-key="label"
-                    :value="getPickerIndex(getIfTypeOptions(ifGroupItem, ifIndex), ifItem.ifType, 'value')"
-                    @change="(e) => onIfTypePickerChange(e, ifItem)"
-                    class="tp-flex-1"
-                  >
-                    <view class="uni-input" :class="!ifItem.ifType && 'placeholder'">
-                      {{ getPickerDisplayText(getIfTypeOptions(ifGroupItem, ifIndex), ifItem.ifType, 'value', 'label') || $t('pages.sceneAutomationEditor.selectConditionType') }}
-                    </view>
-                  </picker>
-                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                  <CustomSelect v-model="ifItem.ifType" :options="getIfTypeOptions(ifGroupItem, ifIndex)" :placeholder="$t('pages.sceneAutomationEditor.selectConditionType')" @change="ifTypeChange(ifItem, $event)" />
                 </view>
                 <view v-if="ifItem.ifType === '1'" class="flex-1">
                   <!-- 设备条件类型下拉-->
                   <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                    <picker
-                      mode="selector"
-                      :range="deviceConditionOptions"
-                      range-key="label"
-                      :value="getPickerIndex(deviceConditionOptions, ifItem.trigger_conditions_type, 'value')"
-                      @change="(e) => onDeviceConditionTypePickerChange(e, ifItem)"
-                      class="tp-flex-1"
-                    >
-                      <view class="uni-input" :class="!ifItem.trigger_conditions_type && 'placeholder'">
-                        {{ getPickerDisplayText(deviceConditionOptions, ifItem.trigger_conditions_type, 'value', 'label') || $t('pages.sceneAutomationEditor.selectDeviceConditionType') }}
-                      </view>
-                    </picker>
-                    <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    <CustomSelect v-model="ifItem.trigger_conditions_type" :options="deviceConditionOptions" :placeholder="$t('pages.sceneAutomationEditor.selectDeviceConditionType')" @change="triggerConditionsTypeChange(ifItem, $event)" />
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '10'">
                     <!-- 选择设备-->
                     <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                      <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDevicePopup(ifItem, ifIndex)">
-                        <view class="uni-input" :class="!ifItem.trigger_source && 'placeholder'">
-                          {{ getDeviceDisplayText(ifItem.trigger_source) || $t('pages.sceneAutomationEditor.selectDevice') }}
-                        </view>
-                      </view>
-                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      <CustomSelect v-model="ifItem.trigger_source" :options="deviceOptions" option-value="id" option-label="name" searchable :placeholder="$t('pages.sceneAutomationEditor.selectDevice')" @change="triggerSourceChanged(ifItem, ifIndex)" />
                     </view>
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '11'">
                     <!-- 选择设备类型-->
                     <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                      <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDeviceConfigPopup(ifItem, ifIndex)">
-                        <view class="uni-input" :class="!ifItem.trigger_source && 'placeholder'">
-                          {{ getDeviceConfigDisplayText(ifItem.trigger_source) || $t('pages.sceneAutomationEditor.selectDeviceType') }}
-                        </view>
-                      </view>
-                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      <CustomSelect v-model="ifItem.trigger_source" :options="deviceConfigOption" option-value="id" option-label="name" searchable :placeholder="$t('pages.sceneAutomationEditor.selectDeviceType')" @change="triggerSourceChanged(ifItem, ifIndex)" />
                     </view>
                   </view>
                   <view v-if="ifItem.trigger_source">
                     <!-- 选择触发参数-->
                     <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                      <picker
-                        mode="selector"
-                        :range="ifItem.triggerParamFlattenedOptions || []"
-                        range-key="fullLabel"
-                        :value="getPickerIndex(ifItem.triggerParamFlattenedOptions || [], ifItem.trigger_param_key, 'key')"
-                        @change="(e) => onTriggerParamPickerChange(e, ifItem)"
-                        class="tp-flex-1"
-                      >
-                        <view class="uni-input" :class="!ifItem.trigger_param_key && 'placeholder'">
-                          {{ getPickerDisplayText(ifItem.triggerParamFlattenedOptions || [], ifItem.trigger_param_key, 'key', 'fullLabel') || $t('pages.sceneAutomationEditor.selectParameter') }}
-                        </view>
-                      </picker>
-                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      <CustomSelect v-model="ifItem.trigger_param_key" :options="ifItem.triggerParamFlattenedOptions || []" option-value="key" option-label="fullLabel" :placeholder="$t('pages.sceneAutomationEditor.selectParameter')" @change="triggerParamChange(ifItem, $event)" />
                     </view>
                     <view v-if="ifItem.trigger_param_type === 'telemetry' || ifItem.trigger_param_type === 'attributes'">
                       <!-- 选择操作符-->
                       <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                        <picker
-                          mode="selector"
-                          :range="determineOptions"
-                          range-key="label"
-                          :value="getPickerIndex(determineOptions, ifItem.trigger_operator, 'value')"
-                          @change="(e) => onTriggerOperatorPickerChange(e, ifItem)"
-                          class="tp-flex-1"
-                        >
-                          <view class="uni-input" :class="!ifItem.trigger_operator && 'placeholder'">
-                            {{ getPickerDisplayText(determineOptions, ifItem.trigger_operator, 'value', 'label') || $t('pages.sceneAutomationEditor.selectOperator') }}
-                          </view>
-                        </picker>
-                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                        <CustomSelect v-model="ifItem.trigger_operator" :options="determineOptions" :placeholder="$t('pages.sceneAutomationEditor.selectOperator')" />
                       </view>
                       <view v-if="ifItem.trigger_operator === 'in'">
                         <!-- 输入范围值-->
@@ -126,7 +82,8 @@
                     </view>
                     <view v-if="ifItem.trigger_param_type === 'event'">
                       <!-- 输入事件参数-->
-                      <input v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneAutomationEditor.eventParamExample')" class="uni-input" @blur="() => actionValueChange(ifItem)" />
+                      <textarea v-model="ifItem.trigger_value" :placeholder="$t('pages.sceneAutomationEditor.eventParamExample')" class="automation-json-input" auto-height @blur="() => actionValueChange(ifItem)" />
+                      <text v-if="ifItem.inputFeedback" class="field-error">{{ ifItem.inputFeedback }}</text>
                     </view>
                   </view>
                 </view>
@@ -134,77 +91,34 @@
                 <view v-if="ifItem.ifType === '2'" class="flex-1">
                   <!-- 时间条件类型下拉-->
                   <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                    <picker
-                      mode="selector"
-                      :range="getTimeConditionOptions(ifGroupItem)"
-                      range-key="label"
-                      :value="getPickerIndex(getTimeConditionOptions(ifGroupItem), ifItem.trigger_conditions_type, 'value')"
-                      @change="(e) => onTimeConditionTypePickerChange(e, ifItem)"
-                      class="tp-flex-1"
-                    >
-                      <view class="uni-input" :class="!ifItem.trigger_conditions_type && 'placeholder'">
-                        {{ getPickerDisplayText(getTimeConditionOptions(ifGroupItem), ifItem.trigger_conditions_type, 'value', 'label') || $t('pages.sceneAutomationEditor.selectTimeConditionType') }}
-                      </view>
-                    </picker>
-                    <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                    <CustomSelect v-model="ifItem.trigger_conditions_type" :options="getTimeConditionOptions(ifGroupItem)" :placeholder="$t('pages.sceneAutomationEditor.selectTimeConditionType')" @change="triggerConditionsTypeChange(ifItem, $event)" />
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '20'">
-                    <uni-datetime-picker
-                      v-model="ifItem.onceTimeValue"
-                      type="datetime"
-                      return-type="timestamp"
-                      format="yyyy-MM-dd HH:mm"
-                      :clear-icon="false"
-                      :placeholder="$t('pages.sceneAutomationEditor.selectDateTime')"
-                      :fields="['year', 'month', 'day', 'hour', 'minute']"
-                      :hide-second="true"
-                    />
+                    <view class="datetime-form-row">
+                      <text class="datetime-label">执行时间</text>
+                      <view class="datetime-control">
+                        <AutomationDatetimeSheet
+                          v-model="ifItem.onceTimeValue"
+                          :placeholder="$t('pages.sceneAutomationEditor.selectDateTime')"
+                        />
+                      </view>
+                    </view>
                     <!-- 过期时间-->
                     <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                      <picker
-                        mode="selector"
-                        :range="expirationTimeOptions"
-                        range-key="label"
-                        :value="getPickerIndex(expirationTimeOptions, ifItem.expiration_time, 'value')"
-                        @change="(e) => onExpirationTimePickerChange(e, ifItem)"
-                        class="tp-flex-1"
-                      >
-                        <view class="uni-input" :class="!ifItem.expiration_time && 'placeholder'">
-                          {{ getPickerDisplayText(expirationTimeOptions, ifItem.expiration_time, 'value', 'label') || $t('pages.sceneAutomationEditor.selectExpirationTime') }}
-                        </view>
-                      </picker>
-                      <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                      <CustomSelect v-model="ifItem.expiration_time" :options="expirationTimeOptions" :placeholder="$t('pages.sceneAutomationEditor.selectExpirationTime')" />
                     </view>
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '21'">
                     <!-- 时间条件下 -> 重复 -> 选择周期 -->
                     <view class="form-item">
                       <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                        <picker
-                          mode="selector"
-                          :range="cycleOptions"
-                          range-key="label"
-                          :value="getPickerIndex(cycleOptions, ifItem.task_type, 'value')"
-                          @change="(e) => onCyclePickerChange(e, ifItem)"
-                          class="tp-flex-1"
-                        >
-                          <view class="uni-input" :class="!ifItem.task_type && 'placeholder'">
-                            {{ getPickerDisplayText(cycleOptions, ifItem.task_type, 'value', 'label') || $t('pages.sceneAutomationEditor.selectCycle') }}
-                          </view>
-                        </picker>
-                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                        <CustomSelect v-model="ifItem.task_type" :options="cycleOptions" :placeholder="$t('pages.sceneAutomationEditor.selectCycle')" @change="cycleChange(ifItem, $event)" />
                       </view>
                     </view>
 
                     <!-- 每小时 -> 选择分 -->
                     <view v-if="ifItem.task_type === 'HOUR'" class="form-item">
-                      <picker
-                        mode="time"
-                        :value="formatMinuteTime(ifItem.hourTimeValue)"
-                        @change="(e) => onHourTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatMinuteTime(ifItem.hourTimeValue) || $t('pages.sceneAutomationEditor.selectMinute') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.hourTimeValue" minute-only :placeholder="$t('pages.sceneAutomationEditor.selectMinute')" title="选择分钟" />
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
@@ -214,13 +128,7 @@
 
                     <!-- 每天 -> 选择时分秒 -->
                     <view v-if="ifItem.task_type === 'DAY'" class="form-item">
-                      <picker
-                        mode="time"
-                        :value="formatTime(ifItem.dayTimeValue)"
-                        @change="(e) => onDayTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatTime(ifItem.dayTimeValue) || $t('pages.sceneAutomationEditor.selectTime') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.dayTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectTime')" />
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
@@ -245,13 +153,7 @@
                           </label>
                         </view>
                       </checkbox-group>
-                      <picker
-                        mode="time"
-                        :value="formatTime(ifItem.weekTimeValue)"
-                        @change="(e) => onWeekTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatTime(ifItem.weekTimeValue) || $t('pages.sceneAutomationEditor.selectTime') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.weekTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectTime')" />
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
@@ -262,27 +164,9 @@
                     <!-- 每月 -> 选择日期和时间 -->
                     <view v-if="ifItem.task_type === 'MONTH'" class="form-item">
                       <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                        <picker
-                          mode="selector"
-                          :range="monthRangeOptions"
-                          range-key="label"
-                          :value="getPickerIndex(monthRangeOptions, ifItem.monthChoseValue, 'value')"
-                          @change="(e) => onMonthChoseValuePickerChange(e, ifItem)"
-                          class="tp-flex-1"
-                        >
-                          <view class="uni-input" :class="!ifItem.monthChoseValue && 'placeholder'">
-                            {{ getPickerDisplayText(monthRangeOptions, ifItem.monthChoseValue, 'value', 'label') || $t('pages.sceneAutomationEditor.selectDate') }}
-                          </view>
-                        </picker>
-                        <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                        <CustomSelect v-model="ifItem.monthChoseValue" :options="monthRangeOptions" :placeholder="$t('pages.sceneAutomationEditor.selectDate')" />
                       </view>
-                      <picker
-                        mode="time"
-                        :value="formatTime(ifItem.monthTimeValue)"
-                        @change="(e) => onMonthTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatTime(ifItem.monthTimeValue) || $t('pages.sceneAutomationEditor.selectTime') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.monthTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectTime')" />
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
@@ -318,47 +202,33 @@
                     </checkbox-group>
 
                     <view class="time-range">
-                      <picker
-                        mode="time"
-                        :value="formatTime(ifItem.startTimeValue)"
-                        @change="(e) => onStartTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatTime(ifItem.startTimeValue) || $t('pages.sceneAutomationEditor.selectStartTime') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.startTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectStartTime')" title="开始时间" />
                       <view class="time-range-divider">-</view>
-                      <picker
-                        mode="time"
-                        :value="formatTime(ifItem.endTimeValue)"
-                        @change="(e) => onEndTimeChange(e, ifItem)"
-                      >
-                        <view class="uni-input">{{ formatTime(ifItem.endTimeValue) || $t('pages.sceneAutomationEditor.selectEndTime') }}</view>
-                      </picker>
+                      <AutomationTimeSheet v-model="ifItem.endTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectEndTime')" title="结束时间" />
                     </view>
                   </view>
                   <!-- 其他时间条件类型的处理，省略 -->
                 </view>
               </view>
               </view>
-              <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+              <view
+                v-if="isConditionEditing(ifGroupIndex, ifIndex) || ifIndex === ifGroupItem.length - 1"
+                class="condition-card-controls tp-flex"
+              >
                 <!-- 条件数量大于1条时才允许删除 -->
-                <uni-icons 
-                  v-if="ifIndex !== 0"
-                  class="tp-mg-t-b-10"
-                  type="minus" 
-                  size="40rpx" 
-                  color="red"
+                <text
+                  v-if="isConditionEditing(ifGroupIndex, ifIndex) && ifIndex !== 0"
+                  class="editor-action editor-action-danger"
                   @click="deleteIfGroupsSubItem(ifGroupIndex, ifIndex)"
-                ></uni-icons>
+                >{{ $t('common.delete') }}</text>
                 
                 <!-- 仅最后一个显示新增 -->
-                <uni-icons
-                  v-if="ifIndex === ifGroupItem.length - 1"
-                  class="tp-mg-t-b-10"
-                  type="plus" 
-                  size="40rpx"
-                  color="#4CAF50"
-                  @click="addIfGroupsSubItem(ifGroupIndex)"
-                ></uni-icons>
+                <text v-if="isConditionEditing(ifGroupIndex, ifIndex)" class="editor-action" @click="finishConditionEdit">{{ $t('common.confirm') }}</text>
+                <view
+                  v-else
+                  class="add-summary-row"
+                  @click.stop="addIfGroupsSubItem(ifGroupIndex)"
+                >＋ 添加条件</view>
               </view>
               <!-- 操作按钮 
               <view class="button-group">
@@ -376,99 +246,14 @@
           <!-- <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
             <button v-if="ifGroupIndex > 0" @click.prevent="deleteIfGroupsItem(ifGroupIndex)" class="tp-btn uni-button--warn">删除条件组</button>
           </view> -->
-          <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
-            <!-- 条件数量大于1条时才允许删除 -->
-            <uni-icons 
-              v-if="premiseForm.ifGroups.length > 1"
-              class="tp-mg-t-b-10"
-              type="minus" 
-              size="40rpx" 
-              color="red"
-              @click="deleteIfGroupsItem(ifGroupIndex)"
-            ></uni-icons>
-            
-            <!-- 仅最后一个显示新增 -->
-            <uni-icons
-              v-if="ifGroupIndex === premiseForm.ifGroups.length - 1"
-              class="tp-mg-t-b-10"
-              type="plus" 
-              size="40rpx"
-              color="#4CAF50"
-              @click="addIfGroupItem(null)"
-            ></uni-icons>
-          </view>
         </view>
+        <view v-if="premiseForm.ifGroups.length === 0" class="empty-add-card" @click="addIfGroupItem(null)">＋ 添加条件</view>
         <!--
         <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
             <button @click.prevent="addIfGroupItem(null)" class="tp-btn">新增条件组</button>
         </view> -->
       </form>
       
-      <!-- 设备选择弹窗（带搜索） -->
-      <uni-popup ref="devicePopup" type="bottom" backgroundColor="#fff">
-        <view class="popup-header">
-          <view class="popup-title">{{ $t('pages.sceneAutomationEditor.selectDevice') }}</view>
-          <view class="popup-close" @tap="closeDevicePopup">
-            <uni-icons type="close" size="24" color="#333"></uni-icons>
-          </view>
-        </view>
-        <view class="popup-search">
-          <input 
-            class="search-input" 
-            :placeholder="$t('common.search')" 
-            v-model="deviceSearchKeyword"
-            @input="onDeviceSearchInput"
-          />
-        </view>
-        <scroll-view class="scroll-view-equipment" :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
-          <view class="selectlist">
-            <view 
-              class="select_item" 
-              v-for="(item, index) in filteredDeviceOptions" 
-              :key="index"
-              @click="onDeviceSelect(item)"
-            >
-              {{ item.name }}
-            </view>
-            <view v-if="filteredDeviceOptions.length === 0" class="select_item empty">
-              {{ $t('common.noData') }}
-            </view>
-          </view>
-        </scroll-view>
-      </uni-popup>
-      
-      <!-- 设备类型选择弹窗（带搜索） -->
-      <uni-popup ref="deviceConfigPopup" type="bottom" backgroundColor="#fff">
-        <view class="popup-header">
-          <view class="popup-title">{{ $t('pages.sceneAutomationEditor.selectDeviceType') }}</view>
-          <view class="popup-close" @tap="closeDeviceConfigPopup">
-            <uni-icons type="close" size="24" color="#333"></uni-icons>
-          </view>
-        </view>
-        <view class="popup-search">
-          <input 
-            class="search-input" 
-            :placeholder="$t('common.search')" 
-            v-model="deviceConfigSearchKeyword"
-            @input="onDeviceConfigSearchInput"
-          />
-        </view>
-        <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
-          <view class="selectlist">
-            <view 
-              class="select_item" 
-              v-for="(item, index) in filteredDeviceConfigOptions" 
-              :key="index"
-              @click="onDeviceConfigSelect(item)"
-            >
-              {{ item.name }}
-            </view>
-            <view v-if="filteredDeviceConfigOptions.length === 0" class="select_item empty">
-              {{ $t('common.noData') }}
-            </view>
-          </view>
-        </scroll-view>
-      </uni-popup>
     </view>
   </template>
   
@@ -479,12 +264,15 @@
     deviceListAll,
     deviceMetricsConditionMenu
   } from '@/api/modules/automation';
+  import CustomSelect from '@/components/custom-select.vue';
+  import AutomationTimeSheet from './automation-time-sheet.vue';
+  import AutomationDatetimeSheet from './automation-datetime-sheet.vue';
   
   export default {
-    components: {
-    },
+    components: { CustomSelect, AutomationTimeSheet, AutomationDatetimeSheet },
     data() {
       return {
+        editingConditionKey: '',
         premiseFormRef: null,
         premiseForm: {
           ifGroups: []
@@ -702,7 +490,7 @@
           },
           {
             label: this.$t('pages.sceneAutomationEditor.oneDay'),
-            value: 1140
+            value: 1440
           }
         ],
         cycleOptions: [
@@ -724,16 +512,6 @@
           label: String(i + 1),
           value: String(i + 1),
         })),
-        // 设备选择弹窗相关
-        deviceSearchKeyword: '',
-        filteredDeviceOptions: [],
-        currentDeviceIfItem: null,
-        currentDeviceIfIndex: null,
-        // 设备类型选择弹窗相关
-        deviceConfigSearchKeyword: '',
-        filteredDeviceConfigOptions: [],
-        currentDeviceConfigIfItem: null,
-        currentDeviceConfigIfIndex: null,
       };
     },
     computed: {
@@ -756,6 +534,93 @@
       }
     },
     methods: {
+      conditionKey(groupIndex, itemIndex) {
+        return `${groupIndex}-${itemIndex}`;
+      },
+      isConditionEditing(groupIndex, itemIndex) {
+        return this.editingConditionKey === this.conditionKey(groupIndex, itemIndex);
+      },
+      startConditionEdit(groupIndex, itemIndex) {
+        this.editingConditionKey = this.conditionKey(groupIndex, itemIndex);
+      },
+      finishConditionEdit() {
+        this.editingConditionKey = '';
+      },
+      getConditionSummary(item) {
+        if (!item || !item.ifType) {
+          return {
+            title: this.$t('pages.sceneAutomationEditor.selectConditionType'),
+            subtitle: '点击配置触发条件',
+            detail: '设备、时间或状态变化'
+          };
+        }
+        if (item.ifType === '2') {
+          return this.getTimeConditionSummary(item);
+        }
+        const source = item.trigger_conditions_type === '11'
+          ? this.getDeviceConfigDisplayText(item.trigger_source)
+          : this.getDeviceDisplayText(item.trigger_source);
+        const rawParam = this.getPickerDisplayText(
+          item.triggerParamFlattenedOptions || [],
+          item.trigger_param_key,
+          'key',
+          'fullLabel'
+        ) || item.trigger_param || '请选择参数';
+        const param = this.formatConditionParam(rawParam);
+        const operator = this.getPickerDisplayText(this.determineOptions, item.trigger_operator, 'value', 'label');
+        let value = item.trigger_value ?? '';
+        if (item.trigger_operator === 'between') value = `${item.minValue ?? ''} - ${item.maxValue ?? ''}`;
+        return {
+          title: item.trigger_param_type === 'event' ? '设备事件' : this.$t('pages.sceneAutomationEditor.deviceCondition'),
+          subtitle: source || (item.trigger_conditions_type === '11' ? '请选择设备类型' : '请选择设备'),
+          detail: [param, operator, value].filter(Boolean).join('  ') || '请完成条件配置'
+        };
+      },
+      formatConditionParam(value) {
+        const text = String(value || '').trim();
+        const leaf = text.includes('/') ? text.split('/').pop() : text;
+        const labelMatch = leaf.match(/\(([^()]+)\)$/);
+        return labelMatch ? labelMatch[1] : leaf;
+      },
+      getTimeConditionSummary(item) {
+        const expiration = this.getPickerDisplayText(this.expirationTimeOptions, item.expiration_time, 'value', 'label');
+        if (item.trigger_conditions_type === '20') {
+          const date = item.onceTimeValue ? new Date(item.onceTimeValue) : null;
+          return {
+            title: this.$t('pages.sceneAutomationEditor.singleTime'),
+            subtitle: date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : '请选择日期',
+            detail: [date ? this.formatTime(item.onceTimeValue) : '', expiration].filter(Boolean).join(' · ') || '请完成时间配置'
+          };
+        }
+        if (item.trigger_conditions_type === '22') {
+          return {
+            title: this.$t('pages.sceneAutomationEditor.timeRange'),
+            subtitle: this.formatWeekSummary(item.weekChoseValue),
+            detail: `${this.formatTime(item.startTimeValue) || '--:--'} - ${this.formatTime(item.endTimeValue) || '--:--'}`
+          };
+        }
+        const cycle = this.getPickerDisplayText(this.cycleOptions, item.task_type, 'value', 'label') || this.$t('pages.sceneAutomationEditor.repeat');
+        let time = '';
+        if (item.task_type === 'HOUR') time = item.hourTimeValue ? `第 ${this.formatMinuteTime(item.hourTimeValue)} 分钟` : '';
+        if (item.task_type === 'DAY') time = this.formatTime(item.dayTimeValue);
+        if (item.task_type === 'WEEK') time = `${this.formatWeekSummary(item.weekChoseValue)} ${this.formatTime(item.weekTimeValue)}`.trim();
+        if (item.task_type === 'MONTH') time = item.monthChoseValue ? `每月 ${item.monthChoseValue} 日 ${this.formatTime(item.monthTimeValue)}` : '';
+        return {
+          title: this.$t('pages.sceneAutomationEditor.repeat'),
+          subtitle: cycle,
+          detail: [time, expiration].filter(Boolean).join(' · ') || '请完成时间配置'
+        };
+      },
+      formatWeekSummary(values = []) {
+        if (!Array.isArray(values) || values.length === 0) return '请选择星期';
+        const normalized = values.map(String).sort();
+        if (normalized.join('') === '12345') return '周一至周五';
+        if (normalized.join('') === '1234567') return '每天';
+        return normalized.map(value => {
+          const option = this.weekOptions.find(item => String(item.value) === value);
+          return option ? option.label : value;
+        }).join('、');
+      },
       getIfTypeOptions(ifGroup, ifIndex) {
         const options = [
           {
@@ -796,12 +661,18 @@
         ifItem.trigger_value = null;
         ifItem.minValue = null;
         ifItem.maxValue = null;
+        ifItem.task_type = null;
         this.deviceConfigDisabled = false;
   
         if (value === '11') {
           this.deviceConfigDisabled = true;
         }
         this.$emit('conditionChose', value);
+        this.$forceUpdate();
+      },
+      cycleChange(ifItem, value) {
+        this.handleCycleChange(ifItem, value);
+        ifItem.task_type = value;
         this.$forceUpdate();
       },
       async getDevice(groupId, name) {
@@ -813,7 +684,6 @@
         this.btnloading = true;
         this.deviceOptions = res.data || [];
         // 更新过滤列表
-        this.filteredDeviceOptions = [...this.deviceOptions];
         // 数据加载完成后强制更新视图，确保回显正确
         this.$nextTick(() => {
           this.$forceUpdate();
@@ -829,6 +699,10 @@
         ifItem.maxValue = null;
         this.selectInstRef[ifIndex] = false;
       },
+      triggerSourceChanged(ifItem, ifIndex) {
+        this.triggerSourceChange(ifItem, ifIndex);
+        this.actionParamShow(ifItem, true);
+      },
       handleFocus(ifIndex) {
         this.queryDeviceName[ifIndex].focus();
       },
@@ -837,7 +711,6 @@
         const res = await deviceConfigAll(this.queryDeviceConfig);
         this.deviceConfigOption = res.data || [];
         // 更新过滤列表
-        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
         // 数据加载完成后强制更新视图，确保回显正确
         this.$nextTick(() => {
           this.$forceUpdate();
@@ -1007,6 +880,7 @@
                 icon: 'none'
               });
               ifItem.inputValidationStatus = 'error';
+              ifItem.inputFeedback = this.$t('pages.sceneAutomationEditor.jsonFormat');
             }
           } catch (e) {
             uni.showToast({
@@ -1014,11 +888,13 @@
               icon: 'none'
             });
             ifItem.inputValidationStatus = 'error';
+            ifItem.inputFeedback = this.$t('pages.sceneAutomationEditor.jsonFormat');
           }
         }
       },
       addIfGroupsSubItem(ifGroupIndex) {
         this.premiseForm.ifGroups[ifGroupIndex].push(JSON.parse(JSON.stringify(this.judgeItem)));
+        this.$nextTick(() => this.startConditionEdit(ifGroupIndex, this.premiseForm.ifGroups[ifGroupIndex].length - 1));
       },
       deleteIfGroupsSubItem(ifGroupIndex, ifIndex) {
         this.premiseForm.ifGroups[ifGroupIndex].splice(ifIndex, 1);
@@ -1037,6 +913,7 @@
           groupObj.push(data);
           this.premiseForm.ifGroups.push(groupObj);
         }
+        this.$nextTick(() => this.startConditionEdit(this.premiseForm.ifGroups.length - 1, 0));
       },
       onWeekChoseValueChange(e, ifItem) {
         ifItem.weekChoseValue = e.detail.value;
@@ -1075,6 +952,58 @@
       },
       ifGroupsData() {
         return this.premiseForm.ifGroups;
+      },
+      isConditionComplete(item) {
+        if (!item || !item.ifType || !item.trigger_conditions_type) return false;
+        if (item.ifType === '1') {
+          if (!item.trigger_source || !item.trigger_param_type || !item.trigger_param) return false;
+          if (item.trigger_param_type === 'status') return true;
+          if (item.trigger_param_type === 'event') {
+            try {
+              const eventValue = JSON.parse(String(item.trigger_value || ''));
+              return eventValue !== null && typeof eventValue === 'object';
+            } catch (_error) {
+              return false;
+            }
+          }
+          if (!item.trigger_operator) return false;
+          if (item.trigger_operator === 'between') {
+            return item.minValue !== null && item.minValue !== '' && item.maxValue !== null && item.maxValue !== '';
+          }
+          return item.trigger_value !== null && item.trigger_value !== undefined && item.trigger_value !== '';
+        }
+        if (item.trigger_conditions_type === '20') {
+          return Boolean(item.onceTimeValue && item.expiration_time);
+        }
+        if (item.trigger_conditions_type === '21') {
+          if (!item.task_type || !item.expiration_time) return false;
+          if (item.task_type === 'HOUR') return Boolean(item.hourTimeValue);
+          if (item.task_type === 'DAY') return Boolean(item.dayTimeValue);
+          if (item.task_type === 'WEEK') return Boolean(item.weekChoseValue?.length && item.weekTimeValue);
+          if (item.task_type === 'MONTH') return Boolean(item.monthChoseValue && item.monthTimeValue);
+          return false;
+        }
+        if (item.trigger_conditions_type === '22') {
+          return Boolean(item.weekChoseValue?.length && item.startTimeValue && item.endTimeValue);
+        }
+        return false;
+      },
+      validateConditions() {
+        const groups = this.premiseForm.ifGroups;
+        if (!Array.isArray(groups) || groups.length === 0) return '请至少添加一个条件';
+        for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
+          const group = groups[groupIndex];
+          if (!Array.isArray(group) || group.length === 0) return `请完成第 ${groupIndex + 1} 组条件`;
+          const invalidIndex = group.findIndex(item => !this.isConditionComplete(item));
+          if (invalidIndex !== -1) {
+            this.startConditionEdit(groupIndex, invalidIndex);
+            return `请完成第 ${groupIndex + 1} 组第 ${invalidIndex + 1} 个条件`;
+          }
+          if (group.every(item => item.trigger_conditions_type === '22')) {
+            return '同一条件组不能全部为时间范围';
+          }
+        }
+        return true;
       },
       // Picker 相关方法
       getPickerIndex(options, value, valueKey = 'value') {
@@ -1211,76 +1140,6 @@
         ifItem.monthChoseValue = selectedValue;
         this.$forceUpdate();
       },
-      // 设备选择弹窗相关方法
-      showDevicePopup(ifItem, ifIndex) {
-        this.currentDeviceIfItem = ifItem;
-        this.currentDeviceIfIndex = ifIndex;
-        this.deviceSearchKeyword = '';
-        this.filteredDeviceOptions = [...this.deviceOptions];
-        this.$refs.devicePopup.open();
-      },
-      closeDevicePopup() {
-        this.$refs.devicePopup.close();
-        this.currentDeviceIfItem = null;
-        this.currentDeviceIfIndex = null;
-        this.deviceSearchKeyword = '';
-      },
-      onDeviceSelect(device) {
-        if (this.currentDeviceIfItem) {
-          this.currentDeviceIfItem.trigger_source = device.id;
-          this.triggerSourceChange(this.currentDeviceIfItem, this.currentDeviceIfIndex);
-          this.actionParamShow(this.currentDeviceIfItem, true);
-          this.$nextTick(() => {
-            this.$forceUpdate();
-          });
-        }
-        this.closeDevicePopup();
-      },
-      onDeviceSearchInput() {
-        const keyword = this.deviceSearchKeyword.toLowerCase().trim();
-        if (!keyword) {
-          this.filteredDeviceOptions = [...this.deviceOptions];
-        } else {
-          this.filteredDeviceOptions = this.deviceOptions.filter(device => 
-            device.name && device.name.toLowerCase().includes(keyword)
-          );
-        }
-      },
-      // 设备类型选择弹窗相关方法
-      showDeviceConfigPopup(ifItem, ifIndex) {
-        this.currentDeviceConfigIfItem = ifItem;
-        this.currentDeviceConfigIfIndex = ifIndex;
-        this.deviceConfigSearchKeyword = '';
-        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
-        this.$refs.deviceConfigPopup.open();
-      },
-      closeDeviceConfigPopup() {
-        this.$refs.deviceConfigPopup.close();
-        this.currentDeviceConfigIfItem = null;
-        this.currentDeviceConfigIfIndex = null;
-        this.deviceConfigSearchKeyword = '';
-      },
-      onDeviceConfigSelect(deviceConfig) {
-        if (this.currentDeviceConfigIfItem) {
-          this.currentDeviceConfigIfItem.trigger_source = deviceConfig.id;
-          this.triggerSourceChange(this.currentDeviceConfigIfItem, this.currentDeviceConfigIfIndex);
-          this.actionParamShow(this.currentDeviceConfigIfItem, true);
-          this.$nextTick(() => {
-            this.$forceUpdate();
-          });
-        }
-        this.closeDeviceConfigPopup();
-      },
-      onDeviceConfigSearchInput() {
-        const keyword = this.deviceConfigSearchKeyword.toLowerCase().trim();
-        if (!keyword) {
-          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
-        } else {
-          this.filteredDeviceConfigOptions = this.deviceConfigOption.filter(deviceConfig => 
-            deviceConfig.name && deviceConfig.name.toLowerCase().includes(keyword)
-          );
-        }
-      }
     },
     watch: {
       conditionData(newValue) {
@@ -1348,7 +1207,111 @@
   @import '@/features/automation/styles/forms.css';
   .ifGroupItem-class {
     position: relative;
+    display: block !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    overflow: visible;
+    border: 2rpx solid #edf0f3;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
   }
+
+  .ifGroupItem-class.has-relation { margin-top: 36px !important; }
+  .relation-divider {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -28px;
+    display: flex;
+    align-items: center;
+    gap: 18rpx;
+    color: #667085;
+    font-size: 13px;
+  }
+  .relation-divider::before,
+  .relation-divider::after { content: ''; flex: 1; height: 1rpx; background: #d0d5dd; }
+
+  .automation-summary {
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 12px;
+  }
+
+  .summary-icon {
+    display: flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: 1px;
+    border-radius: 50%;
+  }
+
+  .summary-icon-time { background: #eef5ff; }
+  .summary-icon-device { background: #eaf9f3; }
+
+  .summary-copy {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .summary-title,
+  .summary-line {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .summary-title { color: #172033; font-size: 14px; font-weight: 600; line-height: 19px; }
+  .summary-line { color: #667085; font-size: 12px; line-height: 16px; }
+  .summary-menu { display:flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; margin:-6px -10px 0 0; box-sizing:border-box; }
+
+  .condition-form-fields { padding: 0 12px; }
+
+  form > .tp-flex { flex-direction: column; }
+
+  .condition-card-controls {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 32rpx;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .condition-card-controls {
+    padding: 0 10px;
+    border-top: 1rpx solid #edf0f3;
+  }
+
+  .editor-action { display:flex; align-items:center; min-height:44px; color:#1677ff; font-size:14px; }
+  .editor-action-danger { color: #ff3b30; }
+  .add-summary-row,
+  .empty-add-card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    color: #1677ff;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .empty-add-card { overflow:hidden; border:2rpx solid #edf0f3; border-radius:10px; background:#fff; box-shadow:0 1px 4px rgba(34,46,66,.035); }
   
   .tag-class {
     position: absolute;
@@ -1357,7 +1320,8 @@
   
   .picker {
     padding: 10px;
-    border: 1px solid #ccc;
+    border: 2rpx solid #dfe4eb;
+    border-radius: 16rpx;
   }
   
   .button-group {
@@ -1365,13 +1329,21 @@
   }
   
   .uni-button--warn {
-    background-color: #f56c6c;
+    background-color: #ff3b30;
     color: #fff;
   }
   
   .picker-wrapper {
     position: relative;
+    min-height: 44px;
+    border-bottom: 1rpx solid #edf0f3;
   }
+
+  .datetime-form-row { display:flex; align-items:center; box-sizing:border-box; width:100%; min-height:48px; padding:0 2px; gap:8px; border-bottom:1px solid #edf0f3; }
+  .datetime-label { flex:0 0 78px; color:#172033; font-size:13px; font-weight:500; line-height:18px; }
+  .datetime-control { flex:1; min-width:0; }
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#172033; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
+  .field-error { display:block; margin:-4px 0 8px; color:#ff3b30; font-size:12px; line-height:17px; }
   
   .picker-wrapper picker {
     flex: 1;
@@ -1383,7 +1355,7 @@
   }
   
   .placeholder {
-    color: #999;
+    color: #98a2b3;
   }
   
   /* 弹窗样式 */
@@ -1392,13 +1364,13 @@
     justify-content: space-between;
     align-items: center;
     padding: 30rpx;
-    border-bottom: 1px solid #eee;
+    border-bottom: 2rpx solid #edf0f3;
   }
   
   .popup-title {
     font-size: 32rpx;
     font-weight: 600;
-    color: #333;
+    color: #172033;
   }
   
   .popup-close {
@@ -1407,14 +1379,14 @@
   
   .popup-search {
     padding: 20rpx 30rpx;
-    border-bottom: 1px solid #eee;
+    border-bottom: 2rpx solid #edf0f3;
   }
   
   .search-input {
     width: 100%;
     height: 80rpx;
-    border: 1px solid #ddd;
-    border-radius: 8rpx;
+    border: 2rpx solid #dfe4eb;
+    border-radius: 16rpx;
     box-sizing: border-box;
     font-size: 28rpx;
     padding-left: 30rpx;
@@ -1425,18 +1397,18 @@
   }
   
   .select_item {
-    border-bottom: 1px solid #f0f0f0;
+    border-bottom: 2rpx solid #edf0f3;
     font-size: 28rpx;
-    color: #333;
+    color: #172033;
   }
   
   .select_item:active {
-    background-color: #f5f5f5;
+    background-color: #f7faff;
   }
   
   .select_item.empty {
     text-align: center;
-    color: #999;
+    color: #98a2b3;
   }
 
 .checkbox-space {
@@ -1472,6 +1444,17 @@
   width: 40rpx;
   color: #1e293b;
 }
+
+.popup-grabber { width:36px; height:4px; margin:8px auto 2px; background:#d0d5dd; border-radius:2px; }
+.popup-header { box-sizing:border-box; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
+.popup-title { color:#172033; font-size:16px; font-weight:600; }
+.popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
+.popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
+.search-input { height:40px; padding:0 10px; color:#172033; font-size:13px; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; }
+.select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#172033; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
+.select_item:active { color:#1677ff; background:#f7faff; }
+.select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
+::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
 
 ::v-deep .search-input .uni-input-input {
   padding: 16rpx 30rpx;

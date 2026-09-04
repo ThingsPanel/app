@@ -1,11 +1,19 @@
 <template>
   <view class="pagehome">
+    <view class="editor-nav">
+      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="22" color="#172033" /></view>
+      <text class="nav-title">{{ editId ? $t('pages.sceneAutomationEditor.editSceneLinkage') : $t('pages.sceneAutomationEditor.addSceneLinkage') }}</text>
+      <text class="nav-side nav-save" @tap="handlerSubmit">{{ $t('common.save') }}</text>
+    </view>
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
       <!-- Background Elements for Atmosphere -->
       <view class="bg-glow-1"></view>
       <view class="bg-glow-2"></view>
 
       <!-- Form Panel -->
+      <view class="section-header info-section-header">
+        <text class="section-title">规则信息</text>
+      </view>
       <view class="form-panel tp-panel">
         <view class="form-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
           <view class="form-item-label">{{ $t('pages.sceneAutomationEditor.ruleName') }}</view>
@@ -25,6 +33,7 @@
       <!-- Section: If -->
       <view class="section-header">
         <text class="section-title">{{ $t('pages.sceneAutomationEditor.ifText') }}</text>
+        <view class="section-option"><text>满足全部</text></view>
       </view>
 
       <!-- 条件列表 -->
@@ -43,10 +52,6 @@
         <action-editor v-if="formData.actions" ref="actions" v-model:actions="formData.actions"></action-editor>
       </view>
 
-      <!-- Save Button -->
-      <view class="save-button-container">
-        <button class="save-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
-      </view>
     </view>
 
     <ConfirmationModal v-model="visible" :title="$t('pages.sceneAutomationEditor.save')" :text="$t('pages.sceneAutomationEditor.saveConfirm')"
@@ -114,6 +119,9 @@ export default {
     }
   },
   methods: {
+    goBack() {
+      uni.navigateBack();
+    },
     // 获取修改信息
     getInfo() {
       uni.showLoading({
@@ -261,10 +269,16 @@ export default {
     convertActionsData(actionsData) {
       const actionGroupsData = [];
       const actionInstructList = [];
-      actionsData.map((item) => {
+      (actionsData || []).map((sourceItem) => {
+        const item = { ...sourceItem };
         if (item.action_type === '10' || item.action_type === '11') {
           item.actionParamOptions = [];
-          const actionValueObj = JSON.parse(item.action_value);
+          let actionValueObj = {};
+          try {
+            actionValueObj = JSON.parse(item.action_value || '{}');
+          } catch (_error) {
+            actionValueObj = {};
+          }
           if (
             item.action_param_type === 'c_telemetry' ||
             item.action_param_type === 'c_attribute' ||
@@ -276,7 +290,9 @@ export default {
             item.actionValue = actionValueObj[item.action_param];
           }
           if (item.action_param_type === 'command') {
-            item.actionValue = actionValueObj.params;
+            item.actionValue = typeof actionValueObj.params === 'string'
+              ? actionValueObj.params
+              : JSON.stringify(actionValueObj.params ?? {});
           }
           item.actionParamOptions = [];
           actionInstructList.push(item);
@@ -297,7 +313,7 @@ export default {
     // 提交时处理动作数据
     handleActionData(inputActions) {
       // 处理动作的数据
-      const actionGroupsData = inputActions;
+      const actionGroupsData = JSON.parse(JSON.stringify(inputActions || []));
       const actionsData = [];
       // eslint-disable-next-line array-callback-return
       actionGroupsData.map((item) => {
@@ -320,11 +336,15 @@ export default {
               instructItem.action_value = JSON.stringify(action_value);
             }
             // 如果是command/c_command，那么 action_value示例格式:	{"method":"ReSet","params":{"switch":1,"light":"close"}}
-            if (instructItem.action_param_type === 'command') {
-              const action_value = {
-                method: instructItem.action_param,
-                params: instructItem.actionValue
-              };
+        if (instructItem.action_param_type === 'command') {
+          const action_value = {
+            method: instructItem.action_param,
+            // PC 场景联动编辑器按 JSON 字符串读写命令参数；保持同一格式，
+            // 同时兼容历史回显中已经被解析为对象的值。
+            params: typeof instructItem.actionValue === 'string'
+              ? instructItem.actionValue
+              : JSON.stringify(instructItem.actionValue ?? {})
+          };
               instructItem.action_value = JSON.stringify(action_value);
             }
             actionsData.push(instructItem);
@@ -375,7 +395,26 @@ export default {
         submitData.description = this.formData.description
         submitData.enabled = this.formData.enabled
       }
-      const conditionsInfo = this.handleConditionsData(this.$refs.conditions.ifGroupsData());
+      const conditionValidation = this.$refs.conditions?.validateConditions?.();
+      if (conditionValidation !== true) {
+        uni.showToast({ title: conditionValidation, icon: 'none', duration: 2000 });
+        return;
+      }
+      const actionValidation = this.$refs.actions?.validateActions?.();
+      if (actionValidation !== true) {
+        uni.showToast({ title: actionValidation, icon: 'none', duration: 2000 });
+        return;
+      }
+
+      const rawConditions = this.$refs.conditions.ifGroupsData();
+      const hasTimeCondition = rawConditions.some(group => group.some(item => item.ifType === '2'));
+      const hasAlarmAction = this.formData.actions.some(item => item.actionType === '30');
+      if (hasTimeCondition && hasAlarmAction) {
+        uni.showToast({ title: '时间条件不能与触发告警同时使用', icon: 'none', duration: 2500 });
+        return;
+      }
+
+      const conditionsInfo = this.handleConditionsData(rawConditions);
       if (!conditionsInfo || conditionsInfo.length === 0) {
         uni.showToast({
           title: this.$t('pages.sceneAutomationEditor.enterRuleConditions'),
@@ -394,7 +433,13 @@ export default {
       } else {
         submitData.automation_conditions = conditionsInfo.conditions
       }*/
-      const actionsInfo = this.handleActionData(this.formData.actions);
+      let actionsInfo = [];
+      try {
+        actionsInfo = this.handleActionData(this.formData.actions);
+      } catch (_error) {
+        uni.showToast({ title: this.$t('pages.sceneAutomationEditor.jsonFormat'), icon: 'none', duration: 2000 });
+        return;
+      }
       if (!actionsInfo || actionsInfo.length === 0) {
         uni.showToast({
           title: this.$t('pages.sceneAutomationEditor.enterRuleActions'),
@@ -448,13 +493,32 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.editor-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 96rpx minmax(0, 1fr) 96rpx;
+  align-items: center;
+  height: calc(88rpx + var(--status-bar-height));
+  padding: var(--status-bar-height) 24rpx 0;
+  background: rgba(255, 255, 255, 0.96);
+  border-bottom: 1rpx solid #edf0f3;
+}
+
+.nav-side { display:flex; align-items:center; min-width:0; height:88rpx; }
+.nav-back { justify-content: flex-start; }
+.nav-save { justify-content:flex-end; color:#1677ff; font-size:28rpx; font-weight:600; }
+.nav-title { overflow:hidden; color:#172033; font-size:30rpx; font-weight:600; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
+
 /* Global Reset & Base */
 .pagehome {
   width: 100%;
   min-height: 100vh;
   background: #f5f7fa;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .tp-box {
@@ -584,6 +648,96 @@ export default {
   }
 }
 
+/* Match the device-list surface, spacing, and action hierarchy. */
+.pagehome,
+.tp-box {
+  --page-gutter: 12px;
+  background: #f7f8fa;
+  color: #172033;
+}
+
+.bg-glow-1,
+.bg-glow-2 {
+  display: none;
+}
+
+.form-panel {
+  margin: 0 var(--page-gutter, 30rpx) 6px;
+  background: #ffffff;
+  border: 2rpx solid #edf0f3;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transition: none;
+}
+
+.form-item {
+  box-sizing: border-box;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-bottom-color: #edf0f3;
+}
+
+.form-item-label,
+.section-header .section-title {
+  color: #172033;
+}
+
+.form-item-label { width: 78px; font-size: 13px; line-height: 18px; }
+.form-input,
+.form-placeholder { font-size: 13px; line-height: 18px; }
+
+.form-input {
+  color: #172033;
+}
+
+.form-placeholder {
+  color: #98a2b3;
+}
+
+.section-header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 32px;
+  margin: 0;
+  padding: 6px var(--page-gutter, 30rpx) 4px;
+}
+
+.section-header .section-title {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: 0;
+}
+
+.info-section-header { padding-top: 6px; }
+.section-option { display: flex; align-items: center; gap: 3px; color: #172033; font-size: 13px; font-weight: 500; line-height: 18px; white-space: nowrap; }
+
+.section-content {
+  padding: 0 var(--page-gutter, 30rpx);
+}
+
+.save-button-container {
+  padding: 32rpx var(--page-gutter, 30rpx) calc(32rpx + env(safe-area-inset-bottom));
+}
+
+.save-btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  background: #1677ff;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 18rpx rgba(22, 119, 255, 0.2);
+}
+
+.save-btn:active {
+  transform: none;
+  background: #0f6fe8;
+  box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.18);
+}
+
 /* Utilities */
 .tp-flex {
   display: flex;
@@ -677,7 +831,7 @@ uni-text {
 }
 
 ::v-deep .tp-panel {
-  border-radius: 32rpx;
+  border-radius: 18rpx;
 }
 
 ::v-deep .item2+.item2 {

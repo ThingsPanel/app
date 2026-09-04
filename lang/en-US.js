@@ -260,6 +260,7 @@ export default {
     automation: {
       sceneLinkage: 'Automation Rules',
       sceneManagement: 'Scenes',
+      subtitle: 'Let devices run automatically by rule',
       addSceneLinkage: 'Add Automation Rule',
       addScene: 'Add Scene',
       ruleDescription: 'Rule Description:',
@@ -267,6 +268,8 @@ export default {
       activate: 'Activate',
       start: 'Start',
       stop: 'Stop',
+      running: 'Running',
+      disabled: 'Disabled',
       edit: 'Edit',
       delete: 'Delete',
       more: 'More',
@@ -275,7 +278,10 @@ export default {
       confirmDeleteRecord: 'Are you sure you want to delete this record?',
       success: 'Operation successful',
       failed: 'Operation failed, please try again later',
-      noData: 'No Data'
+      noData: 'No Data',
+      emptyRuleTitle: 'No automation rules yet',
+      emptySceneTitle: 'No scenes yet',
+      emptyDescription: 'Create a rule so devices respond automatically'
     },
     login: {
       title: 'IoT Platform',

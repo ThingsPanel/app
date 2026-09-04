@@ -1,5 +1,10 @@
 <template>
   <view class="pagehome">
+    <view class="editor-nav">
+      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="22" color="#172033" /></view>
+      <text class="nav-title">{{ editId ? $t('pages.sceneEditor.editScene') : $t('pages.sceneEditor.newScene') }}</text>
+      <text class="nav-side nav-save" @tap="handlerSubmit">{{ $t('common.save') }}</text>
+    </view>
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
       <!-- Background Elements for Atmosphere -->
       <view class="bg-glow-1"></view>
@@ -34,7 +39,7 @@
         </view>
 
         <!-- Actions Card -->
-        <view class="tp-panel actions-card">
+        <view class="actions-section">
           <view class="section-header">
             <text class="section-title">{{ $t('pages.sceneEditor.actions') }}</text>
           </view>
@@ -44,10 +49,6 @@
           ></action-editor>
         </view>
 
-        <!-- Save Button -->
-        <view class="button-wrapper">
-          <button class="modern-btn" @tap="handlerSubmit">{{ $t('common.save') }}</button>
-        </view>
       </view>
 
       <ConfirmationModal
@@ -98,13 +99,18 @@ export default {
     this.$nextTick(() => {
       setTimeout(() => {
         uni.setNavigationBarTitle({
-          title: this.$t('pages.addScene')
+          title: this.editId ? this.$t('pages.sceneEditor.editScene') : this.$t('pages.sceneEditor.newScene')
         })
       }, 100)
     })
   },
   onLoad(options) {
-    this.editId = options.id;
+    this.editId = options.id || '';
+    if (this.editId) {
+      this.getInfo();
+    } else {
+      this.formData = this.createEmptyFormData();
+    }
     this.$nextTick(() => {
       setTimeout(() => {
         uni.setNavigationBarTitle({
@@ -113,11 +119,9 @@ export default {
       }, 100)
     })
   },
-  created() {
-    if (this.editId) {
-      this.getInfo();
-    } else {
-      this.formData = {
+  methods: {
+    createEmptyFormData() {
+      return {
         info: {
           name: '',
           description: ''
@@ -144,11 +148,10 @@ export default {
           }
         ]
       };
-    }
-    // this.getSceneList('');
-    // this.getAlarmList('');
-  },
-  methods: {
+    },
+    goBack() {
+      uni.navigateBack();
+    },
     getInfo() {
         uni.showLoading({
         title: this.$t('common.loading')
@@ -177,10 +180,16 @@ export default {
     convertActionsData(actionsData) {
       const actionGroupsData = [];
       const actionInstructList = [];
-      actionsData.map((item) => {
+      (actionsData || []).map((sourceItem) => {
+        const item = { ...sourceItem };
         if (item.action_type === '10' || item.action_type === '11') {
           item.actionParamOptions = [];
-          const actionValueObj = JSON.parse(item.action_value);
+          let actionValueObj = {};
+          try {
+            actionValueObj = JSON.parse(item.action_value || '{}');
+          } catch (_error) {
+            actionValueObj = {};
+          }
           if (
             item.action_param_type === 'c_telemetry' ||
             item.action_param_type === 'c_attribute' ||
@@ -192,7 +201,9 @@ export default {
             item.actionValue = actionValueObj[item.action_param];
           }
           if (item.action_param_type === 'command') {
-            item.actionValue = actionValueObj.params;
+            item.actionValue = typeof actionValueObj.params === 'string'
+              ? actionValueObj.params
+              : JSON.stringify(actionValueObj.params ?? {});
           }
           item.actionParamOptions = [];
           actionInstructList.push(item);
@@ -226,8 +237,18 @@ export default {
         return;
       }
 
-      const validateResult = this.transActionsOut(actions);
-      configFormData.actions = validateResult;
+      const actionValidation = this.$refs.actions?.validateActions?.();
+      if (actionValidation !== true) {
+        uni.showToast({ title: actionValidation, icon: 'none', duration: 2000 });
+        return;
+      }
+
+      try {
+        configFormData.actions = this.transActionsOut(actions);
+      } catch (_error) {
+        uni.showToast({ title: this.$t('pages.sceneAutomationEditor.jsonFormat'), icon: 'none', duration: 2000 });
+        return;
+      }
 
       this.submitData = configFormData;
       this.visible = true;
@@ -270,11 +291,10 @@ export default {
     },
     transActionsOut(actions) {
       const actionsData = [];
-      // eslint-disable-next-line array-callback-return
-      actions.map((item) => {
+      const actionGroups = JSON.parse(JSON.stringify(actions || []));
+      actionGroups.forEach((item) => {
         if (item.actionType === '1') {
-          // eslint-disable-next-line array-callback-return
-          item.actionInstructList.map((instructItem) => {
+          item.actionInstructList.forEach((instructItem) => {
             // 如果是c_telemetry/c_attribute,那么action_value示例格式：{"c_telemetry":2}
             // 如果是c_command,那么action_value示例格式：{"method":"switch1","params":{"false":0}}
             if (
@@ -294,7 +314,10 @@ export default {
             if (instructItem.action_param_type === 'command') {
               const action_value = {
                 method: instructItem.action_param,
-                params: JSON.stringify(JSON.parse(instructItem.actionValue))
+                // 与 PC 编辑器保持一致：命令参数在 action_value 中使用 JSON 字符串。
+                params: typeof instructItem.actionValue === 'string'
+                  ? instructItem.actionValue
+                  : JSON.stringify(instructItem.actionValue ?? {})
               };
               instructItem.action_value = JSON.stringify(action_value);
             }
@@ -312,6 +335,25 @@ export default {
 </script>
 
 <style lang="scss">
+  .editor-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 96rpx minmax(0, 1fr) 96rpx;
+    align-items: center;
+    height: calc(88rpx + var(--status-bar-height));
+    padding: var(--status-bar-height) 24rpx 0;
+    background: rgba(255, 255, 255, 0.96);
+    border-bottom: 1rpx solid #edf0f3;
+  }
+
+  .nav-side { display: flex; align-items: center; min-width: 0; height: 88rpx; }
+  .nav-back { justify-content: flex-start; }
+  .nav-save { justify-content: flex-end; color: #1677ff; font-size: 28rpx; font-weight: 600; }
+  .nav-title { overflow: hidden; color: #172033; font-size: 30rpx; font-weight: 650; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+
 	@import '@/features/automation/styles/forms.css';
 
   /* Global Reset & Base */
@@ -320,7 +362,7 @@ export default {
     min-height: 100vh;
     background: #f5f7fa;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .tp-box {
@@ -478,6 +520,93 @@ export default {
     }
   }
 
+  /* Reuse the device-list visual language for scene editing. */
+  .pagehome,
+  .tp-box {
+    background: #f7f8fa;
+    color: #172033;
+  }
+
+  .bg-glow-1,
+  .bg-glow-2 {
+    display: none;
+  }
+
+  .content-wrapper {
+    padding: 20rpx var(--page-gutter, 30rpx) calc(28rpx + env(safe-area-inset-bottom));
+  }
+
+  .tp-panel,
+  .scene-card {
+    margin-bottom: 8px;
+    background: #ffffff;
+    border: 2rpx solid #edf0f3;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
+  }
+
+  .tp-ipt-item {
+    min-height: 48px;
+    padding: 8px 12px;
+    border-bottom-color: #edf0f3;
+  }
+
+  .tp-ipt-item .input-label,
+  .section-header .section-title {
+    color: #172033 !important;
+  }
+
+  .modern-input {
+    color: #172033;
+  }
+
+  .input-placeholder {
+    color: #98a2b3;
+  }
+
+  .actions-section {
+    position: relative;
+    overflow: visible;
+    margin-bottom: 8px;
+  }
+
+  .actions-section .section-header {
+    margin-bottom: 6px;
+    padding: 0;
+  }
+
+  .section-header {
+    margin-bottom: 6px;
+    padding: 0;
+  }
+
+  .section-header .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0;
+  }
+
+  .button-wrapper {
+    padding: 12rpx 0 0;
+  }
+
+  .modern-btn {
+    height: 88rpx;
+    line-height: 88rpx;
+    background: #1677ff;
+    border-radius: 16rpx;
+    box-shadow: 0 8rpx 18rpx rgba(22, 119, 255, 0.2);
+  }
+
+  .modern-btn:active {
+    transform: none;
+    background: #0f6fe8;
+    box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.18);
+  }
+
   /* Tooltip */
   .tooltip ::v-deep .uni-tooltip-popup {
     width: max-content;
@@ -538,15 +667,4 @@ export default {
     border-top: 1rpx solid rgba(0, 0, 0, 0.05);
   }
 
-  /* 确保弹窗从页面最外层底部弹出 */
-  ::v-deep .custom-select-popup .uni-popup {
-    position: fixed !important;
-    z-index: 99999 !important;
-  }
-
-  ::v-deep .custom-select-popup .uni-popup.bottom .uni-transition {
-    position: fixed !important;
-    bottom: 0 !important;
-    z-index: 100000 !important;
-  }
 </style>

@@ -97,39 +97,38 @@
 </script>
 
 <style lang="scss">
-	$fontSizeLg: 18px;
-	$fontSizeSm: 16px;
+	$fontSizeLg: 16px;
+	$fontSizeSm: 14px;
 	
 	.modal-container{
-		position: fixed;top: 0;left: 0;right: 0;bottom: 0;z-index: 999;background: rgba(0, 0, 0, .6);visibility: hidden;opacity: 0;transition: all .2s;display: flex;align-items: center;justify-content: center;
+		position:fixed;top:0;left:0;right:0;bottom:0;z-index:10030;background:rgba(16,24,40,.42);visibility:hidden;opacity:0;transition:opacity .18s ease;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;
 		.modal-content{
-			width: 80%;border-radius: 10rpx;background: #fff;overflow: hidden;animation: fadeZoom .15s linear;
+			width:min(100%, 320px);border:1px solid #edf0f3;border-radius:12px;background:#fff;overflow:hidden;animation:modalEnter .18s ease-out;box-shadow:0 8px 28px rgba(16,24,40,.16);
 			.modal-title{
-				padding: 30rpx 30rpx 0;text-align: center;color: #404040;font-size: $fontSizeLg;font-weight: 600;
+				padding:20px 20px 0;text-align:center;color:#172033;font-size:$fontSizeLg;font-weight:600;line-height:24px;
 			}
-			.modal-title-padding{padding-bottom: 30rpx;}
+			.modal-title-padding{padding-bottom:20px;}
 			.modal-article{
-				padding: 40rpx 30rpx 50rpx;font-size: $fontSizeSm;color: #333;text-align: center;line-height: 1.6;font-weight: 400;
+				padding:12px 20px 20px;font-size:$fontSizeSm;color:#667085;text-align:center;line-height:1.5;font-weight:400;
 			}
 			.modal-row{
-				display: flex;text-align: center;font-size: $fontSizeLg;line-height: 100rpx;position: relative;color: #404040;
+				display:flex;text-align:center;font-size:14px;line-height:48px;position:relative;color:#344054;
 				.modal-col{
 					flex: 1;width: 100%;position: relative;
 				}
 				.modal-col:first-child::after{
 					content: '';position: absolute;top: 0;bottom: 0;right: 0;border-right: 1px solid #e5e5e5;transform: scaleX(.36);
 				}
-				.modal-confirm{color: rgb(0, 122, 255);font-weight: 500;}
-				.modal-hover{background: #f2f2f2;}
+				.modal-confirm{color:#1677ff;font-weight:600;}
+				.modal-hover{background:#f7f8fa;}
 			}
 			.modal-row::after{
 				content: '';position: absolute;left: 0;right: 0;top: 0;border-top: 1px solid #e5e5e5;transform: scaleY(.36);
 			}
 		}
-		@keyframes fadeZoom {
-			0%{transform: scale(.7);opacity: .6;}
-			80%{transform: scale(1.2);opacity: .3;}
-			100%{transform: scale(1);opacity: 1;}
+		@keyframes modalEnter {
+			from{transform:scale(.96);opacity:0;}
+			to{transform:scale(1);opacity:1;}
 		}
 	}
 	.modal-container.show{

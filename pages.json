@@ -44,7 +44,8 @@
 		{
 			"path": "pages/automation/index",
 			"style": {
-				"navigationBarTitleText": "智能控制",
+				"navigationBarTitleText": "自动化",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -132,6 +133,7 @@
 			"path": "pages/automation/rule",
 			"style": {
 				"navigationBarTitleText": "新增场景联动",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}
@@ -140,6 +142,7 @@
 			"path": "pages/automation/scene",
 			"style": {
 				"navigationBarTitleText": "新增场景",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF"
 			}

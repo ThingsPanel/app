@@ -1,35 +1,32 @@
 <template>
-<view>
+<view class="action-editor">
     <!-- 动作编辑部分 -->
     <view
     v-for="(actionGroupItem, actionGroupIndex) in actions"
     :key="actionGroupIndex"
     class="mt-1 w-100%"
     >
-    <view style="align-self: center" class="tp-flex tp-flex-1 tp-mg-10 tp-pd-b-10 w-80">
-      <view class="tp-panel tp-flex-1">
+    <view class="action-group-shell">
+      <view class="tp-panel action-summary-card">
+        <view v-if="!isActionEditing(actionGroupIndex)" class="automation-summary" @tap="startActionEdit(actionGroupIndex)">
+          <view class="summary-icon"><uni-icons type="paperplane-filled" size="22" color="#F59E0B" /></view>
+          <view class="summary-copy">
+            <text class="summary-title">{{ getActionSummary(actionGroupItem).title }}</text>
+            <text class="summary-line">{{ getActionSummary(actionGroupItem).subtitle }}</text>
+            <text class="summary-line">{{ getActionSummary(actionGroupItem).detail }}</text>
+          </view>
+          <view class="summary-menu"><uni-icons type="more-filled" size="18" color="#172033" /></view>
+        </view>
         <view
-          class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing"
-          :style="isInSceneEdit ? 'display:none' : ''">
+          v-show="isActionEditing(actionGroupIndex)"
+          class="item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing">
           <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-            <picker
-                mode="selector"
-                :range="actionOptions"
-                range-key="label"
-                :value="getPickerIndex(actionOptions, actionGroupItem.actionType, 'value')"
-                @change="onActionTypePickerChange($event, actionGroupItem, actionGroupIndex)"
-                class="tp-flex-1"
-            >
-              <view class="uni-input" :class="!actionGroupItem.actionType && 'placeholder'">
-                {{ getPickerDisplayText(actionOptions, actionGroupItem.actionType, 'value', 'label') || $t('pages.sceneEditor.actionsEdit.selectActionType') }}
-              </view>
-            </picker>
-            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+            <CustomSelect v-model="actionGroupItem.actionType" :options="availableActionOptions" :placeholder="$t('pages.sceneEditor.actionsEdit.selectActionType')" @change="actionChange(actionGroupItem, actionGroupIndex, $event)" />
           </view>
         </view>
 
         <!-- 当 actionType 为 '1' 时（操作设备） -->
-        <view v-if="actionGroupItem.actionType === '1'" class="flex-1 border-class">
+        <view v-show="isActionEditing(actionGroupIndex)" v-if="actionGroupItem.actionType === '1'" class="flex-1 border-class">
           <view
               v-for="(instructItem, instructIndex) in actionGroupItem.actionInstructList"
               :key="instructIndex"
@@ -38,82 +35,36 @@
           <view class="tp-flex-1">
             <view class="max-w-30 w-full">
               <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                <picker
-                    mode="selector"
-                    :range="actionTypeOptions"
-                    range-key="label"
-                    :value="getPickerIndex(actionTypeOptions, instructItem.action_type, 'value')"
-                    @change="onDeviceTypePickerChange($event, actionGroupIndex, instructIndex)"
-                    class="tp-flex-1"
-                >
-                  <view class="uni-input" :class="!instructItem.action_type && 'placeholder'">
-                    {{ getPickerDisplayText(actionTypeOptions, instructItem.action_type, 'value', 'label') || $t('pages.sceneEditor.actionsEdit.selectDeviceType') }}
-                  </view>
-                </picker>
-                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                <CustomSelect v-model="instructItem.action_type" :options="actionTypeOptions" :placeholder="$t('pages.sceneEditor.actionsEdit.selectDeviceType')" @change="actionTypeChange(actionGroupIndex, instructIndex, $event)" />
               </view>
             </view>
 
             <!-- 单个设备 -->
             <view v-if="instructItem.action_type === '10'" class="max-w-40 w-full">
               <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDevicePopup(instructItem, actionGroupIndex, instructIndex)">
-                  <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
-                    {{ getDeviceDisplayText(instructItem.action_target) || $t('pages.sceneEditor.actionsEdit.selectDevice') }}
-                  </view>
-                </view>
-                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                <CustomSelect v-model="instructItem.action_target" :options="deviceOptions" option-value="id" option-label="name" searchable :placeholder="$t('pages.sceneEditor.actionsEdit.selectDevice')" @change="actionTargetChange(actionGroupIndex, instructIndex)" />
               </view>
             </view>
 
             <!-- 单类设备 -->
             <view v-if="instructItem.action_type === '11'" class="max-w-40 w-full">
               <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                <view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c" @tap="showDeviceConfigPopup(instructItem, actionGroupIndex, instructIndex)">
-                  <view class="uni-input" :class="!instructItem.action_target && 'placeholder'">
-                    {{ getDeviceConfigDisplayText(instructItem.action_target) || $t('pages.sceneEditor.actionsEdit.selectDeviceCategory') }}
-                  </view>
-                </view>
-                <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                <CustomSelect v-model="instructItem.action_target" :options="deviceConfigOption" option-value="id" option-label="name" searchable :placeholder="$t('pages.sceneEditor.actionsEdit.selectDeviceCategory')" @change="actionTargetChange(actionGroupIndex, instructIndex)" />
               </view>
             </view>
 
-            <view v-if="instructItem.action_type">
+            <view v-if="instructItem.action_target">
               <!-- 选择属性类型 -->
               <view class="max-w-30 w-full">
                 <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                  <picker
-                      mode="selector"
-                      :range="instructItem.actionParamTypeOptions"
-                      range-key="label"
-                      :value="getPickerIndex(instructItem.actionParamTypeOptions, instructItem.action_param_type, 'value')"
-                      @change="onActionParamTypePickerChange($event, actionGroupIndex, instructIndex)"
-                      class="tp-flex-1"
-                  >
-                    <view class="uni-input" :class="!instructItem.action_param_type && 'placeholder'">
-                      {{ getPickerDisplayText(instructItem.actionParamTypeOptions, instructItem.action_param_type, 'value', 'label') || $t('pages.sceneEditor.actionsEdit.selectMetricType') }}
-                    </view>
-                  </picker>
-                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                  <CustomSelect v-model="instructItem.action_param_type" :options="instructItem.actionParamTypeOptions" :placeholder="$t('pages.sceneEditor.actionsEdit.selectMetricType')" @change="actionParamTypeChange(actionGroupIndex, instructIndex, $event)" />
                 </view>
               </view>
 
               <!-- 选择属性 -->
               <view v-if="instructItem.showSubSelect" class="max-w-40 w-full">
                 <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-                  <picker
-                      mode="selector"
-                      :range="instructItem.actionParamOptions"
-                      range-key="label"
-                      :value="getPickerIndex(instructItem.actionParamOptions, instructItem.action_param, 'key')"
-                      @change="onActionParamPickerChange($event, actionGroupIndex, instructIndex)"
-                      class="tp-flex-1"
-                  >
-                    <view class="uni-input" :class="!instructItem.action_param && 'placeholder'">
-                      {{ getPickerDisplayText(instructItem.actionParamOptions, instructItem.action_param, 'key', 'label') || $t('pages.sceneEditor.actionsEdit.selectMetric') }}
-                    </view>
-                  </picker>
-                  <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+                  <CustomSelect v-model="instructItem.action_param" :options="instructItem.actionParamOptions" option-value="key" option-label="label" :placeholder="$t('pages.sceneEditor.actionsEdit.selectMetric')" @change="actionParamChange(actionGroupIndex, instructIndex, $event)" />
                 </view>
               </view>
 
@@ -129,6 +80,7 @@
                   <input
                   v-if="instructItem.actionParamData.data_type === 'number'"
                   v-model.number="instructItem.actionValue"
+                  type="number"
                   :placeholder="$t('pages.sceneEditor.actionsEdit.examplePrefix') + instructItem.placeholder"
                   class="w-full uni-input"
                   />
@@ -139,24 +91,25 @@
                   ></switch>
               </view>
 
-              <view v-else class="w-60">
-                  <input
+              <view v-if="!instructItem.showSubSelect" class="w-60">
+                  <textarea
                   v-model="instructItem.actionValue"
                   :placeholder="$t('pages.sceneEditor.actionsEdit.examplePrefix') + instructItem.placeholder"
                   @blur="() => actionValueChange(actionGroupIndex, instructIndex)"
-                  class="w-full uni-input"
+                  class="w-full automation-json-input"
                   />
+                  <text v-if="instructItem.inputValidationStatus === 'error'" class="field-error">{{ $t('pages.sceneAutomationEditor.jsonFormat') }}</text>
               </view>
               </view>
             </view>
-            <view style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+            <view class="action-card-controls tp-flex">
               <!-- 条件数量大于1条时才允许删除 -->
               <uni-icons 
                 v-if="actionGroupItem.actionInstructList.length > 1" 
                 class="tp-mg-t-b-10"
                 type="minus" 
                 size="40rpx" 
-                color="red"
+                color="#FF3B30"
                 @click="deleteIfGroupsSubItem(actionGroupIndex, instructIndex)"
               ></uni-icons>
               
@@ -166,7 +119,7 @@
                 class="tp-mg-t-b-10"
                 type="plus" 
                 size="40rpx"
-                color="#4CAF50"
+                color="#1677FF"
                 @click="addIfGroupsSubItem(actionGroupIndex)"
               ></uni-icons>
             </view>
@@ -192,66 +145,33 @@
         </view>
 
         <!-- 激活场景 -->
-        <view v-if="actionGroupItem.actionType === '20'" class="ml-6 max-w-40 w-auto">
+        <view v-show="isActionEditing(actionGroupIndex)" v-if="actionGroupItem.actionType === '20'" class="action-target-row">
           <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-            <picker
-                mode="selector"
-                :range="sceneList"
-                range-key="name"
-                :value="getPickerIndex(sceneList, actionGroupItem.action_target, 'id')"
-                @change="onScenePickerChange($event, actionGroupIndex)"
-                class="tp-flex-1"
-            >
-              <view class="uni-input" :class="!actionGroupItem.action_target && 'placeholder'">
-                {{ getPickerDisplayText(sceneList, actionGroupItem.action_target, 'id', 'name') || $t('pages.sceneEditor.actionsEdit.selectScene') }}
-              </view>
-            </picker>
-            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+            <CustomSelect v-model="actionGroupItem.action_target" :options="sceneList" option-value="id" option-label="name" :placeholder="$t('pages.sceneEditor.actionsEdit.selectScene')" />
           </view>
         </view>
 
         <!-- 触发告警 -->
-        <view v-if="actionGroupItem.actionType === '30'" class="ml-6 max-w-40 w-auto">
+        <view v-show="isActionEditing(actionGroupIndex)" v-if="actionGroupItem.actionType === '30'" class="action-target-row">
           <view class="w-full tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c picker-wrapper">
-            <picker
-                mode="selector"
-                :range="alarmList"
-                range-key="name"
-                :value="getPickerIndex(alarmList, actionGroupItem.action_target, 'id')"
-                @change="onAlarmPickerChange($event, actionGroupIndex)"
-                class="tp-flex-1"
-            >
-              <view class="uni-input" :class="!actionGroupItem.action_target && 'placeholder'">
-                {{ getPickerDisplayText(alarmList, actionGroupItem.action_target, 'id', 'name') || $t('pages.sceneEditor.actionsEdit.selectAlarm') }}
-              </view>
-            </picker>
-            <uni-icons color="#999" type="forward" size="40rpx"></uni-icons>
+            <CustomSelect v-model="actionGroupItem.action_target" :options="alarmList" option-value="id" option-label="name" :placeholder="$t('pages.sceneEditor.actionsEdit.selectAlarm')" />
           </view>
           <!-- <button @click="popUpVisible = true" class="tp-btn">
           创建告警
           </button> -->
         </view>
         </view>
-        <view v-if="!isInSceneEdit" style="width:64rpx" class="tp-flex tp-flex-col tp-flex-j-c tp-mg-l-10">
+        <view class="action-group-controls tp-flex">
           <!-- 条件数量大于1条时才允许删除 -->
-          <uni-icons 
+          <text
             v-if="actions.length > 1" 
-            class="tp-mg-t-b-10"
-            type="minus" 
-            size="40rpx" 
-            color="red"
+            class="editor-action editor-action-danger"
             @click="deleteActionGroupItem(actionGroupIndex)"
-          ></uni-icons>
+          >{{ $t('common.delete') }}</text>
           
           <!-- 仅最后一个显示新增 -->
-          <uni-icons
-            v-if="actionGroupIndex === actions.length - 1"
-            class="tp-mg-t-b-10"
-            type="plus" 
-            size="40rpx"
-            color="#4CAF50"
-            @click="addActionGroupItem()"
-          ></uni-icons>
+          <text v-if="isActionEditing(actionGroupIndex)" class="editor-action" @click="finishActionEdit(actionGroupIndex)">{{ $t('common.confirm') }}</text>
+          <view v-else-if="actionGroupIndex === actions.length - 1" class="add-summary-row" @click="addActionGroupItem()">＋ 添加动作</view>
         </view>
         <!--
         <button
@@ -264,78 +184,15 @@
         </button>
         -->
     </view>
+    <view v-if="actions.length === 0" class="empty-add-card" @click="addActionGroupItem()">＋ 添加动作</view>
     </view>
     
-    <!-- 设备选择弹窗（带搜索） -->
-    <uni-popup ref="devicePopup" type="bottom" backgroundColor="#fff">
-      <view class="popup-header">
-        <view class="popup-title">{{ $t('pages.sceneEditor.actionsEdit.selectDevice') }}</view>
-        <view class="popup-close" @tap="closeDevicePopup">
-          <uni-icons type="close" size="24" color="#333"></uni-icons>
-        </view>
-      </view>
-      <view class="popup-search">
-        <input 
-          class="search-input" 
-          :placeholder="$t('common.search')" 
-          v-model="deviceSearchKeyword"
-          @input="onDeviceSearchInput"
-        />
-      </view>
-      <scroll-view class="scroll-view-equipment" :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
-        <view class="selectlist">
-          <view 
-            class="select_item" 
-            v-for="(item, index) in filteredDeviceOptions" 
-            :key="index"
-            @click="onDeviceSelect(item)"
-          >
-            {{ item.name }}
-          </view>
-          <view v-if="filteredDeviceOptions.length === 0" class="select_item empty">
-            {{ $t('common.noData') }}
-          </view>
-        </view>
-      </scroll-view>
-    </uni-popup>
-    
-    <!-- 设备类型选择弹窗（带搜索） -->
-    <uni-popup ref="deviceConfigPopup" type="bottom" backgroundColor="#fff">
-      <view class="popup-header">
-        <view class="popup-title">{{ $t('pages.sceneEditor.actionsEdit.selectDeviceCategory') }}</view>
-        <view class="popup-close" @tap="closeDeviceConfigPopup">
-          <uni-icons type="close" size="24" color="#333"></uni-icons>
-        </view>
-      </view>
-      <view class="popup-search">
-        <input 
-          class="search-input" 
-          :placeholder="$t('common.search')" 
-          v-model="deviceConfigSearchKeyword"
-          @input="onDeviceConfigSearchInput"
-        />
-      </view>
-      <scroll-view :scroll-y="true" scroll-with-animation="true" :style="{ maxHeight: '600rpx' }">
-        <view class="selectlist">
-          <view 
-            class="select_item" 
-            v-for="(item, index) in filteredDeviceConfigOptions" 
-            :key="index"
-            @click="onDeviceConfigSelect(item)"
-          >
-            {{ item.name }}
-          </view>
-          <view v-if="filteredDeviceConfigOptions.length === 0" class="select_item empty">
-            {{ $t('common.noData') }}
-          </view>
-        </view>
-      </scroll-view>
-    </uni-popup>
 </view>
 </template>
   
 <script>
   import { getAlarmRules } from '@/api/modules/alarm';
+  import CustomSelect from '@/components/custom-select.vue';
   import { deviceMetricsMenu,
     deviceConfigMetricsMenu,
     deviceConfigAll,
@@ -345,17 +202,20 @@
   
   export default {
     name: 'ActionsEdit',
-    components: {
-    },
+    components: { CustomSelect },
     props: {
       actions: {
         type: Array,
         required: true
       },
-      isInSceneEdit: false
+      isInSceneEdit: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
+        editingActionIndex: -1,
         instructListItem: {
           action_target: '',
           action_type: null,
@@ -426,19 +286,14 @@
             c_attribute: '{"addr":1,"port":0}',
             c_command: '{"method":"switch1","params":{"false":0}}'
         },
-        // 设备选择弹窗相关
-        deviceSearchKeyword: '',
-        filteredDeviceOptions: [],
-        currentDeviceInstructItem: null,
-        currentDeviceActionGroupIndex: null,
-        currentDeviceInstructIndex: null,
-        // 设备类型选择弹窗相关
-        deviceConfigSearchKeyword: '',
-        filteredDeviceConfigOptions: [],
-        currentDeviceConfigInstructItem: null,
-        currentDeviceConfigActionGroupIndex: null,
-        currentDeviceConfigInstructIndex: null
       };
+    },
+    computed: {
+      availableActionOptions() {
+        return this.isInSceneEdit
+          ? this.actionOptions.filter(item => item.value === '1')
+          : this.actionOptions;
+      }
     },
     watch: {
         actions: {
@@ -478,13 +333,86 @@
         this.getAlarmList('');
     },
     methods: {
+      isActionEditing(index) {
+        return this.editingActionIndex === index;
+      },
+      startActionEdit(index) {
+        this.editingActionIndex = index;
+      },
+      finishActionEdit(index) {
+        if (!this.isActionComplete(this.actions[index])) {
+          uni.showToast({ title: '请先完成当前动作配置', icon: 'none' });
+          return;
+        }
+        this.editingActionIndex = -1;
+      },
+      isActionComplete(action) {
+        if (!action || !action.actionType) return false;
+        if (action.actionType === '20' || action.actionType === '30') return Boolean(action.action_target);
+        if (action.actionType !== '1' || !Array.isArray(action.actionInstructList) || action.actionInstructList.length === 0) return false;
+        return action.actionInstructList.every(item => {
+          if (!item.action_type || !item.action_target || !item.action_param_type) return false;
+          if (item.showSubSelect !== false && !item.action_param) return false;
+          return item.actionValue !== null && item.actionValue !== undefined && item.actionValue !== '';
+        });
+      },
+      validateActions() {
+        if (!Array.isArray(this.actions) || this.actions.length === 0) {
+          return '请至少添加一个动作';
+        }
+        const invalidIndex = this.actions.findIndex(action => !this.isActionComplete(action));
+        if (invalidIndex !== -1) {
+          this.startActionEdit(invalidIndex);
+          return `请完成第 ${invalidIndex + 1} 个动作配置`;
+        }
+        if (this.isInSceneEdit && this.actions.some(action => action.actionType !== '1')) {
+          return '场景管理仅支持操作设备动作';
+        }
+        return true;
+      },
+      getActionSummary(action) {
+        if (!action || !action.actionType) {
+          return {
+            title: this.$t('pages.sceneEditor.actionsEdit.selectActionType'),
+            subtitle: '点击配置执行动作',
+            detail: '操作设备、激活场景或触发告警'
+          };
+        }
+        if (action.actionType === '20') {
+          const scene = this.sceneList.find(item => String(item.id) === String(action.action_target));
+          return { title: this.$t('pages.sceneAutomationEditor.actionType3'), subtitle: scene ? scene.name : '请选择场景', detail: '' };
+        }
+        if (action.actionType === '30') {
+          const alarm = this.alarmList.find(item => String(item.id) === String(action.action_target));
+          return { title: this.$t('pages.sceneAutomationEditor.actionType2'), subtitle: alarm ? alarm.name : '请选择告警', detail: '' };
+        }
+        const instructs = Array.isArray(action.actionInstructList) ? action.actionInstructList : [];
+        const first = instructs[0] || {};
+        const target = first.action_type === '11'
+          ? this.getDeviceConfigDisplayText(first.action_target)
+          : this.getDeviceDisplayText(first.action_target);
+        const rawParam = this.getPickerDisplayText(first.actionParamOptions || [], first.action_param, 'key', 'label') || first.action_param || first.action_param_type || '';
+        const param = this.formatActionParam(rawParam);
+        const value = typeof first.actionValue === 'boolean'
+          ? (first.actionValue ? '开启' : '关闭')
+          : (first.actionValue ?? '');
+        return {
+          title: this.$t('pages.sceneAutomationEditor.actionType1'),
+          subtitle: target || (first.action_type === '11' ? '请选择设备类型' : '请选择设备'),
+          detail: [param, value !== '' ? `设为 ${value}` : ''].filter(Boolean).join(' ') || '请完成动作配置'
+        };
+      },
+      formatActionParam(value) {
+        const text = String(value || '').trim();
+        const leaf = text.includes('/') ? text.split('/').pop() : text;
+        const labelMatch = leaf.match(/\(([^()]+)\)$/);
+        return labelMatch ? labelMatch[1] : leaf;
+      },
       async getDevice(groupId, name) {
           this.queryDevice.group_id = groupId || null;
           this.queryDevice.device_name = name || null;
           const res = await deviceListAll(this.queryDevice);
           this.deviceOptions = res.data;
-          // 更新过滤列表
-          this.filteredDeviceOptions = [...this.deviceOptions];
           // 数据加载完成后强制更新视图，确保回显正确
           this.$nextTick(() => {
             this.$forceUpdate();
@@ -494,8 +422,6 @@
           this.queryDeviceConfig.device_config_name = name || '';
           const res = await deviceConfigAll(this.queryDeviceConfig);
           this.deviceConfigOption = res.data || [];
-          // 更新过滤列表
-          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
           // 数据加载完成后强制更新视图，确保回显正确
           this.$nextTick(() => {
             this.$forceUpdate();
@@ -677,8 +603,15 @@
         this.actions.splice(actionGroupIndex, 1);
       },
       addActionGroupItem() {
+        const incompleteIndex = this.actions.findIndex(item => !this.isActionComplete(item));
+        if (incompleteIndex !== -1) {
+          this.startActionEdit(incompleteIndex);
+          uni.showToast({ title: '请先完成当前动作配置', icon: 'none' });
+          return;
+        }
         const actionItemData = JSON.parse(JSON.stringify(this.actionItem));
         this.actions.push(actionItemData);
+        this.$nextTick(() => this.startActionEdit(this.actions.length - 1));
       },
       // Picker change 事件处理方法
       onActionTypePickerChange(e, actionGroupItem, actionGroupIndex) {
@@ -702,78 +635,6 @@
         if (!deviceConfigId) return '';
         const deviceConfig = this.deviceConfigOption.find(item => item.id === deviceConfigId || String(item.id) === String(deviceConfigId));
         return deviceConfig ? deviceConfig.name : '';
-      },
-      // 设备选择弹窗相关方法
-      showDevicePopup(instructItem, actionGroupIndex, instructIndex) {
-        this.currentDeviceInstructItem = instructItem;
-        this.currentDeviceActionGroupIndex = actionGroupIndex;
-        this.currentDeviceInstructIndex = instructIndex;
-        this.deviceSearchKeyword = '';
-        this.filteredDeviceOptions = [...this.deviceOptions];
-        this.$refs.devicePopup.open();
-      },
-      closeDevicePopup() {
-        this.$refs.devicePopup.close();
-        this.currentDeviceInstructItem = null;
-        this.currentDeviceActionGroupIndex = null;
-        this.currentDeviceInstructIndex = null;
-        this.deviceSearchKeyword = '';
-      },
-      onDeviceSelect(device) {
-        if (this.currentDeviceInstructItem) {
-          this.currentDeviceInstructItem.action_target = device.id;
-          this.actionTargetChange(this.currentDeviceActionGroupIndex, this.currentDeviceInstructIndex);
-          this.$nextTick(() => {
-            this.$forceUpdate();
-          });
-        }
-        this.closeDevicePopup();
-      },
-      onDeviceSearchInput() {
-        const keyword = this.deviceSearchKeyword.toLowerCase().trim();
-        if (!keyword) {
-          this.filteredDeviceOptions = [...this.deviceOptions];
-        } else {
-          this.filteredDeviceOptions = this.deviceOptions.filter(device => 
-            device.name && device.name.toLowerCase().includes(keyword)
-          );
-        }
-      },
-      // 设备类型选择弹窗相关方法
-      showDeviceConfigPopup(instructItem, actionGroupIndex, instructIndex) {
-        this.currentDeviceConfigInstructItem = instructItem;
-        this.currentDeviceConfigActionGroupIndex = actionGroupIndex;
-        this.currentDeviceConfigInstructIndex = instructIndex;
-        this.deviceConfigSearchKeyword = '';
-        this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
-        this.$refs.deviceConfigPopup.open();
-      },
-      closeDeviceConfigPopup() {
-        this.$refs.deviceConfigPopup.close();
-        this.currentDeviceConfigInstructItem = null;
-        this.currentDeviceConfigActionGroupIndex = null;
-        this.currentDeviceConfigInstructIndex = null;
-        this.deviceConfigSearchKeyword = '';
-      },
-      onDeviceConfigSelect(deviceConfig) {
-        if (this.currentDeviceConfigInstructItem) {
-          this.currentDeviceConfigInstructItem.action_target = deviceConfig.id;
-          this.actionTargetChange(this.currentDeviceConfigActionGroupIndex, this.currentDeviceConfigInstructIndex);
-          this.$nextTick(() => {
-            this.$forceUpdate();
-          });
-        }
-        this.closeDeviceConfigPopup();
-      },
-      onDeviceConfigSearchInput() {
-        const keyword = this.deviceConfigSearchKeyword.toLowerCase().trim();
-        if (!keyword) {
-          this.filteredDeviceConfigOptions = [...this.deviceConfigOption];
-        } else {
-          this.filteredDeviceConfigOptions = this.deviceConfigOption.filter(deviceConfig => 
-            deviceConfig.name && deviceConfig.name.toLowerCase().includes(keyword)
-          );
-        }
       },
       onActionParamTypePickerChange(e, actionGroupIndex, instructIndex) {
         const index = e.detail.value;
@@ -874,16 +735,107 @@
   </script>
   <style>
 	@import '@/features/automation/styles/forms.css';
+
+  .action-group-shell {
+    box-sizing: border-box;
+    display: block;
+    width: 100%;
+    margin: 0 0 6px;
+  }
+
+  .action-summary-card {
+    overflow: visible;
+    width: 100%;
+    border: 2rpx solid #edf0f3;
+    border-radius: 10px 10px 0 0;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition: none;
+  }
+
+  .automation-summary {
+    box-sizing: border-box;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-height: 64px;
+    padding: 10px 12px;
+  }
+
+  .summary-icon {
+    display: flex;
+    flex: 0 0 32px;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-top: 1px;
+    border-radius: 50%;
+    background: #fff7e8;
+  }
+
+  .summary-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
+  .summary-title,
+  .summary-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .summary-title { color: #172033; font-size: 14px; font-weight: 600; line-height: 19px; }
+  .summary-line { color: #667085; font-size: 12px; line-height: 16px; }
+  .summary-menu { display:flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; margin:-6px -10px 0 0; box-sizing:border-box; }
 	
 	.action-item-card {
-		background: #f5f5f5;
-		border-radius: 24rpx;
-		padding: 32rpx 28rpx;
-    margin-left: 24rpx;
-    margin-right: 24rpx;
-		margin-bottom: 24rpx;
+		background: #ffffff;
+		border: 0;
+		border-radius: 0;
+    padding: 0 12px;
+    margin: 0;
 		position: relative;
+		box-shadow: none;
 	}
+
+  .action-card-controls,
+  .action-group-controls {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 22rpx;
+    width: 100%;
+    min-height: 44px;
+    border-top: 1rpx solid #edf0f3;
+  }
+
+  .action-group-controls {
+    margin: -2rpx 0 0;
+    padding: 0 12px;
+    border-top: 1rpx solid #edf0f3;
+    border: 2rpx solid #edf0f3;
+    border-top-width: 1rpx;
+    border-radius: 0 0 18rpx 18rpx;
+    background: #fff;
+  }
+
+  .action-summary-card + .action-group-controls { border-top-color: #e4e7ec; }
+
+  .editor-action { display:flex; flex:0 0 auto; align-items:center; min-height:44px; color:#1677ff; font-size:14px; white-space:nowrap; }
+  .editor-action-danger { margin-right: auto; color: #ff3b30; }
+  .add-summary-row,
+  .empty-add-card {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    color: #1677ff;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .empty-add-card { overflow:hidden; border:2rpx solid #edf0f3; border-radius:10px; background:#fff; box-shadow:0 1px 4px rgba(34,46,66,.035); }
+  .add-summary-row { flex: 1; min-width: 0; }
+  .action-summary-card > .item,
+  .action-target-row { padding: 0 12px; }
 	
 	.action-item-card:not(:last-child)::after {
 		content: '';
@@ -892,11 +844,14 @@
 		left: 28rpx;
 		right: 28rpx;
 		height: 1rpx;
-		background-color: rgba(0, 0, 0, 0.1);
+		background-color: #edf0f3;
 	}
 	
 	.action-item-card .tp-flex-1 {
-		margin-right: 24rpx;
+		box-sizing: border-box;
+		flex: 0 0 100%;
+		width: 100%;
+		margin-right: 0;
 	}
 	
 	.action-item-card .tp-flex-1:last-child {
@@ -906,7 +861,9 @@
 	.action-item-card .max-w-30,
 	.action-item-card .max-w-40,
 	.action-item-card .max-w-60 {
-		margin-right: 20rpx;
+		box-sizing: border-box;
+		width: 100%;
+		margin-right: 0;
 		margin-bottom: 8rpx;
 	}
 	
@@ -916,12 +873,17 @@
 		margin-right: 0;
 	}
 	
-	.placeholder {
-		color: #999;
-	}
+  .placeholder {
+		color: #98a2b3;
+  }
+
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#172033; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
+  .field-error { display:block; margin:-4px 0 8px; color:#ff3b30; font-size:12px; line-height:17px; }
 	
 	.picker-wrapper {
 		position: relative;
+		min-height: 44px;
+		border-bottom: 1rpx solid #edf0f3;
 	}
 	
 	.picker-wrapper picker {
@@ -939,13 +901,13 @@
 		justify-content: space-between;
 		align-items: center;
 		padding: 30rpx;
-		border-bottom: 1px solid #eee;
+		border-bottom: 2rpx solid #edf0f3;
 	}
 	
 	.popup-title {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #333;
+		color: #172033;
 	}
 	
 	.popup-close {
@@ -954,14 +916,14 @@
 	
 	.popup-search {
 		padding: 20rpx 30rpx;
-		border-bottom: 1px solid #eee;
+		border-bottom: 2rpx solid #edf0f3;
 	}
 	
 	.search-input {
 		width: 100%;
 		height: 80rpx;
-		border: 1px solid #ddd;
-		border-radius: 8rpx;
+		border: 2rpx solid #dfe4eb;
+		border-radius: 16rpx;
 		box-sizing: border-box;
 		font-size: 28rpx;
 		padding-left: 30rpx;
@@ -972,18 +934,18 @@
 	}
 	
 	.select_item {
-		border-bottom: 1px solid #f0f0f0;
+		border-bottom: 2rpx solid #edf0f3;
 		font-size: 28rpx;
-		color: #333;
+		color: #172033;
 	}
 	
 	.select_item:active {
-		background-color: #f5f5f5;
+		background-color: #f7faff;
 	}
 	
 	.select_item.empty {
 		text-align: center;
-		color: #999;
+		color: #98a2b3;
 	}
 
 	.scroll-view-equipment {
@@ -991,6 +953,17 @@
 		padding: 0 30rpx;
 		box-sizing: border-box;
 	}
+
+  .popup-grabber { width:36px; height:4px; margin:8px auto 2px; background:#d0d5dd; border-radius:2px; }
+  .popup-header { box-sizing:border-box; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
+  .popup-title { color:#172033; font-size:16px; font-weight:600; }
+  .popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
+  .popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
+  .search-input { height:40px; padding:0 10px; color:#172033; font-size:13px; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; }
+  .select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#172033; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
+  .select_item:active { color:#1677ff; background:#f7faff; }
+  .select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
+  ::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
 	
 	.scroll-view-equipment scroll-view {
 		height: 100%;

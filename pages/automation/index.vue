@@ -1,68 +1,65 @@
 <template>
-  <view class="tp-box tp-box-sizing tp-pd-b-30">
-    <!-- Background Elements for Atmosphere -->
-    <view class="bg-glow-1"></view>
-    <view class="bg-glow-2"></view>
-
-    <!-- Top Header -->
-    <view class="tp-header tp-flex tp-flex-j-s tp-flex-a-c">
-      <!-- Automation Selector -->
-      <view class="automation-selector tp-flex tp-flex-a-c" @click="isMore=!isMore">
-        <view class="selector-icon-box tp-flex tp-flex-j-c tp-flex-a-c">
-          <text class="selector-icon">⚙</text>
+  <view class="tp-box tp-box-sizing">
+    <view class="tp-header">
+      <view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
+        <view>
+          <view class="page-title">{{ $t('pages.automationTitle') }}</view>
+          <view class="page-subtitle">{{ $t('pages.automation.subtitle') }}</view>
         </view>
-        <view class="selector-info tp-flex tp-flex-a-c">
-          <text class="selector-text text-ellipsis">{{ clName === '场景联动' ? $t('pages.automation.sceneLinkage') : $t('pages.automation.sceneManagement')}}</text>
-          <view class="iconfont iconjiantou arrow-icon" :class="{ 'arrow-up': isMore }"></view>
-        </view>
+        <view class="add-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toEdit(null)"><text>＋</text></view>
       </view>
+    </view>
 
-      <!-- Dropdown Menu -->
-      <view class="dropdown-menu" v-if="isMore">
+    <view class="automation-toolbar">
+      <view class="segment-control">
         <view
-          class="dropdown-item"
-          v-for="(m,i) in clData"
-          :key="i"
-          @click="changCl(m)"
+          v-for="item in clData"
+          :key="item.value"
+          class="segment-item tp-flex tp-flex-j-c tp-flex-a-c"
+          :class="{ active: clName === item.label }"
+          @click="changCl(item)"
         >
-          {{ m.label === '场景联动' ? $t('pages.automation.sceneLinkage') : $t('pages.automation.sceneManagement') }}
+          {{ item.label === '场景联动' ? $t('pages.automation.sceneLinkage') : $t('pages.automation.sceneManagement') }}
         </view>
       </view>
     </view>
 
-    <!-- Main Content -->
     <view class="tp-content" ref="scrollWrapper">
-      <!-- Add Button -->
-      <view class="add-btn tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" @click="toEdit(null)">
-        <view class="add-icon-box tp-flex tp-flex-j-c tp-flex-a-c">
-          <text class="add-icon">+</text>
+      <view v-if="isLoading && dataList.length === 0" class="automation-list">
+        <view v-for="index in 4" :key="`automation-skeleton-${index}`" class="automation-card automation-skeleton">
+          <view class="skeleton-row"><view class="skeleton-title skeleton-shape" /><view class="skeleton-status skeleton-shape" /></view>
+          <view class="skeleton-desc skeleton-shape" />
+          <view class="skeleton-actions"><view class="skeleton-action skeleton-shape" /><view class="skeleton-action skeleton-shape" /><view class="skeleton-action skeleton-shape" /></view>
         </view>
-        <text class="add-btn-text">{{ $t('pages.automation.add' + (clName === '场景联动' ? 'SceneLinkage' : 'Scene')) }}</text>
       </view>
 
-      <!-- List -->
-      <view class="automation-list" v-if="dataList.length>0">
+      <view class="automation-list" v-else-if="dataList.length > 0">
         <view
-          class="automation-card tp-panel"
+          class="automation-card"
           v-for="(item,index) in dataList"
-          :key="index"
+          :key="item.id || index"
         >
           <view class="card-content">
             <template v-if="clName === '场景联动'">
-              <view class="card-title uni-ellipsis">{{item.name}}</view>
+              <view class="card-heading tp-flex tp-flex-j-s tp-flex-a-c">
+                <view class="card-title uni-ellipsis">{{item.name}}</view>
+                <view class="status-chip" :class="isAutomationEnabled(item.enabled) ? 'status-running' : 'status-disabled'">
+                  {{ isAutomationEnabled(item.enabled) ? $t('pages.automation.running') : $t('pages.automation.disabled') }}
+                </view>
+              </view>
               <view class="card-desc uni-ellipsis">
                 {{ $t('pages.automation.ruleDescription') }}{{item.description || $t('common.none') }}
               </view>
             </template>
 
             <template v-if="clName === '场景管理'">
-              <view class="card-title">{{item.name}}</view>
-              <view class="card-desc">
+              <view class="card-title uni-ellipsis">{{item.name}}</view>
+              <view class="card-desc uni-ellipsis">
                 {{ $t('pages.automation.sceneDescription') }}{{item.description || $t('common.none') }}
               </view>
             </template>
-
-            <view class="card-actions tp-flex tp-flex-row tp-flex-j-r tp-flex-a-c">
+          </view>
+            <view class="card-actions tp-flex tp-flex-row tp-flex-a-c">
               <template v-if="clName == '场景管理'">
                 <view class="action-btn activate-btn" @click.stop="toggleSwitch(item)">
                   {{ $t('pages.automation.activate') }}
@@ -73,38 +70,36 @@
               <template v-if="clName == '场景联动'">
                 <view
                   class="action-btn"
-                  :class="item.enabled === '0' ? 'start-btn' : 'stop-btn'"
+                  :class="isAutomationEnabled(item.enabled) ? 'stop-btn' : 'start-btn'"
                   @click.stop="toggleStatue(item)"
                 >
-                  {{item.enabled === '0' ? $t('pages.automation.start') : $t('pages.automation.stop') }}
+                  {{ isAutomationEnabled(item.enabled) ? $t('pages.automation.stop') : $t('pages.automation.start') }}
                 </view>
                 <view class="action-divider"></view>
               </template>
 
               <view class="action-btn edit-btn" @click.stop="toEdit(item)">
-                <view class="iconfont iconbianji action-icon"></view>
                 <text>{{ $t('pages.automation.edit') }}</text>
               </view>
 
               <view class="action-divider"></view>
 
               <view class="action-btn delete-btn" @click.stop="toDel(item)">
-                <view class="iconfont iconshanchu action-icon"></view>
                 <text>{{ $t('pages.automation.delete') }}</text>
               </view>
             </view>
-          </view>
         </view>
 
-        <!-- Load More Button -->
         <view class="load-more-btn tp-flex tp-flex-row tp-flex-j-c tp-flex-a-c" v-if="loadMoreShow" @click="loadData">
           <text class="load-more-text">{{ $t('pages.automation.more') }}</text>
         </view>
       </view>
 
-      <!-- Empty State -->
-      <view class="empty-state" v-else>
-        <text class="empty-text">{{ $t('pages.automation.noData') || '暂无数据' }}</text>
+      <view class="empty-state" v-else-if="!isLoading">
+        <view class="empty-visual"><view class="empty-ring ring-outer" /><view class="empty-ring ring-inner" /><view class="empty-device" /></view>
+        <text class="empty-title">{{ clName === '场景联动' ? $t('pages.automation.emptyRuleTitle') : $t('pages.automation.emptySceneTitle') }}</text>
+        <text class="empty-description">{{ $t('pages.automation.emptyDescription') }}</text>
+        <view class="empty-action" @click="toEdit(null)">{{ $t('pages.automation.add' + (clName === '场景联动' ? 'SceneLinkage' : 'Scene')) }}</view>
       </view>
     </view>
 
@@ -134,7 +129,7 @@
         visible: false,
         isLogin: false,
         isGetPhone: false,
-        isMore: false,
+        isLoading: true,
         tabIndex: 0,
         tabData: [{
             id: 1000,
@@ -173,25 +168,7 @@
         }
       },
     },
-    onLoad() {
-      // 在页面加载时设置标题，确保国际化已初始化
-      this.$nextTick(() => {
-        setTimeout(() => {
-          uni.setNavigationBarTitle({
-            title: this.$t('pages.automationTitle')
-          })
-        }, 100)
-      })
-    },
     onShow() {
-      // 在页面显示时也设置标题，确保标题正确
-      this.$nextTick(() => {
-        setTimeout(() => {
-          uni.setNavigationBarTitle({
-            title: this.$t('pages.automationTitle')
-          })
-        }, 100)
-      })
       this.$store.commit('resetOffset'); //清空日志页码
       this.tabData = [{
         id: uni.getStorageSync('ywid'),
@@ -202,10 +179,16 @@
       this.changCl({ label: this.clName })
     },
     methods: {
+      isAutomationEnabled(value) {
+        return value === 'Y' || value === '1' || value === 1 || value === true;
+      },
+      toggledAutomationValue(value) {
+        if (value === 'Y' || value === 'N') return value === 'Y' ? 'N' : 'Y';
+        return this.isAutomationEnabled(value) ? '0' : '1';
+      },
       // 切换列表类型
       changCl(cl) {
         this.clName = cl.label
-        this.isMore = false
 
         this.dataList = []
         this.page = 1
@@ -219,10 +202,7 @@
           '场景管理': '/api/v1/scene'
         }
 
-        uni.showLoading({
-          title: this.$t('common.loading'),
-          mask: true
-        });
+        this.isLoading = true
 
         this.API.apiRequest(apis[this.clName], {
           page: this.page,
@@ -254,7 +234,7 @@
             this.$refs.toast.show();
           }
         }).finally(() => {
-          uni.hideLoading()
+          this.isLoading = false
         });
       },
       // 切换启停状态（仅场景联动）
@@ -264,7 +244,7 @@
           mask: true
         });
 
-        const enabled = item.enabled === '0' ? '1' : '0'
+        const enabled = this.toggledAutomationValue(item.enabled)
         this.API.apiRequest('/api/v1/scene_automations/switch/'+item.id, {
         }, 'post').then(res => {
           if (res.code == 200) {
@@ -799,4 +779,91 @@
 .tp-flex-a-e { align-items: flex-end; }
 .tp-flex-1 { flex: 1; }
 .tp-overflow-hidden { overflow: hidden; }
+
+/* Device-list visual system */
+.tp-box {
+  --page-gutter: clamp(22rpx, 5vw, 34rpx);
+  --radius-card: 18rpx;
+  --radius-control: 18rpx;
+  min-height: 100vh;
+  padding-bottom: calc(52px + env(safe-area-inset-bottom));
+  overflow: visible;
+  background: #f7f8fa;
+  color: #172033;
+}
+
+.tp-header {
+  position: relative;
+  z-index: 2;
+  padding: calc(env(safe-area-inset-top) + 30rpx) var(--page-gutter) 8rpx;
+  background: #fff;
+}
+
+.header-main { min-height: 92rpx; margin-bottom: 6rpx; }
+.page-title { color: #172033; font-size: 52rpx; font-weight: 600; line-height: 66rpx; letter-spacing: 0; }
+.page-subtitle { margin-top: 8rpx; color: #7c879a; font-size: 25rpx; line-height: 36rpx; }
+.add-action { width: 66rpx; height: 66rpx; color: #fff; background: #1677ff; border-radius: 50%; box-shadow: 0 3rpx 8rpx rgba(22,119,255,.14); }
+.add-action text { transform: translateY(-1rpx); font-size: 44rpx; font-weight: 300; line-height: 1; }
+
+.automation-toolbar {
+  position: relative;
+  z-index: 2;
+  padding: 12rpx var(--page-gutter) 16rpx;
+  background: #fff;
+}
+.segment-control { display: flex; height: 72rpx; padding: 2rpx; overflow: hidden; background: #f2f4f7; border: 2rpx solid #e4e7ec; border-radius: var(--radius-control); box-sizing: border-box; }
+.segment-item { width: 50%; color: #172033; border-radius: 14rpx; font-size: 26rpx; line-height: 36rpx; transition: color .18s ease, background-color .18s ease; }
+.segment-item.active { color: #fff; background: #1677ff; font-weight: 600; box-shadow: none; }
+
+.tp-content { position: relative; z-index: 1; padding: 20rpx var(--page-gutter) 32rpx; }
+.automation-list { padding-bottom: 16rpx; }
+.automation-card { margin-bottom: 18rpx; overflow: hidden; background: #fff; border: 2rpx solid #e4e7ec; border-radius: var(--radius-card); box-shadow: 0 2rpx 8rpx rgba(16,24,40,.025); }
+.automation-card:active { transform: none; background: #f9fafb; box-shadow: 0 6rpx 18rpx rgba(34,46,66,.04); }
+.card-content { box-sizing: border-box; min-height: 154rpx; padding: 26rpx 28rpx 20rpx; }
+.card-heading { min-width: 0; }
+.card-title { min-width: 0; margin: 0; color: #101828; font-size: 28rpx; font-weight: 600; line-height: 40rpx; letter-spacing: 0; }
+.card-desc { margin: 6rpx 0 0; color: #667085; font-size: 24rpx; line-height: 36rpx; word-break: normal; }
+.status-chip { position: relative; margin-left: 16rpx; padding: 6rpx 14rpx 6rpx 30rpx; flex-shrink: 0; border-radius: 10rpx; font-size: 22rpx; font-weight: 500; line-height: 30rpx; }
+.status-chip::before { position: absolute; content: ''; left: 14rpx; top: 50%; width: 10rpx; height: 10rpx; border-radius: 50%; transform: translateY(-50%); }
+.status-running { color: #039855; background: #eaf8f1; }
+.status-running::before { background: #12b76a; }
+.status-disabled { color: #667085; background: #f2f4f7; }
+.status-disabled::before { background: #98a2b3; }
+.card-actions { display: grid; grid-template-columns: 1fr 1rpx 1fr 1rpx 1fr; width: 100%; min-height: 80rpx; gap: 0; margin: 0; padding: 0; border-top: 2rpx solid #e4e7ec; }
+.action-btn { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; min-height: 80rpx; padding: 0; color: #1677ff; border-radius: 0; font-size: 24rpx; font-weight: 500; line-height: 36rpx; }
+.action-btn.activate-btn,
+.action-btn.start-btn,
+.action-btn.stop-btn { color: #1677ff; }
+.action-btn.edit-btn { color: #1677ff; background: transparent; }
+.action-btn.delete-btn { color: #ff3b30; }
+.action-divider { display: block; align-self: center; width: 1rpx; height: 42rpx; margin: 0; background: #d0d5dd; }
+
+.load-more-btn { height: 64rpx; margin-top: 10rpx; background: #fff; border: 2rpx solid #e5e9ef; border-radius: 14rpx; }
+.load-more-btn .load-more-text { color: #667085; font-size: 21rpx; font-weight: 400; }
+
+.automation-skeleton { padding: 26rpx 28rpx 20rpx; }
+.skeleton-row { display: flex; align-items: center; justify-content: space-between; }
+.skeleton-shape { background: linear-gradient(100deg, #eef1f5 20%, #f8f9fb 38%, #eef1f5 56%); background-size: 220% 100%; animation: automation-skeleton-shimmer 1.35s ease-in-out infinite; }
+.skeleton-title { width: 42%; height: 26rpx; border-radius: 8rpx; }
+.skeleton-status { width: 76rpx; height: 30rpx; border-radius: 999rpx; }
+.skeleton-desc { width: 70%; height: 18rpx; margin-top: 16rpx; border-radius: 6rpx; }
+.skeleton-actions { display: flex; justify-content: flex-end; gap: 14rpx; margin-top: 20rpx; padding-top: 18rpx; border-top: 2rpx solid #f0f2f5; }
+.skeleton-action { width: 58rpx; height: 28rpx; border-radius: 7rpx; }
+@keyframes automation-skeleton-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+.empty-state { min-height: 620rpx; padding: 70rpx 0 120rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.empty-visual { position: relative; width: 176rpx; height: 136rpx; }
+.empty-ring { position: absolute; left: 50%; top: 50%; border: 2rpx solid #dce8f8; border-radius: 50%; transform: translate(-50%, -50%); }
+.ring-outer { width: 150rpx; height: 100rpx; }
+.ring-inner { width: 104rpx; height: 70rpx; border-color: #e7edf5; }
+.empty-device { position: absolute; left: 50%; top: 50%; width: 58rpx; height: 48rpx; background: #fff; border: 2rpx solid #dbe2eb; border-radius: 16rpx; box-shadow: 0 8rpx 20rpx rgba(34,49,72,.07); transform: translate(-50%, -50%); }
+.empty-device::after { position: absolute; content: ''; left: 50%; bottom: 9rpx; width: 5rpx; height: 5rpx; background: #64a7ff; border-radius: 50%; transform: translateX(-50%); }
+.empty-title { margin-top: 8rpx; color: #344054; font-size: 26rpx; font-weight: 600; line-height: 38rpx; }
+.empty-description { margin-top: 8rpx; color: #98a2b3; font-size: 20rpx; line-height: 30rpx; }
+.empty-action { margin-top: 26rpx; padding: 14rpx 26rpx; color: #fff; background: #1677ff; border-radius: 14rpx; font-size: 21rpx; line-height: 30rpx; box-shadow: 0 6rpx 14rpx rgba(22,119,255,.16); }
+
+@media (prefers-reduced-motion: reduce) {
+  .segment-item { transition: none; }
+  .skeleton-shape { animation: none; }
+}
 </style>
