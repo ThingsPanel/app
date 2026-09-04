@@ -160,7 +160,6 @@
           创建告警
           </button> -->
         </view>
-        </view>
         <view class="action-group-controls tp-flex">
           <!-- 条件数量大于1条时才允许删除 -->
           <text
@@ -172,6 +171,7 @@
           <!-- 仅最后一个显示新增 -->
           <text v-if="isActionEditing(actionGroupIndex)" class="editor-action" @click="finishActionEdit(actionGroupIndex)">{{ $t('common.confirm') }}</text>
           <view v-else-if="actionGroupIndex === actions.length - 1" class="add-summary-row" @click="addActionGroupItem()">＋ 添加动作</view>
+        </view>
         </view>
         <!--
         <button
@@ -744,10 +744,11 @@
   }
 
   .action-summary-card {
-    overflow: visible;
+    box-sizing: border-box;
+    overflow: hidden;
     width: 100%;
     border: 2rpx solid #edf0f3;
-    border-radius: 10px 10px 0 0;
+    border-radius: 10px;
     background: #fff;
     box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
     backdrop-filter: none;
@@ -807,16 +808,10 @@
   }
 
   .action-group-controls {
-    margin: -2rpx 0 0;
     padding: 0 12px;
     border-top: 1rpx solid #edf0f3;
-    border: 2rpx solid #edf0f3;
-    border-top-width: 1rpx;
-    border-radius: 0 0 18rpx 18rpx;
     background: #fff;
   }
-
-  .action-summary-card + .action-group-controls { border-top-color: #e4e7ec; }
 
   .editor-action { display:flex; flex:0 0 auto; align-items:center; min-height:44px; color:#1677ff; font-size:14px; white-space:nowrap; }
   .editor-action-danger { margin-right: auto; color: #ff3b30; }

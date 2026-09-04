@@ -138,7 +138,7 @@
 
                     <!-- 每周 -> 选择星期和时间 -->
                     <view v-if="ifItem.task_type === 'WEEK'" class="form-item">
-                      <checkbox-group @change="(e) => onWeekChoseValueChange(e, ifItem)" class="tp-mg-l-20">
+                      <checkbox-group @change="(e) => onWeekChoseValueChange(e, ifItem)">
                         <view class="checkbox-space">
                           <label
                             v-for="(weekItem, weekIndex) in weekOptions"
@@ -185,7 +185,7 @@
                         :label="weekItem.label"
                       />
                     </checkbox-group> -->
-                    <checkbox-group @change="(e) => onWeekChoseValueChange(e, ifItem)" class="tp-mg-l-20">
+                    <checkbox-group @change="(e) => onWeekChoseValueChange(e, ifItem)">
                       <view class="checkbox-space">
                         <label
                           v-for="(weekItem, weekIndex) in weekOptions"
@@ -201,11 +201,14 @@
                       </view>
                     </checkbox-group>
 
-                    <view class="time-range">
-                      <AutomationTimeSheet v-model="ifItem.startTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectStartTime')" title="开始时间" />
-                      <view class="time-range-divider">-</view>
-                      <AutomationTimeSheet v-model="ifItem.endTimeValue" :placeholder="$t('pages.sceneAutomationEditor.selectEndTime')" title="结束时间" />
-                    </view>
+                    <AutomationTimeRangeSheet
+                      v-model:start-value="ifItem.startTimeValue"
+                      v-model:end-value="ifItem.endTimeValue"
+                      :start-label="$t('components.selectTime.startTime')"
+                      :end-label="$t('components.selectTime.endTime')"
+                      :start-placeholder="$t('pages.sceneAutomationEditor.selectStartTime')"
+                      :end-placeholder="$t('pages.sceneAutomationEditor.selectEndTime')"
+                    />
                   </view>
                   <!-- 其他时间条件类型的处理，省略 -->
                 </view>
@@ -266,10 +269,11 @@
   } from '@/api/modules/automation';
   import CustomSelect from '@/components/custom-select.vue';
   import AutomationTimeSheet from './automation-time-sheet.vue';
+  import AutomationTimeRangeSheet from './automation-time-range-sheet.vue';
   import AutomationDatetimeSheet from './automation-datetime-sheet.vue';
   
   export default {
-    components: { CustomSelect, AutomationTimeSheet, AutomationDatetimeSheet },
+    components: { CustomSelect, AutomationTimeSheet, AutomationTimeRangeSheet, AutomationDatetimeSheet },
     data() {
       return {
         editingConditionKey: '',
@@ -596,7 +600,7 @@
           return {
             title: this.$t('pages.sceneAutomationEditor.timeRange'),
             subtitle: this.formatWeekSummary(item.weekChoseValue),
-            detail: `${this.formatTime(item.startTimeValue) || '--:--'} - ${this.formatTime(item.endTimeValue) || '--:--'}`
+            detail: `${this.formatTime(item.startTimeValue, true) || '--:--:--'} - ${this.formatTime(item.endTimeValue, true) || '--:--:--'}`
           };
         }
         const cycle = this.getPickerDisplayText(this.cycleOptions, item.task_type, 'value', 'label') || this.$t('pages.sceneAutomationEditor.repeat');
@@ -807,12 +811,13 @@
         ifItem.hourTimeValue = date.getTime();
         this.$forceUpdate();
       },
-      formatTime(timestamp) {
+      formatTime(timestamp, includeSeconds = false) {
         if (!timestamp) return '';
         const date = new Date(timestamp);
         const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${hours}:${minutes}`;
+        const time = `${hours}:${minutes}`;
+        return includeSeconds ? `${time}:${date.getSeconds().toString().padStart(2, '0')}` : time;
       },
       onDayTimeChange(e, ifItem) {
         const [hours, minutes] = e.detail.value.split(':');
@@ -935,14 +940,17 @@
         return false;
       },
       getTimeConditionOptions(ifGroup) {
+        const hasDeviceCondition = Array.isArray(ifGroup) && ifGroup.some(item => item.ifType === '1');
         return [
           {
             label: this.$t('pages.sceneAutomationEditor.singleTime'),
-            value: '20'
+            value: '20',
+            disabled: hasDeviceCondition
           },
           {
             label: this.$t('pages.sceneAutomationEditor.repeat'),
-            value: '21'
+            value: '21',
+            disabled: hasDeviceCondition
           },
           {
             label: this.$t('pages.sceneAutomationEditor.timeRange'),
@@ -1207,6 +1215,7 @@
   @import '@/features/automation/styles/forms.css';
   .ifGroupItem-class {
     position: relative;
+    box-sizing: border-box;
     display: block !important;
     margin: 0 0 6px !important;
     padding: 0 !important;
@@ -1277,7 +1286,27 @@
   .summary-line { color: #667085; font-size: 12px; line-height: 16px; }
   .summary-menu { display:flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; margin:-6px -10px 0 0; box-sizing:border-box; }
 
-  .condition-form-fields { padding: 0 12px; }
+  .condition-form-fields {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    width: 100%;
+    padding: 0 12px;
+  }
+
+  .condition-form-fields > .tp-flex-1 {
+    box-sizing: border-box;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .condition-form-fields .uni-input {
+    box-sizing: border-box;
+    width: 100%;
+    height: 48px;
+    padding: 0;
+    line-height: 48px;
+    border-bottom: 1rpx solid #edf0f3;
+  }
 
   form > .tp-flex { flex-direction: column; }
 
@@ -1293,7 +1322,7 @@
   }
 
   .condition-card-controls {
-    padding: 0 10px;
+    padding: 0 12px;
     border-top: 1rpx solid #edf0f3;
   }
 
@@ -1429,20 +1458,6 @@
 .checkbox-label checkbox {
   transform: scale(0.82);
   margin-right: 12rpx;
-}
-
-.time-range {
-  display: flex;
-  align-items: center;
-  column-gap: 20rpx;
-}
-
-.time-range-divider {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40rpx;
-  color: #1e293b;
 }
 
 .popup-grabber { width:36px; height:4px; margin:8px auto 2px; background:#d0d5dd; border-radius:2px; }
