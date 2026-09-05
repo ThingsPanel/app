@@ -1,7 +1,7 @@
 <template>
   <view class="pagehome">
     <view class="editor-nav">
-      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="22" color="#172033" /></view>
+      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="20" color="#172033" /></view>
       <text class="nav-title">{{ editId ? $t('pages.sceneEditor.editScene') : $t('pages.sceneEditor.newScene') }}</text>
       <text class="nav-side nav-save" @tap="handlerSubmit">{{ $t('common.save') }}</text>
     </view>
@@ -351,7 +351,7 @@ export default {
 
   .nav-side { display: flex; align-items: center; min-width: 0; height: 88rpx; }
   .nav-back { justify-content: flex-start; }
-  .nav-save { justify-content: flex-end; color: #1677ff; font-size: 28rpx; font-weight: 600; }
+  .nav-save { justify-content: flex-end; color: #1677FF; font-size: 26rpx; font-weight: 500; }
   .nav-title { overflow: hidden; color: #172033; font-size: 30rpx; font-weight: 650; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 
 	@import '@/features/automation/styles/forms.css';
@@ -382,7 +382,7 @@ export default {
     left: -10%;
     width: 700rpx;
     height: 700rpx;
-    background: radial-gradient(circle, rgba(100, 108, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
+    background: radial-gradient(circle, rgba(22, 119, 255, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
     border-radius: 50%;
     z-index: 0;
     pointer-events: none;
@@ -459,10 +459,10 @@ export default {
     }
 
     .input-label {
-      font-size: 28rpx !important;
-      font-weight: 700 !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
       color: #334155 !important;
-      min-width: 140rpx !important;
+      min-width: 78px !important;
       flex-shrink: 0 !important;
     }
   }
@@ -501,18 +501,18 @@ export default {
     width: 100%;
     height: 88rpx;
     line-height: 88rpx;
-    background: #646cff;
+    background: #1677FF;
     border-radius: 32rpx;
     font-size: 30rpx;
     font-weight: 600;
     color: #ffffff;
     border: none;
-    box-shadow: 0 8rpx 24rpx rgba(100, 108, 255, 0.3), 0 2rpx 8rpx rgba(100, 108, 255, 0.2);
+    box-shadow: 0 8rpx 24rpx rgba(22, 119, 255, 0.3), 0 2rpx 8rpx rgba(22, 119, 255, 0.2);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
     &:active {
       transform: scale(0.98);
-      box-shadow: 0 4rpx 12rpx rgba(100, 108, 255, 0.25), 0 1rpx 4rpx rgba(100, 108, 255, 0.15);
+      box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.25), 0 1rpx 4rpx rgba(22, 119, 255, 0.15);
     }
 
     &::after {
@@ -540,9 +540,9 @@ export default {
   .scene-card {
     margin-bottom: 8px;
     background: #ffffff;
-    border: 2rpx solid #edf0f3;
-    border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(34, 46, 66, 0.035);
+    border: 1rpx solid #e4e9f0;
+    border-radius: 10rpx;
+    box-shadow: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     transition: none;
@@ -561,10 +561,13 @@ export default {
 
   .modern-input {
     color: #172033;
+    font-size: 13px;
+    line-height: 18px;
   }
 
   .input-placeholder {
     color: #98a2b3;
+    font-size: 13px;
   }
 
   .actions-section {
@@ -596,15 +599,15 @@ export default {
   .modern-btn {
     height: 88rpx;
     line-height: 88rpx;
-    background: #1677ff;
+    background: #1677FF;
     border-radius: 16rpx;
-    box-shadow: 0 8rpx 18rpx rgba(22, 119, 255, 0.2);
+    box-shadow: none;
   }
 
   .modern-btn:active {
     transform: none;
     background: #0f6fe8;
-    box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, 0.18);
+    box-shadow: none;
   }
 
   /* Tooltip */

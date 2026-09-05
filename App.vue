@@ -76,4 +76,27 @@
 	@import './styles/utilities.css';
 	/* */ 
 	@import './styles/global.css';
+
+	/* #ifdef H5 */
+	/* 固定导航内容的行盒，避免字体加载和页面切换改变图文的垂直位置。 */
+	uni-tabbar .uni-tabbar__bd {
+		flex: 0 0 auto;
+		height: 52px;
+		min-height: 52px;
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+	}
+	uni-tabbar .uni-tabbar__icon {
+		flex: 0 0 20px;
+	}
+	uni-tabbar .uni-tabbar__icon img {
+		display: block;
+	}
+	uni-tabbar .uni-tabbar__label {
+		flex: 0 0 16px;
+		height: 16px;
+		line-height: 16px !important;
+		font-weight: 400;
+		white-space: nowrap;
+	}
+	/* #endif */
 </style>

@@ -4,13 +4,28 @@
 			<view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
 				<view>
 					<view class="page-title">设备</view>
-					<view class="page-subtitle">共 {{ deviceTotal }} 台，在线 {{ onlineCount }} 台</view>
+					<view class="page-subtitle" v-if="overviewState === 'ready'">共 {{ deviceTotal }} 台，在线 {{ onlineCount }} 台</view>
+					<view class="page-subtitle" v-else>设备运行概况</view>
 				</view>
 				<view class="header-actions tp-flex tp-flex-a-c">
 					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
 						<image src="/static/icon/notify.svg" mode="aspectFit" />
 					</view>
 				</view>
+			</view>
+		</view>
+
+		<view class="overview-section">
+			<view class="overview-card" :aria-busy="overviewState === 'loading'">
+				<view class="overview-heading"><text>设备概况</text><text class="overview-scope">全部 {{ overviewState === 'ready' ? deviceTotal : '—' }} 台</text></view>
+				<view class="overview-metrics">
+					<view class="metric-item"><view class="metric-label">在线设备</view><text class="metric-value">{{ overviewState === 'ready' ? onlineCount : '—' }}</text></view>
+					<view class="metric-item"><view class="metric-label">离线设备</view><text class="metric-value">{{ overviewState === 'ready' ? offlineCount : '—' }}</text></view>
+					<view class="metric-item"><view class="metric-label"><view class="overview-alarm-dot" />告警设备</view><text class="metric-value">{{ overviewState === 'ready' ? alarmCount : '—' }}</text></view>
+				</view>
+				<view class="overview-footer" v-if="overviewState === 'ready'"><text>设备在线率</text><view class="online-rate-track"><view class="online-rate-fill" :style="{ width: Math.min(100, Math.max(0, Number(onlineRate))) + '%' }" /></view><text class="online-rate-value">{{ onlineRate }}%</text></view>
+				<view class="overview-footer" v-else-if="overviewState === 'loading'"><text>正在加载统计…</text></view>
+				<button class="overview-footer overview-retry" v-else @click="getOverviewStats">统计加载失败，点击重试</button>
 			</view>
 		</view>
 
@@ -29,7 +44,17 @@
 				</view>
 				<view class="filter-button tp-flex tp-flex-a-c tp-flex-j-c" @click="toShowNavDrawer">
 					<image src="/static/icon/device-filter.svg" class="filter-icon" />
-					<text>{{ selectedGroupName || '筛选' }}</text>
+					<text>筛选</text>
+				</view>
+			</view>
+			<view class="device-view-toolbar">
+				<view class="group-controls">
+					<button class="group-selector" aria-label="选择设备分组" @click="toShowNavDrawer"><text class="group-name">{{ selectedGroupName || '全部分组' }}</text><view class="group-chevron" /></button>
+					<button v-if="selectedGroupId" class="group-reset" aria-label="清除分组，查看全部设备" @click="clearSelectedGroup">清除</button>
+				</view>
+				<view class="view-switch">
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'grid' }" :aria-pressed="deviceViewMode === 'grid'" aria-label="卡片视图" @click="setDeviceViewMode('grid')"><view class="view-grid-icon"><view v-for="cell in 4" :key="cell" /></view></button>
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'list' }" :aria-pressed="deviceViewMode === 'list'" aria-label="列表视图" @click="setDeviceViewMode('list')"><view class="view-list-icon"><view v-for="row in 3" :key="row" /></view></button>
 				</view>
 			</view>
 			<scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
@@ -50,21 +75,7 @@
 		</view>
 
 		<view class="tp-content">
-			<view class="overview-card">
-				<view class="metric-item">
-					<view class="metric-head"><view class="metric-icon metric-icon-online"><image src="/static/icon/status-online-flat.svg" /></view><text class="metric-value">{{ onlineCount }}</text><text class="trend">↑</text></view>
-					<view class="metric-label">在线设备</view><view class="metric-note">{{ onlineRate }}%</view>
-				</view>
-				<view class="metric-item">
-					<view class="metric-head"><view class="metric-icon metric-icon-offline"><image src="/static/icon/status-offline-flat.svg" /></view><text class="metric-value">{{ offlineCount }}</text></view>
-					<view class="metric-label">离线设备</view><view class="metric-note">{{ offlineRate }}%</view>
-				</view>
-				<view class="metric-item">
-					<view class="metric-head"><view class="metric-icon metric-icon-alarm"><image src="/static/icon/status-alarm-flat.svg" /></view><text class="metric-value">{{ alarmCount }}</text></view>
-					<view class="metric-label">告警设备</view><view class="metric-note alarm-note">{{ alarmCount ? `${alarmCount} 条待处理` : '暂无告警' }}</view>
-				</view>
-			</view>
-			<view class="device-list">
+			<view class="device-list" :class="{ 'device-list--rows': deviceViewMode === 'list' }">
 				<block v-if="isDeviceLoading && deviceList.length === 0">
 					<view v-for="index in 4" :key="`device-skeleton-${index}`" class="device-skeleton">
 						<view class="skeleton-icon skeleton-shape" />
@@ -79,6 +90,7 @@
 					v-for="item in deviceList"
 					:key="item.id"
 					:device="item"
+					:layout="deviceViewMode"
 					@select="clickDevice"
 				/>
 				<view class="empty-state" v-if="!isDeviceLoading && deviceList.length === 0">
@@ -98,12 +110,12 @@
 			allKey="value"
 			childKey="children"
 			pidKey="pid"
-			:showSearch="false"
+			:showSearch="true"
 			:multiple="false"
 			:cascade="false"
 			:selectParent="true"
 			:foldAll="false"
-			confirmColor="#646cff"
+			confirmColor="#1677FF"
 			cancelColor="#757575"
 			:title="$t('pages.deviceDetail.groupSelection')"
 			titleColor="#333333"
@@ -129,9 +141,9 @@
 		<app-toast ref="toast" :msg="toast.msg" direction="row" location="top"></app-toast>
 		
 		<!-- Scroll to Top Button -->
-		<view class="scroll-to-top" v-if="showScrollTop" @click="scrollToTop">
-			<image src="/static/icon/arrow-up.png" class="scroll-icon-img" mode="aspectFit" />
-		</view>
+		<button class="scroll-to-top" v-if="showScrollTop" aria-label="回到顶部" hover-class="scroll-to-top--pressed" @click="scrollToTop">
+			<view class="scroll-top-arrow" aria-hidden="true" />
+		</button>
 	</view>
 </template>
 
@@ -228,6 +240,8 @@ export default {
 			selectedGroupName: '',
 			searchKeyword: '',
 			activeStatusFilter: 'all',
+			deviceViewMode: 'grid',
+			overviewState: 'loading',
 			deviceTotal: 0,
 			overviewTotals: { online: 0, offline: 0, alarm: 0 },
 			filterTotals: { total: 0, online: 0, offline: 0, alarm: 0 },
@@ -241,7 +255,6 @@ export default {
 		offlineCount() { return this.overviewTotals.offline },
 		alarmCount() { return this.overviewTotals.alarm },
 		onlineRate() { return this.deviceTotal ? (this.onlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
-		offlineRate() { return this.deviceTotal ? (this.offlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
 		statusFilters() {
 			return [
 				{ key: 'all', label: '全部', count: this.filterTotals.total },
@@ -317,6 +330,10 @@ export default {
 		// 恢复上次选择的设备分组（保持分组选择）
 		this.restoreSelectedGroup()
 		this.showData();
+		if (uni.getStorageSync('dashboard_open_groups')) {
+			uni.removeStorageSync('dashboard_open_groups')
+			this.$nextTick(() => this.toShowNavDrawer())
+		}
 		//this.checkNotify()
 		this.$nextTick(() => {
 			setTimeout(() => {
@@ -623,17 +640,27 @@ export default {
 			this.getDeviceList()
 		},
 		getOverviewStats() {
-			Promise.all([
+			this.overviewState = 'loading'
+			return Promise.all([
 				getDeviceOverview(),
 				getAlarmDeviceCount()
 			]).then(([deviceOverview, alarmOverview]) => {
-				const total = Number(deviceOverview?.data?.device_total ?? 0)
-				const online = Number(deviceOverview?.data?.device_on ?? 0)
+				if (deviceOverview?.code !== 200 || alarmOverview?.code !== 200 || !deviceOverview.data || !alarmOverview.data) {
+					throw new Error('Device overview request failed')
+				}
+				// 告警接口返回设备数，不能展示为待处理事件条数。
+				const total = Number(deviceOverview.data.device_total ?? NaN)
+				const online = Number(deviceOverview.data.device_on ?? NaN)
 				const offline = Number(deviceOverview?.data?.device_offline ?? Math.max(total - online, 0))
-				const alarm = Number(alarmOverview?.data?.alarm_device_total ?? 0)
+				const alarm = Number(alarmOverview.data.alarm_device_total ?? NaN)
+				if (![total, online, offline, alarm].every(value => Number.isFinite(value) && value >= 0)) {
+					throw new Error('Invalid device overview counts')
+				}
 				this.overviewTotals = { online, offline, alarm }
 				this.deviceTotal = total
+				this.overviewState = 'ready'
 			}).catch(error => {
+				this.overviewState = 'error'
 				console.warn('Failed to load device overview statistics:', error)
 			})
 		},
@@ -677,6 +704,12 @@ export default {
 			this.activeStatusFilter = filter
 			this.applyDeviceFilters()
 		},
+		setDeviceViewMode(mode) {
+			if (!['grid', 'list'].includes(mode) || this.deviceViewMode === mode) return
+			this.deviceViewMode = mode
+			// 切换布局会改变可见设备范围，沿用现有的视口订阅逻辑。
+			this.$nextTick(() => this.scheduleViewportSubscription())
+		},
 		scanDevice() {
 			uni.scanCode({ success: ({ result }) => uni.navigateTo({ url: './create?code=' + encodeURIComponent(result) + '&groupId=' + (this.currentGroup.id || '') }) })
 		},
@@ -710,22 +743,13 @@ export default {
 		},
 		// 展示分组
 		toShowNavDrawer() {
-			this.getGroupData();
-			//this.$refs.navDrawer.open()
-			//this.$refs.nextTreeRef.showTree = true
-			//this.$refs.gqTree._show();
-			//setTimeout(() => {
-				this.$refs.gqTree._show();
-			//}, 1000)
+			return this.getGroupData()
 		},
 		clearSelectedGroup() {
-			this.deviceList = [];
-			this.selectedGroupId = '';
-			this.selectedGroupName = '';
+			this.selectedGroupId = ''
+			this.selectedGroupName = ''
 			this.persistSelectedGroup()
-			// 关闭现有WebSocket连接
-			deviceStatusSocket.close();
-			this.getDeviceList();
+			this.applyDeviceFilters()
 		},
 		// 改变设备开关
 		/*changSwitch(dev, sw) {
@@ -772,6 +796,7 @@ export default {
 			  const formattedGroup = {
 				id: group.group.id,
 				name: group.group.name,
+				isGqAddChecked: group.group.id === this.selectedGroupId,
 				pid: parentId,
 				children: group.children ? this.formatGroupData(group.children, group.group.id) : [],
 			  };
@@ -783,30 +808,27 @@ export default {
 				title: this.$t('common.loading'),
 				mask: true
 			});
-			this.API.apiRequest('/api/v1/device/group/tree', {
+			return this.API.apiRequest('/api/v1/device/group/tree', {
 			}, 'get').then(res => {
-				if (res.code === 200) {
-					this.deviceGroupData = this.formatGroupData(res.data)
-					console.log(this.deviceGroupData)
-				}
+				if (res.code !== 200 || !Array.isArray(res.data)) throw new Error('Device groups request failed')
+				this.deviceGroupData = this.formatGroupData(res.data)
+				this.$nextTick(() => this.$refs.gqTree._show())
+			}).catch(error => {
+				console.warn('Failed to load device groups:', error)
+				this.toast.msg = this.$t('common.loadFailed')
+				this.$refs.toast.show()
 			}).finally(() => {
-				this.$refs.gqTree._show();
-			});
-			setTimeout(() => {
 				uni.hideLoading()
-			}, 1000);
+			});
 		},
-			treeConfirm(e) {
-			this.deviceList = []
-			this.selectedGroupId = e[0].id
-			this.selectedGroupName = e[0].name
+		treeConfirm(e) {
+			const selected = e?.[0]
+			if (!selected) return
+			this.selectedGroupId = selected.id
+			this.selectedGroupName = selected.name
 			this.persistSelectedGroup()
 			this.$refs.navDrawer.close()
-			this.$store.state.list.devicePage = 1
-			// 关闭现有WebSocket连接
-			deviceStatusSocket.close()
-			this.getFilteredDeviceStats()
-			this.getDeviceList()
+			this.applyDeviceFilters()
 		},
 		treeCancel() {
 			// 处理树形选择器取消事件
@@ -1132,12 +1154,12 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .tp-box {
 	--page-gutter: clamp(22rpx, 5vw, 34rpx);
-	--radius-card: 22rpx;
-	--radius-control: 16rpx;
-	--radius-chip: 12rpx;
+	--radius-card: 10rpx;
+	--radius-control: 10rpx;
+	--radius-chip: 8rpx;
 	width: 100%;
 	min-height: 100vh;
 	background: #f7f8fa;
@@ -1156,18 +1178,19 @@ export default {
 
 .page-title {
 	color: #172033;
-	font-size: 52rpx;
+	font-size: 22px;
 	font-weight: 600;
-	line-height: 66rpx;
+	line-height: 30px;
 }
-.page-subtitle { margin-top: 8rpx; color: #7c879a; font-size: 25rpx; line-height: 36rpx; }
+.page-subtitle { margin-top: 4px; color: #7c879a; font-size: 12px; line-height: 18px; }
 
 .notify-action { width: 66rpx; height: 66rpx; }
-.notify-action image { width: 44rpx; height: 44rpx; }
+.notify-action image { width: 36rpx; height: 36rpx; }
 
 .device-toolbar {
 	padding: 12rpx var(--page-gutter) 0;
-	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 58%, #f3f6fa 100%);
+	/* 渐变终点与设备区一致，避免筛选栏下出现白灰硬边界。 */
+	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 42%, #f7f8fa 100%);
 }
 .search-row { display: flex; gap: 14rpx; }
 
@@ -1176,8 +1199,8 @@ export default {
 	align-items: center;
 	height: 56rpx;
 	flex: 1;
-	background: #ffffff;
-	border: 2rpx solid #dfe4eb;
+	background: rgba(255,255,255,.82);
+	border: 1rpx solid #dce4ee;
 	border-radius: var(--radius-control);
 	box-sizing: border-box;
 }
@@ -1222,19 +1245,23 @@ export default {
 	display: flex; align-items: center;
 	padding: 7rpx 14rpx;
 	color: #667085;
-	background: #ffffff;
-	border: 2rpx solid #dfe4eb;
+	background: rgba(255,255,255,.72);
+	border: 1rpx solid #dce4ee;
 	border-radius: var(--radius-chip);
-	box-shadow: 0 4rpx 12rpx rgba(34, 49, 74, .035);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
 	font-size: 22rpx;
 	line-height: 31rpx;
 
 	&.active {
 		color: #1677ff;
-		background: #f7faff;
-		border-color: #7fb2ff;
-		box-shadow: 0 4rpx 12rpx rgba(22, 119, 255, .06);
+		background: rgba(233,242,255,.88);
+		border-color: #a9cafa;
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
 	}
+}
+/* 不支持背景模糊的平台仍使用上方半透明底色与连续渐变。 */
+@supports (backdrop-filter: blur(8px)) {
+	.filter-chip, .device-search { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 }
 .chip-dot { width: 10rpx; height: 10rpx; margin-right: 9rpx; border-radius: 50%; background: #aab1bc; }
 .chip-dot.online { background: #08bf63; }.chip-dot.alarm { background: #ff4d35; }
@@ -1243,14 +1270,38 @@ export default {
 /* Content */
 .tp-content { padding: 16rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx); }
 
-.overview-card { display: flex; margin: 0 0 20rpx; padding: 14rpx 0; background: #fff; border-radius: var(--radius-card); box-shadow: 0 10rpx 28rpx rgba(35,49,72,.055); }
-.metric-item { position: relative; width: 33.333%; padding: 0 24rpx; box-sizing: border-box; }
-.metric-item:not(:last-child)::after { position: absolute; content: ''; top: 12rpx; right: 0; bottom: 12rpx; width: 2rpx; background: #edf0f4; }
-.metric-head { display: flex; align-items: center; height: 62rpx; }
-.metric-icon { display: flex; align-items: center; justify-content: center; width: 50rpx; height: 50rpx; margin-right: 12rpx; flex-shrink: 0; }
-.metric-icon image { width: 50rpx; height: 50rpx; }
-.metric-value { color: #121b2b; font-size: 40rpx; font-weight: 600; line-height: 52rpx; }.trend { margin-left: 5rpx; color: #00ad5d; font-size: 28rpx; }
-.metric-label { margin-top: 13rpx; color: #283244; font-size: 24rpx; }.metric-note { margin-top: 8rpx; color: #8993a5; font-size: 21rpx; }.alarm-note { color: #ff3b30; white-space: nowrap; }
+.overview-section { padding: 18rpx var(--page-gutter) 14rpx; background: #fff; }
+.overview-card { padding: 18rpx 26rpx 14rpx; background: #1677FF; color: #fff; border-radius: var(--radius-card); }
+.overview-heading { display: flex; align-items: center; justify-content: space-between; color: #e4eeff; font-size: 21rpx; line-height: 28rpx; margin-bottom: 12rpx; }
+.overview-scope { color: #c8dcfa; font-size: 18rpx; }
+.overview-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.metric-item { min-width: 0; padding-left: 26rpx; border-left: 1rpx solid rgba(255,255,255,.18); }
+.metric-item:first-child { padding-left: 0; border: 0; }
+.metric-label { display: flex; align-items: center; gap: 7rpx; color: #deebff; font-size: 21rpx; line-height: 30rpx; white-space: nowrap; }
+.metric-value { display: block; color: #fff; font-size: 46rpx; font-weight: 600; line-height: 60rpx; font-variant-numeric: tabular-nums; letter-spacing: -.5rpx; }
+.overview-alarm-dot { width: 8rpx; height: 8rpx; flex-shrink: 0; border-radius: 50%; background: #ffbc82; }
+.overview-footer { display: flex; align-items: center; gap: 18rpx; min-height: 30rpx; margin-top: 12rpx; padding-top: 10rpx; border-top: 1rpx solid rgba(255,255,255,.18); color: #deebff; font-size: 19rpx; line-height: 28rpx; }
+.online-rate-track { flex: 1; height: 5rpx; background: rgba(255,255,255,.2); border-radius: 4rpx; overflow: hidden; }
+.online-rate-fill { height: 100%; background: #a5d2ff; }
+.online-rate-value { color: #fff; font-size: 21rpx; font-weight: 500; font-variant-numeric: tabular-nums; }
+.overview-retry { width: 100%; border-radius: 0; background: transparent; padding-right: 0; padding-left: 0; }
+.device-view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; margin-top: 12rpx; }
+.group-controls { display: flex; align-items: center; min-width: 0; flex: 1; }
+.group-selector { display: flex; align-items: center; gap: 12rpx; min-width: 0; max-width: 100%; min-height: 44px; margin: 0; padding: 0 8rpx 0 0; background: none; color: #53647b; border-radius: 0; font-size: 22rpx; line-height: 34rpx; }
+.group-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.group-chevron { flex-shrink: 0; width: 10rpx; height: 10rpx; border-right: 2rpx solid #8090a5; border-bottom: 2rpx solid #8090a5; transform: rotate(45deg); margin: -5rpx 5rpx 0 0; }
+.group-reset { flex-shrink: 0; min-height: 44px; padding: 0 12rpx; margin: 0; background: transparent; color: #1677FF; font-size: 20rpx; line-height: 44px; }
+.view-switch { display: flex; gap: 0; flex-shrink: 0; margin-right: -14px; }
+.view-switch-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; background: transparent; border-radius: 8rpx; color: #7b899d; }
+.view-switch-button.active { color: #1677ff; background: transparent; }
+.group-selector::after, .group-reset::after, .view-switch-button::after, .overview-retry::after { border: none; }
+.view-grid-icon, .view-list-icon { width: 16px; height: 16px; flex-shrink: 0; box-sizing: border-box; }
+.view-switch .view-grid-icon { transform: translateX(12px); }
+.view-grid-icon { display: grid; grid-template-columns: repeat(2, 6px); grid-template-rows: repeat(2, 6px); gap: 4px; }
+.view-grid-icon view { width: 6px; height: 6px; border: 1.5px solid currentColor; border-radius: 1px; box-sizing: border-box; }
+.view-list-icon { display: flex; flex-direction: column; justify-content: space-between; }
+.view-list-icon view { position: relative; height: 1.5px; flex-shrink: 0; margin-left: 5px; border-radius: 1px; background: currentColor; }
+.view-list-icon view::before { position: absolute; left: -5px; top: 0; width: 1.5px; height: 1.5px; border-radius: 1px; content: ''; background: currentColor; }
 
 /* Device List */
 .device-list {
@@ -1258,6 +1309,8 @@ export default {
 	grid-template-columns: repeat(2, minmax(0, 1fr));
 	gap: 12rpx;
 }
+.device-list--rows { grid-template-columns: minmax(0, 1fr); gap: 0; background: #fff; border: 1rpx solid #e8edf3; border-radius: var(--radius-card); overflow: hidden; }
+.device-list--rows .device-skeleton { border-radius: 0; border-width: 0 0 1rpx; }
 
 .device-skeleton {
 	display: grid;
@@ -1268,7 +1321,7 @@ export default {
 	padding: 15rpx 15rpx 12rpx;
 	background: #fff;
 	border: 2rpx solid #edf0f3;
-	border-radius: 22rpx;
+	border-radius: var(--radius-card);
 	box-sizing: border-box;
 	overflow: hidden;
 }
@@ -1356,26 +1409,29 @@ export default {
 /* Scroll to Top Button */
 .scroll-to-top {
 	position: fixed;
-	right: 40rpx;
-	bottom: 140rpx;
-	width: 76rpx;
-	height: 76rpx;
-	background: #0f5147;
-	border-radius: 4rpx;
+	right: var(--page-gutter);
+	bottom: calc(52px + env(safe-area-inset-bottom) + 16px);
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	color: #1677FF;
+	border-radius: var(--radius-control);
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	border: 2rpx solid #63b7a4;
+	border: 1px solid #dce6f3;
+	box-shadow: none;
 	z-index: 999;
-	
-	.scroll-icon-img {
-		width: 38rpx;
-		height: 38rpx;
-		filter: brightness(0) invert(1);
-	}
-	
-	&:active {
-		background: #147d6b;
-	}
+	&::after { border: none; }
+	&:active, &.scroll-to-top--pressed { background: #edf4ff; }
+}
+.scroll-top-arrow {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	&::before { content: ''; position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; transform: rotate(45deg); }
+	&::after { content: ''; position: absolute; left: 9px; top: 3px; width: 2px; height: 16px; background: currentColor; }
 }
 </style>

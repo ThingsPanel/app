@@ -51,9 +51,16 @@
 			}
 		},
 		{
-			"path": "pages/dashboard/index",
+			"path": "pages/dashboard/boards",
 			"style": {
 				"navigationBarTitleText": "看板",
+				"navigationBarBackgroundColor": "#FFFFFF"
+			}
+		},
+		{
+			"path": "pages/dashboard/index",
+			"style": {
+				"navigationBarTitleText": "首页",
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#FFFFFF",
 				"navigationStyle": "custom"
@@ -159,6 +166,9 @@
 		"color": "#7F8CA0",
 		"selectedColor": "#1677FF",
 		"height": "52px",
+		"iconWidth": "20px",
+		"fontSize": "10px",
+		"spacing": "4px",
 		"backgroundColor": "#FFFFFF",
 		"borderStyle": "white",
 		"list": [

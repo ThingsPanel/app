@@ -1,7 +1,7 @@
 <template>
   <view
     class="device-card"
-    :class="{ 'offline-card': !isOnline }"
+    :class="{ 'offline-card': !isOnline, 'device-card--row': layout === 'list' }"
     @click="$emit('select', device)"
   >
     <view class="status-dot" :class="statusClass" />
@@ -37,7 +37,8 @@
 export default {
   name: 'DeviceListItem',
   props: {
-    device: { type: Object, required: true }
+    device: { type: Object, required: true },
+    layout: { type: String, default: 'grid', validator: value => ['grid', 'list'].includes(value) }
   },
   emits: ['select'],
   data() {
@@ -88,15 +89,15 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 @import '@/styles/tokens.scss';
 
 .device-card {
   position: relative;
   background: $color-surface;
   border: 2rpx solid #edf0f3;
-  border-radius: 22rpx;
-  box-shadow: 0 6rpx 18rpx rgba(34, 46, 66, .04);
+  border-radius: 10rpx;
+  box-shadow: none;
   overflow: hidden;
   transition: background-color 0.15s ease;
   &:active { background: #f6f8fb; }
@@ -172,6 +173,22 @@ export default {
   .time-val { min-width: 0; max-width: calc(100% - 28rpx); font-variant-numeric: tabular-nums; }
 }
 .clock-icon { width: 22rpx; height: 22rpx; margin-right: 6rpx; flex-shrink: 0; }
+
+.device-card--row {
+  border: 0;
+  border-bottom: 1rpx solid #e8edf3;
+  border-radius: 0;
+  &:last-child { border-bottom: 0; }
+  .card-inner { height: 152rpx; padding: 16rpx 24rpx; grid-template-rows: 80rpx 30rpx; column-gap: 22rpx; }
+  .device-name { font-size: 27rpx; line-height: 38rpx; }
+  .device-context { font-size: 22rpx; }
+  .device-meta { font-size: 20rpx; }
+  .status-dot { right: 24rpx; top: 28rpx; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-dot.status-alarm { animation: none; }
+}
 
 .text-ellipsis { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .tp-flex { display: flex; }
