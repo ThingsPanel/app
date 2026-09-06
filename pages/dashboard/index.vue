@@ -27,12 +27,9 @@
     <view class="panel">
       <view class="section-heading"><text class="section-title">运营概览</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? '更新中…' : updatedAt ? '更新于 ' + updatedAt : '刷新' }}</button></view>
       <view class="operation-grid">
-        <view class="operation-item"><image class="operation-icon" src="/static/icon/home/scene.svg" /><text class="operation-value">{{ device.total ?? '—' }}</text><text class="operation-label">设备总数</text><mini-trend :values="trends.map(p => p.total)" /></view>
-        <view class="operation-item"><image class="operation-icon" src="/static/icon/home/device.svg" /><text class="operation-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text><text class="operation-label">在线率</text><mini-trend :values="trends.map(p => p.rate)" /></view>
         <view class="operation-item"><image class="operation-icon" src="/static/icon/home/bell.svg" /><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">今日告警</text><text class="operation-foot">今日累计</text></view>
         <view class="operation-item"><image class="operation-icon" src="/static/icon/home/bolt.svg" /><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">联动规则</text><text class="operation-foot">已配置</text></view>
       </view>
-      <text v-if="trends.length > 1" class="trend-caption">设备趋势 · 近七天</text>
     </view>
 
     <view class="panel">
@@ -70,15 +67,13 @@
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup } from '@/api/modules/device'
 import { alarmHistory } from '@/api/modules/alarm'
 import { sceneAutomationsGet } from '@/api/modules/automation'
-import { getDeviceTrend, getGroupStatistics } from '@/api/modules/dashboard'
-import { count, responseData, onlineRate, todayRange, trendSeries } from '@/features/dashboard/metrics'
-import MiniTrend from '@/features/dashboard/components/mini-trend.vue'
+import { getGroupStatistics } from '@/api/modules/dashboard'
+import { count, responseData, onlineRate, todayRange } from '@/features/dashboard/metrics'
 
 export default {
-  components: { MiniTrend },
   data() {
     return {
-      loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, trends: [], alarms: [], groups: [],
+      loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [],
       shortcuts: [
         { key: 'devices', label: '设备', icon: '/static/icon/home/device.svg' },
         { key: 'alarms', label: '告警', icon: '/static/icon/home/bell.svg' },
@@ -108,7 +103,6 @@ export default {
           this.todayAlarms = results.reduce((sum, result) => sum + count(responseData(result).total), 0)
         }],
         ['联动规则', async () => { this.automationTotal = null; this.automationTotal = count(responseData(await sceneAutomationsGet({ page: 1, page_size: 1 })).total) }],
-        ['设备趋势', async () => { this.trends = []; this.trends = trendSeries(responseData(await getDeviceTrend({ start_time: Math.floor(now.getTime() / 1000) - 7 * 86400, end_time: Math.floor(now.getTime() / 1000) })).points) }],
         ['告警动态', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],
         ['分组状态', async () => {
           this.groups = []
@@ -190,14 +184,13 @@ export default {
 .section-title { font-size: 14px; font-weight: 600; }
 .home-page .more { color: #7b889c; font-size: 10px; min-height: 34px; }
 .more text { font-size: 16px; margin-left: 3px; }
-.operation-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); margin-top: 12px; }
-.operation-item { display: flex; align-items: center; flex-direction: column; gap: 8px; min-width: 0; padding: 0 6px; border-left: 1px solid #edf0f5; }
+.operation-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 4px; }
+.operation-item { display: grid; grid-template-columns: 16px minmax(0,1fr) auto; align-items: center; gap: 5px 7px; min-width: 0; padding: 10px; border-left: 1px solid #edf0f5; }
 .operation-item:first-child { border: 0; }
-.operation-icon { width: 20px; height: 20px; }
-.operation-value { font-size: 19px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.operation-label { color: #748197; font-size: 10px; }
-.operation-foot { color: #8b96a6; font-size: 10px; line-height: 24px; }
-.trend-caption { display: block; color: #8b96a6; font-size: 9px; margin-top: 8px; }
+.operation-icon { grid-column: 1; grid-row: 1; width: 16px; height: 16px; }
+.operation-value { grid-column: 3; grid-row: 1 / 3; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
+.operation-label { grid-column: 2; grid-row: 1; color: #53647b; font-size: 12px; }
+.operation-foot { grid-column: 2; grid-row: 2; color: #8b96a6; font-size: 10px; line-height: 16px; }
 .shortcut-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 6px; }
 .home-page .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 67px; background: #fcfdff; border: 1px solid #edf0f6; border-radius: var(--home-radius); color: #63748c; font-size: 11px; }
 .shortcut image { width: 21px; height: 21px; }
