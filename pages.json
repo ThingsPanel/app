@@ -83,6 +83,10 @@
 			}
 		},
 		{
+			"path": "pages/account/password",
+			"style": { "navigationBarTitleText": "修改密码", "navigationBarBackgroundColor": "#FFFFFF" }
+		},
+		{
 			"path": "pages/devices/detail",
 			"style": {
 				"navigationBarTitleText": "设备详情",

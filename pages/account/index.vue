@@ -1,116 +1,41 @@
 <template>
-	<view>
-		<view class="tp-box tp-box-sizing tp-flex tp-flex-col tp-pd-l-r-30">
-			<!-- 背景氛围元素 -->
-			<view class="bg-glow-1"></view>
-			<view class="bg-glow-2"></view>
-			<view>
-				<view class="tp-panel tp-uinfo tp-flex tp-flex-col tp-flex-j-c tp-flex-a-c tp-mg-t-50">
-					<image :src="uhead" class="tp-mg-t-20" v-if="!$login.isLoginType().isLogin" @click="isLogin=true" />
-					<image :src="userWxInfo.avatarUrl" class="tp-mg-t-20" v-else></image>
-					<view class="tp-flex tp-flex-row tp-felx-j-l tp-flex-a-c tp-mg-t-b-15">
-						<text class="tp-mg-r-10" v-if="!$login.isLoginType().isLogin">{{ $t('account.notLoggedIn') }}</text>
-						<view class="edit-icon-btn" v-if="$login.isLoginType().isLogin" @click="toEditProfile">
-							<text class="iconfont iconbianji2"></text>
-						</view>
-					</view>
-					<view class="tp-box-sizing tp-mg-t-b-10" v-if="!$login.isLoginType().isLogin">{{ $t('account.clickToLogin') }}</view>
-					<!-- <view class="tp-box-sizing tp-mg-t-b-10" v-else>账户有效期：{{validdate}}</view> -->
-				</view>
-
-				<view class="tp-panel tp-flex tp-flex-col tp-mg-t-50">
-					<view
-						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover"
-						@click="showLanguagePopup">
-						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>{{ $t('account.language') }}</view>
-							<view style="display: flex;">
-								<view>{{ currentLanguage }}</view>
-								<view class="iconfont iconjiantou1"></view>
-							</view>
-						</view>
-					</view>
-					<view
-						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover"
-						@click="toEditProfile"
-						v-if="$login.isLoginType().isLogin">
-						<!-- <view class="iconfont iconequipment"></view> -->
-						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>{{ $t('account.name') }}</view>
-							<view style="display: flex;">
-								<view class="" v-if="userWxInfo.name">{{userWxInfo.name}}</view>
-								<view class="iconfont iconjiantou1"></view>
-							</view>
-						</view>
-					</view>
-					<view
-						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover"
-						@click="toEditProfile"
-						v-if="$login.isLoginType().isLogin">
-						<!-- <view class="iconfont iconlishi"></view> -->
-						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>{{ $t('account.phone') }}</view>
-							<view style="display: flex;">
-								<view class="" v-if="userWxInfo.phone_number">{{userWxInfo.phone_number}}</view>
-								<view class="iconfont iconjiantou1"></view>
-							</view>
-						</view>
-					</view>
-					<view
-						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover"
-						@click="toEditProfile"
-						v-if="$login.isLoginType().isLogin">
-						<!-- <view class="iconfont iconlishi"></view> -->
-						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15">
-							<view>{{ $t('account.email') }}</view>
-							<view style="display: flex;">
-								<view class="" v-if="userWxInfo.email">{{userWxInfo.email}}</view>
-								<view class="iconfont iconjiantou1"></view>
-							</view>
-						</view>
-					</view>
-					<!-- <view
-						class="tp-panel-item tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-box-sizing tp-pd-t-b-20 tp-pd-l-r-10"
-						hover-class="tp-panel-item-hover">
-						<view class="tp-flex-1 tp-flex tp-flex-row tp-flex-j-s tp-flex-a-c tp-mg-l-15" @click="showAddressPopup">
-							<view>服务器地址</view>
-							<view style="display: flex;">
-								<view class="" v-if="address">{{address}}</view>
-								<view class="iconfont iconjiantou1"></view>
-							</view>
-						</view>
-					</view> -->
-				</view>
-				<view class="quitLogin" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">
-					{{ $t('account.logout') }}
-				</view>
-				<view class="deleteAccount" @click="toDelete" v-if="$login.isLoginType().isLogin">
-					{{ $t('account.deleteAccount') }}
-				</view>
-			</view>
-		</view>
-		<!-- 消息提示框 -->
-		<app-toast ref="toast" :msg="toast.msg" location="top"></app-toast>
-		<!-- 服务器地址 -->
-		<uni-popup ref="serverPopup" :mask="true" :maskClick="true">
-			<view class="server">
-				<view class="server-title">
-					{{ $t('account.serverAddress') }}
-					<image src="../../static/icon/close.png" class="close-icon" alt="" @click="closeAddressPopup" />
-					</view>
-				<view class="server-input">
-					<input type="text" placeholder-class="tp-plc" :placeholder="$t('account.enterServerAddress')" v-model="address" />
-				</view>
-				<button class="tp-btn tp-mg-t-50" @tap="serverConfirm">{{ $t('account.confirm') }}</button>
-			</view>
-		</uni-popup>
-	</view>
+    <view class="account-page">
+        <view v-if="loadError" class="load-error" @click="getUserInfo">{{ $t('account.retryLoad') }}</view>
+        <view class="identity-card">
+            <image class="avatar" :src="userWxInfo.avatarUrl || uhead" mode="aspectFill" @error="userWxInfo.avatarUrl = uhead" />
+            <view class="identity-copy">
+                <text class="identity-name">{{ userWxInfo.name || $t('account.notLoggedIn') }}</text>
+                <text class="identity-role" v-if="$login.isLoginType().isLogin">{{ accountType }}</text>
+            </view>
+            <button class="edit-link" v-if="$login.isLoginType().isLogin" @click="toEditProfile">{{ $t('common.edit') }}</button>
+        </view>
+        <view class="section-title">{{ $t('account.basicInfo') }}</view>
+        <view class="info-card">
+            <view v-for="row in profileRows" :key="row.label" class="info-row" @click="row.edit && toEditProfile()">
+                <text class="row-label">{{ row.label }}</text>
+                <text class="row-value" :class="{ 'is-empty': !row.value }">{{ row.value || $t('account.notSet') }}</text>
+                <view v-if="row.edit" class="chevron" />
+            </view>
+        </view>
+        <view class="section-title">{{ $t('account.preferences') }}</view>
+        <view class="info-card">
+            <view class="info-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><text class="row-value">{{ userWxInfo.timezone || $t('account.notSet') }}</text></view>
+            <view class="info-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><text class="row-value">{{ userWxInfo.default_language || $t('account.notSet') }}</text></view>
+            <view class="info-row" @click="showLanguagePopup"><text class="row-label">{{ $t('account.appLanguage') }}</text><text class="row-value">{{ currentLanguage }}</text><view class="chevron" /></view>
+        </view>
+        <template v-if="$login.isLoginType().isLogin">
+            <view class="section-title">{{ $t('account.securitySettings') }}</view>
+            <view class="info-card">
+                <view class="security-row" @click="openPassword">
+                    <text class="password-label">{{ $t('account.changePassword') }}</text>
+                    <view class="chevron" />
+                </view>
+            </view>
+        </template>
+        <button class="logout-button" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">{{ $t('account.logout') }}</button>
+        <app-toast ref="toast" :msg="toast.msg" location="top" />
+    </view>
 </template>
-
 <script>
 	//
 	import {
@@ -123,6 +48,7 @@
 		data() {
 			return {
 				isLogin: false,
+                loadError: false,
 				isGetPhone: false,
 				uhead: '/static/image/uhead.png',
 				displayName: '李萌',
@@ -140,6 +66,23 @@
 		},
 		//
 		computed: {
+            accountType() {
+                const roles = { TENANT_ADMIN: 'tenantAdmin', TENANT_USER: 'tenantUser', SYS_ADMIN: 'systemAdmin' };
+                return roles[this.userWxInfo.authority] ? this.$t('account.' + roles[this.userWxInfo.authority]) : (this.userWxInfo.authority || this.$t('account.notSet'));
+            },
+            profileRows() {
+                const u = this.userWxInfo;
+                const phone = u.phone_number ? (String(u.phone_number).startsWith('+') ? u.phone_number : [u.phone_prefix, u.phone_number].filter(Boolean).join(' ')) : u.mobile;
+                return [
+                    { label: this.$t('account.name'), value: u.name, edit: true },
+                    { label: this.$t('account.accountType'), value: this.accountType },
+                    { label: this.$t('account.email'), value: u.email, edit: true },
+                    { label: this.$t('account.phone'), value: phone, edit: true },
+                    { label: this.$t('account.edit.organization'), value: u.organization },
+                    { label: this.$t('account.region'), value: [u.address?.province, u.address?.city, u.address?.district].filter(Boolean).join(' ') },
+                    { label: this.$t('account.detailAddress'), value: u.address?.detailed_address }
+                ];
+            },
 			...mapState({
 				loginStatus: state => state.loginStatus,
 				token: state => state.token,
@@ -159,6 +102,7 @@
 		})
 	},
 		methods: {
+            openPassword() { uni.navigateTo({ url: '/pages/account/password' }); },
 			//退出登录
 			toQuitLogin() {
 				uni.showLoading({
@@ -192,21 +136,21 @@
 				})
 			},
 			//获取用户信息
-			getUserInfo() {
-				uni.showLoading({
-					title: this.$t('common.loading'),
-					mask: true
-				});
-				const serverUrl = uni.getStorageSync('serverAddress');
-				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '') : '';
-				this.API.apiRequest('/api/v1/board/user/info', {}, 'get').then(res => {
-					if (res.code == 200) {
-						this.userWxInfo = res.data
-					}
-					this.userWxInfo.avatarUrl = baseUrl + '/' + res.data.avatar_url;
-					uni.hideLoading()
-				})
-			},
+            async getUserInfo() {
+                this.loadError = false;
+                uni.showLoading({ title: this.$t('common.loading'), mask: true });
+                try {
+                    const res = await this.API.apiRequest('/api/v1/board/user/info', {}, 'get');
+                    if (res.code != 200 || !res.data) throw new Error('Profile unavailable');
+                    const avatar = res.data.avatar_url;
+                    const base = (uni.getStorageSync('serverAddress') || '').replace(/\/api\/v1\/?$/, '').replace(/\/$/, '');
+                    this.userWxInfo = { ...res.data, avatarUrl: avatar ? (/^https?:\/\//i.test(avatar) ? avatar : base + '/' + avatar.replace(/^\//, '')) : this.uhead };
+                } catch (error) {
+                    this.loadError = true;
+                } finally {
+                    uni.hideLoading();
+                }
+            },
 			//
 			doOpenDevice: function() {
 				if (!this.$login.isLoginType().isLogin) {
@@ -315,56 +259,6 @@
 			closeAddressPopup() {
 				this.$refs.serverPopup.close()
 			},
-			toDelete() {
-				uni.showModal({
-					title: this.$t('account.warning'),
-					content: this.$t('account.deleteConfirmation'),
-					cancelText: this.$t('common.cancel'),
-					confirmText: this.$t('common.confirm'),
-					success: (res) => {
-						if (res.confirm) {
-							uni.showLoading({
-								title: this.$t('account.loading')
-							});
-							// Call delete API
-							this.API.apiRequest(`/api/v1/user/${this.userWxInfo.id}`, {}, 'delete')
-								.then(res => {
-									if (res.code == 200) {
-										uni.showModal({
-											title: this.$t('common.confirm'),
-											content: this.$t('account.deleteSuccess'),
-											showCancel: false,
-											success: () => {
-												// Clear storage and redirect to login
-												uni.removeStorageSync('access_token');
-												uni.removeStorageSync('wx_code');
-												uni.removeStorageSync('ywId');
-												uni.removeStorageSync('email');
-												uni.removeStorageSync('password');
-												uni.reLaunch({
-													url: '../login/index'
-												});
-											}
-										});
-									} else {
-										console.log(res);
-										uni.showModal({
-											title: this.$t('account.tip'),
-											content: res.message || this.$t('account.deleteFailed'),
-											showCancel: false,
-											success: () => {
-												// Stay on current page
-											}
-										});
-									}
-								})
-								.finally(() => {
-									uni.hideLoading();
-								});
-						}
-					}
-				});
-			},
 			showLanguagePopup() {
 				uni.showActionSheet({
 					itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
@@ -391,33 +285,25 @@
 		}
 	}
 </script>
-
-<style>
-	@import '@/features/account/styles/account.css';
-	
-	/* 编辑按钮样式 */
-	.edit-icon-btn {
-		margin-top: 10rpx;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		cursor: pointer;
-		-webkit-tap-highlight-color: transparent;
-	}
-	
-	.edit-icon-btn .iconfont {
-		font-size: 44rpx;
-		color: #646cff;
-		line-height: 1;
-	}
-	
-	.edit-icon-btn:active {
-		opacity: 0.6;
-		transform: scale(0.95);
-	}
-
-	.iconjiantou1 {
-		font-size: 28rpx;
-		margin-top: 8rpx;
-	}
+<style scoped>
+.account-page { padding: 12px 18px calc(76px + env(safe-area-inset-bottom)); min-height: calc(100vh - 96px); box-sizing: border-box; background: linear-gradient(180deg, #fff 0, #f4f7fb 180px, #f7f8fa 420px); color: #1e293b; }
+.identity-card { display:flex; align-items:center; gap:12px; padding:14px; border:1px solid #e1eaf6; border-radius:6px; background:linear-gradient(115deg,#edf5ff,#fbfdff 85%); }
+.avatar { width:44px; height:44px; border-radius:50%; flex-shrink:0; border:2px solid #fff; }
+.identity-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
+.identity-name { font-size:16px; line-height:22px; font-weight:600; overflow-wrap:anywhere; }
+.identity-role { font-size:12px; line-height:18px; color:#6b7c94; }
+.edit-link { margin:0; padding:0 4px; min-width:40px; height:44px; line-height:44px; font-size:12px; color:#1677ff; background:transparent; flex-shrink:0; }
+.edit-link::after, .logout-button::after { border:0; }
+.section-title { font-size:13px; font-weight:600; margin:16px 2px 8px; }
+.info-card { background:#fff; border:1px solid #e5eaf2; border-radius:6px; padding:0 14px; }
+.info-row { display:flex; align-items:center; gap:10px; min-height:44px; padding:10px 0; box-sizing:border-box; border-bottom:1px solid #f0f2f6; font-size:13px; line-height:20px; }
+.info-row:last-child { border-bottom:0; }
+.row-label { color:#718096; flex-shrink:0; }
+.row-value { flex:1; min-width:0; text-align:right; overflow-wrap:anywhere; }
+.is-empty { color:#9aa5b5; }
+.chevron { width:5px; height:5px; border-top:1.5px solid #9ba8ba; border-right:1.5px solid #9ba8ba; transform:rotate(45deg); margin-right:2px; flex-shrink:0; }
+.security-row { display:flex; align-items:center; min-height:44px; padding:10px 0; box-sizing:border-box; }
+.password-label { flex:1; min-width:0; font-size:13px; line-height:20px; }
+.logout-button { margin-top:8px; height:44px; line-height:44px; border:0; border-radius:6px; background:transparent; color:#718096; font-size:13px; font-weight:400; }
+.load-error { color:#b45309; background:#fff7ed; padding:12px; margin-bottom:12px; font-size:13px; border-radius:6px; }
 </style>

@@ -531,5 +531,19 @@ export default {
 .tp-ipt .uni-input {
 	background-color: transparent !important;
 }
+
+/* Match the profile and device pages without changing the edit workflow. */
+.tp-box { background:linear-gradient(180deg,#fff,#f7f8fa 240px); }
+.bg-glow-2 { display:none; }
+.avatar-section { margin:24px 0; }
+.avatar-wrapper { width:72px; height:72px; border:2px solid #fff; box-shadow:none; }
+.form-section { margin-top:0; border:1px solid #e5eaf2; border-radius:6px; box-shadow:none; background:#fff; padding:18px; }
+.form-item { margin-bottom:20px; }
+.form-label { font-size:13px; font-weight:500; margin-bottom:8px; }
+.tp-ipt { border-radius:6px; padding:10px; background:#f8fafc; }
+.tp-ipt .uni-input, .prefix-text { font-size:14px; }
+.tp-ipt:active { border-color:#1677ff; }
+.submit-section { margin-top:24px; }
+.submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:#1677ff; }
 </style>
 
