@@ -21,7 +21,7 @@
 			"style": {
 				"navigationBarTitleText": "告警信息",
 				"enablePullDownRefresh": true,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -29,7 +29,7 @@
 			"style": {
 				"navigationBarTitleText": "告警详情",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -38,7 +38,7 @@
 				"navigationBarTitleText": "设备列表",
 				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -47,14 +47,14 @@
 				"navigationBarTitleText": "自动化",
 				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
 			"path": "pages/dashboard/boards",
 			"style": {
 				"navigationBarTitleText": "看板",
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -62,7 +62,7 @@
 			"style": {
 				"navigationBarTitleText": "首页",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#F2F2F7",
 				"navigationStyle": "custom"
 			}
 		},
@@ -70,8 +70,9 @@
 			"path": "pages/account/index",
 			"style": {
 				"navigationBarTitleText": "个人中心",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -79,26 +80,26 @@
 			"style": {
 				"navigationBarTitleText": "编辑个人信息",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
 			"path": "pages/account/password",
-			"style": { "navigationBarTitleText": "修改密码", "navigationBarBackgroundColor": "#FFFFFF" }
+			"style": { "navigationBarTitleText": "修改密码", "navigationBarBackgroundColor": "#F2F2F7" }
 		},
 		{
 			"path": "pages/devices/detail",
 			"style": {
 				"navigationBarTitleText": "设备详情",
-				"navigationBarBackgroundColor": "#FFFFFF",
-				"navigationStyle": "custom"
+				"navigationBarBackgroundColor": "#F2F2F7",
+				"navigationStyle": "default"
 			}
 		},
 		{
 			"path": "pages/web-view/index",
 			"style": {
 				"navigationBarTitleText": "设备详情",
-				"navigationBarBackgroundColor": "#FFFFFF",
+				"navigationBarBackgroundColor": "#F2F2F7",
 				"pageOrientation": "auto",
 				"app-plus": {
 					"titleNView": {
@@ -122,7 +123,8 @@
 			"style": {
 				"navigationBarTitleText": "添加设备",
 				"enablePullDownRefresh": false,
-				"navigationStyle": "custom"
+				"navigationBarBackgroundColor": "#F2F2F7",
+				"navigationStyle": "default"
 			}
 		},
 		{
@@ -130,7 +132,7 @@
 			"style": {
 				"navigationBarTitleText": "告警规则",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
@@ -138,32 +140,32 @@
 			"style": {
 				"navigationBarTitleText": "告警规则",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
 			"path": "pages/automation/rule",
 			"style": {
 				"navigationBarTitleText": "新增场景联动",
-				"navigationStyle": "custom",
+				"navigationStyle": "default",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
 		{
 			"path": "pages/automation/scene",
 			"style": {
 				"navigationBarTitleText": "新增场景",
-				"navigationStyle": "custom",
+				"navigationStyle": "default",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#FFFFFF"
+				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		}
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "新增场景",
-		"navigationBarBackgroundColor": "#EEEEEE",
+		"navigationBarBackgroundColor": "#F2F2F7",
 		"backgroundColor": "#EEEEEE"
 	},
 	"tabBar": {

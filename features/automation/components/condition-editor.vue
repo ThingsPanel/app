@@ -95,7 +95,7 @@
                   </view>
                   <view v-if="ifItem.trigger_conditions_type === '20'">
                     <view class="datetime-form-row">
-                      <text class="datetime-label">执行时间</text>
+                      <text class="datetime-label">{{ $t('pages.sceneAutomationEditor.executionTime') }}</text>
                       <view class="datetime-control">
                         <AutomationDatetimeSheet
                           v-model="ifItem.onceTimeValue"
@@ -118,7 +118,7 @@
 
                     <!-- 每小时 -> 选择分 -->
                     <view v-if="ifItem.task_type === 'HOUR'" class="form-item">
-                      <AutomationTimeSheet v-model="ifItem.hourTimeValue" minute-only :placeholder="$t('pages.sceneAutomationEditor.selectMinute')" title="选择分钟" />
+                      <AutomationTimeSheet v-model="ifItem.hourTimeValue" minute-only :placeholder="$t('pages.sceneAutomationEditor.selectMinute')" :title="$t('pages.sceneAutomationEditor.selectMinute')" />
                       <CustomSelect
                         v-model="ifItem.expiration_time"
                         :options="expirationTimeOptions"
@@ -231,7 +231,7 @@
                   v-else
                   class="add-summary-row"
                   @click.stop="addIfGroupsSubItem(ifGroupIndex)"
-                >＋ 添加条件</view>
+                >＋ {{ $t('pages.sceneAutomationEditor.addCondition') }}</view>
               </view>
               <!-- 操作按钮 
               <view class="button-group">
@@ -250,7 +250,7 @@
             <button v-if="ifGroupIndex > 0" @click.prevent="deleteIfGroupsItem(ifGroupIndex)" class="tp-btn uni-button--warn">删除条件组</button>
           </view> -->
         </view>
-        <view v-if="premiseForm.ifGroups.length === 0" class="empty-add-card" @click="addIfGroupItem(null)">＋ 添加条件</view>
+        <view v-if="premiseForm.ifGroups.length === 0" class="empty-add-card" @click="addIfGroupItem(null)">＋ {{ $t('pages.sceneAutomationEditor.addCondition') }}</view>
         <!--
         <view class="tp-box-sizing tp-pd-l-r-30 tp-mg-t-20">
             <button @click.prevent="addIfGroupItem(null)" class="tp-btn">新增条件组</button>
@@ -554,8 +554,8 @@
         if (!item || !item.ifType) {
           return {
             title: this.$t('pages.sceneAutomationEditor.selectConditionType'),
-            subtitle: '点击配置触发条件',
-            detail: '设备、时间或状态变化'
+            subtitle: this.$t('pages.sceneAutomationEditor.configureCondition'),
+            detail: this.$t('pages.sceneAutomationEditor.conditionOptions')
           };
         }
         if (item.ifType === '2') {
@@ -569,15 +569,15 @@
           item.trigger_param_key,
           'key',
           'fullLabel'
-        ) || item.trigger_param || '请选择参数';
+        ) || item.trigger_param || this.$t('pages.sceneAutomationEditor.selectParameter');
         const param = this.formatConditionParam(rawParam);
         const operator = this.getPickerDisplayText(this.determineOptions, item.trigger_operator, 'value', 'label');
         let value = item.trigger_value ?? '';
         if (item.trigger_operator === 'between') value = `${item.minValue ?? ''} - ${item.maxValue ?? ''}`;
         return {
-          title: item.trigger_param_type === 'event' ? '设备事件' : this.$t('pages.sceneAutomationEditor.deviceCondition'),
-          subtitle: source || (item.trigger_conditions_type === '11' ? '请选择设备类型' : '请选择设备'),
-          detail: [param, operator, value].filter(Boolean).join('  ') || '请完成条件配置'
+          title: item.trigger_param_type === 'event' ? this.$t('pages.sceneAutomationEditor.deviceEvent') : this.$t('pages.sceneAutomationEditor.deviceCondition'),
+          subtitle: source || (item.trigger_conditions_type === '11' ? this.$t('pages.sceneAutomationEditor.selectDeviceType') : this.$t('pages.sceneAutomationEditor.selectDevice')),
+          detail: [param, operator, value].filter(Boolean).join('  ') || this.$t('pages.sceneAutomationEditor.completeCondition')
         };
       },
       formatConditionParam(value) {
@@ -592,8 +592,8 @@
           const date = item.onceTimeValue ? new Date(item.onceTimeValue) : null;
           return {
             title: this.$t('pages.sceneAutomationEditor.singleTime'),
-            subtitle: date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : '请选择日期',
-            detail: [date ? this.formatTime(item.onceTimeValue) : '', expiration].filter(Boolean).join(' · ') || '请完成时间配置'
+            subtitle: date ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : this.$t('pages.sceneAutomationEditor.selectDate'),
+            detail: [date ? this.formatTime(item.onceTimeValue) : '', expiration].filter(Boolean).join(' · ') || this.$t('pages.sceneAutomationEditor.completeTime')
           };
         }
         if (item.trigger_conditions_type === '22') {
@@ -605,21 +605,21 @@
         }
         const cycle = this.getPickerDisplayText(this.cycleOptions, item.task_type, 'value', 'label') || this.$t('pages.sceneAutomationEditor.repeat');
         let time = '';
-        if (item.task_type === 'HOUR') time = item.hourTimeValue ? `第 ${this.formatMinuteTime(item.hourTimeValue)} 分钟` : '';
+        if (item.task_type === 'HOUR') time = item.hourTimeValue ? this.$t('pages.sceneAutomationEditor.hourMinute', { minute: this.formatMinuteTime(item.hourTimeValue) }) : '';
         if (item.task_type === 'DAY') time = this.formatTime(item.dayTimeValue);
         if (item.task_type === 'WEEK') time = `${this.formatWeekSummary(item.weekChoseValue)} ${this.formatTime(item.weekTimeValue)}`.trim();
-        if (item.task_type === 'MONTH') time = item.monthChoseValue ? `每月 ${item.monthChoseValue} 日 ${this.formatTime(item.monthTimeValue)}` : '';
+        if (item.task_type === 'MONTH') time = item.monthChoseValue ? this.$t('pages.sceneAutomationEditor.monthDay', { day: item.monthChoseValue, time: this.formatTime(item.monthTimeValue) }) : '';
         return {
           title: this.$t('pages.sceneAutomationEditor.repeat'),
           subtitle: cycle,
-          detail: [time, expiration].filter(Boolean).join(' · ') || '请完成时间配置'
+          detail: [time, expiration].filter(Boolean).join(' · ') || this.$t('pages.sceneAutomationEditor.completeTime')
         };
       },
       formatWeekSummary(values = []) {
-        if (!Array.isArray(values) || values.length === 0) return '请选择星期';
+        if (!Array.isArray(values) || values.length === 0) return this.$t('pages.sceneAutomationEditor.selectWeek');
         const normalized = values.map(String).sort();
-        if (normalized.join('') === '12345') return '周一至周五';
-        if (normalized.join('') === '1234567') return '每天';
+        if (normalized.join('') === '12345') return this.$t('pages.sceneAutomationEditor.weekdays');
+        if (normalized.join('') === '1234567') return this.$t('pages.sceneAutomationEditor.everyDay');
         return normalized.map(value => {
           const option = this.weekOptions.find(item => String(item.value) === value);
           return option ? option.label : value;
@@ -998,17 +998,17 @@
       },
       validateConditions() {
         const groups = this.premiseForm.ifGroups;
-        if (!Array.isArray(groups) || groups.length === 0) return '请至少添加一个条件';
+        if (!Array.isArray(groups) || groups.length === 0) return this.$t('pages.sceneAutomationEditor.needCondition');
         for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
           const group = groups[groupIndex];
-          if (!Array.isArray(group) || group.length === 0) return `请完成第 ${groupIndex + 1} 组条件`;
+          if (!Array.isArray(group) || group.length === 0) return this.$t('pages.sceneAutomationEditor.finishGroup', { group: groupIndex + 1 });
           const invalidIndex = group.findIndex(item => !this.isConditionComplete(item));
           if (invalidIndex !== -1) {
             this.startConditionEdit(groupIndex, invalidIndex);
-            return `请完成第 ${groupIndex + 1} 组第 ${invalidIndex + 1} 个条件`;
+            return this.$t('pages.sceneAutomationEditor.finishCondition', { group: groupIndex + 1, index: invalidIndex + 1 });
           }
           if (group.every(item => item.trigger_conditions_type === '22')) {
-            return '同一条件组不能全部为时间范围';
+            return this.$t('pages.sceneAutomationEditor.rangeOnly');
           }
         }
         return true;
@@ -1220,7 +1220,7 @@
     margin: 0 0 6px !important;
     padding: 0 !important;
     overflow: visible;
-    border: 1rpx solid #e4e9f0;
+    border: 0;
     border-radius: 10rpx;
     box-shadow: none;
     backdrop-filter: none;
@@ -1282,7 +1282,7 @@
     white-space: nowrap;
   }
 
-  .summary-title { color: #172033; font-size: 14px; font-weight: 500; line-height: 19px; }
+  .summary-title { color: #1d1d1f; font-size: 14px; font-weight: 500; line-height: 19px; }
   .summary-line { color: #667085; font-size: 12px; line-height: 16px; }
   .summary-menu { display:flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; margin:-6px -10px 0 0; box-sizing:border-box; }
 
@@ -1340,7 +1340,7 @@
     font-size: 13px;
     font-weight: 500;
   }
-  .empty-add-card { overflow:hidden; border:1rpx solid #e4e9f0; border-radius:10rpx; background:#fff; box-shadow:none; }
+  .empty-add-card { overflow:hidden; border: 0; border-radius:10rpx; background:#fff; box-shadow:none; }
   
   .tag-class {
     position: absolute;
@@ -1349,7 +1349,7 @@
   
   .picker {
     padding: 10px;
-    border: 2rpx solid #dfe4eb;
+    border: 0;
     border-radius: 16rpx;
   }
   
@@ -1369,9 +1369,9 @@
   }
 
   .datetime-form-row { display:flex; align-items:center; box-sizing:border-box; width:100%; min-height:48px; padding:0 2px; gap:8px; border-bottom:1px solid #edf0f3; }
-  .datetime-label { flex:0 0 78px; color:#172033; font-size:13px; font-weight:500; line-height:18px; }
+  .datetime-label { flex:0 0 78px; color:#1d1d1f; font-size:13px; font-weight:500; line-height:18px; }
   .datetime-control { flex:1; min-width:0; }
-  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#172033; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
   .field-error { display:block; margin:-4px 0 8px; color:#cf4b49; font-size:12px; line-height:17px; }
   
   .picker-wrapper picker {
@@ -1399,7 +1399,7 @@
   .popup-title {
     font-size: 32rpx;
     font-weight: 600;
-    color: #172033;
+    color: #1d1d1f;
   }
   
   .popup-close {
@@ -1414,7 +1414,7 @@
   .search-input {
     width: 100%;
     height: 80rpx;
-    border: 2rpx solid #dfe4eb;
+    border: 0;
     border-radius: 16rpx;
     box-sizing: border-box;
     font-size: 28rpx;
@@ -1428,7 +1428,7 @@
   .select_item {
     border-bottom: 1rpx solid #e4e9f0;
     font-size: 28rpx;
-    color: #172033;
+    color: #1d1d1f;
   }
   
   .select_item:active {
@@ -1452,7 +1452,7 @@
   display: flex;
   align-items: center;
   font-size: 26rpx;
-  color: #1e293b;
+  color: #1d1d1f;
 }
 
 .checkbox-label checkbox {
@@ -1462,11 +1462,11 @@
 
 .popup-grabber { width:36px; height:4px; margin:8px auto 2px; background:#d0d5dd; border-radius:2px; }
 .popup-header { box-sizing:border-box; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
-.popup-title { color:#172033; font-size:16px; font-weight:600; }
+.popup-title { color:#1d1d1f; font-size:16px; font-weight:600; }
 .popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
 .popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
-.search-input { height:40px; padding:0 10px; color:#172033; font-size:13px; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; }
-.select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#172033; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
+.search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
+.select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#1d1d1f; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
 .select_item:active { color:#1677FF; background:#f7faff; }
 .select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
 ::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
@@ -1477,7 +1477,7 @@
   height: 80rpx;
   line-height: 80rpx;
   font-size: 28rpx;
-  color: #1e293b;
+  color: #1d1d1f;
   box-sizing: border-box;
   outline: none;
 }

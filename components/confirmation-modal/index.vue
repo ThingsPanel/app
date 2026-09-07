@@ -101,33 +101,33 @@
 	$fontSizeSm: 14px;
 	
 	.modal-container{
-		position:fixed;top:0;left:0;right:0;bottom:0;z-index:10030;background:rgba(16,24,40,.42);visibility:hidden;opacity:0;transition:opacity .18s ease;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;
+		position:fixed;top:0;left:0;right:0;bottom:0;z-index:10030;background:rgba(29,29,31,.34);visibility:hidden;opacity:0;transition:opacity .18s ease;display:flex;align-items:center;justify-content:center;padding:40rpx;box-sizing:border-box;
 		.modal-content{
-			width:min(100%, 320px);border:1px solid #edf0f3;border-radius:12px;background:#fff;overflow:hidden;animation:modalEnter .18s ease-out;box-shadow:0 8px 28px rgba(16,24,40,.16);
+			width:min(100%, 640rpx);border:0;border-radius:24rpx;background:#fff;overflow:hidden;animation:modalEnter .18s ease-out;box-shadow:0 16rpx 48rpx rgba(29,29,31,.16);
 			.modal-title{
-				padding:20px 20px 0;text-align:center;color:#172033;font-size:$fontSizeLg;font-weight:600;line-height:24px;
+				padding:40rpx 40rpx 0;text-align:center;color:#1d1d1f;font-size:30rpx;font-weight:600;line-height:42rpx;
 			}
-			.modal-title-padding{padding-bottom:20px;}
+			.modal-title-padding{padding-bottom:40rpx;}
 			.modal-article{
-				padding:12px 20px 20px;font-size:$fontSizeSm;color:#667085;text-align:center;line-height:1.5;font-weight:400;
+				padding:16rpx 40rpx 36rpx;font-size:24rpx;color:#73737d;text-align:center;line-height:36rpx;font-weight:400;
 			}
 			.modal-row{
-				display:flex;text-align:center;font-size:14px;line-height:48px;position:relative;color:#344054;
+				display:flex;text-align:center;font-size:26rpx;line-height:88rpx;position:relative;color:#5f5f6b;
 				.modal-col{
-					flex: 1;width: 100%;position: relative;
+					flex:1;width:100%;min-height:88rpx;position:relative;
 				}
 				.modal-col:first-child::after{
-					content: '';position: absolute;top: 0;bottom: 0;right: 0;border-right: 1px solid #e5e5e5;transform: scaleX(.36);
+					content:'';position:absolute;top:20rpx;bottom:20rpx;right:0;border-right:1rpx solid #edf1f6;
 				}
 				.modal-confirm{color:#1677ff;font-weight:600;}
-				.modal-hover{background:#f7f8fa;}
+				.modal-hover{background:#f2f6ff;}
 			}
 			.modal-row::after{
-				content: '';position: absolute;left: 0;right: 0;top: 0;border-top: 1px solid #e5e5e5;transform: scaleY(.36);
+				content:'';position:absolute;left:0;right:0;top:0;border-top:1rpx solid #edf1f6;
 			}
 		}
 		@keyframes modalEnter {
-			from{transform:scale(.96);opacity:0;}
+			from{transform:scale(.96) translateY(12rpx);opacity:0;}
 			to{transform:scale(1);opacity:1;}
 		}
 	}

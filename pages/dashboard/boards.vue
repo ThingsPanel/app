@@ -33,7 +33,7 @@ export default {
       this.$nextTick(() => {
         setTimeout(() => {
           uni.setNavigationBarTitle({
-            title: '看板'
+            title: this.$t('dashboard.boards')
           })
         }, 100)
       })

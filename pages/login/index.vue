@@ -99,10 +99,10 @@ export default {
 		} catch (e) {
 			console.warn('设置导航栏标题失败:', e);
 		}
-		
+
 		// 同步语言标签
 		this.syncLanguageLabel();
-		
+
 		this.server = uni.getStorageSync('serverAddress') || '';
 		if (uni.getStorageSync('email') && uni.getStorageSync('password')) {
 			this.email = uni.getStorageSync('email');
@@ -225,14 +225,14 @@ export default {
 		},
 		// 
 		toLogin() {
+            if (this.loading) return;
+            this.loading = true;
 			if (this.server) {
 				uni.setStorageSync('serverAddress', this.server)
 			} else {
 				uni.setStorageSync('serverAddress', 'https://demo.thingspanel.cn')
 			}
-			uni.showLoading({
-				title: this.$t('pages.login.loading')
-			});
+
 			let data = {
 				email: this.email,
 				password: this.password
@@ -268,10 +268,7 @@ export default {
 					uni.switchTab({
 						url: '../devices/index'
 					});
-					uni.showToast({
-						title: this.$t('pages.login.loginSuccess'),
-						icon: 'none'
-					});
+
 				} else {
 					// 翻译服务器返回的错误消息
 					const translatedMessage = this.translateErrorMessage(res.message);
@@ -280,7 +277,8 @@ export default {
 			}).catch(err => {
 				this.handleError(this.$t('pages.login.networkError')); // 处理网络错误
 			}).finally(() => {
-				uni.hideLoading()
+                this.loading = false;
+
 			})
 		},
 		handleError(message) {
@@ -403,4 +401,6 @@ export default {
 	max-width: 640rpx;
 	align-self: center;
 }
+
+.plain-layout { background: #F2F2F7; }
 </style>

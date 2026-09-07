@@ -170,7 +170,7 @@
           
           <!-- 仅最后一个显示新增 -->
           <text v-if="isActionEditing(actionGroupIndex)" class="editor-action" @click="finishActionEdit(actionGroupIndex)">{{ $t('common.confirm') }}</text>
-          <view v-else-if="actionGroupIndex === actions.length - 1" class="add-summary-row" @click="addActionGroupItem()">＋ 添加动作</view>
+          <view v-else-if="actionGroupIndex === actions.length - 1" class="add-summary-row" @click="addActionGroupItem()">＋ {{ $t('pages.sceneAutomationEditor.addAction') }}</view>
         </view>
         </view>
         <!--
@@ -184,7 +184,7 @@
         </button>
         -->
     </view>
-    <view v-if="actions.length === 0" class="empty-add-card" @click="addActionGroupItem()">＋ 添加动作</view>
+    <view v-if="actions.length === 0" class="empty-add-card" @click="addActionGroupItem()">＋ {{ $t('pages.sceneAutomationEditor.addAction') }}</view>
     </view>
     
 </view>
@@ -341,7 +341,7 @@
       },
       finishActionEdit(index) {
         if (!this.isActionComplete(this.actions[index])) {
-          uni.showToast({ title: '请先完成当前动作配置', icon: 'none' });
+          uni.showToast({ title: this.$t('pages.sceneAutomationEditor.completeCurrentAction'), icon: 'none' });
           return;
         }
         this.editingActionIndex = -1;
@@ -358,15 +358,15 @@
       },
       validateActions() {
         if (!Array.isArray(this.actions) || this.actions.length === 0) {
-          return '请至少添加一个动作';
+          return this.$t('pages.sceneAutomationEditor.needAction');
         }
         const invalidIndex = this.actions.findIndex(action => !this.isActionComplete(action));
         if (invalidIndex !== -1) {
           this.startActionEdit(invalidIndex);
-          return `请完成第 ${invalidIndex + 1} 个动作配置`;
+          return this.$t('pages.sceneAutomationEditor.finishAction', { index: invalidIndex + 1 });
         }
         if (this.isInSceneEdit && this.actions.some(action => action.actionType !== '1')) {
-          return '场景管理仅支持操作设备动作';
+          return this.$t('pages.sceneAutomationEditor.deviceActionsOnly');
         }
         return true;
       },
@@ -374,17 +374,17 @@
         if (!action || !action.actionType) {
           return {
             title: this.$t('pages.sceneEditor.actionsEdit.selectActionType'),
-            subtitle: '点击配置执行动作',
-            detail: '操作设备、激活场景或触发告警'
+            subtitle: this.$t('pages.sceneAutomationEditor.configureAction'),
+            detail: this.$t('pages.sceneAutomationEditor.actionOptions')
           };
         }
         if (action.actionType === '20') {
           const scene = this.sceneList.find(item => String(item.id) === String(action.action_target));
-          return { title: this.$t('pages.sceneAutomationEditor.actionType3'), subtitle: scene ? scene.name : '请选择场景', detail: '' };
+          return { title: this.$t('pages.sceneAutomationEditor.actionType3'), subtitle: scene ? scene.name : this.$t('pages.sceneEditor.actionsEdit.selectScene'), detail: '' };
         }
         if (action.actionType === '30') {
           const alarm = this.alarmList.find(item => String(item.id) === String(action.action_target));
-          return { title: this.$t('pages.sceneAutomationEditor.actionType2'), subtitle: alarm ? alarm.name : '请选择告警', detail: '' };
+          return { title: this.$t('pages.sceneAutomationEditor.actionType2'), subtitle: alarm ? alarm.name : this.$t('pages.sceneEditor.actionsEdit.selectAlarm'), detail: '' };
         }
         const instructs = Array.isArray(action.actionInstructList) ? action.actionInstructList : [];
         const first = instructs[0] || {};
@@ -394,12 +394,12 @@
         const rawParam = this.getPickerDisplayText(first.actionParamOptions || [], first.action_param, 'key', 'label') || first.action_param || first.action_param_type || '';
         const param = this.formatActionParam(rawParam);
         const value = typeof first.actionValue === 'boolean'
-          ? (first.actionValue ? '开启' : '关闭')
+          ? (first.actionValue ? this.$t('pages.sceneAutomationEditor.on') : this.$t('pages.sceneAutomationEditor.off'))
           : (first.actionValue ?? '');
         return {
           title: this.$t('pages.sceneAutomationEditor.actionType1'),
-          subtitle: target || (first.action_type === '11' ? '请选择设备类型' : '请选择设备'),
-          detail: [param, value !== '' ? `设为 ${value}` : ''].filter(Boolean).join(' ') || '请完成动作配置'
+          subtitle: target || (first.action_type === '11' ? this.$t('pages.sceneAutomationEditor.selectDeviceType') : this.$t('pages.sceneAutomationEditor.selectDevice')),
+          detail: [param, value !== '' ? this.$t('pages.sceneAutomationEditor.setValue', { value }) : ''].filter(Boolean).join(' ') || this.$t('pages.sceneAutomationEditor.completeAction')
         };
       },
       formatActionParam(value) {
@@ -606,7 +606,7 @@
         const incompleteIndex = this.actions.findIndex(item => !this.isActionComplete(item));
         if (incompleteIndex !== -1) {
           this.startActionEdit(incompleteIndex);
-          uni.showToast({ title: '请先完成当前动作配置', icon: 'none' });
+          uni.showToast({ title: this.$t('pages.sceneAutomationEditor.completeCurrentAction'), icon: 'none' });
           return;
         }
         const actionItemData = JSON.parse(JSON.stringify(this.actionItem));
@@ -747,7 +747,7 @@
     box-sizing: border-box;
     overflow: hidden;
     width: 100%;
-    border: 1rpx solid #e4e9f0;
+    border: 0;
     border-radius: 10rpx;
     background: #fff;
     box-shadow: none;
@@ -780,7 +780,7 @@
   .summary-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 2px; }
   .summary-title,
   .summary-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .summary-title { color: #172033; font-size: 14px; font-weight: 500; line-height: 19px; }
+  .summary-title { color: #1d1d1f; font-size: 14px; font-weight: 500; line-height: 19px; }
   .summary-line { color: #667085; font-size: 12px; line-height: 16px; }
   .summary-menu { display:flex; flex:0 0 44px; align-items:center; justify-content:center; width:44px; height:44px; margin:-6px -10px 0 0; box-sizing:border-box; }
 	
@@ -827,7 +827,7 @@
     font-size: 13px;
     font-weight: 500;
   }
-  .empty-add-card { overflow:hidden; border:1rpx solid #e4e9f0; border-radius:10rpx; background:#fff; box-shadow:none; }
+  .empty-add-card { overflow:hidden; border: 0; border-radius:10rpx; background:#fff; box-shadow:none; }
   .add-summary-row { flex: 1; min-width: 0; }
   .action-summary-card > .item,
   .action-target-row { padding: 0 12px; }
@@ -872,7 +872,7 @@
 		color: #98a2b3;
   }
 
-  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#172033; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
   .field-error { display:block; margin:-4px 0 8px; color:#cf4b49; font-size:12px; line-height:17px; }
 	
 	.picker-wrapper {
@@ -902,7 +902,7 @@
 	.popup-title {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #172033;
+		color: #1d1d1f;
 	}
 	
 	.popup-close {
@@ -917,7 +917,7 @@
 	.search-input {
 		width: 100%;
 		height: 80rpx;
-		border: 2rpx solid #dfe4eb;
+		border: 0;
 		border-radius: 16rpx;
 		box-sizing: border-box;
 		font-size: 28rpx;
@@ -931,7 +931,7 @@
 	.select_item {
 		border-bottom: 1rpx solid #e4e9f0;
 		font-size: 28rpx;
-		color: #172033;
+		color: #1d1d1f;
 	}
 	
 	.select_item:active {
@@ -951,11 +951,11 @@
 
   .popup-grabber { width:36px; height:4px; margin:8px auto 2px; background:#d0d5dd; border-radius:2px; }
   .popup-header { box-sizing:border-box; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
-  .popup-title { color:#172033; font-size:16px; font-weight:600; }
+  .popup-title { color:#1d1d1f; font-size:16px; font-weight:600; }
   .popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
   .popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
-  .search-input { height:40px; padding:0 10px; color:#172033; font-size:13px; background:#f7f8fa; border:1px solid #e4e7ec; border-radius:8px; }
-  .select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#172033; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
+  .search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
+  .select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#1d1d1f; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
   .select_item:active { color:#1677FF; background:#f7faff; }
   .select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
   ::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
@@ -971,7 +971,7 @@
 		height: 80rpx;
 		line-height: 80rpx;
 		font-size: 28rpx;
-		color: #1e293b;
+		color: #1d1d1f;
 		box-sizing: border-box;
 		outline: none;
 	}

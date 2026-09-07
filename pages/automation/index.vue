@@ -115,7 +115,8 @@
   </view>
 </template>
 
-<script>  import ConfirmationModal from '@/components/confirmation-modal/index.vue'
+<script>
+  import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 
   export default {
     components: {
@@ -245,10 +246,7 @@
       },
       // 切换启停状态（仅场景联动）
       toggleStatue (item) {
-        uni.showLoading({
-          title: this.$t('common.loading'),
-          mask: true
-        });
+
 
         const enabled = this.toggledAutomationValue(item.enabled)
         this.API.apiRequest('/api/v1/scene_automations/switch/'+item.id, {
@@ -257,14 +255,12 @@
             item.enabled = enabled
           }
         }).finally(() => {
-          uni.hideLoading()
+
         });
       },
 	  // 切换启停状态（仅场景管理）
 	  toggleSwitch (item) {
-	    uni.showLoading({
-	      title: this.$t('pages.automation.loading')
-	    });
+
 
 	    this.API.apiRequest('/api/v1/scene/active/'+item.id, {
 	    }, 'post').then(res => {
@@ -280,7 +276,7 @@
           });
 		    }
 	    }).finally(() => {
-	      uni.hideLoading()
+
 	    });
 	  },
       // 编辑
@@ -305,10 +301,7 @@
       },
       // 确定删除
       confirm() {
-        uni.showLoading({
-          title: this.$t('common.loading'),
-          mask: true
-        });
+
 
         let apis = {
           '场景联动': `/api/v1/scene_automations/${this.currentDelId}`,
@@ -323,7 +316,7 @@
 
             this.changCl({ label: this.clName })
           }
-          uni.hideLoading()
+
         });
 
 
@@ -363,15 +356,10 @@
                 encryptedData: that.wxData.encryptedData,
                 name: JSON.parse(uni.getStorageSync('userWxInfo')).nickName,
               };
-              uni.showLoading({
-                title: this.$t('pages.automation.loading')
-              });
+
               that.API.apiRequest(url, data, 'post').then(res => {
                 if (res.code == 200) {
-                  uni.showToast({
-                    title: this.$t('pages.login.loginSuccess'),
-                    icon: 'none'
-                  });
+
                   uni.setStorageSync('access_token', res.data.access_token)
                   that.userInfo = that.$login.isLoginType()
                   that.isLogin = true
@@ -381,7 +369,7 @@
                   that.toast.msg = res.msg;
                   that.$refs.toast.show();
                 }
-                uni.hideLoading()
+
               });
             }
           });
@@ -422,7 +410,7 @@
   background: #f5f7fa;
   position: relative;
   overflow: hidden;
-  color: #334155;
+  color: #51515c;
   font-size: 28rpx;
 }
 
@@ -466,7 +454,7 @@
   -webkit-backdrop-filter: blur(10px);
   border-radius: 40rpx;
   padding: 8rpx 24rpx 8rpx 12rpx;
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 0;
   box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
   position: relative;
   flex: 1;
@@ -494,14 +482,14 @@
     .selector-text {
       font-size: 28rpx;
       font-weight: 600;
-      color: #1e293b;
+      color: #1d1d1f;
       margin-right: 12rpx;
       flex: 1;
     }
 
     .arrow-icon {
       font-size: 20rpx;
-      color: #64748b;
+      color: #73737d;
       transition: transform 0.3s ease;
       flex-shrink: 0;
 
@@ -521,7 +509,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 24rpx;
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 0;
   box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.1);
   z-index: 9999;
   overflow: hidden;
@@ -530,7 +518,7 @@
     padding: 24rpx 30rpx;
     font-size: 28rpx;
     font-weight: 500;
-    color: #1e293b;
+    color: #1d1d1f;
     text-align: left;
     transition: background 0.2s ease;
 
@@ -557,7 +545,7 @@
   .section-title {
     font-size: 36rpx;
     font-weight: 700;
-    color: #1e293b;
+    color: #1d1d1f;
     letter-spacing: 0.5rpx;
   }
 }
@@ -569,7 +557,7 @@
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 0;
   border-radius: 32rpx;
   box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.04);
   margin-bottom: 30rpx;
@@ -611,7 +599,7 @@
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 0;
   border-radius: 32rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
   margin-bottom: 24rpx;
@@ -632,7 +620,7 @@
 .card-title {
   font-size: 32rpx;
   font-weight: 700;
-  color: #1e293b;
+  color: #1d1d1f;
   margin-bottom: 12rpx;
   line-height: 1.5;
   letter-spacing: 0.3rpx;
@@ -641,7 +629,7 @@
 .card-desc {
   font-size: 26rpx;
   font-weight: 400;
-  color: #64748b;
+  color: #73737d;
   line-height: 1.6;
   margin-bottom: 20rpx;
   word-break: break-word;
@@ -737,7 +725,7 @@
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
+  border: 0;
   border-radius: 24rpx;
   margin-top: 20rpx;
   transition: all 0.3s ease;
@@ -795,7 +783,7 @@
   padding-bottom: calc(52px + env(safe-area-inset-bottom));
   overflow: visible;
   background: #f7f8fa;
-  color: #172033;
+  color: #1d1d1f;
 }
 
 .tp-header {
@@ -806,8 +794,8 @@
 }
 
 .header-main { min-height: 92rpx; margin-bottom: 6rpx; }
-.page-title { color: #172033; font-size: 22px; font-weight: 600; line-height: 30px; letter-spacing: 0; }
-.page-subtitle { margin-top: 4px; color: #7c879a; font-size: 12px; line-height: 18px; }
+.page-title { color: #1d1d1f; font-size: 22px; font-weight: 600; line-height: 30px; letter-spacing: 0; }
+.page-subtitle { margin-top: 4px; color: #73737d; font-size: 12px; line-height: 18px; }
 .add-action { width: 44px; height: 44px; flex-shrink: 0; color: #fff; background: transparent; box-shadow: none; }
 .add-action text { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #1677FF; font-size: 20px; font-weight: 300; line-height: 1; }
 
@@ -817,13 +805,13 @@
   padding: 12rpx var(--page-gutter) 16rpx;
   background: linear-gradient(180deg, #fff 0%, #fbfcfe 42%, #f7f8fa 100%);
 }
-.segment-control { display: flex; min-height: 44px; padding: 2rpx; overflow: hidden; background: #f2f4f7; border: 1rpx solid #e4e9f0; border-radius: var(--radius-control); box-sizing: border-box; }
-.segment-item { width: 50%; color: #172033; border-radius: 8rpx; font-size: 24rpx; line-height: 36rpx; transition: color .18s ease, background-color .18s ease; }
+.segment-control { display: flex; min-height: 44px; padding: 2rpx; overflow: hidden; background: #f2f4f7; border: 0; border-radius: var(--radius-control); box-sizing: border-box; }
+.segment-item { width: 50%; color: #1d1d1f; border-radius: 8rpx; font-size: 24rpx; line-height: 36rpx; transition: color .18s ease, background-color .18s ease; }
 .segment-item.active { color: #1677FF; background: #e5efff; font-weight: 600; box-shadow: none; }
 
 .tp-content { position: relative; z-index: 1; padding: 20rpx var(--page-gutter) 32rpx; }
 .automation-list { padding-bottom: 16rpx; }
-.automation-card { margin-bottom: 18rpx; overflow: hidden; background: #fff; border: 1rpx solid #e4e9f0; border-radius: var(--radius-card); box-shadow: none; }
+.automation-card { margin-bottom: 18rpx; overflow: hidden; background: #fff; border-radius: var(--radius-card); box-shadow: none; }
 .automation-card:active { transform: none; background: #f9fafb; box-shadow: none; }
 .card-content { box-sizing: border-box; min-height: 128rpx; padding: 22rpx 24rpx 20rpx; }
 .card-heading { min-width: 0; }
@@ -844,7 +832,7 @@
 .action-btn.delete-btn { color: #cf4b49; }
 .action-divider { display: block; align-self: center; width: 1rpx; height: 24rpx; margin: 0; background: #e4e9f0; }
 
-.load-more-btn { height: 64rpx; margin-top: 10rpx; background: #fff; border: 2rpx solid #e5e9ef; border-radius: var(--radius-control); }
+.load-more-btn { height: 64rpx; margin-top: 10rpx; background: #fff; border: 0; border-radius: var(--radius-control); }
 .load-more-btn .load-more-text { color: #667085; font-size: 21rpx; font-weight: 400; }
 
 .automation-skeleton { padding: 26rpx 28rpx 20rpx; }
@@ -872,4 +860,6 @@
   .segment-item { transition: none; }
   .skeleton-shape { animation: none; }
 }
+.tp-box { background: #F2F2F7; }
+.tp-header, .automation-toolbar { background: transparent; }
 </style>

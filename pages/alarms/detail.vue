@@ -1,7 +1,5 @@
 <template>
 	<view class="tp-box">
-		<view class="bg-glow-1"></view>
-		<view class="bg-glow-2"></view>
 
 		<view class="tp-content">
 			<view class="tp-panel alert-card">
@@ -11,7 +9,7 @@
 							<view class="badge-dot"></view>
 							<text class="badge-text">{{$t(`pages.alarms.alarmLevels.${detail.alarm_level || 'default'}`)}}</text>
 						</view>
-						<!-- <text class="alert-desc">{{detail.warning_description || '--'}}</text> -->
+						<!-- <text v-if="item.warning_description" class="alert-desc">{{detail.warning_description || '--'}}</text> -->
 					</view>
 
 					<view class="alert-meta">
@@ -169,58 +167,33 @@ export default {
 .tp-box {
 	width: 100%;
 	min-height: 100vh;
-	background: #f5f7fa;
+	background: #F7FAFF;
 	position: relative;
 	overflow: hidden;
-	color: #334155;
+	color: #51515c;
 	font-size: 28rpx;
-}
-
-.bg-glow-1,
-.bg-glow-2 {
-	position: absolute;
-	border-radius: 50%;
-	z-index: 0;
-	pointer-events: none;
-	filter: blur(40px);
-}
-
-.bg-glow-1 {
-	top: -10%;
-	left: -20%;
-	width: 700rpx;
-	height: 700rpx;
-	background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-}
-
-.bg-glow-2 {
-	bottom: 0;
-	right: -10%;
-	width: 600rpx;
-	height: 600rpx;
-	background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
 }
 
 .tp-content {
 	position: relative;
 	z-index: 1;
-	padding: 40rpx 30rpx 80rpx;
+	padding: 24rpx 28rpx 80rpx;
 	display: flex;
 	flex-direction: column;
-	gap: 30rpx;
+	gap: 18rpx;
 }
 
 .tp-panel {
-	background: rgba(255, 255, 255, 0.85);
-	backdrop-filter: blur(18px);
-	border-radius: 32rpx;
-	border: 1px solid rgba(255, 255, 255, 0.9);
-	box-shadow: 0 12rpx 40rpx rgba(15, 23, 42, 0.08);
+	background: #ffffff;
+
+	border-radius: 12rpx;
+	border: 0;
+	box-shadow: none;
 	overflow: hidden;
 }
 
 .card-inner {
-	padding: 34rpx;
+	padding: 24rpx;
 }
 
 .alert-header {
@@ -231,7 +204,7 @@ export default {
 	.alert-desc {
 		font-size: 34rpx;
 		font-weight: 600;
-		color: #0f172a;
+		color: #1d1d1f;
 		line-height: 1.5;
 		margin-top: 20rpx;
 		display: block;
@@ -263,7 +236,7 @@ export default {
 
 		.badge-dot {
 			background: #ef4444;
-			box-shadow: 0 0 8rpx rgba(239, 68, 68, 0.5);
+			box-shadow: none;
 		}
 	}
 
@@ -273,7 +246,7 @@ export default {
 
 		.badge-dot {
 			background: #f59e0b;
-			box-shadow: 0 0 8rpx rgba(245, 158, 11, 0.5);
+			box-shadow: none;
 		}
 	}
 
@@ -283,13 +256,13 @@ export default {
 
 		.badge-dot {
 			background: #646cff;
-			box-shadow: 0 0 8rpx rgba(100, 108, 255, 0.5);
+			box-shadow: none;
 		}
 	}
 
 	&.level-default {
 		background: rgba(148, 163, 184, 0.12);
-		color: #94a3b8;
+		color: #73737d;
 
 		.badge-dot {
 			background: #94a3b8;
@@ -310,18 +283,18 @@ export default {
 
 	.meta-label {
 		font-size: 24rpx;
-		color: #94a3b8;
+		color: #73737d;
 	}
 
 	.meta-value {
 		font-size: 30rpx;
-		color: #0f172a;
+		color: #1d1d1f;
 		font-weight: 600;
 		line-height: 1.4;
 
 		&.time-value {
-			font-family: monospace;
-			color: #475569;
+			font-variant-numeric: tabular-nums;
+			color: #51515c;
 		}
 
 		&.status-value {
@@ -343,17 +316,17 @@ export default {
 	.section-title {
 		font-size: 30rpx;
 		font-weight: 600;
-		color: #0f172a;
+		color: #1d1d1f;
 	}
 
 	.section-count {
 		font-size: 26rpx;
-		color: #94a3b8;
+		color: #73737d;
 	}
 
 	.section-text {
 		font-size: 28rpx;
-		color: #334155;
+		color: #51515c;
 		line-height: 1.7;
 		white-space: pre-wrap;
 	}
@@ -366,11 +339,11 @@ export default {
 }
 
 .device-card {
-	border: 1px solid rgba(15, 23, 42, 0.04);
+	border: 0;
 	border-radius: 24rpx;
 	padding: 28rpx;
-	background: #fff;
-	box-shadow: 0 10rpx 30rpx rgba(15, 23, 42, 0.04);
+	background: #ffffff;
+	box-shadow: none;
 }
 
 .device-header {
@@ -394,14 +367,14 @@ export default {
 		height: 12rpx;
 		background: #6366f1;
 		border-radius: 50%;
-		box-shadow: 0 0 10rpx rgba(99, 102, 241, 0.5);
+		box-shadow: none;
 	}
 }
 
 .device-name {
 	font-size: 30rpx;
 	font-weight: 600;
-	color: #1e293b;
+	color: #1d1d1f;
 }
 
 .device-info {
@@ -415,18 +388,18 @@ export default {
 	justify-content: space-between;
 	align-items: flex-start;
 	font-size: 26rpx;
-	color: #1e293b;
+	color: #1d1d1f;
 	gap: 20rpx;
 
 	.info-label {
-		color: #94a3b8;
+		color: #73737d;
 		flex-shrink: 0;
 		white-space: nowrap;
 	}
 
 	.info-value {
 		font-weight: 600;
-		color: #0f172a;
+		color: #1d1d1f;
 		flex: 1;
 		text-align: right;
 		word-break: break-all;
@@ -434,12 +407,14 @@ export default {
 }
 
 .empty-card {
-	padding: 30rpx;
+	padding: 24rpx 28rpx;
 	text-align: center;
 }
 
 .empty-text {
 	font-size: 28rpx;
-	color: #94a3b8;
+	color: #73737d;
 }
+
+.tp-box { background: #F2F2F7; }
 </style>

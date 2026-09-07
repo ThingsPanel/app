@@ -107,7 +107,7 @@ export default {
   methods: {
     async loadInitialData() {
       this.loading = true
-      uni.showLoading({ title: this.$t('common.loading'), mask: true })
+
       try {
         const tasks = [getNotificationGroups({ page: 1, page_size: 1000 })]
         if (this.id) tasks.push(getAlarmRules({ page: 0, page_size: 0 }))
@@ -131,7 +131,7 @@ export default {
         uni.showToast({ title: this.$t('pages.alarmRules.loadFailed'), icon: 'none' })
       } finally {
         this.loading = false
-        uni.hideLoading()
+
       }
     },
     selectLevel(event) {
@@ -183,7 +183,7 @@ export default {
   padding: 36rpx 30rpx 60rpx;
   box-sizing: border-box;
   background: #f4f7fb;
-  color: #182230;
+  color: #1d1d1f;
 }
 
 .editor-intro {
@@ -232,7 +232,7 @@ export default {
 
 .field-label {
   margin-bottom: 12rpx;
-  color: #334155;
+  color: #51515c;
   font-size: 25rpx;
   font-weight: 600;
 }
@@ -245,7 +245,7 @@ export default {
   border: 1rpx solid #cbd5e1;
   border-radius: 2rpx;
   background: #fbfcfe;
-  color: #172033;
+  color: #1d1d1f;
   font-size: 28rpx;
   line-height: 68rpx;
 }
@@ -313,4 +313,6 @@ export default {
   background: #246fdd;
   color: #fff;
 }
+
+.page { background: #F2F2F7; }
 </style>

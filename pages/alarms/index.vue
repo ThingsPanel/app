@@ -1,8 +1,5 @@
 <template>
 	<view class="tp-box">
-		<!-- Background Elements for Atmosphere -->
-		<view class="bg-glow-1"></view>
-		<view class="bg-glow-2"></view>
 
 		<!-- Main Content -->
 		<view class="tp-content">
@@ -28,7 +25,7 @@
 								<view class="badge-dot"></view>
 								<text class="badge-text">{{$t(`pages.alarms.alarmLevels.${item.alarm_level}`)}}</text>
 							</view>
-							<text class="alert-desc">{{item.warning_description}}</text>
+							<text v-if="item.warning_description" class="alert-desc">{{item.warning_description}}</text>
 						</view>
 
 						<!-- Alert Details -->
@@ -56,7 +53,7 @@
 			@close="closeDialog" 
 			:id="handleInfo.id" 
 			:status="handleInfo.status" />
-		
+
 		<!-- Scroll to Top Button -->
 		<view class="scroll-to-top" v-if="showScrollTop" @click="scrollToTop">
 			<image src="/static/icon/arrow-up.png" class="scroll-icon-img" mode="aspectFit" />
@@ -128,7 +125,7 @@ export default {
 			}
 			this.handleInfo = {id :'', status: ''}
 		},
-		
+
 		async goDetail(item) {
 			if (!item) {
 				console.error('Invalid item data:', item);
@@ -223,8 +220,9 @@ export default {
 	justify-content: space-between;
 	margin-bottom: 24rpx;
 	padding: 22rpx 24rpx;
-	border-left: 8rpx solid #246fdd;
-	background: #fff;
+	border: 0;
+	border-radius: 12rpx;
+	background: #ffffff;
 }
 
 .rule-entry-title,
@@ -234,7 +232,7 @@ export default {
 
 .rule-entry-title {
 	margin-bottom: 6rpx;
-	color: #182230;
+	color: #1d1d1f;
 	font-size: 29rpx;
 	font-weight: 650;
 }
@@ -255,44 +253,18 @@ export default {
 .tp-box {
 	width: 100%;
 	min-height: 100vh;
-	background: #f5f7fa;
+	background: #F7FAFF;
 	position: relative;
 	overflow: hidden;
-	color: #334155;
+	color: #51515c;
 	font-size: 28rpx;
-}
-
-/* Ambient Background Glows */
-.bg-glow-1 {
-	position: absolute;
-	top: -10%;
-	left: -10%;
-	width: 700rpx;
-	height: 700rpx;
-	background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-	border-radius: 50%;
-	z-index: 0;
-	pointer-events: none;
-	filter: blur(40px);
-}
-.bg-glow-2 {
-	position: absolute;
-	bottom: 5%;
-	right: -5%;
-	width: 600rpx;
-	height: 600rpx;
-	background: radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
-	border-radius: 50%;
-	z-index: 0;
-	pointer-events: none;
-	filter: blur(40px);
 }
 
 /* Content */
 .tp-content {
 	position: relative;
 	z-index: 1;
-	padding: 30rpx;
+	padding: 24rpx 28rpx;
 }
 
 /* Empty State */
@@ -302,10 +274,10 @@ export default {
 	align-items: center;
 	min-height: 60vh;
 	padding: 100rpx 30rpx;
-	
+
 	.empty-text {
 		font-size: 32rpx;
-		color: #94a3b8;
+		color: #73737d;
 		text-align: center;
 	}
 }
@@ -316,13 +288,13 @@ export default {
 }
 
 .tp-panel {
-	background: rgba(255, 255, 255, 0.7);
-	backdrop-filter: blur(20px);
-	-webkit-backdrop-filter: blur(20px);
-	border: 1px solid rgba(255, 255, 255, 0.9);
-	border-radius: 32rpx;
-	box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.04);
-	margin-bottom: 30rpx;
+	background: #ffffff;
+
+
+	border: 0;
+	border-radius: 12rpx;
+	box-shadow: none;
+	margin-bottom: 18rpx;
 	transition: all 0.3s ease;
 	overflow: hidden;
 }
@@ -333,7 +305,7 @@ export default {
 }
 
 .card-inner {
-	padding: 30rpx;
+	padding: 24rpx;
 }
 
 /* Alert Header */
@@ -341,11 +313,11 @@ export default {
 	margin-bottom: 24rpx;
 	padding-bottom: 24rpx;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-	
+
 	.alert-desc {
 		font-size: 32rpx;
 		font-weight: 600;
-		color: #1e293b;
+		color: #1d1d1f;
 		line-height: 1.5;
 		margin-top: 16rpx;
 		display: block;
@@ -359,52 +331,52 @@ export default {
 	border-radius: 50rpx;
 	font-size: 22rpx;
 	font-weight: 600;
-	
+
 	.badge-dot {
 		width: 12rpx;
 		height: 12rpx;
 		border-radius: 50%;
 		margin-right: 10rpx;
 	}
-	
+
 	.badge-text {
 		font-size: 22rpx;
 	}
-	
+
 	&.level-high {
 		background: rgba(239, 68, 68, 0.1);
 		color: #ef4444;
-		
+
 		.badge-dot {
 			background: #ef4444;
-			box-shadow: 0 0 8rpx rgba(239, 68, 68, 0.4);
+			box-shadow: none;
 		}
 	}
-	
+
 	&.level-medium {
 		background: rgba(245, 158, 11, 0.1);
 		color: #f59e0b;
-		
+
 		.badge-dot {
 			background: #f59e0b;
-			box-shadow: 0 0 8rpx rgba(245, 158, 11, 0.4);
+			box-shadow: none;
 		}
 	}
-	
+
 	&.level-low {
 		background: rgba(100, 108, 255, 0.1);
 		color: #646cff;
-		
+
 		.badge-dot {
 			background: #646cff;
-			box-shadow: 0 0 8rpx rgba(100, 108, 255, 0.4);
+			box-shadow: none;
 		}
 	}
-	
+
 	&.level-default {
 		background: #f1f5f9;
-		color: #94a3b8;
-		
+		color: #73737d;
+
 		.badge-dot {
 			background: #cbd5e1;
 		}
@@ -424,25 +396,25 @@ export default {
 	align-items: flex-start;
 	justify-content: space-between;
 	font-size: 26rpx;
-	
+
 	.detail-label {
-		color: #94a3b8;
+		color: #73737d;
 		margin-right: 16rpx;
 		flex-shrink: 0;
-		min-width: 180rpx;
+		width: 156rpx;
 		font-size: 26rpx;
 	}
-	
+
 	.detail-value {
 		flex: 1;
-		color: #1e293b;
+		color: #1d1d1f;
 		word-break: break-word;
 		line-height: 1.6;
 		text-align: left;
-		
+
 		&.time-value {
-			font-family: monospace;
-			color: #64748b;
+			font-variant-numeric: tabular-nums;
+			color: #73737d;
 		}
 	}
 }
@@ -455,28 +427,28 @@ export default {
 	width: 88rpx;
 	height: 88rpx;
 	background: rgba(255, 255, 255, 0.9);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+
+
 	border-radius: 50%;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
-	border: 1px solid rgba(255, 255, 255, 0.8);
+	box-shadow: none;
+	border: 0;
 	z-index: 999;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-	
+
 	.scroll-icon-img {
 		width: 44rpx;
 		height: 44rpx;
 		opacity: 0.8;
 	}
-	
+
 	&:active {
 		transform: scale(0.92);
 		background: rgba(255, 255, 255, 1);
-		box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+		box-shadow: none;
 	}
 }
 
@@ -490,4 +462,6 @@ export default {
 		transform: translateY(0);
 	}
 }
+
+.tp-box { background: #F2F2F7; }
 </style>

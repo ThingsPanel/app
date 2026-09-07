@@ -565,4 +565,6 @@ button[disabled] {
 .phone-input {
 	flex: 1;
 }
+
+.plain-layout { background: #F2F2F7; }
 </style>

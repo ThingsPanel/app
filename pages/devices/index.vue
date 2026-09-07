@@ -4,9 +4,12 @@
 			<view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
 				<view class="header-title-group">
 					<view class="page-title">{{ $t('pages.devices.pageHeading') }}</view>
-					<text class="header-device-count">{{ $t('pages.devices.totalSummary', { count: overviewState === 'ready' ? deviceTotal : '—' }) }}</text>
+					<text class="header-device-count">{{ overviewState === 'ready' ? deviceTotal : '—' }} {{ $t('pages.devices.totalUnit') }}</text>
 				</view>
 				<view class="header-actions tp-flex tp-flex-a-c">
+					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" role="button" :aria-label="$t('scanActivation.scan')" @click="scanDevice">
+						<image src="/static/icon/home/scan.svg" mode="aspectFit" />
+					</view>
 					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
 						<image src="/static/icon/notify.svg" mode="aspectFit" />
 					</view>
@@ -148,7 +151,7 @@
 		</uni-popup>
 
 		<app-toast ref="toast" :msg="toast.msg" direction="row" location="top"></app-toast>
-		
+
 		<!-- Scroll to Top Button -->
 		<button class="scroll-to-top" v-if="showScrollTop" :aria-label="$t('pages.devices.backToTop')" hover-class="scroll-to-top--pressed" @click="scrollToTop">
 			<view class="scroll-top-arrow" aria-hidden="true" />
@@ -503,7 +506,7 @@ export default {
 				uni.removeStorageSync(legacyKey)
 			}
 		},
-		
+
 		// WebSocket相关方法
 		// 初始化WebSocket连接
 		initWebSocket() {
@@ -519,11 +522,11 @@ export default {
 				}
 			});
 		},
-		
+
 		// 更新设备状态
 		updateDeviceStatus(statusData) {
 			const { device_id, is_online, latest_temp } = statusData;
-			
+
 			// 查找并更新对应设备
 			const device = this.deviceList.find(d => d.id === device_id);
 			if (device) {
@@ -535,7 +538,7 @@ export default {
 				this.$forceUpdate();
 			}
 		},
-		
+
 		// 滚动停止后再做可见区域计算 + 订阅（防抖）
 		scheduleViewportSubscription() {
 			if (this.viewportSubscribeTimer) {
@@ -546,7 +549,7 @@ export default {
 				this.updateVisibleDevices()
 			}, 400)
 		},
-		
+
 		// 更新可见设备（视窗化订阅）
 		updateVisibleDevices() {
 			if (this.deviceList.length === 0) {
@@ -601,7 +604,7 @@ export default {
 				}
 			}).exec();
 		},
-		
+
 		// 重新连接并订阅（每次订阅都重新连接）
 		reconnectAndSubscribe() {
 			deviceStatusSocket.reconnectAndSubscribe(this.visibleDeviceIds, {
@@ -616,7 +619,7 @@ export default {
 				}
 			});
 		},
-		
+
 		// 滚动到顶部
 		scrollToTop() {
 			uni.pageScrollTo({
@@ -723,7 +726,23 @@ export default {
 			this.$nextTick(() => this.scheduleViewportSubscription())
 		},
 		scanDevice() {
-			uni.scanCode({ success: ({ result }) => uni.navigateTo({ url: './create?code=' + encodeURIComponent(result) + '&groupId=' + (this.currentGroup.id || '') }) })
+			// #ifdef H5
+			uni.showToast({ title: this.$t('scanActivation.appOnly'), icon: 'none' })
+			// #endif
+			// #ifndef H5
+			uni.scanCode({
+				success: ({ result }) => {
+					if (!result || !String(result).trim()) {
+						uni.showToast({ title: this.$t('scanActivation.empty'), icon: 'none' })
+						return
+					}
+					uni.navigateTo({ url: '/pages/devices/create?code=' + encodeURIComponent(result), fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) })
+				},
+				fail: error => {
+					if (!/cancel/i.test(error.errMsg || '')) uni.showToast({ title: this.$t('dashboard.scanFailed'), icon: 'none' })
+				}
+			})
+			// #endif
 		},
 		changeIndex(item, i, iIndex) {
 			item.currentIndex = iIndex
@@ -816,10 +835,7 @@ export default {
 			});
 		},
 		getGroupData() {
-			uni.showLoading({
-				title: this.$t('common.loading'),
-				mask: true
-			});
+
 			return this.API.apiRequest('/api/v1/device/group/tree', {
 			}, 'get').then(res => {
 				if (res.code !== 200 || !Array.isArray(res.data)) throw new Error('Device groups request failed')
@@ -830,7 +846,7 @@ export default {
 				this.toast.msg = this.$t('common.loadFailed')
 				this.$refs.toast.show()
 			}).finally(() => {
-				uni.hideLoading()
+
 			});
 		},
 		treeConfirm(e) {
@@ -857,10 +873,7 @@ export default {
 		},
 		//获取操作日志
 		getWarningList() {
-			uni.showLoading({
-				title: this.$t('common.loading'),
-				mask: true
-			});
+
 			this.API.apiRequest('/api/conditions/log/index', {
 				current_page: this.$store.state.list.offset,
 				per_page: 10
@@ -894,7 +907,7 @@ export default {
 				}
 			});
 			setTimeout(() => {
-				uni.hideLoading()
+
 			}, 1000)
 		},
 		// 加载更多
@@ -994,10 +1007,7 @@ export default {
 		},
 		// 插件查询
 		getDetail(device) {
-			uni.showLoading({
-				title: this.$t('common.loading'),
-				mask: true
-			});
+
 			this.API.apiRequest('/api/device/model/list', {
 				id: device.type,
 				current_page: 1,
@@ -1073,7 +1083,7 @@ export default {
 					this.$refs.toast.show();
 				}
 				setTimeout(() => {
-					uni.hideLoading()
+
 				}, 1000);
 			})
 		},
@@ -1194,7 +1204,7 @@ export default {
 	min-height: 100vh;
 	background: #f7f8fa;
 	position: relative;
-	color: #172033;
+	color: #1d1d1f;
 	font-size: 28rpx;
 }
 
@@ -1207,12 +1217,12 @@ export default {
 .header-main { margin-bottom: 6rpx; }
 
 .page-title {
-	color: #172033;
+	color: #1d1d1f;
 	font-size: 22px;
 	font-weight: 600;
 	line-height: 30px;
 }
-.page-subtitle { margin-top: 4px; color: #7c879a; font-size: 12px; line-height: 18px; }
+.page-subtitle { margin-top: 4px; color: #73737d; font-size: 12px; line-height: 18px; }
 
 .notify-action { width: 66rpx; height: 66rpx; }
 .notify-action image { width: 36rpx; height: 36rpx; }
@@ -1247,7 +1257,7 @@ export default {
 	height: 52rpx;
 	padding: 0 14rpx;
 	flex: 1;
-	color: #172033;
+	color: #1d1d1f;
 	font-size: 22rpx;
 }
 
@@ -1257,7 +1267,7 @@ export default {
 	font-size: 34rpx;
 }
 
-.filter-button { min-width: 112rpx; height: 56rpx; padding: 0 14rpx; gap: 8rpx; box-sizing: border-box; color: #172033; background: #fff; border: 2rpx solid #dfe4eb; border-radius: var(--radius-control); font-size: 22rpx; }
+.filter-button { min-width: 112rpx; height: 56rpx; padding: 0 14rpx; gap: 8rpx; box-sizing: border-box; color: #1d1d1f; background: #fff; border: 2rpx solid #dfe4eb; border-radius: var(--radius-control); font-size: 22rpx; }
 .filter-icon { width: 26rpx; height: 26rpx; }
 
 .filter-scroll {
@@ -1317,7 +1327,7 @@ export default {
 .overview-retry { width: 100%; border-radius: 0; background: transparent; padding-right: 0; padding-left: 0; }
 .device-view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; margin-top: 12rpx; }
 .group-controls { display: flex; align-items: center; min-width: 0; flex: 1; }
-.group-selector { display: flex; align-items: center; gap: 12rpx; min-width: 0; max-width: 100%; min-height: 44px; margin: 0; padding: 0 8rpx 0 0; background: none; color: #53647b; border-radius: 0; font-size: 22rpx; line-height: 34rpx; }
+.group-selector { display: flex; align-items: center; gap: 12rpx; min-width: 0; max-width: 100%; min-height: 44px; margin: 0; padding: 0 8rpx 0 0; background: none; color: #51515c; border-radius: 0; font-size: 22rpx; line-height: 34rpx; }
 .group-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .group-chevron { flex-shrink: 0; width: 10rpx; height: 10rpx; border-right: 2rpx solid #8090a5; border-bottom: 2rpx solid #8090a5; transform: rotate(45deg); margin: -5rpx 5rpx 0 0; }
 .group-reset { flex-shrink: 0; min-height: 44px; padding: 0 12rpx; margin: 0; background: transparent; color: #1677FF; font-size: 20rpx; line-height: 44px; }
@@ -1423,7 +1433,7 @@ export default {
 	justify-content: space-between;
 	align-items: center;
 	color: #18332f;
-	
+
 	.close-popup {
 		width: 32rpx;
 		height: 32rpx;
@@ -1467,10 +1477,10 @@ export default {
 
 /* Shared surface tokens keep summary cards and device cards visually consistent. */
 .tp-box {
-  background:linear-gradient(180deg, #e6edf5 0%, #ecf1f6 45%, #f0f4f8 100%);
+  background:#F2F2F7;
   --radius-card:16rpx;
   --radius-control:14rpx;
-  --device-glass-surface:#fafcfe;
+  --device-glass-surface:#ffffff;
   --device-card-radius:12rpx;
   --device-glass-shadow:none;
 }
@@ -1478,11 +1488,11 @@ export default {
 .notify-action { width:72rpx; height:72rpx; }
 .notify-action image { width:44rpx; height:44rpx; }
 .header-title-group { display:flex; align-items:baseline; gap:16rpx; min-width:0; flex-wrap:wrap; }
-.header-device-count { color:#718096; font-size:22rpx; line-height:32rpx; font-weight:400; }
+.header-device-count { color:#73737d; font-size:22rpx; line-height:32rpx; font-weight:400; }
 .overview-section { padding:16rpx var(--page-gutter) 24rpx; }
 .overview-card { position:relative; padding:24rpx 0; background:var(--device-glass-surface); border-radius:var(--device-card-radius); box-shadow:none; }
 .overview-heading, .overview-metrics, .overview-footer { position:relative; z-index:1; }
-.overview-heading { color:#718096; margin-bottom:20rpx; gap:12rpx; flex-wrap:wrap; }
+.overview-heading { color:#73737d; margin-bottom:20rpx; gap:12rpx; flex-wrap:wrap; }
 .overview-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; }
 .metric-item, .metric-item:first-child { position:relative; display:flex; flex-direction:column; overflow:hidden; padding:0 20rpx; border:0; border-radius:0; background:transparent; box-shadow:none; }
 .metric-item + .metric-item::before { content:''; position:absolute; left:0; top:6rpx; bottom:6rpx; width:1rpx; background:rgba(119,143,174,.18); }
@@ -1494,8 +1504,8 @@ export default {
 .metric-label { color:#475467; margin:18rpx 0 0; font-size:21rpx; line-height:30rpx; white-space:normal; }
 .metric-rate { color:#66758a; margin-top:8rpx; font-size:20rpx; line-height:28rpx; font-variant-numeric:tabular-nums; }
 .metric-alarm .metric-rate { color:#c76b26; }
-.metric-value { min-width:0; color:#172033; line-height:52rpx; font-size:40rpx; font-weight:650; letter-spacing:-1rpx; }
-.overview-footer { color:#718096; border:0; padding-left:20rpx; padding-right:20rpx; }
+.metric-value { min-width:0; color:#1d1d1f; line-height:52rpx; font-size:40rpx; font-weight:650; letter-spacing:-1rpx; }
+.overview-footer { color:#73737d; border:0; padding-left:20rpx; padding-right:20rpx; }
 .device-search, .filter-button { background:var(--device-glass-surface); border:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
 .search-input { background:transparent; border:0; border-radius:0; }
 .search-icon, .filter-icon { width:24rpx; height:24rpx; flex-shrink:0; }
@@ -1507,4 +1517,6 @@ export default {
 .view-mode-icon { width:32rpx; height:32rpx; }
 .device-list--rows { background:var(--device-glass-surface); box-shadow:none; border:0; border-radius:var(--device-card-radius); overflow:hidden; }
 .device-skeleton { background:#fff; border:0; }
+
+.pagehome, .device-page, .tp-box { background: #F2F2F7; }
 </style>

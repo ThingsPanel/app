@@ -1,10 +1,5 @@
 <template>
   <view class="pagehome">
-    <view class="editor-nav">
-      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="20" color="#172033" /></view>
-      <text class="nav-title">{{ editId ? $t('pages.sceneAutomationEditor.editSceneLinkage') : $t('pages.sceneAutomationEditor.addSceneLinkage') }}</text>
-      <text class="nav-side nav-save" @tap="handlerSubmit">{{ $t('common.save') }}</text>
-    </view>
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
       <!-- Background Elements for Atmosphere -->
       <view class="bg-glow-1"></view>
@@ -12,7 +7,7 @@
 
       <!-- Form Panel -->
       <view class="section-header info-section-header">
-        <text class="section-title">规则信息</text>
+        <text class="section-title">{{ $t('pages.sceneAutomationEditor.ruleInfo') }}</text>
       </view>
       <view class="form-panel tp-panel">
         <view class="form-item tp-flex tp-flex-row tp-flex-j-l tp-flex-a-c">
@@ -33,7 +28,7 @@
       <!-- Section: If -->
       <view class="section-header">
         <text class="section-title">{{ $t('pages.sceneAutomationEditor.ifText') }}</text>
-        <view class="section-option"><text>满足全部</text></view>
+        <view class="section-option"><text>{{ $t('pages.sceneAutomationEditor.matchAll') }}</text></view>
       </view>
 
       <!-- 条件列表 -->
@@ -53,6 +48,8 @@
       </view>
 
     </view>
+
+    <button class="editor-submit" @tap="handlerSubmit">{{ $t('common.save') }}</button>
 
     <ConfirmationModal v-model="visible" :title="$t('pages.sceneAutomationEditor.save')" :text="$t('pages.sceneAutomationEditor.saveConfirm')"
       @cancel='cancel' @confirm='confirm' />
@@ -86,7 +83,7 @@ export default {
     this.$nextTick(() => {
       setTimeout(() => {
         uni.setNavigationBarTitle({
-          title: this.$t('pages.addSceneLinkage')
+          title: this.editId ? this.$t('pages.sceneAutomationEditor.editSceneLinkage') : this.$t('pages.sceneAutomationEditor.addSceneLinkage')
         })
       }, 100)
     })
@@ -124,9 +121,7 @@ export default {
     },
     // 获取修改信息
     getInfo() {
-      uni.showLoading({
-        title: this.$t('pages.sceneAutomationEditor.loading')
-      });
+
       const params = {
         id: this.editId
       }
@@ -153,7 +148,7 @@ export default {
           });
         }
       }).finally(() => {
-        uni.hideLoading()
+
       });
     },
     convertConditionsData(ifData) {
@@ -410,7 +405,7 @@ export default {
       const hasTimeCondition = rawConditions.some(group => group.some(item => item.ifType === '2'));
       const hasAlarmAction = this.formData.actions.some(item => item.actionType === '30');
       if (hasTimeCondition && hasAlarmAction) {
-        uni.showToast({ title: '时间条件不能与触发告警同时使用', icon: 'none', duration: 2500 });
+        uni.showToast({ title: this.$t('pages.sceneAutomationEditor.timeAlarmConflict'), icon: 'none', duration: 2500 });
         return;
       }
 
@@ -464,9 +459,7 @@ export default {
       this.doSubmit(this.submitData)
     },
     doSubmit(submitData) {
-      uni.showLoading({
-        title: this.$t('pages.sceneAutomationEditor.loading')
-      });
+
 
       let url = '/api/v1/scene_automations';
       let method = 'put';
@@ -485,7 +478,7 @@ export default {
           });
         }
       }).finally(() => {
-        uni.hideLoading()
+
       });
     },
   }
@@ -493,30 +486,15 @@ export default {
 </script>
 
 <style scoped lang="scss">
-.editor-nav {
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 96rpx minmax(0, 1fr) 96rpx;
-  align-items: center;
-  height: calc(88rpx + var(--status-bar-height));
-  padding: var(--status-bar-height) 24rpx 0;
-  background: rgba(255, 255, 255, 0.96);
-  border-bottom: 1rpx solid #edf0f3;
-}
+.editor-submit { margin:24rpx 28rpx; border:0; border-radius:12rpx; background:#1677ff; color:#fff; font-size:28rpx; line-height:84rpx; }
+.editor-submit::after { border:0; }
 
-.nav-side { display:flex; align-items:center; min-width:0; height:88rpx; }
-.nav-back { justify-content: flex-start; }
-.nav-save { justify-content:flex-end; color:#1677FF; font-size:26rpx; font-weight:500; }
-.nav-title { overflow:hidden; color:#172033; font-size:30rpx; font-weight:600; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
 
 /* Global Reset & Base */
 .pagehome {
   width: 100%;
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #F7FAFF;
   position: relative;
   overflow: visible;
 }
@@ -524,9 +502,9 @@ export default {
 .tp-box {
   width: 100%;
   min-height: 100vh;
-  background: #f5f7fa;
+  background: #F7FAFF;
   position: relative;
-  color: #334155;
+  color: #51515c;
   font-size: 28rpx;
   padding-bottom: 40rpx;
 }
@@ -564,7 +542,7 @@ export default {
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  border: 0;
   border-radius: 32rpx;
   box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.06), 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
   margin: 30rpx;
@@ -585,13 +563,13 @@ export default {
   width: 180rpx;
   font-size: 28rpx;
   font-weight: 600;
-  color: #1e293b;
+  color: #1d1d1f;
   flex-shrink: 0;
 }
 
 .form-input {
   font-size: 28rpx;
-  color: #1e293b;
+  color: #1d1d1f;
   padding: 0;
   background: transparent;
 }
@@ -609,7 +587,7 @@ export default {
   .section-title {
     font-size: 36rpx;
     font-weight: 700;
-    color: #1e293b;
+    color: #1d1d1f;
     letter-spacing: 0.5rpx;
   }
 }
@@ -652,8 +630,8 @@ export default {
 .pagehome,
 .tp-box {
   --page-gutter: 12px;
-  background: #f7f8fa;
-  color: #172033;
+  background: #F7FAFF;
+  color: #1d1d1f;
 }
 
 .bg-glow-1,
@@ -664,8 +642,8 @@ export default {
 .form-panel {
   margin: 0 var(--page-gutter, 30rpx) 6px;
   background: #ffffff;
-  border: 1rpx solid #e4e9f0;
-  border-radius: 10rpx;
+  border: 0;
+  border-radius: 12rpx;
   box-shadow: none;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -681,7 +659,7 @@ export default {
 
 .form-item-label,
 .section-header .section-title {
-  color: #172033;
+  color: #1d1d1f;
 }
 
 .form-item-label { width: 78px; font-size: 13px; line-height: 18px; }
@@ -689,7 +667,7 @@ export default {
 .form-placeholder { font-size: 13px; line-height: 18px; }
 
 .form-input {
-  color: #172033;
+  color: #1d1d1f;
 }
 
 .form-placeholder {
@@ -714,7 +692,7 @@ export default {
 }
 
 .info-section-header { padding-top: 6px; }
-.section-option { display: flex; align-items: center; gap: 3px; color: #172033; font-size: 13px; font-weight: 500; line-height: 18px; white-space: nowrap; }
+.section-option { display: flex; align-items: center; gap: 3px; color: #1d1d1f; font-size: 13px; font-weight: 500; line-height: 18px; white-space: nowrap; }
 
 .section-content {
   padding: 0 var(--page-gutter, 30rpx);
@@ -799,7 +777,7 @@ export default {
 }
 
 ::v-deep .uni-input-input {
-  color: #1e293b;
+  color: #1d1d1f;
 }
 
 ::v-deep .uni-input .uni-input-placeholder.input-placeholder {
@@ -823,7 +801,7 @@ export default {
 }
 
 uni-text {
-  color: #1e293b;
+  color: #1d1d1f;
 }
 
 ::v-deep .checklist-text>span {
@@ -850,17 +828,20 @@ uni-text {
   margin-right: 8rpx;
 
   .uni-tooltip-popup {
-    color: #1e293b;
+    color: #1d1d1f;
     width: max-content;
     left: unset;
     right: 0;
     bottom: 44rpx;
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 0;
     padding: 16rpx;
     border-radius: 16rpx;
     box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.1);
   }
 }
+
+.pagehome { background: #F2F2F7; }
+.pagehome > .tp-box { background: transparent; }
 </style>

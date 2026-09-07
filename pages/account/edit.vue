@@ -3,7 +3,7 @@
 		<view class="tp-box tp-box-sizing tp-flex tp-flex-col tp-pd-l-r-30">
 			<!-- 背景氛围元素 -->
 			<view class="bg-glow-2"></view>
-			
+
 			<!-- 头像上传区域 -->
 			<view class="avatar-section tp-flex tp-flex-col tp-flex-a-c tp-mg-t-50">
 				<view class="avatar-wrapper" @click="chooseAvatar">
@@ -22,7 +22,7 @@
 						<input class="uni-input" v-model="formData.name" :placeholder="$t('account.edit.namePlaceholder')" />
 					</view>
 				</view>
-				
+
 				<view class="form-item">
 					<view class="form-label">{{ $t('account.phone') }}</view>
 					<view class="tp-ipt">
@@ -43,7 +43,7 @@
 						</view>
 					</view>
 				</view>
-				
+
 				<view class="form-item">
 					<view class="form-label">{{ $t('account.email') }}</view>
 					<view class="tp-ipt">
@@ -129,22 +129,19 @@ export default {
 	methods: {
 		// 加载用户信息
 		loadUserInfo() {
-			uni.showLoading({
-				title: this.$t('common.loading'),
-				mask: true
-			});
-			
+
+
 			const serverUrl = uni.getStorageSync('serverAddress');
 			const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '') : '';
-			
+
 			this.API.apiRequest('/api/v1/board/user/info', {}, 'get').then(res => {
 				if (res.code == 200 && res.data) {
 					const data = res.data;
-					
+
 					// 处理手机号：拆分前缀和号码
 					let phoneNumber = '';
 					let phonePrefix = '+86';
-					
+
 					// 优先使用 phone_prefix 和 phone_number
 					if (data.phone_prefix) {
 						phonePrefix = data.phone_prefix;
@@ -152,7 +149,7 @@ export default {
 					if (data.phone_number) {
 						phoneNumber = String(data.phone_number);
 					}
-					
+
 					// 如果 phone_number 包含前缀（以 + 开头），需要拆分
 					if (phoneNumber && phoneNumber.startsWith('+')) {
 						// 尝试匹配已知的前缀
@@ -165,7 +162,7 @@ export default {
 							}
 						}
 					}
-					
+
 					// 如果没有 phone_number，尝试从 mobile 中提取
 					if (!phoneNumber && data.mobile) {
 						const mobileStr = String(data.mobile);
@@ -190,13 +187,13 @@ export default {
 							phoneNumber = mobileStr;
 						}
 					}
-					
+
 					// 查找对应的前缀索引
 					const prefixIndex = this.phonePrefixList.findIndex(item => item.code === phonePrefix);
 					if (prefixIndex >= 0) {
 						this.phonePrefixIndex = prefixIndex;
 					}
-					
+
 					this.formData = {
 						name: data.name || '',
 						phone_number: phoneNumber,
@@ -209,17 +206,17 @@ export default {
 						avatarUrl: data.avatar_url ? (baseUrl + '/' + data.avatar_url) : ''
 					};
 				}
-				uni.hideLoading();
+
 			}).catch(err => {
 				console.error('加载用户信息失败:', err);
-				uni.hideLoading();
+
 				uni.showToast({
 					title: this.$t('account.edit.loadFailed'),
 					icon: 'none'
 				});
 			});
 		},
-		
+
 		// 区号选择器变化事件
 		onPhonePrefixChange(e) {
 			const index = e.detail.value
@@ -228,7 +225,7 @@ export default {
 				this.formData.phone_prefix = this.phonePrefixList[index].code
 			}
 		},
-		
+
 		// 选择头像
 		chooseAvatar() {
 			uni.chooseImage({
@@ -244,18 +241,15 @@ export default {
 				}
 			});
 		},
-		
+
 		// 上传头像
 		uploadAvatar(filePath) {
-			uni.showLoading({
-				title: this.$t('account.edit.uploading'),
-				mask: true
-			});
-			
+
+
 			const serverUrl = uni.getStorageSync('serverAddress');
 			const baseUrl = serverUrl || 'https://demo.thingspanel.cn';
 			const token = uni.getStorageSync('access_token');
-			
+
 			uni.uploadFile({
 				url: baseUrl + '/api/v1/file/up',
 				filePath: filePath,
@@ -289,11 +283,11 @@ export default {
 							icon: 'none'
 						});
 					}
-					uni.hideLoading();
+
 				},
 				fail: (err) => {
 					console.error('上传失败:', err);
-					uni.hideLoading();
+
 					uni.showToast({
 						title: this.$t('account.edit.uploadFailed'),
 						icon: 'none'
@@ -301,7 +295,7 @@ export default {
 				}
 			});
 		},
-		
+
 		// 提交表单
 		submitForm() {
 			// 简单验证
@@ -321,17 +315,14 @@ export default {
 			}
 			this.submitUserInfo();
 		},
-		
+
 		// 提交用户信息
 		submitUserInfo() {
 			if (this.submitting) return;
-			
+
 			this.submitting = true;
-			uni.showLoading({
-				title: this.$t('common.loading'),
-				mask: true
-			});
-			
+
+
 			// 构建请求数据
 			const updateData = {};
 			if (this.formData.name) updateData.name = this.formData.name;
@@ -342,9 +333,9 @@ export default {
 			if (this.formData.timezone) updateData.timezone = this.formData.timezone;
 			if (this.formData.default_language) updateData.default_language = this.formData.default_language;
 			if (this.formData.avatar_url) updateData.avatar_url = this.formData.avatar_url;
-			
+
 			this.API.apiRequest('/api/v1/board/user/update', updateData, 'post').then(res => {
-				uni.hideLoading();
+
 				if (res.code == 200) {
 					uni.showToast({
 						title: this.$t('account.edit.saveSuccess'),
@@ -362,7 +353,7 @@ export default {
 				this.submitting = false;
 			}).catch(err => {
 				console.error('更新用户信息失败:', err);
-				uni.hideLoading();
+
 				uni.showToast({
 					title: this.$t('account.edit.updateFailed'),
 					icon: 'none'
@@ -442,7 +433,7 @@ export default {
 
 .form-label {
 	font-size: 28rpx;
-	color: #1e293b;
+	color: #1d1d1f;
 	margin-bottom: 20rpx;
 	font-weight: 600;
 }
@@ -462,7 +453,7 @@ export default {
 
 .tp-ipt .uni-input {
 	font-size: 28rpx;
-	color: #1e293b;
+	color: #1d1d1f;
 	width: 100%;
 }
 
@@ -488,7 +479,7 @@ export default {
 
 .prefix-text {
 	font-size: 28rpx;
-	color: #1e293b;
+	color: #1d1d1f;
 	font-weight: 500;
 }
 
@@ -545,5 +536,6 @@ export default {
 .tp-ipt:active { border-color:#1677ff; }
 .submit-section { margin-top:24px; }
 .submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:#1677ff; }
-</style>
 
+.edit-container, .tp-box { background: #F2F2F7; }
+</style>

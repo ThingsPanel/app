@@ -1,22 +1,5 @@
 <template>
 	<view class="device-detail-page">
-		<view class="safe-area-top" />
-		<view class="top-bar">
-			<view class="top-action" hover-class="top-action--pressed" aria-label="返回" @click="goBack">
-				<view class="back-icon" />
-			</view>
-			<view class="top-actions">
-				<view class="top-action" hover-class="top-action--pressed" aria-label="扫描设备" @click="showStaticHint">
-					<image class="top-action-icon" src="/static/icon/device-scan.svg" mode="aspectFit" />
-				</view>
-				<view class="top-action" hover-class="top-action--pressed" aria-label="更多操作" @click="showStaticHint">
-					<view class="more-icon" aria-hidden="true">
-						<view v-for="index in 3" :key="index" class="more-dot" />
-					</view>
-				</view>
-			</view>
-		</view>
-
 		<scroll-view class="page-scroll" scroll-y>
 			<view class="device-summary">
 				<view class="device-image-card">
@@ -227,7 +210,7 @@ export default {
 	--detail-text: #172033;
 	--detail-secondary: #748096;
 	--detail-border: #e8edf3;
-	--detail-canvas: #f6f8fb;
+	--detail-canvas:#F2F2F7;
 	position: relative;
 	width: 100%;
 	max-width: 430px;
@@ -237,17 +220,9 @@ export default {
 	color: var(--detail-text);
 }
 
-.safe-area-top { height: env(safe-area-inset-top); background: #ffffff; }
-.top-bar { display: flex; align-items: center; justify-content: space-between; height: 96rpx; padding: 0 20rpx; background: #ffffff; box-sizing: border-box; }
-.top-actions { display: flex; align-items: center; gap: 8rpx; }
-.top-action { display: flex; align-items: center; justify-content: center; width: 88rpx; height: 88rpx; border-radius: 16rpx; }
 .top-action--pressed, .inline-action--pressed, .detail-tab--pressed, .navigation-item--pressed { opacity: .56; }
-.top-action-icon { width: 48rpx; height: 48rpx; }
-.back-icon { width: 25rpx; height: 25rpx; border-left: 4rpx solid #172033; border-bottom: 4rpx solid #172033; transform: rotate(45deg); }
-.more-icon { display: flex; align-items: center; gap: 8rpx; }
-.more-dot { width: 7rpx; height: 7rpx; border-radius: 50%; background: #172033; }
 
-.page-scroll { height: calc(100vh - 96rpx - env(safe-area-inset-top) - 104rpx - env(safe-area-inset-bottom)); background: var(--detail-canvas); }
+.page-scroll { height: calc(100vh - var(--window-top, 0px) - 104rpx - env(safe-area-inset-bottom)); background: var(--detail-canvas); }
 .device-summary { display: flex; gap: 26rpx; padding: 20rpx 40rpx 38rpx; background: #ffffff; box-sizing: border-box; }
 .device-image-card { display: flex; align-items: center; justify-content: center; flex: 0 0 208rpx; height: 208rpx; margin-top: 4rpx; background: #ffffff; border: 2rpx solid var(--detail-border); border-radius: 22rpx; overflow: hidden; }
 .device-image { width: 176rpx; height: 176rpx; }
@@ -296,4 +271,7 @@ export default {
 @media screen and (min-width: 768px) {
 	.device-detail-page { box-shadow: 0 0 0 1px #edf0f4; }
 }
+
+.device-detail-page { background: #F2F2F7; }
+.device-detail-page { --detail-canvas:#F2F2F7; --detail-text:#1d1d1f; --detail-secondary:#73737d; }
 </style>

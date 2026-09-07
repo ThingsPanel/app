@@ -1,62 +1,63 @@
-﻿<template>
+<template>
   <view class="home-page">
     <view class="home-header">
-      <view><text class="page-title">首页</text><text class="page-subtitle">租户总览 · {{ loading ? '正在更新' : '设备与告警概览' }}</text></view>
+      <view><text class="page-title">{{ $t('dashboard.title') }}</text><text class="page-subtitle">{{ $t('dashboard.tenantOverview') }} · {{ loading ? $t('dashboard.updating') : $t('dashboard.overviewSubtitle') }}</text></view>
       <view class="header-actions">
-        <button class="icon-button" aria-label="扫一扫添加设备" @click="scanDevice"><image src="/static/icon/home/scan.svg" /></button>
-        <button class="icon-button" aria-label="添加设备" @click="navigate('/pages/devices/create')"><view class="add-circle">＋</view></button>
+        <button class="icon-button" :aria-label="$t('scanActivation.scan')" @click="scanDevice"><image src="/static/icon/home/scan.svg" /></button>
+        <button class="icon-button" :aria-label="$t('dashboard.notifications')" @click="navigate('/pages/alarms/index')"><image src="/static/icon/notify.svg" /></button>
       </view>
     </view>
 
     <view class="top-stats">
-      <button class="stat-card" @click="openDevices">
-        <view class="stat-heading"><image src="/static/icon/home/device.svg" /><text class="stat-value">{{ device.total ?? '—' }}</text></view>
-        <text class="stat-label">设备总数</text><text class="stat-note">在线 {{ device.online ?? '—' }} 台</text>
+      <button class="stat-card stat-device" @click="openDevices">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/device.svg" /></view><text class="stat-value">{{ device.total ?? '—' }}</text></view>
+        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ formatMessage('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
       </button>
-      <button class="stat-card" @click="openDevices">
-        <view class="stat-heading"><image src="/static/icon/home/activity.svg" /><text class="stat-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text></view>
-        <text class="stat-label">设备在线率</text><text class="stat-note">当前在线比例</text>
+      <button class="stat-card stat-online" @click="openDevices">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/check.svg" /></view><text class="stat-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text></view>
+        <text class="stat-label">{{ $t('dashboard.onlineRate') }}</text><view class="stat-rate-track" aria-hidden="true"><view :style="{ width: (device.rate ?? 0) + '%' }" /></view>
       </button>
-      <button class="stat-card" @click="navigate('/pages/alarms/index')">
-        <view class="stat-heading"><image src="/static/icon/home/bell.svg" /><text class="stat-value alarm-value">{{ alarmDevices ?? '—' }}</text></view>
-        <text class="stat-label">告警设备</text><text class="stat-note">查看告警动态</text>
+      <button class="stat-card stat-alarm" @click="navigate('/pages/alarms/index')">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/bell.svg" /></view><text class="stat-value">{{ alarmDevices ?? '—' }}</text></view>
+        <text class="stat-label">{{ $t('dashboard.alarmDevices') }}</text><text class="stat-note alarm-note">{{ $t('dashboard.viewActivity') }} <text>›</text></text>
       </button>
     </view>
-    <button v-if="errors.length" class="error-notice" @click="refresh">{{ errors.join('、') }}加载失败，点击重试</button>
+    <button v-if="errors.length" class="error-notice" @click="refresh">{{ formatMessage('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">运营概览</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? '更新中…' : updatedAt ? '更新于 ' + updatedAt : '刷新' }}</button></view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? formatMessage('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
       <view class="operation-grid">
-        <view class="operation-item"><image class="operation-icon" src="/static/icon/home/bell.svg" /><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">今日告警</text><text class="operation-foot">今日累计</text></view>
-        <view class="operation-item"><image class="operation-icon" src="/static/icon/home/bolt.svg" /><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">联动规则</text><text class="operation-foot">已配置</text></view>
+        <view class="operation-item operation-alarm"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bell.svg" /></view><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.todayAlarms') }}</text></view>
+        <view class="operation-item operation-automation"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bolt.svg" /></view><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.automationRules') }}</text></view>
       </view>
     </view>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">快捷入口</text></view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.shortcuts') }}</text></view>
       <view class="shortcut-grid">
-        <button v-for="entry in shortcuts" :key="entry.key" class="shortcut" @click="openShortcut(entry.key)"><image :src="entry.icon" /><text>{{ entry.label }}</text></button>
+        <button v-for="entry in shortcuts" :key="entry.key" class="shortcut" @click="openShortcut(entry.key)"><image :src="entry.icon" /><text>{{ $t('dashboard.' + entry.key) }}</text></button>
       </view>
     </view>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">告警动态</text><button class="more" @click="navigate('/pages/alarms/index')">查看全部 <text>›</text></button></view>
-      <view v-if="!alarms.length" class="empty-message">{{ loading ? '正在加载…' : errors.includes('告警动态') ? '告警动态暂不可用' : '暂无告警记录' }}</view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.alarmActivity') }}</text><button class="more" @click="navigate('/pages/alarms/index')">{{ $t('dashboard.viewAll') }} <text>›</text></button></view>
+      <view v-if="!alarms.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('alarmActivity') ? $t('dashboard.alarmsUnavailable') : $t('dashboard.noAlarms') }}</view>
       <button v-for="item in alarms" :key="item.id" class="alarm-row" @click="openAlarm(item)">
-        <view class="alarm-copy"><text class="alarm-name">{{ item.name || item.alarm_config_name || '告警记录' }}</text><text class="alarm-description">{{ item.content || item.description || '查看详情' }}</text></view>
+        <view class="alarm-dot" :class="{ recovered: item.alarm_status === 'N' }" />
+        <view class="alarm-copy"><text class="alarm-name">{{ item.name || item.alarm_config_name || $t('dashboard.alarmRecord') }}</text><text class="alarm-description">{{ item.content || item.description || $t('dashboard.viewDetails') }}</text></view>
         <text class="alarm-level" :class="{ recovered: item.alarm_status === 'N' }">{{ alarmLevel(item.alarm_status) }}</text><text class="alarm-time">{{ timeLabel(item.create_at) }}</text>
       </button>
     </view>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">分组状态</text><button class="more" @click="openGroupPicker">查看全部 <text>›</text></button></view>
-      <view v-if="!groups.length" class="empty-message">{{ loading ? '正在加载…' : errors.includes('分组状态') ? '分组状态暂不可用' : '暂无设备分组' }}</view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.groupStatus') }}</text><button class="more" @click="openGroupPicker">{{ $t('dashboard.viewAll') }} <text>›</text></button></view>
+      <view v-if="!groups.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('groupStatus') ? $t('dashboard.groupsUnavailable') : $t('dashboard.noGroups') }}</view>
       <view v-else class="group-grid">
         <button v-for="group in groups" :key="group.id" class="group-card" @click="openGroup(group)">
           <view class="group-heading"><image src="/static/icon/home/building.svg" /><text class="group-name">{{ group.name }}</text></view>
-          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? '统计暂不可用' : group.statistics.alarm_total > 0 ? '告警设备 ' + group.statistics.alarm_total : '无告警设备' }}</text>
-          <text class="group-counts">设备 {{ group.statistics?.device_total ?? '—' }} · 在线 {{ group.statistics?.online_total ?? '—' }}</text>
-          <view class="group-rate"><view class="rate-track"><view :style="{ width: (group.rate || 0) + '%' }" /></view><text>{{ group.rate ?? '—' }}%</text></view>
+          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? formatMessage('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
+          <text class="group-counts">{{ formatMessage('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
+          <view class="group-rate" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }"><view class="rate-track"><view :style="{ width: (group.rate || 0) + '%' }" /></view><text>{{ group.rate ?? '—' }}%</text></view>
         </button>
       </view>
     </view>
@@ -75,36 +76,42 @@ export default {
     return {
       loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [],
       shortcuts: [
-        { key: 'devices', label: '设备', icon: '/static/icon/home/device.svg' },
-        { key: 'alarms', label: '告警', icon: '/static/icon/home/bell.svg' },
-        { key: 'automation', label: '自动化', icon: '/static/icon/home/bolt.svg' },
-        { key: 'boards', label: '看板', icon: '/static/icon/home/grid.svg' },
-        { key: 'groups', label: '分组', icon: '/static/icon/home/folder.svg' },
-        { key: 'rules', label: '告警规则', icon: '/static/icon/home/ticket.svg' },
-        { key: 'scenes', label: '场景', icon: '/static/icon/home/scene.svg' },
-        { key: 'add', label: '添加设备', icon: '/static/icon/home/plus.svg' }
+        { key: 'devices', icon: '/static/icon/home/device.svg' },
+        { key: 'alarms', icon: '/static/icon/home/bell.svg' },
+        { key: 'automation', icon: '/static/icon/home/bolt.svg' },
+        { key: 'boards', icon: '/static/icon/home/grid.svg' },
+        { key: 'groups', icon: '/static/icon/home/folder.svg' },
+        { key: 'rules', icon: '/static/icon/home/ticket.svg' },
+        { key: 'scenes', icon: '/static/icon/home/scene.svg' },
+        { key: 'account', icon: '/static/icon/home/person.svg' }
       ]
     }
   },
   onShow() { this.refresh() },
   methods: {
+    formatMessage(key, values) {
+      return Object.entries(values).reduce(
+        (message, [name, value]) => message.replace(new RegExp(`\\{${name}\\}`, 'g'), String(value)),
+        this.$t(key)
+      )
+    },
     async refresh() {
       if (this.loading) return
       this.loading = true
       this.errors = []
       const now = new Date()
       const tasks = [
-        ['设备统计', async () => { this.device = {}; const d = responseData(await getDeviceOverview()); this.device = { total: count(d.device_total), online: count(d.device_on), rate: onlineRate(d.device_total, d.device_on) } }],
-        ['告警设备', async () => { this.alarmDevices = null; this.alarmDevices = count(responseData(await getAlarmDeviceCount()).alarm_device_total) }],
-        ['今日告警', async () => {
+        ['deviceStatistics', async () => { this.device = {}; const d = responseData(await getDeviceOverview()); this.device = { total: count(d.device_total), online: count(d.device_on), rate: onlineRate(d.device_total, d.device_on) } }],
+        ['alarmDevices', async () => { this.alarmDevices = null; this.alarmDevices = count(responseData(await getAlarmDeviceCount()).alarm_device_total) }],
+        ['todayAlarms', async () => {
           this.todayAlarms = null
           // 历史表还包含恢复记录（N）；仅累计 H/M/L，避免将恢复算作新告警。
           const results = await Promise.all(['H', 'M', 'L'].map(alarm_status => alarmHistory({ page: 1, page_size: 1, ...todayRange(now), alarm_status })))
           this.todayAlarms = results.reduce((sum, result) => sum + count(responseData(result).total), 0)
         }],
-        ['联动规则', async () => { this.automationTotal = null; this.automationTotal = count(responseData(await sceneAutomationsGet({ page: 1, page_size: 1 })).total) }],
-        ['告警动态', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],
-        ['分组状态', async () => {
+        ['automationRules', async () => { this.automationTotal = null; this.automationTotal = count(responseData(await sceneAutomationsGet({ page: 1, page_size: 1 })).total) }],
+        ['alarmActivity', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],
+        ['groupStatus', async () => {
           this.groups = []
           const d = responseData(await getDeviceGroup({ page: 1, page_size: 3 }))
           if (!Array.isArray(d.list)) throw new Error('分组列表无效')
@@ -116,25 +123,26 @@ export default {
               return { ...group, statistics, rate }
             } catch (error) {
               console.warn('首页分组统计加载失败', group.id, error.message)
-              if (!this.errors.includes('分组统计')) this.errors.push('分组统计')
+              if (!this.errors.includes('groupStatistics')) this.errors.push('groupStatistics')
               return { ...group, statistics: null, rate: null }
             }
           }))
         }]
       ]
       await Promise.all(tasks.map(async ([label, task]) => {
-        try { await task() } catch (error) { this.errors.push(label); console.warn('首页' + label + '加载失败', error.message) }
+        try { await task() } catch (error) { this.errors.push(label); console.warn(this.$t('dashboard.title') + label + '加载失败', error.message) }
       }))
       this.updatedAt = this.errors.length ? '' : now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
       this.loading = false
     },
-    navigate(url) { uni.navigateTo({ url, fail: () => uni.showToast({ title: '页面打开失败，请重试', icon: 'none' }) }) },
+    navigate(url) { uni.navigateTo({ url, fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) }) },
     openDevices() { uni.switchTab({ url: '/pages/devices/index' }) },
     openGroup(group) { uni.setStorageSync('device_list_selected_group', { id: group.id, name: group.name }); this.openDevices() },
     openGroupPicker() { uni.setStorageSync('dashboard_open_groups', true); this.openDevices() },
     openShortcut(key) {
       if (key === 'devices') return this.openDevices()
       if (key === 'groups') return this.openGroupPicker()
+      if (key === 'account') return uni.switchTab({ url: '/pages/account/index' })
       if (key === 'automation' || key === 'scenes') {
         uni.setStorageSync('dashboard_automation_tab', key === 'scenes' ? '场景管理' : '场景联动')
         return uni.switchTab({ url: '/pages/automation/index' })
@@ -144,74 +152,95 @@ export default {
     },
     scanDevice() {
       // #ifdef H5
-      uni.showToast({ title: '请在 App 中扫码，或使用添加设备', icon: 'none' })
+      uni.showToast({ title: this.$t('scanActivation.appOnly'), icon: 'none' })
       // #endif
       // #ifndef H5
-      uni.scanCode({ success: ({ result }) => this.navigate('/pages/devices/create?code=' + encodeURIComponent(result)), fail: (error) => { if (!/cancel/i.test(error.errMsg || '')) uni.showToast({ title: '扫码失败，请重试', icon: 'none' }) } })
+      uni.scanCode({
+        success: ({ result }) => {
+          if (!result || !String(result).trim()) {
+            uni.showToast({ title: this.$t('scanActivation.empty'), icon: 'none' })
+            return
+          }
+          this.navigate('/pages/devices/create?code=' + encodeURIComponent(result))
+        },
+        fail: error => {
+          if (!/cancel/i.test(error.errMsg || '')) uni.showToast({ title: this.$t('dashboard.scanFailed'), icon: 'none' })
+        }
+      })
       // #endif
     },
-    alarmLevel(status) { return { H: '高', M: '中', L: '低', N: '已恢复' }[status] || '未知' },
+    alarmLevel(status) { return { H: this.$t('dashboard.high'), M: this.$t('dashboard.medium'), L: this.$t('dashboard.low'), N: this.$t('dashboard.recovered') }[status] || this.$t('dashboard.unknown') },
     timeLabel(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? '—' : date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }) },
-    openAlarm(item) { uni.navigateTo({ url: '/pages/alarms/detail', success: ({ eventChannel }) => eventChannel.emit('acceptData', { item }), fail: () => uni.showToast({ title: '告警详情打开失败', icon: 'none' }) }) }
+    openAlarm(item) { uni.navigateTo({ url: '/pages/alarms/detail', success: ({ eventChannel }) => eventChannel.emit('acceptData', { item }), fail: () => uni.showToast({ title: this.$t('dashboard.alarmOpenFailed'), icon: 'none' }) }) }
   }
 }
 </script>
 
 <style scoped>
-.home-page { --home-blue: #1677ff; --home-border: #e5eaf2; --home-radius: 6px; box-sizing: border-box; min-height: 100vh; padding: 0 18px calc(24px + env(safe-area-inset-bottom)); color: #23344c; background: linear-gradient(160deg,#fff 0,#f3f7fd 180px,#f7f8fa 360px); font-size: 12px; }
-.home-page button { margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; font: inherit; color: inherit; line-height: normal; }
-.home-page button::after { border: 0; }
-.home-page button:focus-visible { outline: 2px solid #1677ff; outline-offset: 2px; }
-.home-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: calc(22px + env(safe-area-inset-top)) 0 20px; }
-.page-title { display: block; font-size: 22px; font-weight: 600; line-height: 30px; }
-.page-subtitle { display: block; color: #7c879a; font-size: 12px; line-height: 18px; margin-top: 4px; }
-.header-actions { display: flex; }
-.home-page .icon-button { display: flex; align-items: center; justify-content: center; width: 40px; height: 44px; }
-.icon-button image { width: 21px; height: 21px; }
-.add-circle { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; color: #fff; background: #1677ff; font-size: 20px; }
-.top-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.home-page .stat-card { padding: 14px 6px 12px; background: #fff; border: 1px solid var(--home-border); border-radius: var(--home-radius); min-width: 0; text-align: center; }
-.stat-heading { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 34px; }
-.stat-heading image { width: 18px; height: 18px; flex-shrink: 0; }
-.stat-value { font-size: 23px; font-weight: 600; letter-spacing: -.6px; font-variant-numeric: tabular-nums; }
-.unit { font-size: 11px; font-weight: 400; }
-.stat-label { display: block; color: #5f6e82; font-size: 11px; margin-top: 7px; }
-.stat-note { display: block; color: #8390a2; font-size: 10px; margin-top: 13px; }
-.alarm-value { color: #c46a48; }
-.home-page .error-notice { display: block; text-align: left; width: 100%; padding: 10px; margin-top: 10px; border-radius: 6px; background: #fff4ed; color: #a25532; font-size: 11px; line-height: 18px; }
-.panel { margin-top: 12px; padding: 10px 12px 12px; background: #ffffffed; border: 1px solid var(--home-border); border-radius: var(--home-radius); }
-.section-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 34px; }
-.section-title { font-size: 14px; font-weight: 600; }
-.home-page .more { color: #7b889c; font-size: 10px; min-height: 34px; }
-.more text { font-size: 16px; margin-left: 3px; }
-.operation-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); margin-top: 4px; }
-.operation-item { display: grid; grid-template-columns: 16px minmax(0,1fr) auto; align-items: center; gap: 5px 7px; min-width: 0; padding: 10px; border-left: 1px solid #edf0f5; }
-.operation-item:first-child { border: 0; }
-.operation-icon { grid-column: 1; grid-row: 1; width: 16px; height: 16px; }
-.operation-value { grid-column: 3; grid-row: 1 / 3; font-size: 22px; font-weight: 500; font-variant-numeric: tabular-nums; }
-.operation-label { grid-column: 2; grid-row: 1; color: #53647b; font-size: 12px; }
-.operation-foot { grid-column: 2; grid-row: 2; color: #8b96a6; font-size: 10px; line-height: 16px; }
-.shortcut-grid { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; margin-top: 6px; }
-.home-page .shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; height: 67px; background: #fcfdff; border: 1px solid #edf0f6; border-radius: var(--home-radius); color: #63748c; font-size: 11px; }
-.shortcut image { width: 21px; height: 21px; }
-.home-page .alarm-row { display: flex; align-items: center; gap: 8px; width: 100%; min-height: 58px; padding: 9px 0; text-align: left; border-top: 1px solid #edf0f5; }
-.alarm-copy { flex: 1; min-width: 0; }
-.alarm-name { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
-.alarm-description { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10px; color: #8290a3; margin-top: 5px; }
-.alarm-level { font-size: 10px; padding: 3px 5px; background: #fff2ea; color: #bd653d; border-radius: 3px; flex-shrink: 0; }
-.alarm-level.recovered { color: #338668; background: #edf8f3; }
-.alarm-time { font-size: 10px; color: #8592a5; flex-shrink: 0; }
-.empty-message { padding: 18px 4px; color: #8290a3; font-size: 12px; }
-.group-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 6px; }
-.home-page .group-card { min-width: 0; padding: 10px 6px; text-align: left; border: 1px solid #edf0f6; border-radius: var(--home-radius); background: #fcfdff; }
-.group-heading { display: flex; align-items: center; gap: 4px; }
-.group-heading image { width: 17px; height: 17px; flex-shrink: 0; }
-.group-name { white-space: nowrap; text-overflow: ellipsis; overflow: hidden; font-size: 11px; }
-.group-status { display: block; color: #38886b; font-size: 9px; margin-top: 6px; }
-.group-status.warning { color: #bd653d; }
-.group-counts { display: block; color: #8290a3; font-size: 9px; margin-top: 10px; white-space: normal; line-height: 15px; }
-.group-rate { display: flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 9px; color: #6e7f97; }
-.rate-track { flex: 1; height: 3px; background: #eaf0f8; overflow: hidden; border-radius: 3px; }
-.rate-track view { height: 100%; background: #65a6ff; }
-@media (max-width: 360px) { .home-page { padding-left: 12px; padding-right: 12px; } .stat-heading { gap: 3px; } .stat-heading image { width: 15px; height: 15px; } .stat-value { font-size: 20px; } }
+.home-page { --home-blue:#1677ff; --home-surface:#ffffff; --home-radius:12rpx; box-sizing:border-box; min-height:100vh; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); color:#1d1d1f; background:#F2F2F7; font-size:24rpx; }
+.home-page button { margin:0; padding:0; border:0; border-radius:0; background:transparent; font:inherit; color:inherit; line-height:normal; }
+.home-page button::after { border:0; }
+.home-page button:focus-visible { outline:2rpx solid #1677ff; outline-offset:4rpx; }
+.home-header { display:flex; justify-content:space-between; align-items:center; gap:12rpx; padding:calc(30rpx + env(safe-area-inset-top)) 0 30rpx; }
+.page-title { display:block; font-size:44rpx; font-weight:650; line-height:60rpx; }
+.page-subtitle { display:block; color:#73737d; font-size:22rpx; line-height:32rpx; margin-top:6rpx; }
+.header-actions { display:flex; gap:8rpx; flex-shrink:0; }
+.home-page .icon-button { display:flex; align-items:center; justify-content:center; width:72rpx; height:72rpx; }
+.icon-button image { width:44rpx; height:44rpx; }
+.add-circle { display:flex; align-items:center; justify-content:center; width:58rpx; height:58rpx; border-radius:50%; color:#fff; background:#1677ff; font-size:44rpx; font-weight:300; }
+.top-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14rpx; }
+.home-page .stat-card { padding:26rpx 14rpx 22rpx; background:var(--home-surface); border:0; border-radius:var(--home-radius); box-shadow:none; min-width:0; text-align:center; }
+.stat-heading { display:flex; align-items:center; justify-content:center; gap:10rpx; min-height:62rpx; }
+.stat-icon { width:54rpx; height:54rpx; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:50%; background:#edf5ff; }
+.stat-online .stat-icon { background:#ebf8f2; }
+.stat-alarm .stat-icon { background:#fff2ec; }
+.stat-icon image { width:32rpx; height:32rpx; }
+.stat-value { font-size:40rpx; font-weight:650; letter-spacing:-1rpx; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.unit { font-size:19rpx; font-weight:500; letter-spacing:0; }
+.stat-label { display:block; color:#51515c; font-size:22rpx; margin-top:12rpx; line-height:32rpx; }
+.stat-note { display:block; color:#73737d; font-size:20rpx; margin-top:20rpx; line-height:28rpx; white-space:nowrap; }
+.alarm-note { color:#c65c32; }
+.stat-rate-track { height:6rpx; margin:31rpx 14rpx 11rpx; background:#eef2ef; border-radius:4rpx; overflow:hidden; }
+.stat-rate-track view { height:100%; background:#37bd8c; border-radius:4rpx; }
+.home-page .error-notice { display:block; text-align:left; width:100%; padding:16rpx; margin-top:16rpx; border-radius:12rpx; background:#fff4ed; color:#a25532; font-size:22rpx; line-height:32rpx; }
+.panel { margin-top:22rpx; padding:14rpx 24rpx 22rpx; background:var(--home-surface); border:0; border-radius:var(--home-radius); box-shadow:none; }
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12rpx; min-height:64rpx; }
+.section-title { font-size:28rpx; font-weight:600; }
+.home-page .more { color:#73737d; font-size:20rpx; min-height:64rpx; }
+.more text { font-size:30rpx; margin-left:4rpx; }
+.operation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:8rpx; }
+.operation-item { display:grid; grid-template-columns:58rpx minmax(0,1fr) auto; align-items:center; gap:12rpx; min-width:0; padding:14rpx 18rpx; border-left:1rpx solid #eeeef2; }
+.operation-item:first-child { border:0; padding-left:0; }
+.operation-item:last-child { padding-right:0; }
+.operation-icon-wrap { width:58rpx; height:58rpx; border-radius:50%; background:#fff4e8; display:flex; align-items:center; justify-content:center; }
+.operation-automation .operation-icon-wrap { background:#f2effb; }
+.operation-icon { width:34rpx; height:34rpx; }
+.operation-value { grid-column:3; grid-row:1; font-size:36rpx; font-weight:600; font-variant-numeric:tabular-nums; }
+.operation-label { grid-column:2; grid-row:1; color:#51515c; font-size:21rpx; line-height:28rpx; }
+.shortcut-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14rpx; margin-top:10rpx; }
+.home-page .shortcut { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12rpx; height:132rpx; background:transparent; border:0; border-radius:var(--home-radius); color:#5f5f6b; font-size:22rpx; }
+.shortcut image { width:44rpx; height:44rpx; }
+.home-page .alarm-row { display:flex; align-items:center; gap:12rpx; width:100%; min-height:92rpx; padding:14rpx 0; box-sizing:border-box; text-align:left; border-top:1rpx solid #eeeef2; }
+.alarm-dot { width:12rpx; height:12rpx; border-radius:50%; background:#fa7943; flex-shrink:0; }
+.alarm-dot.recovered { background:#35b88a; }
+.alarm-copy { flex:1; min-width:0; }
+.alarm-name { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:23rpx; line-height:32rpx; }
+.alarm-description { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:20rpx; color:#73737d; margin-top:4rpx; }
+.alarm-level { font-size:20rpx; padding:4rpx 8rpx; background:#fff1e9; color:#b85b2d; border-radius:6rpx; flex-shrink:0; }
+.alarm-level.recovered { color:#338668; background:#edf8f3; }
+.alarm-time { font-size:20rpx; color:#73737d; flex-shrink:0; font-variant-numeric:tabular-nums; }
+.empty-message { padding:28rpx 4rpx; color:#73737d; font-size:23rpx; }
+.group-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12rpx; margin-top:10rpx; }
+.home-page .group-card { min-width:0; padding:18rpx 12rpx; text-align:left; border:0; border-radius:var(--home-radius); background:transparent; }
+.group-heading { display:flex; align-items:center; gap:8rpx; }
+.group-heading image { width:36rpx; height:36rpx; flex-shrink:0; }
+.group-name { white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-size:22rpx; }
+.group-status { display:block; color:#278463; font-size:18rpx; margin-top:10rpx; line-height:26rpx; }
+.group-status.warning { color:#b96b22; }
+.group-counts { display:block; color:#73737d; font-size:18rpx; margin-top:12rpx; line-height:28rpx; }
+.group-rate { display:flex; align-items:center; gap:6rpx; margin-top:12rpx; font-size:18rpx; color:#51515c; }
+.rate-track { flex:1; height:8rpx; background:#eeeef2; overflow:hidden; border-radius:6rpx; }
+.rate-track view { height:100%; background:#35bd8d; border-radius:6rpx; }
+.group-rate.warning .rate-track view { background:#f3a243; }
+@media (max-width:360px) { .stat-heading { gap:6rpx; } .stat-value { font-size:36rpx; } .stat-icon { width:46rpx; height:46rpx; } .operation-item { gap:8rpx; padding-left:12rpx; } }
 </style>

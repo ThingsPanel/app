@@ -1,10 +1,5 @@
 <template>
   <view class="pagehome">
-    <view class="editor-nav">
-      <view class="nav-side nav-back" @tap="goBack"><uni-icons type="left" size="20" color="#172033" /></view>
-      <text class="nav-title">{{ editId ? $t('pages.sceneEditor.editScene') : $t('pages.sceneEditor.newScene') }}</text>
-      <text class="nav-side nav-save" @tap="handlerSubmit">{{ $t('common.save') }}</text>
-    </view>
     <view class="tp-box tp-box-sizing tp-flex tp-flex-col">
       <!-- Background Elements for Atmosphere -->
       <view class="bg-glow-1"></view>
@@ -50,6 +45,8 @@
         </view>
 
       </view>
+
+      <button class="editor-submit" @tap="handlerSubmit">{{ $t('common.save') }}</button>
 
       <ConfirmationModal
         v-model="visible"
@@ -153,9 +150,7 @@ export default {
       uni.navigateBack();
     },
     getInfo() {
-        uni.showLoading({
-        title: this.$t('common.loading')
-      });
+
       const params = {
         id: this.editId
       };
@@ -173,7 +168,7 @@ export default {
           }
         })
         .finally(() => {
-          uni.hideLoading();
+
         });
     },
 
@@ -260,9 +255,7 @@ export default {
       this.doSubmit(this.submitData);
     },
     doSubmit(submitData) {
-      uni.showLoading({
-        title: this.$t('common.loading')
-      });
+
 
       let url = '/api/v1/scene';
       let method = 'put';
@@ -283,7 +276,7 @@ export default {
           }
         })
         .finally(() => {
-          uni.hideLoading();
+
         });
     },
     newEdit() {
@@ -335,24 +328,9 @@ export default {
 </script>
 
 <style lang="scss">
-  .editor-nav {
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    box-sizing: border-box;
-    display: grid;
-    grid-template-columns: 96rpx minmax(0, 1fr) 96rpx;
-    align-items: center;
-    height: calc(88rpx + var(--status-bar-height));
-    padding: var(--status-bar-height) 24rpx 0;
-    background: rgba(255, 255, 255, 0.96);
-    border-bottom: 1rpx solid #edf0f3;
-  }
+.editor-submit { margin:24rpx 28rpx; border:0; border-radius:12rpx; background:#1677ff; color:#fff; font-size:28rpx; line-height:84rpx; }
+.editor-submit::after { border:0; }
 
-  .nav-side { display: flex; align-items: center; min-width: 0; height: 88rpx; }
-  .nav-back { justify-content: flex-start; }
-  .nav-save { justify-content: flex-end; color: #1677FF; font-size: 26rpx; font-weight: 500; }
-  .nav-title { overflow: hidden; color: #172033; font-size: 30rpx; font-weight: 650; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
 
 	@import '@/features/automation/styles/forms.css';
 
@@ -360,7 +338,7 @@ export default {
   .pagehome {
     width: 100%;
     min-height: 100vh;
-    background: #f5f7fa;
+    background: #F7FAFF;
     position: relative;
     overflow: visible;
   }
@@ -368,9 +346,9 @@ export default {
   .tp-box {
     width: 100%;
     min-height: 100vh;
-    background: #f5f7fa;
+    background: #F7FAFF;
     position: relative;
-    color: #334155;
+    color: #51515c;
     font-size: 28rpx;
     padding-bottom: 40rpx;
   }
@@ -415,7 +393,7 @@ export default {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
+    border: 0;
     border-radius: 32rpx;
     box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.04);
     margin-bottom: 30rpx;
@@ -440,7 +418,7 @@ export default {
     .section-title {
       font-size: 32rpx;
       font-weight: 700;
-      color: #1e293b;
+      color: #1d1d1f;
       letter-spacing: 0.5rpx;
     }
   }
@@ -461,7 +439,7 @@ export default {
     .input-label {
       font-size: 13px !important;
       font-weight: 500 !important;
-      color: #334155 !important;
+      color: #51515c !important;
       min-width: 78px !important;
       flex-shrink: 0 !important;
     }
@@ -476,7 +454,7 @@ export default {
     border-radius: 0;
     padding: 0;
     font-size: 28rpx;
-    color: #1e293b;
+    color: #1d1d1f;
     transition: all 0.3s ease;
 
     &:focus {
@@ -523,8 +501,8 @@ export default {
   /* Reuse the device-list visual language for scene editing. */
   .pagehome,
   .tp-box {
-    background: #f7f8fa;
-    color: #172033;
+    background: #F7FAFF;
+    color: #1d1d1f;
   }
 
   .bg-glow-1,
@@ -540,7 +518,7 @@ export default {
   .scene-card {
     margin-bottom: 8px;
     background: #ffffff;
-    border: 1rpx solid #e4e9f0;
+    border: 0;
     border-radius: 10rpx;
     box-shadow: none;
     backdrop-filter: none;
@@ -556,11 +534,11 @@ export default {
 
   .tp-ipt-item .input-label,
   .section-header .section-title {
-    color: #172033 !important;
+    color: #1d1d1f !important;
   }
 
   .modern-input {
-    color: #172033;
+    color: #1d1d1f;
     font-size: 13px;
     line-height: 18px;
   }
@@ -627,7 +605,7 @@ export default {
   }
 
   ::v-deep .uni-input-input {
-    color: #1e293b;
+    color: #1d1d1f;
   }
 
   ::v-deep .uni-input .uni-input-placeholder.input-placeholder {
@@ -651,7 +629,7 @@ export default {
   }
 
   uni-text {
-    color: #1e293b;
+    color: #1d1d1f;
   }
 
   ::v-deep .checklist-text > span {
@@ -670,4 +648,7 @@ export default {
     border-top: 1rpx solid rgba(0, 0, 0, 0.05);
   }
 
+
+.pagehome { background: #F2F2F7; }
+.pagehome > .tp-box { background: transparent; }
 </style>

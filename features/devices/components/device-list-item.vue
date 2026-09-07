@@ -11,7 +11,7 @@
           :src="deviceImageSrc"
           class="device-img"
           :class="{ 'device-img-default': !device.image_url || imageLoadFailed }"
-          mode="aspectFit"
+          :mode="layout === 'list' && device.image_url && !imageLoadFailed ? 'aspectFill' : 'aspectFit'"
           @error="handleImageError"
         />
       </view>
@@ -153,7 +153,7 @@ export default {
 
 .device-name {
   min-width: 0;
-  color: #172033;
+  color: #1d1d1f;
   font-size: 23rpx;
   font-weight: 600;
   line-height: 34rpx;
@@ -172,7 +172,7 @@ export default {
   height: 28rpx;
   min-width: 0;
   justify-content: flex-start;
-  color: #738197;
+  color: #73737d;
   font-size: 17rpx;
   font-family: Arial, sans-serif;
   line-height: 28rpx;
@@ -192,10 +192,12 @@ export default {
   border-bottom: 1rpx solid #e8edf3;
   border-radius: 0;
   &:last-child { border-bottom: 0; }
-  .card-inner { height: 150rpx; padding: 16rpx 24rpx; grid-template-rows: 80rpx 30rpx; column-gap: 22rpx; }
+  .card-inner { height: 150rpx; padding: 16rpx 24rpx; grid-template-columns: 98rpx minmax(0, 1fr); grid-template-rows: 80rpx 30rpx; column-gap: 22rpx; }
+  .device-icon-wrapper { grid-row: 1 / 3; align-self: center; width: 98rpx; height: 98rpx; }
+  .device-img, .device-img-default { width: 100%; height: 100%; }
   .device-name { font-size: 27rpx; line-height: 38rpx; }
   .device-context { font-size: 22rpx; }
-  .device-meta { left:126rpx; right:24rpx; bottom:16rpx; font-size:20rpx; }
+  .device-meta { left:144rpx; right:24rpx; bottom:16rpx; font-size:20rpx; }
   .status-dot { right: 24rpx; top: 28rpx; }
 }
 

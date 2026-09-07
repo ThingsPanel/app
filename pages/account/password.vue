@@ -52,15 +52,17 @@ export default {
 };
 </script>
 <style scoped>
-.password-page { min-height:100%; padding:16px 18px calc(24px + env(safe-area-inset-bottom)); box-sizing:border-box; background:#f7f8fa; color:#1e293b; }
+.password-page { min-height:100%; padding:16px 18px calc(24px + env(safe-area-inset-bottom)); box-sizing:border-box; background:#f7f8fa; color:#1d1d1f; }
 .form-card { padding:0 14px; border:1px solid #e5eaf2; border-radius:6px; background:#fff; }
 .field { padding:14px 0; border-bottom:1px solid #f0f2f6; }
 .field:last-child { border:0; }
 .label { display:block; font-size:13px; margin-bottom:6px; }
 input { height:44px; font-size:14px; }
-.hint, .error { display:block; margin-top:12px; font-size:12px; line-height:20px; color:#718096; }
+.hint, .error { display:block; margin-top:12px; font-size:12px; line-height:20px; color:#73737d; }
 .error { color:#c24132; }
 .save { margin-top:20px; height:44px; line-height:44px; border-radius:6px; background:#1677ff; color:#fff; font-size:14px; }
 .save::after { border:0; }
 .save[disabled] { opacity:.6; }
+
+.password-page { background: #F2F2F7; }
 </style>

@@ -231,7 +231,7 @@ export default {
   padding: 32rpx 28rpx 60rpx;
   box-sizing: border-box;
   background: #f4f7fb;
-  color: #182230;
+  color: #1d1d1f;
 }
 
 .page-header,
@@ -256,7 +256,7 @@ export default {
 
 .eyebrow {
   margin-bottom: 6rpx;
-  color: #64748b;
+  color: #73737d;
   font-size: 22rpx;
   letter-spacing: 2rpx;
 }
@@ -495,4 +495,6 @@ export default {
   font-size: 25rpx;
   text-align: center;
 }
+
+.page { background: #F2F2F7; }
 </style>

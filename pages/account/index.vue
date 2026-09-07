@@ -1,5 +1,6 @@
 <template>
     <view class="account-page">
+        <view class="account-header"><text class="account-title">{{ $t('pages.accountTitle') }}</text></view>
         <view v-if="loadError" class="load-error" @click="getUserInfo">{{ $t('account.retryLoad') }}</view>
         <view class="identity-card">
             <image class="avatar" :src="userWxInfo.avatarUrl || uhead" mode="aspectFill" @error="userWxInfo.avatarUrl = uhead" />
@@ -32,8 +33,16 @@
                 </view>
             </view>
         </template>
-        <button class="logout-button" @click="toQuitLogin" v-if="$login.isLoginType().isLogin">{{ $t('account.logout') }}</button>
+        <button class="logout-button" @click="showLogoutConfirm" v-if="$login.isLoginType().isLogin">{{ $t('account.logout') }}</button>
         <app-toast ref="toast" :msg="toast.msg" location="top" />
+        <ConfirmationModal
+            v-model="logoutConfirmVisible"
+            :title="$t('account.logout')"
+            :text="$t('account.logoutConfirm')"
+            :cancel-text="$t('common.cancel')"
+            :confirm-text="$t('account.logout')"
+            @confirm="toQuitLogin"
+        />
     </view>
 </template>
 <script>
@@ -42,8 +51,10 @@
 		mapState
 	} from "vuex";
 	import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
+	import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 	// 
 	export default {
+		components: { ConfirmationModal },
 		// 
 		data() {
 			return {
@@ -62,6 +73,7 @@
 				currentLanguage: AVAILABLE_LANGUAGES.find(
 					lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
 				)?.label || '中文',
+				logoutConfirmVisible: false,
 			}
 		},
 		//
@@ -103,42 +115,42 @@
 	},
 		methods: {
             openPassword() { uni.navigateTo({ url: '/pages/account/password' }); },
+			showLogoutConfirm() {
+				this.logoutConfirmVisible = true
+			},
 			//退出登录
 			toQuitLogin() {
-				uni.showLoading({
-					title: this.$t('common.loading'),
-					mask: true
-				});
 				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
+					if (res.code != 200) {
+						uni.showToast({ title: this.$t('account.logoutFailed'), icon: 'none' })
+						return
+					}
 					const push_id = uni.getStorageSync('push_id');
 					console.log('get push id from storage: ', push_id);
-					if (res.code == 200) {
-							uni.removeStorageSync('access_token')
-							uni.removeStorageSync('wx_code')
-							uni.removeStorageSync('ywId')
-							uni.removeStorageSync('email')
-							uni.removeStorageSync('password')
-							this.API.apiRequest('/api/v1/push-id/logout', {
-								push_id: push_id
-							}, 'post').then(res => {
-								uni.removeStorageSync('push_id');
-								if (res.code == 200) {
-									console.log('unregister push id success');
-								} else {
-									console.log('unregister push id failed');
-								}
-							})
-							uni.reLaunch({
-								url: '../login/index'
-							})
-					}
-					uni.hideLoading()
+					uni.removeStorageSync('access_token')
+					uni.removeStorageSync('wx_code')
+					uni.removeStorageSync('ywId')
+					uni.removeStorageSync('email')
+					uni.removeStorageSync('password')
+					this.API.apiRequest('/api/v1/push-id/logout', {
+						push_id: push_id
+					}, 'post').then(res => {
+						uni.removeStorageSync('push_id');
+						console.log(res.code == 200 ? 'unregister push id success' : 'unregister push id failed');
+					}).catch(error => {
+						console.warn('unregister push id failed', error)
+					})
+					uni.reLaunch({
+						url: '../login/index'
+					})
+				}).catch(() => {
+					uni.showToast({ title: this.$t('account.logoutFailed'), icon: 'none' })
 				})
 			},
 			//获取用户信息
             async getUserInfo() {
                 this.loadError = false;
-                uni.showLoading({ title: this.$t('common.loading'), mask: true });
+
                 try {
                     const res = await this.API.apiRequest('/api/v1/board/user/info', {}, 'get');
                     if (res.code != 200 || !res.data) throw new Error('Profile unavailable');
@@ -148,7 +160,7 @@
                 } catch (error) {
                     this.loadError = true;
                 } finally {
-                    uni.hideLoading();
+
                 }
             },
 			//
@@ -197,15 +209,10 @@
 								encryptedData: that.wxData.encryptedData,
 								name: JSON.parse(uni.getStorageSync('userWxInfo')).nickName,
 							};
-							uni.showLoading({
-								title: this.$t('account.loading')
-							});
+
 							that.API.apiRequest(url, data, 'post').then(res => {
 								if (res.code == 200) {
-									uni.showToast({
-										title: this.$t('pages.loging.loginSuccess'),
-										icon: 'none'
-									});
+
 									uni.setStorageSync('access_token', res.data.access_token)
 									that.userInfo = that.$login.isLoginType()
 									that.isLogin = false
@@ -216,7 +223,7 @@
 									that.toast.msg = res.msg;
 									that.$refs.toast.show();
 								}
-								uni.hideLoading()
+
 							});
 						}
 					});
@@ -286,24 +293,28 @@
 	}
 </script>
 <style scoped>
-.account-page { padding: 12px 18px calc(76px + env(safe-area-inset-bottom)); min-height: calc(100vh - 96px); box-sizing: border-box; background: linear-gradient(180deg, #fff 0, #f4f7fb 180px, #f7f8fa 420px); color: #1e293b; }
-.identity-card { display:flex; align-items:center; gap:12px; padding:14px; border:1px solid #e1eaf6; border-radius:6px; background:linear-gradient(115deg,#edf5ff,#fbfdff 85%); }
-.avatar { width:44px; height:44px; border-radius:50%; flex-shrink:0; border:2px solid #fff; }
+.account-page { --account-surface:#ffffff; --account-radius:12rpx; padding:0 28rpx calc(100rpx + env(safe-area-inset-bottom)); min-height:100vh; box-sizing:border-box; background:#F2F2F7; color:#1d1d1f; }
+.account-header { padding:calc(30rpx + env(safe-area-inset-top)) 0 30rpx; }
+.account-title { display:block; font-size:44rpx; line-height:60rpx; font-weight:650; }
+.identity-card { display:flex; align-items:center; gap:24rpx; padding:32rpx 24rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); box-shadow:none; }
+.avatar { width:88rpx; height:88rpx; border-radius:50%; flex-shrink:0; }
 .identity-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
-.identity-name { font-size:16px; line-height:22px; font-weight:600; overflow-wrap:anywhere; }
-.identity-role { font-size:12px; line-height:18px; color:#6b7c94; }
-.edit-link { margin:0; padding:0 4px; min-width:40px; height:44px; line-height:44px; font-size:12px; color:#1677ff; background:transparent; flex-shrink:0; }
+.identity-name { font-size:30rpx; line-height:42rpx; font-weight:600; overflow-wrap:anywhere; }
+.identity-role { font-size:22rpx; line-height:32rpx; color:#73737d; }
+.edit-link { display:flex; align-items:center; justify-content:center; margin:0; padding:0 20rpx; min-width:72rpx; min-height:64rpx; line-height:32rpx; box-sizing:border-box; border-radius:10rpx; font-size:22rpx; color:#1677ff; background:#edf4ff; flex-shrink:0; }
 .edit-link::after, .logout-button::after { border:0; }
-.section-title { font-size:13px; font-weight:600; margin:16px 2px 8px; }
-.info-card { background:#fff; border:1px solid #e5eaf2; border-radius:6px; padding:0 14px; }
-.info-row { display:flex; align-items:center; gap:10px; min-height:44px; padding:10px 0; box-sizing:border-box; border-bottom:1px solid #f0f2f6; font-size:13px; line-height:20px; }
+.section-title { font-size:28rpx; line-height:40rpx; font-weight:600; margin:26rpx 2rpx 12rpx; }
+.info-card { background:var(--account-surface); border:0; border-radius:var(--account-radius); padding:0 24rpx; box-shadow:none; }
+.info-row { display:flex; align-items:center; gap:16rpx; min-height:84rpx; padding:18rpx 0; box-sizing:border-box; border-bottom:1rpx solid #edf1f6; font-size:24rpx; line-height:36rpx; }
 .info-row:last-child { border-bottom:0; }
-.row-label { color:#718096; flex-shrink:0; }
+.row-label { color:#5f5f6b; flex-shrink:0; }
 .row-value { flex:1; min-width:0; text-align:right; overflow-wrap:anywhere; }
 .is-empty { color:#9aa5b5; }
 .chevron { width:5px; height:5px; border-top:1.5px solid #9ba8ba; border-right:1.5px solid #9ba8ba; transform:rotate(45deg); margin-right:2px; flex-shrink:0; }
-.security-row { display:flex; align-items:center; min-height:44px; padding:10px 0; box-sizing:border-box; }
-.password-label { flex:1; min-width:0; font-size:13px; line-height:20px; }
-.logout-button { margin-top:8px; height:44px; line-height:44px; border:0; border-radius:6px; background:transparent; color:#718096; font-size:13px; font-weight:400; }
+.security-row { display:flex; align-items:center; min-height:84rpx; padding:18rpx 0; box-sizing:border-box; }
+.password-label { flex:1; min-width:0; font-size:24rpx; line-height:36rpx; }
+.logout-button { margin-top:24rpx; height:84rpx; line-height:84rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); color:#5f5f6b; font-size:24rpx; font-weight:400; box-shadow:none; }
 .load-error { color:#b45309; background:#fff7ed; padding:12px; margin-bottom:12px; font-size:13px; border-radius:6px; }
+
+.account-page { background: #F2F2F7; }
 </style>
