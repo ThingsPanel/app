@@ -2,10 +2,9 @@
 	<view class="tp-box">
 		<view class="tp-header">
 			<view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
-				<view>
-					<view class="page-title">设备</view>
-					<view class="page-subtitle" v-if="overviewState === 'ready'">共 {{ deviceTotal }} 台，在线 {{ onlineCount }} 台</view>
-					<view class="page-subtitle" v-else>设备运行概况</view>
+				<view class="header-title-group">
+					<view class="page-title">{{ $t('pages.devices.pageHeading') }}</view>
+					<text class="header-device-count">{{ $t('pages.devices.totalSummary', { count: overviewState === 'ready' ? deviceTotal : '—' }) }}</text>
 				</view>
 				<view class="header-actions tp-flex tp-flex-a-c">
 					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
@@ -17,15 +16,25 @@
 
 		<view class="overview-section">
 			<view class="overview-card" :aria-busy="overviewState === 'loading'">
-				<view class="overview-heading"><text>设备概况</text><text class="overview-scope">全部 {{ overviewState === 'ready' ? deviceTotal : '—' }} 台</text></view>
 				<view class="overview-metrics">
-					<view class="metric-item"><view class="metric-label">在线设备</view><text class="metric-value">{{ overviewState === 'ready' ? onlineCount : '—' }}</text></view>
-					<view class="metric-item"><view class="metric-label">离线设备</view><text class="metric-value">{{ overviewState === 'ready' ? offlineCount : '—' }}</text></view>
-					<view class="metric-item"><view class="metric-label"><view class="overview-alarm-dot" />告警设备</view><text class="metric-value">{{ overviewState === 'ready' ? alarmCount : '—' }}</text></view>
+					<view class="metric-item metric-online">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-online.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? onlineCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.online') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? onlineRate + '%' : '—' }}</text>
+					</view>
+					<view class="metric-item metric-offline">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-offline.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? offlineCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.offline') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? offlineRate + '%' : '—' }}</text>
+					</view>
+					<view class="metric-item metric-alarm">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-alarm.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? alarmCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.alarmDevices') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? alarmRate + '%' : '—' }}</text>
+					</view>
 				</view>
-				<view class="overview-footer" v-if="overviewState === 'ready'"><text>设备在线率</text><view class="online-rate-track"><view class="online-rate-fill" :style="{ width: Math.min(100, Math.max(0, Number(onlineRate))) + '%' }" /></view><text class="online-rate-value">{{ onlineRate }}%</text></view>
-				<view class="overview-footer" v-else-if="overviewState === 'loading'"><text>正在加载统计…</text></view>
-				<button class="overview-footer overview-retry" v-else @click="getOverviewStats">统计加载失败，点击重试</button>
+				<view class="overview-footer" v-if="overviewState === 'loading'">{{ $t('pages.devices.statsLoading') }}</view>
+				<button class="overview-footer overview-retry" v-else-if="overviewState !== 'ready'" @click="getOverviewStats">{{ $t('pages.devices.statsRetry') }}</button>
 			</view>
 		</view>
 
@@ -44,17 +53,17 @@
 				</view>
 				<view class="filter-button tp-flex tp-flex-a-c tp-flex-j-c" @click="toShowNavDrawer">
 					<image src="/static/icon/device-filter.svg" class="filter-icon" />
-					<text>筛选</text>
+					<text>{{ $t('pages.devices.filter') }}</text>
 				</view>
 			</view>
 			<view class="device-view-toolbar">
 				<view class="group-controls">
-					<button class="group-selector" aria-label="选择设备分组" @click="toShowNavDrawer"><text class="group-name">{{ selectedGroupName || '全部分组' }}</text><view class="group-chevron" /></button>
-					<button v-if="selectedGroupId" class="group-reset" aria-label="清除分组，查看全部设备" @click="clearSelectedGroup">清除</button>
+					<button class="group-selector" :aria-label="$t('pages.devices.selectGroup')" @click="toShowNavDrawer"><text class="group-name">{{ selectedGroupName || $t('pages.devices.allGroups') }}</text><view class="group-chevron" /></button>
+					<button v-if="selectedGroupId" class="group-reset" :aria-label="$t('pages.devices.clearGroup')" @click="clearSelectedGroup">{{ $t('pages.devices.clear') }}</button>
 				</view>
 				<view class="view-switch">
-					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'grid' }" :aria-pressed="deviceViewMode === 'grid'" aria-label="卡片视图" @click="setDeviceViewMode('grid')"><view class="view-grid-icon"><view v-for="cell in 4" :key="cell" /></view></button>
-					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'list' }" :aria-pressed="deviceViewMode === 'list'" aria-label="列表视图" @click="setDeviceViewMode('list')"><view class="view-list-icon"><view v-for="row in 3" :key="row" /></view></button>
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'grid' }" :aria-pressed="deviceViewMode === 'grid'" :aria-label="$t('pages.devices.gridView')" @click="setDeviceViewMode('grid')"><image class="view-mode-icon" :src="deviceViewMode === 'grid' ? '/static/icon/device-view-grid-active.svg' : '/static/icon/device-view-grid.svg'" mode="aspectFit" /></button>
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'list' }" :aria-pressed="deviceViewMode === 'list'" :aria-label="$t('pages.devices.listView')" @click="setDeviceViewMode('list')"><image class="view-mode-icon" :src="deviceViewMode === 'list' ? '/static/icon/device-view-list-active.svg' : '/static/icon/device-view-list.svg'" mode="aspectFit" /></button>
 				</view>
 			</view>
 			<scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
@@ -141,7 +150,7 @@
 		<app-toast ref="toast" :msg="toast.msg" direction="row" location="top"></app-toast>
 		
 		<!-- Scroll to Top Button -->
-		<button class="scroll-to-top" v-if="showScrollTop" aria-label="回到顶部" hover-class="scroll-to-top--pressed" @click="scrollToTop">
+		<button class="scroll-to-top" v-if="showScrollTop" :aria-label="$t('pages.devices.backToTop')" hover-class="scroll-to-top--pressed" @click="scrollToTop">
 			<view class="scroll-top-arrow" aria-hidden="true" />
 		</button>
 	</view>
@@ -173,7 +182,8 @@ import dayjs from 'dayjs';
 import {
 	deviceList as deviceListApi,
 	getDeviceOverview,
-	getAlarmDeviceCount
+	getAlarmDeviceCount,
+	getDeviceGroupRelation
 } from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
@@ -255,12 +265,14 @@ export default {
 		offlineCount() { return this.overviewTotals.offline },
 		alarmCount() { return this.overviewTotals.alarm },
 		onlineRate() { return this.deviceTotal ? (this.onlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		offlineRate() { return this.deviceTotal ? (this.offlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		alarmRate() { return this.deviceTotal ? (this.alarmCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
 		statusFilters() {
 			return [
-				{ key: 'all', label: '全部', count: this.filterTotals.total },
-				{ key: 'online', label: '在线', count: this.filterTotals.online, dot: 'online' },
-				{ key: 'offline', label: '离线', count: this.filterTotals.offline, dot: 'offline' },
-				{ key: 'alarm', label: '告警', count: this.filterTotals.alarm, dot: 'alarm' }
+				{ key: 'all', label: this.$t('pages.devices.all'), count: this.filterTotals.total },
+				{ key: 'online', label: this.$t('pages.devices.online'), count: this.filterTotals.online, dot: 'online' },
+				{ key: 'offline', label: this.$t('pages.devices.offline'), count: this.filterTotals.offline, dot: 'offline' },
+				{ key: 'alarm', label: this.$t('pages.devices.alarm'), count: this.filterTotals.alarm, dot: 'alarm' }
 			]
 		}
 	},
@@ -916,6 +928,24 @@ export default {
 			this.isMore = true
 		},
 		// 获取设备列表
+		async resolveDeviceGroups(devices) {
+			const queue = devices.map(device => this.deviceList.find(item => item.id === device.id)).filter(Boolean)
+			// Limit per-device requests because the list API does not include group names.
+			await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
+				while (queue.length) {
+					const device = queue.shift()
+					try {
+						const response = await getDeviceGroupRelation({ device_id: device.id })
+						if (response.code !== 200 || !Array.isArray(response.data)) throw new Error('Invalid device groups response')
+						if (this.deviceList.includes(device)) {
+							device.display_groups = response.data.map(group => group.tier).filter(Boolean).join('、')
+						}
+					} catch (error) {
+						console.warn('Failed to load groups for device:', device.id, error)
+					}
+				}
+			}))
+		},
 		getDeviceList() {
 			clearInterval(this.timer)
 			this.isDeviceLoading = true
@@ -942,7 +972,7 @@ export default {
 				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '').replace(/\/$/, '') : ''
 				const newDevices = (res.data?.list || []).map(item => ({
 					...item,
-					display_address: '',
+					display_groups: '',
 					currentIndex: 0,
 					latest_ts_name: item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : '',
 					image_url: item.image_url ? `${baseUrl}/${String(item.image_url).replace(/^\//, '')}` : '',
@@ -951,7 +981,7 @@ export default {
 				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
 				this.showDeviceLoadMore = newDevices.length === pageSize
 				this.deviceList = this.deviceList.concat(newDevices)
-				this.resolveDeviceAddresses(newDevices)
+				this.resolveDeviceGroups(newDevices)
 				this.$nextTick(() => {
 					setTimeout(() => this.scheduleViewportSubscription(), 300)
 				})
@@ -1434,4 +1464,47 @@ export default {
 	&::before { content: ''; position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; transform: rotate(45deg); }
 	&::after { content: ''; position: absolute; left: 9px; top: 3px; width: 2px; height: 16px; background: currentColor; }
 }
+
+/* Shared surface tokens keep summary cards and device cards visually consistent. */
+.tp-box {
+  background:linear-gradient(180deg, #e6edf5 0%, #ecf1f6 45%, #f0f4f8 100%);
+  --radius-card:16rpx;
+  --radius-control:14rpx;
+  --device-glass-surface:#fafcfe;
+  --device-card-radius:12rpx;
+  --device-glass-shadow:none;
+}
+.tp-header, .overview-section, .device-toolbar { background:transparent; }
+.notify-action { width:72rpx; height:72rpx; }
+.notify-action image { width:44rpx; height:44rpx; }
+.header-title-group { display:flex; align-items:baseline; gap:16rpx; min-width:0; flex-wrap:wrap; }
+.header-device-count { color:#718096; font-size:22rpx; line-height:32rpx; font-weight:400; }
+.overview-section { padding:16rpx var(--page-gutter) 24rpx; }
+.overview-card { position:relative; padding:24rpx 0; background:var(--device-glass-surface); border-radius:var(--device-card-radius); box-shadow:none; }
+.overview-heading, .overview-metrics, .overview-footer { position:relative; z-index:1; }
+.overview-heading { color:#718096; margin-bottom:20rpx; gap:12rpx; flex-wrap:wrap; }
+.overview-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; }
+.metric-item, .metric-item:first-child { position:relative; display:flex; flex-direction:column; overflow:hidden; padding:0 20rpx; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.metric-item + .metric-item::before { content:''; position:absolute; left:0; top:6rpx; bottom:6rpx; width:1rpx; background:rgba(119,143,174,.18); }
+.metric-top { display:flex; align-items:center; gap:10rpx; min-height:62rpx; }
+.metric-icon-wrap { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:58rpx; height:58rpx; border-radius:50%; background:#eaf2ff; }
+.metric-offline .metric-icon-wrap { background:#edf0f4; }
+.metric-alarm .metric-icon-wrap { background:#fff1e4; }
+.metric-icon { width:36rpx; height:36rpx; }
+.metric-label { color:#475467; margin:18rpx 0 0; font-size:21rpx; line-height:30rpx; white-space:normal; }
+.metric-rate { color:#66758a; margin-top:8rpx; font-size:20rpx; line-height:28rpx; font-variant-numeric:tabular-nums; }
+.metric-alarm .metric-rate { color:#c76b26; }
+.metric-value { min-width:0; color:#172033; line-height:52rpx; font-size:40rpx; font-weight:650; letter-spacing:-1rpx; }
+.overview-footer { color:#718096; border:0; padding-left:20rpx; padding-right:20rpx; }
+.device-search, .filter-button { background:var(--device-glass-surface); border:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.search-input { background:transparent; border:0; border-radius:0; }
+.search-icon, .filter-icon { width:24rpx; height:24rpx; flex-shrink:0; }
+.filter-chip { position:relative; padding:10rpx 6rpx 16rpx; background:transparent; border:0; border-radius:0; box-shadow:none; backdrop-filter:none; }
+.filter-chip.active { background:transparent; box-shadow:none; font-weight:600; }
+.filter-chip.active::after { content:''; position:absolute; bottom:0; left:6rpx; width:26rpx; height:4rpx; border-radius:2rpx; background:#1677ff; }
+.view-switch { margin-right:0; }
+.view-switch-button { width:52rpx; height:88rpx; justify-content:flex-end; }
+.view-mode-icon { width:32rpx; height:32rpx; }
+.device-list--rows { background:var(--device-glass-surface); box-shadow:none; border:0; border-radius:var(--device-card-radius); overflow:hidden; }
+.device-skeleton { background:#fff; border:0; }
 </style>
