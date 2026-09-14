@@ -1,0 +1,189 @@
+import { requestDeviceApi } from '../api/modules/device-overview.js'
+import { rowsOf, extractDeviceFields, parseDeviceSchema, normalizeDeviceValues, normalizeDeviceWrite, collectDeviceHistory, normalizeHistoryRange, normalizeHistoryRows } from '../utils/thingsvis-device-schema.js'
+
+export function createDeviceRuntime({ device, deviceId, addresses, onMessage, onState }) {
+  let stopped = false
+  let schema, fields = [], initPayload, latest = {}, loaded = false
+  const sockets = new Set(), timers = new Set(), writes = new Map()
+  const initialHistory = new Map()
+  const token = uni.getStorageSync('access_token')
+  const emit = message => { if (!stopped) onMessage(message) }
+  const state = (status, message = '') => { if (!stopped) onState({ status, message }) }
+  const push = values => {
+    if (stopped) return
+    values = { ...values }
+    fields.forEach(field => { if (values[field.id] === undefined && values[field.name] !== undefined) values[field.id] = values[field.name] })
+    latest = { ...latest, ...values }
+    if (loaded) emit({ type: 'tv:platform-data', payload: { fields: values, deviceId } })
+  }
+  const report = error => state(loaded ? 'warning' : 'error', error?.message || '设备数据加载失败')
+  const api = async (path, data, method) => {
+    if (stopped) throw new Error('设备页面已关闭')
+    const value = await requestDeviceApi(path, data, method)
+    if (stopped) throw new Error('设备页面已关闭')
+    return value
+  }
+  async function fetchLatest() {
+    const values = await Promise.all([
+      api(`telemetry/datas/current/${encodeURIComponent(deviceId)}`),
+      fields.some(field => field.dataType === 'attribute') ? api(`attribute/datas/${encodeURIComponent(deviceId)}`) : Promise.resolve([])
+    ])
+    const raw = Object.assign({}, ...values.map(normalizeDeviceValues))
+    const mapped = { ...raw }
+    fields.forEach(field => { if (raw[field.id] === undefined && raw[field.name] !== undefined) mapped[field.id] = raw[field.name] })
+    push(mapped)
+  }
+  async function fetchAlarms() {
+    const eventFields = fields.filter(field => field.dataType === 'event')
+    if (!eventFields.length) return
+    const result = await api('alarm/info/history/device', { device_id: deviceId })
+    const values = {}
+    eventFields.forEach(field => {
+      const alarm = rowsOf(result).find(item => item.alarm_name === field.id || item.key === field.id)
+      if (alarm) values[field.id] = { active: alarm.is_active ?? false, level: alarm.alarm_level, message: alarm.alarm_description, time: alarm.last_trigger_time }
+    })
+    push(values)
+  }
+  function connect(path, statusOnly = false) {
+    if (stopped) return
+    let heartbeat, reconnecting = false
+    const socket = uni.connectSocket({ url: `${addresses.thingsPanelApiBase.replace(/^http/, 'ws')}/${path}`, complete() {} })
+    sockets.add(socket)
+    const reconnect = () => {
+      if (reconnecting || stopped) return
+      reconnecting = true
+      clearInterval(heartbeat); timers.delete(heartbeat)
+      sockets.delete(socket)
+      socket.close({})
+      state('warning', '实时连接中断，正在重连')
+      const timer = setTimeout(() => { timers.delete(timer); connect(path, statusOnly) }, 3000)
+      timers.add(timer)
+    }
+    socket.onOpen(() => {
+      if (stopped) { socket.close({}); return }
+      socket.send({ data: JSON.stringify({ device_id: deviceId, token }), fail: reconnect })
+      // 重连期间属性也可能变化，不能只等待下一条遥测推送。
+      if (!statusOnly) fetchLatest().catch(report)
+      heartbeat = setInterval(() => socket.send({ data: 'ping', fail: reconnect }), 8000)
+      timers.add(heartbeat)
+      if (loaded) state('warning')
+    })
+    socket.onMessage(event => {
+      if (stopped || event.data === 'pong' || event.data === 'ping') return
+      try {
+        const value = JSON.parse(event.data)
+        if (statusOnly) {
+          if (typeof value.is_online === 'number') push({ is_online: value.is_online, online_text: value.is_online === 1 ? '在线' : '离线', online_status_updated_at: Date.now() })
+        } else push(normalizeDeviceValues(value))
+      } catch { state('warning', '收到无法解析的实时数据') }
+    })
+    socket.onError(reconnect)
+    socket.onClose(reconnect)
+  }
+  async function start() {
+    state('loading', '正在加载设备可视化')
+    if (!token) throw new Error('登录状态已失效，请重新登录')
+    const templateId = device?.device_config?.device_template_id
+    if (!templateId) { state('empty', '设备尚未关联可视化模板'); return null }
+    const template = await api(`device/template/detail/${encodeURIComponent(templateId)}`)
+    if (!template?.app_chart_config) { state('empty', '尚未配置移动端设备可视化'); return null }
+    const kinds = ['telemetry', 'attributes', 'events', 'commands']
+    const results = await Promise.all(kinds.map(kind => api(`device/model/${kind}`, { page: 1, page_size: 1000, device_template_id: templateId })))
+    fields = extractDeviceFields(Object.fromEntries(kinds.map((kind, index) => [kind, results[index]])))
+    schema = parseDeviceSchema(template.app_chart_config, deviceId, fields)
+    if (!schema.nodes.length) { state('empty', '移动端可视化尚未添加组件'); return null }
+    const user = await api('user/detail')
+    const id = user.userId || user.id
+    if (!id) throw new Error('无法获取当前用户身份')
+    const sysAdmin = user.authority === 'SYS_ADMIN' || user.roles?.includes('SYS_ADMIN')
+    const sso = await new Promise((resolve, reject) => uni.request({
+      url: `${addresses.thingsVisApiBase}/auth/sso`, method: 'POST', timeout: 15000,
+      header: { 'Content-Type': 'application/json' },
+      data: { platform: 'thingspanel', platformToken: token,
+        userInfo: { id, email: user.email || `${user.userName}@thingspanel.local`, name: user.userName || 'ThingsPanel User', tenantId: sysAdmin ? 'thingspanel-sys-admin' : String(user.tenantId || user.tenant_id || 'default') },
+        role: sysAdmin ? 'SUPER_ADMIN' : user.authority === 'TENANT_ADMIN' ? 'TENANT_ADMIN' : 'EDITOR' },
+      success: response => response.statusCode >= 200 && response.statusCode < 300 && response.data?.accessToken ? resolve(response.data) : reject(new Error('ThingsVis 认证失败，请检查部署地址及登录状态')),
+      fail: () => reject(new Error('无法连接 ThingsVis 服务，请检查部署地址'))
+    }))
+    if (stopped) return null
+    initPayload = {
+      platformDevices: [{ deviceId, deviceName: device.name || device.device_number || deviceId, fields }],
+      data: { ...schema, platformFields: fields },
+      config: { saveTarget: 'host', thingsvisApiBaseUrl: addresses.thingsVisApiBase, platformApiBaseUrl: addresses.thingsPanelApiBase, platformToken: token, deviceId }
+    }
+    push({ is_online: device.is_online, online_text: device.is_online === 1 ? '在线' : '离线' })
+    await fetchLatest()
+    await fetchAlarms()
+    // 首屏先准备历史数据，避免实时值被图表缓冲成一段临时曲线。
+    await history({})
+    if (stopped) return null
+    const base = addresses.thingsVisPageUrl.split('#')[0]
+    const params = { mode: 'embedded', provider: 'thingspanel', saveTarget: 'host', context: 'current-device', thingsvisApiBaseUrl: addresses.thingsVisApiBase, platformApiBaseUrl: addresses.thingsPanelApiBase, token: sso.accessToken }
+    const url = `${base}#/embed?${Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')}`
+    return { url, initPayload, canvas: schema.canvas }
+  }
+  async function history(payload) {
+    const requests = collectDeviceHistory(schema, payload)
+    for (const [id, range] of requests) {
+      if (!fields.some(field => field.id === id && field.dataType === 'telemetry')) continue
+      const config = payload.historyConfig || {}
+      const result = await api('telemetry/datas/statistic', { device_id: deviceId, key: id, time_range: normalizeHistoryRange(config.timeRange || range), aggregate_window: config.aggWindow || 'no_aggregate', aggregate_function: config.aggFunction || 'NONE_RAW' })
+      const rows = normalizeHistoryRows(result)
+      const historyPayload = { fieldId: id, history: rows, deviceId, bufferLimit: rows.length }
+      initialHistory.set(id, historyPayload)
+      if (loaded) emit({ type: 'tv:platform-history', payload: historyPayload })
+      push({ [`${id}__history`]: rows })
+    }
+  }
+  async function handleMessage(message) {
+    if (stopped || !initPayload || !message) return
+    const payload = message.payload || {}
+    if (message.type === 'tv:error' || message.type === 'ERROR') {
+      state(loaded ? 'warning' : 'error', payload.message || payload.error || '设备可视化运行异常')
+      return
+    }
+    if (['READY', 'tv:ready', 'thingsvis:editor-ready', 'tv:request-init'].includes(message.type)) {
+      emit({ type: 'tv:init', payload: initPayload }); return
+    }
+    if (['LOADED', 'tv:loaded'].includes(message.type)) {
+      const firstLoad = !loaded
+      loaded = true
+      initialHistory.forEach(payload => emit({ type: 'tv:platform-history', payload }))
+      emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
+      state('ready')
+      if (firstLoad) {
+        connect('telemetry/datas/current/ws'); connect('device/online/status/ws', true)
+        const timer = setInterval(() => fetchAlarms().catch(report), 30000); timers.add(timer)
+      }
+      return
+    }
+    if (message.type === 'tv:platform-write') {
+      const requestId = message.requestId
+      if (typeof requestId !== 'string' || !requestId) return
+      if (!writes.has(requestId)) {
+        writes.set(requestId, (async () => {
+          try {
+            if (payload.deviceId && payload.deviceId !== deviceId) throw new Error('不能控制当前页面以外的设备')
+            // EmbedPage 为 platformDevices 自动补充同名平台数据源。
+            if (payload.dataSourceId !== `__platform_${deviceId}__` && !schema.dataSources.some(source => source.id === payload.dataSourceId && ['PLATFORM_FIELD', 'PLATFORM'].includes(String(source.type).toUpperCase()))) throw new Error('控制数据源无效')
+            const write = normalizeDeviceWrite(payload.data, fields)
+            const data = write.kind === 'command' ? { device_id: deviceId, identify: Object.keys(write.data)[0], value: JSON.stringify(Object.values(write.data)[0] ?? {}) } : { device_id: deviceId, value: JSON.stringify(write.data) }
+            const echo = await api(`${write.kind}/datas/pub`, data, 'POST')
+            return { type: 'tv:platform-write-result', requestId, success: true, echo }
+          } catch (error) { return { type: 'tv:platform-write-result', requestId, success: false, error: error.message } }
+        })())
+      }
+      emit(await writes.get(requestId)); return
+    }
+    if (message.type === 'thingsvis:requestFieldData') {
+      if (payload.deviceId && payload.deviceId !== deviceId) return
+      try { await fetchLatest(); await history(payload) } catch (error) { report(error) }
+    }
+  }
+  function stop() {
+    stopped = true
+    timers.forEach(timer => { clearTimeout(timer); clearInterval(timer) }); timers.clear()
+    sockets.forEach(socket => socket.close({})); sockets.clear(); writes.clear()
+  }
+  return { start, handleMessage, stop }
+}

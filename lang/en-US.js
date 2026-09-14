@@ -448,7 +448,7 @@ export default {
       alarmDescription: 'Alert Description',
       alarmDevices: 'List of alert devices',
       noDevices: 'No associated devices',
-      deviceID: 'Device Code',
+      deviceID: 'Device ID',
       deviceName: 'Device Name',
     },
     sceneAutomationEditor: {

@@ -11,7 +11,7 @@
     <view class="top-stats">
       <button class="stat-card stat-device" @click="openDevices">
         <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/device.svg" /></view><text class="stat-value">{{ device.total ?? '—' }}</text></view>
-        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ formatMessage('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
+        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ $t('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
       </button>
       <button class="stat-card stat-online" @click="openDevices">
         <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/check.svg" /></view><text class="stat-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text></view>
@@ -22,10 +22,10 @@
         <text class="stat-label">{{ $t('dashboard.alarmDevices') }}</text><text class="stat-note alarm-note">{{ $t('dashboard.viewActivity') }} <text>›</text></text>
       </button>
     </view>
-    <button v-if="errors.length" class="error-notice" @click="refresh">{{ formatMessage('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
+    <button v-if="errors.length" class="error-notice" @click="refresh">{{ $t('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? formatMessage('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? $t('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
       <view class="operation-grid">
         <view class="operation-item operation-alarm"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bell.svg" /></view><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.todayAlarms') }}</text></view>
         <view class="operation-item operation-automation"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bolt.svg" /></view><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.automationRules') }}</text></view>
@@ -42,10 +42,10 @@
     <view class="panel">
       <view class="section-heading"><text class="section-title">{{ $t('dashboard.alarmActivity') }}</text><button class="more" @click="navigate('/pages/alarms/index')">{{ $t('dashboard.viewAll') }} <text>›</text></button></view>
       <view v-if="!alarms.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('alarmActivity') ? $t('dashboard.alarmsUnavailable') : $t('dashboard.noAlarms') }}</view>
-      <button v-for="item in alarms" :key="item.id" class="alarm-row" @click="openAlarm(item)">
+      <button v-for="item in alarms" :key="item.id" class="alarm-row" :class="levelClass(item.alarm_status)" @click="openAlarm(item)">
         <view class="alarm-dot" :class="{ recovered: item.alarm_status === 'N' }" />
         <view class="alarm-copy"><text class="alarm-name">{{ item.name || item.alarm_config_name || $t('dashboard.alarmRecord') }}</text><text class="alarm-description">{{ item.content || item.description || $t('dashboard.viewDetails') }}</text></view>
-        <text class="alarm-level" :class="{ recovered: item.alarm_status === 'N' }">{{ alarmLevel(item.alarm_status) }}</text><text class="alarm-time">{{ timeLabel(item.create_at) }}</text>
+        <text class="alarm-level" :class="{ recovered: item.alarm_status === 'N' }">{{ alarmLevel(item.alarm_status) }}</text><text class="alarm-time">{{ formatAlarmTime(item.create_at) }}</text>
       </button>
     </view>
 
@@ -55,8 +55,8 @@
       <view v-else class="group-grid">
         <button v-for="group in groups" :key="group.id" class="group-card" @click="openGroup(group)">
           <view class="group-heading"><image src="/static/icon/home/building.svg" /><text class="group-name">{{ group.name }}</text></view>
-          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? formatMessage('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
-          <text class="group-counts">{{ formatMessage('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
+          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? $t('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
+          <text class="group-counts">{{ $t('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
           <view class="group-rate" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }"><view class="rate-track"><view :style="{ width: (group.rate || 0) + '%' }" /></view><text>{{ group.rate ?? '—' }}%</text></view>
         </button>
       </view>
@@ -70,6 +70,7 @@ import { alarmHistory } from '@/api/modules/alarm'
 import { sceneAutomationsGet } from '@/api/modules/automation'
 import { getGroupStatistics } from '@/api/modules/dashboard'
 import { count, responseData, onlineRate, todayRange } from '@/features/dashboard/metrics'
+import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
   data() {
@@ -89,12 +90,8 @@ export default {
   },
   onShow() { this.refresh() },
   methods: {
-    formatMessage(key, values) {
-      return Object.entries(values).reduce(
-        (message, [name, value]) => message.replace(new RegExp(`\\{${name}\\}`, 'g'), String(value)),
-        this.$t(key)
-      )
-    },
+    // 选项式 API 不会自动暴露 import，模板要用必须先注册进 methods
+    formatAlarmTime,
     async refresh() {
       if (this.loading) return
       this.loading = true
@@ -170,14 +167,21 @@ export default {
       // #endif
     },
     alarmLevel(status) { return { H: this.$t('dashboard.high'), M: this.$t('dashboard.medium'), L: this.$t('dashboard.low'), N: this.$t('dashboard.recovered') }[status] || this.$t('dashboard.unknown') },
-    timeLabel(value) { const date = new Date(value); return Number.isNaN(date.getTime()) ? '—' : date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false }) },
+    levelClass(status) {
+      // H/M/L 映射到等级色；N(已恢复) 与未知状态不加类，走 .recovered / 默认色
+      const key = String(status ?? '').toUpperCase()
+      return { H: 'level-high', M: 'level-medium', L: 'level-low' }[key] || ''
+    },
     openAlarm(item) { uni.navigateTo({ url: '/pages/alarms/detail', success: ({ eventChannel }) => eventChannel.emit('acceptData', { item }), fail: () => uni.showToast({ title: this.$t('dashboard.alarmOpenFailed'), icon: 'none' }) }) }
   }
 }
 </script>
 
 <style scoped>
-.home-page { --home-blue:#1677ff; --home-surface:#ffffff; --home-radius:12rpx; box-sizing:border-box; min-height:100vh; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); color:#1d1d1f; background:#F2F2F7; font-size:24rpx; }
+.home-page { --home-blue:#1677ff; --home-surface:#ffffff; --home-radius:12rpx;
+  /* 告警等级色板：与 pages/alarms、pages/alarm-rules 完全一致 */
+  --alarm-high:#FF4D35; --alarm-medium:#FF9500; --alarm-low:#1677ff; --alarm-recovered:#08bf63;
+  box-sizing:border-box; min-height:100vh; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); color:#1d1d1f; background:#F2F2F7; font-size:24rpx; }
 .home-page button { margin:0; padding:0; border:0; border-radius:0; background:transparent; font:inherit; color:inherit; line-height:normal; }
 .home-page button::after { border:0; }
 .home-page button:focus-visible { outline:2rpx solid #1677ff; outline-offset:4rpx; }
@@ -193,13 +197,13 @@ export default {
 .stat-heading { display:flex; align-items:center; justify-content:center; gap:10rpx; min-height:62rpx; }
 .stat-icon { width:54rpx; height:54rpx; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:50%; background:#edf5ff; }
 .stat-online .stat-icon { background:#ebf8f2; }
-.stat-alarm .stat-icon { background:#fff2ec; }
+.stat-alarm .stat-icon { background:#fff1ef; }
 .stat-icon image { width:32rpx; height:32rpx; }
 .stat-value { font-size:40rpx; font-weight:650; letter-spacing:-1rpx; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .unit { font-size:19rpx; font-weight:500; letter-spacing:0; }
 .stat-label { display:block; color:#51515c; font-size:22rpx; margin-top:12rpx; line-height:32rpx; }
 .stat-note { display:block; color:#73737d; font-size:20rpx; margin-top:20rpx; line-height:28rpx; white-space:nowrap; }
-.alarm-note { color:#c65c32; }
+.alarm-note { color:#FF4D35; }
 .stat-rate-track { height:6rpx; margin:31rpx 14rpx 11rpx; background:#eef2ef; border-radius:4rpx; overflow:hidden; }
 .stat-rate-track view { height:100%; background:#37bd8c; border-radius:4rpx; }
 .home-page .error-notice { display:block; text-align:left; width:100%; padding:16rpx; margin-top:16rpx; border-radius:12rpx; background:#fff4ed; color:#a25532; font-size:22rpx; line-height:32rpx; }
@@ -221,13 +225,17 @@ export default {
 .home-page .shortcut { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12rpx; height:132rpx; background:transparent; border:0; border-radius:var(--home-radius); color:#5f5f6b; font-size:22rpx; }
 .shortcut image { width:44rpx; height:44rpx; }
 .home-page .alarm-row { display:flex; align-items:center; gap:12rpx; width:100%; min-height:92rpx; padding:14rpx 0; box-sizing:border-box; text-align:left; border-top:1rpx solid #eeeef2; }
-.alarm-dot { width:12rpx; height:12rpx; border-radius:50%; background:#fa7943; flex-shrink:0; }
-.alarm-dot.recovered { background:#35b88a; }
+.alarm-dot { width:12rpx; height:12rpx; border-radius:50%; background:var(--alarm-high); flex-shrink:0; }
+.alarm-dot.recovered { background:var(--alarm-recovered); }
 .alarm-copy { flex:1; min-width:0; }
 .alarm-name { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:23rpx; line-height:32rpx; }
 .alarm-description { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:20rpx; color:#73737d; margin-top:4rpx; }
-.alarm-level { font-size:20rpx; padding:4rpx 8rpx; background:#fff1e9; color:#b85b2d; border-radius:6rpx; flex-shrink:0; }
-.alarm-level.recovered { color:#338668; background:#edf8f3; }
+.alarm-level { font-size:20rpx; padding:4rpx 10rpx; background:var(--alarm-high); color:#fff; border-radius:6rpx; flex-shrink:0; font-weight:600; }
+.alarm-level.recovered { background:var(--alarm-recovered); }
+.alarm-row.level-medium .alarm-dot { background:var(--alarm-medium); }
+.alarm-row.level-medium .alarm-level { background:var(--alarm-medium); }
+.alarm-row.level-low .alarm-dot { background:var(--alarm-low); }
+.alarm-row.level-low .alarm-level { background:var(--alarm-low); }
 .alarm-time { font-size:20rpx; color:#73737d; flex-shrink:0; font-variant-numeric:tabular-nums; }
 .empty-message { padding:28rpx 4rpx; color:#73737d; font-size:23rpx; }
 .group-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12rpx; margin-top:10rpx; }

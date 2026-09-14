@@ -182,7 +182,6 @@
         title: uni.getStorageSync('ywName')
       }]
       // this.$store.commit('zerOingPage'); //清空页码
-      console.log('clName: %o', this.clName)
       this.changCl({ label: this.clName })
     },
     methods: {

@@ -59,21 +59,7 @@ form {
 	margin-left: 20rpx;
 }
 
-/* page */
-.uni-page-head{
-	padding:35rpx;
-	text-align: center;
-}
-.uni-page-head-title {
-	display: inline-block;
-	padding: 0 40rpx;
-	font-size: 30rpx;
-	height: 88rpx;
-	line-height: 88rpx;
-	color: #BEBEBE;
-	box-sizing: border-box;
-	border-bottom: 2rpx solid #D8D8D8;
-}
+/* page：默认导航由 uni-app 管理，避免同名全局样式覆盖 H5 导航内边距。 */
 .uni-page-body {
 	width: 100%;
 	padding:0 100px;

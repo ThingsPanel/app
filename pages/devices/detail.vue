@@ -1,5 +1,9 @@
 <template>
 	<view class="device-detail-page">
+		<view v-if="detailError" class="detail-notice" role="alert">
+			<text>{{ detailError }}</text>
+			<button size="mini" @click="loadDevice">重试</button>
+		</view>
 		<scroll-view class="page-scroll" scroll-y>
 			<view class="device-summary">
 				<view class="device-image-card">
@@ -25,8 +29,8 @@
 							<view v-if="index" class="context-divider" />
 							<text class="context-text">{{ item }}</text>
 						</template>
-						<view class="edit-action" hover-class="inline-action--pressed" aria-label="编辑设备信息" @click="showStaticHint">
-							<view class="edit-icon" />
+						<view class="edit-action" hover-class="inline-action--pressed" aria-label="编辑设备名称" @click="openNameEditor">
+							<image class="edit-icon" src="/static/icon/device-edit.svg" mode="aspectFit" />
 						</view>
 					</view>
 
@@ -70,56 +74,67 @@
 						<view v-if="activeTab === tab.key" class="tab-indicator" />
 					</view>
 				</view>
-				<view class="tab-content" :aria-label="`${activeTabLabel}内容区域`" />
+				<view class="tab-content" :aria-label="`${activeTabLabel}内容区域`" role="tabpanel">
+					<view v-if="detailLoading && !detailLoaded" class="detail-state">正在加载设备信息…</view>
+					<template v-else-if="detailLoaded && pageVisible">
+						<device-overview-tab v-if="activeTab === 'overview'" :device="device" :device-id="deviceId" />
+						<device-automation-tab v-else-if="activeTab === 'automation'" :key="refreshKey" :device="device" :device-id="deviceId" />
+						<device-alarm-tab v-else-if="activeTab === 'alarm'" :key="refreshKey" :device="device" :device-id="deviceId" />
+						<device-information-tab v-else :key="refreshKey" :device="device" :device-id="deviceId" @saved="loadDevice" />
+					</template>
+				</view>
 			</view>
 		</scroll-view>
 
-		<view class="bottom-navigation">
-			<view
-				v-for="item in navigationItems"
-				:key="item.pagePath"
-				class="navigation-item"
-				:class="{ 'navigation-item--active': item.key === 'devices' }"
-				hover-class="navigation-item--pressed"
-				@click="openNavigation(item)"
-			>
-				<view class="navigation-icon-wrap">
-					<image
-						class="navigation-icon"
-						:class="{ 'navigation-icon--alarm': item.key === 'alarms' }"
-						:src="item.key === 'devices' ? item.selectedIcon : item.icon"
-						mode="aspectFit"
-					/>
-					<view v-if="item.key === 'alarms' && hasAlarm" class="navigation-badge" />
+		<app-tabbar active-path="pages/devices/index" />
+		<view v-if="editingName" class="name-editor-mask" @click.self="editingName = false">
+			<view class="name-editor">
+				<text class="name-editor-title">设备名称</text>
+				<input v-model="nameDraft" maxlength="255" placeholder="请输入设备名称" :disabled="savingName" />
+				<text v-if="nameError" class="name-editor-error">{{ nameError }}</text>
+				<view class="name-editor-actions">
+					<button :disabled="savingName" @click="editingName = false">取消</button>
+					<button type="primary" :loading="savingName" :disabled="savingName" @click="saveName">保存</button>
 				</view>
-				<text>{{ item.label }}</text>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
+import dayjs from 'dayjs'
+import AppTabbar from '@/components/app-tabbar.vue'
+import { getDeviceDetail, updateDeviceName } from '@/api/modules/device-overview'
+import DeviceOverviewTab from '@/features/devices/components/device-overview-tab.vue'
+import DeviceAutomationTab from '@/features/devices/components/device-automation-tab.vue'
+import DeviceAlarmTab from '@/features/devices/components/device-alarm-tab.vue'
+import DeviceInformationTab from '@/features/devices/components/device-information-tab.vue'
+
 const DEVICE_SNAPSHOT_KEY = 'device_detail_preview'
 
 export default {
+	components: { AppTabbar, DeviceOverviewTab, DeviceAutomationTab, DeviceAlarmTab, DeviceInformationTab },
 	data() {
 		return {
 			device: {},
 			deviceId: '',
 			activeTab: 'overview',
 			imageLoadFailed: false,
+			detailLoading: false,
+			detailLoaded: false,
+			detailError: '',
+			pageVisible: false,
+			refreshKey: 0,
+			requestVersion: 0,
+			editingName: false,
+			nameDraft: '',
+			nameError: '',
+			savingName: false,
 			tabs: [
 				{ key: 'overview', label: '概览' },
 				{ key: 'automation', label: '自动化' },
 				{ key: 'alarm', label: '告警' },
 				{ key: 'information', label: '信息' }
-			],
-				navigationItems: [
-				{ key: 'dashboard', label: '首页', pagePath: '/pages/dashboard/index', icon: '/static/tabbar/dashboard.png', selectedIcon: '/static/tabbar/dashboard-selected.png' },
-				{ key: 'devices', label: '设备', pagePath: '/pages/devices/index', icon: '/static/tabbar/devices.png', selectedIcon: '/static/tabbar/devices-selected.png' },
-				{ key: 'automation', label: '自动化', pagePath: '/pages/automation/index', icon: '/static/tabbar/automation.png', selectedIcon: '/static/tabbar/automation-selected.png' },
-				{ key: 'alarms', label: '告警', pagePath: '/pages/alarms/index', icon: '/static/icon/notify.svg', selectedIcon: '/static/icon/notify.svg', routeType: 'page' },
-				{ key: 'account', label: '我的', pagePath: '/pages/account/index', icon: '/static/tabbar/account.png', selectedIcon: '/static/tabbar/account-selected.png' }
 			]
 		}
 	},
@@ -141,21 +156,19 @@ export default {
 			if (!this.hasKnownStatus) return 'status-badge--unknown'
 			return this.isOnline ? 'status-badge--online' : 'status-badge--offline'
 		},
-		hasAlarm() {
-			const alarmStatus = String(this.device.warn_status || '').trim().toUpperCase()
-			return alarmStatus !== '' && alarmStatus !== 'N'
-		},
 		deviceImageSrc() {
-			return !this.imageLoadFailed && this.device.image_url
-				? this.device.image_url
-				: '/static/image/default-device-hub.png'
+			const path = this.device.image_url || this.device.device_config?.image_url
+			if (!path || this.imageLoadFailed) return '/static/image/default-device-hub.png'
+			if (/^https?:\/\//i.test(path)) return path
+			const server = String(uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn').replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
+			return `${server}/${String(path).replace(/^\/+/, '')}`
 		},
 		deviceTypeLabel() {
 			return {
 				1: '直连设备',
 				2: '网关设备',
 				3: '子设备'
-			}[String(this.device.device_type)] || ''
+			}[String(this.device.device_config?.device_type || this.device.device_type)] || ''
 		},
 		contextItems() {
 			return [
@@ -168,6 +181,8 @@ export default {
 			return this.device.current_version || this.device.firmware_version || '--'
 		},
 		lastReportedAt() {
+			const timestamp = this.device.ts || this.device.t
+			if (timestamp && dayjs(timestamp).isValid()) return dayjs(timestamp).format('YYYY-MM-DD HH:mm:ss')
 			return this.device.latest_ts_name || '--'
 		},
 		activeTabLabel() {
@@ -175,31 +190,79 @@ export default {
 		}
 	},
 	onLoad(options) {
-		this.deviceId = options.device_id || ''
+		this.deviceId = options.device_id || options.d_id || ''
 		const snapshot = uni.getStorageSync(DEVICE_SNAPSHOT_KEY)
-		if (snapshot && (!this.deviceId || snapshot.id === this.deviceId)) {
+		if (snapshot && this.deviceId && snapshot.id === this.deviceId) {
 			this.device = snapshot
 			this.deviceId = snapshot.id || this.deviceId
 		}
 	},
+	onShow() {
+		this.detailLoaded = false
+		this.pageVisible = true
+		this.refreshKey += 1
+		this.loadDevice()
+	},
+	onHide() {
+		this.pageVisible = false
+		this.requestVersion += 1
+	},
+	onUnload() {
+		this.pageVisible = false
+		this.requestVersion += 1
+	},
 	methods: {
+		async loadDevice() {
+			const version = ++this.requestVersion
+			this.detailError = ''
+			if (!this.deviceId) {
+				this.detailError = '缺少设备 ID，请从设备列表重新进入'
+				return
+			}
+			this.detailLoading = true
+			try {
+				const device = await getDeviceDetail(this.deviceId)
+				if (version !== this.requestVersion) return
+				if (!device || device.id !== this.deviceId) throw new Error('设备详情数据无效')
+				this.device = device
+				this.detailLoaded = true
+				this.imageLoadFailed = false
+			} catch (error) {
+				if (version === this.requestVersion) this.detailError = error.message || '设备信息加载失败'
+			} finally {
+				if (version === this.requestVersion) this.detailLoading = false
+			}
+		},
 		goBack() {
 			uni.navigateBack()
 		},
-		showStaticHint() {
-			uni.showToast({ title: '静态页面，功能待接入', icon: 'none' })
+		openNameEditor() {
+			if (!this.detailLoaded) return
+			this.nameDraft = this.device.name || ''
+			this.nameError = ''
+			this.editingName = true
+		},
+		async saveName() {
+			if (this.savingName) return
+			const name = this.nameDraft.trim()
+			if (!name) { this.nameError = '请输入设备名称'; return }
+			this.savingName = true
+			this.nameError = ''
+			try {
+				await updateDeviceName(this.deviceId, name)
+				this.device = { ...this.device, name }
+				this.editingName = false
+				uni.showToast({ title: '已保存', icon: 'success' })
+			} catch (error) {
+				this.nameError = error.message || '保存失败'
+			} finally {
+				this.savingName = false
+			}
 		},
 		copyDeviceId() {
 			if (!this.deviceId) return
 			uni.setClipboardData({ data: this.deviceId })
 		},
-		openNavigation(item) {
-			if (item.routeType === 'page') {
-				uni.navigateTo({ url: item.pagePath })
-				return
-			}
-			uni.switchTab({ url: item.pagePath })
-		}
 	}
 }
 </script>
@@ -214,64 +277,79 @@ export default {
 	position: relative;
 	width: 100%;
 	max-width: 430px;
-	min-height: 100vh;
+	height: calc(100vh - var(--window-top, 0px));
+	display: flex;
+	flex-direction: column;
 	margin: 0 auto;
 	background: #ffffff;
 	color: var(--detail-text);
+	/* 中文字体优先，避免西文字体的系统补字落到宋体；子组件统一继承。 */
+	font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+	font-size: 13px;
+	font-weight: 400;
+	-webkit-font-smoothing: antialiased;
 }
 
-.top-action--pressed, .inline-action--pressed, .detail-tab--pressed, .navigation-item--pressed { opacity: .56; }
+.top-action--pressed, .inline-action--pressed, .detail-tab--pressed { opacity: .56; }
 
-.page-scroll { height: calc(100vh - var(--window-top, 0px) - 104rpx - env(safe-area-inset-bottom)); background: var(--detail-canvas); }
-.device-summary { display: flex; gap: 26rpx; padding: 20rpx 40rpx 38rpx; background: #ffffff; box-sizing: border-box; }
-.device-image-card { display: flex; align-items: center; justify-content: center; flex: 0 0 208rpx; height: 208rpx; margin-top: 4rpx; background: #ffffff; border: 2rpx solid var(--detail-border); border-radius: 22rpx; overflow: hidden; }
-.device-image { width: 176rpx; height: 176rpx; }
+.page-scroll { flex: 1; min-height: 0; height: 0; background: var(--detail-canvas); }
+.device-summary { display: flex; gap: 12px; padding: 12px 20px 14px; background: #ffffff; box-sizing: border-box; }
+.device-summary text { font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, sans-serif; }
+.device-image-card { display: flex; align-items: center; justify-content: center; flex: 0 0 88px; height: 88px; margin-top: 2px; background: #ffffff; border: 1px solid var(--detail-border); border-radius: 8px; overflow: hidden; }
+.device-image { width: 76px; height: 76px; }
 .device-main { flex: 1; min-width: 0; }
-.title-line { display: flex; align-items: center; min-width: 0; min-height: 52rpx; gap: 14rpx; }
-.device-name { min-width: 0; overflow: hidden; color: var(--detail-text); font-size: 34rpx; font-weight: 650; line-height: 46rpx; white-space: nowrap; text-overflow: ellipsis; }
-.status-badge { display: flex; align-items: center; flex-shrink: 0; gap: 8rpx; color: #68758a; font-size: 24rpx; line-height: 34rpx; }
-.status-dot { width: 13rpx; height: 13rpx; border-radius: 50%; background: #a9b1be; }
+.title-line { display: flex; align-items: center; flex-wrap: wrap; min-width: 0; min-height: 24px; column-gap: 8px; row-gap: 2px; }
+.device-name { min-width: 0; max-width: 100%; overflow-wrap: anywhere; color: var(--detail-text); font-size: 16px; font-weight: 500; line-height: 24px; }
+.status-badge { display: flex; align-items: center; flex-shrink: 0; gap: 6px; color: #68758a; font-size: 11px; line-height: 18px; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #a9b1be; }
 .status-badge--online { color: #263143; }
 .status-badge--online .status-dot { background: #08bf63; }
 .status-badge--offline .status-dot { background: #a9b1be; }
 .status-badge--unknown .status-dot { background: #f0a020; }
 
-.context-line { display: flex; align-items: center; min-width: 0; min-height: 42rpx; margin-top: 2rpx; overflow: hidden; }
-.context-text { flex-shrink: 1; min-width: 0; overflow: hidden; color: #657187; font-size: 26rpx; line-height: 38rpx; white-space: nowrap; text-overflow: ellipsis; }
-.context-divider { flex: 0 0 2rpx; width: 2rpx; height: 25rpx; margin: 0 12rpx; background: #cfd6e0; }
-.edit-action, .copy-action { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 64rpx; width: 64rpx; height: 64rpx; }
-.edit-icon { width: 20rpx; height: 6rpx; border: 3rpx solid #7c879a; border-radius: 3rpx; transform: rotate(-45deg); }
+.context-line { display: flex; align-items: center; min-width: 0; min-height: 24px; margin-top: 2px; }
+.context-text { flex-shrink: 1; min-width: 0; overflow: hidden; color: #7a8499; font-size: 12px; line-height: 20px; white-space: nowrap; text-overflow: ellipsis; }
+.context-divider { flex: 0 0 1px; width: 1px; height: 11px; margin: 0 8px; background: #dce1e9; }
+.edit-action, .copy-action { position: relative; display: flex; align-items: center; justify-content: center; flex: 0 0 32px; width: 32px; height: 32px; }
+.context-line .edit-action { height: 24px; }
+/* 紧凑行高只影响排版，图标仍保留 44px 的触控范围。 */
+.edit-action::before, .copy-action::before { content: ''; position: absolute; width: 44px; height: 44px; left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.edit-icon { width: 16px; height: 16px; }
 
-.meta-list { display: flex; flex-direction: column; gap: 12rpx; margin-top: 22rpx; }
-.meta-row { display: grid; grid-template-columns: 106rpx minmax(0, 1fr); align-items: center; min-height: 32rpx; column-gap: 12rpx; }
-.meta-label { color: #657187; font-size: 24rpx; line-height: 34rpx; }
+.meta-list { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.meta-row { display: grid; grid-template-columns: 54px minmax(0, 1fr); align-items: center; min-height: 20px; column-gap: 8px; }
+.meta-value-group .copy-action { height: 24px; flex-basis: 28px; width: 28px; }
+.meta-label { color: #7a8499; font-size: 11px; line-height: 18px; }
 .meta-value-group { display: flex; align-items: center; min-width: 0; }
-.meta-value { min-width: 0; overflow: hidden; color: #657187; font-size: 24rpx; line-height: 34rpx; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.meta-value { min-width: 0; overflow: hidden; color: #7a8499; font-size: 11px; line-height: 18px; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
 .meta-value--id { flex: 1; }
 .meta-value--time { overflow: visible; white-space: normal; }
-.copy-icon { position: absolute; width: 19rpx; height: 19rpx; border: 2rpx solid #7c879a; border-radius: 4rpx; box-sizing: border-box; }
-.copy-icon--back { margin: -7rpx 0 0 -7rpx; }
-.copy-icon--front { margin: 7rpx 0 0 7rpx; background: #ffffff; }
+.copy-icon { position: absolute; width: 10px; height: 10px; border: 1px solid #7c879a; border-radius: 2px; box-sizing: border-box; }
+.copy-icon--back { margin: -4px 0 0 -4px; }
+.copy-icon--front { margin: 4px 0 0 4px; background: #ffffff; }
 
-.detail-panel { min-height: 720rpx; background: var(--detail-canvas); border-radius: 48rpx 48rpx 0 0; overflow: hidden; }
+.detail-panel { min-height: 720rpx; background: var(--detail-canvas); border-radius: 0; overflow: hidden; }
 .detail-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 80rpx; padding: 0 18rpx; background: #ffffff; border-bottom: 2rpx solid var(--detail-border); box-sizing: border-box; }
-.detail-tab { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; color: #566278; font-size: 28rpx; font-weight: 500; line-height: 40rpx; }
-.detail-tab--active { color: var(--detail-primary); font-weight: 600; }
-.tab-indicator { position: absolute; right: 24rpx; bottom: 0; left: 24rpx; height: 5rpx; border-radius: 5rpx 5rpx 0 0; background: var(--detail-primary); }
+.detail-tab { position: relative; display: flex; align-items: center; justify-content: center; min-width: 0; color: #69758b; font-size: 14px; font-weight: 400; line-height: 22px; }
+.detail-tab--active { color: var(--detail-primary); font-weight: 500; }
+.tab-indicator { position: absolute; bottom: 0; left: 50%; width: 64rpx; height: 5rpx; border-radius: 3rpx; background: var(--detail-primary); transform: translateX(-50%); }
 .tab-content { min-height: 640rpx; background: var(--detail-canvas); }
-
-.bottom-navigation { position: fixed; z-index: 20; bottom: 0; left: 50%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); width: 100%; max-width: 430px; height: calc(104rpx + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); background: rgba(255, 255, 255, .98); border-top: 2rpx solid #edf0f4; box-sizing: border-box; transform: translateX(-50%); }
-.navigation-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5rpx; color: #7f8ca0; font-size: 19rpx; line-height: 26rpx; }
-.navigation-item--active { color: var(--detail-primary); }
-.navigation-icon-wrap { position: relative; display: flex; align-items: center; justify-content: center; width: 48rpx; height: 48rpx; }
-.navigation-icon { width: 44rpx; height: 44rpx; }
-.navigation-icon--alarm { width: 42rpx; height: 42rpx; opacity: .55; }
-.navigation-badge { position: absolute; top: -2rpx; right: -2rpx; width: 13rpx; height: 13rpx; background: #ff3b30; border: 3rpx solid #ffffff; border-radius: 50%; }
 
 @media screen and (min-width: 768px) {
 	.device-detail-page { box-shadow: 0 0 0 1px #edf0f4; }
 }
 
-.device-detail-page { background: #F2F2F7; }
-.device-detail-page { --detail-canvas:#F2F2F7; --detail-text:#1d1d1f; --detail-secondary:#73737d; }
+.device-detail-page { background: #f7f8fb; }
+.device-detail-page { --detail-canvas:#f7f8fb; --detail-text:#192231; --detail-secondary:#7a8499; }
+.device-detail-page input, .device-detail-page button, .device-detail-page .uni-input-input, .device-detail-page .uni-input-placeholder { font-family: inherit; }
+.detail-notice { position: absolute; top: 0; left: 0; right: 0; z-index: 25; display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 16rpx 24rpx; background: #fff2ee; color: #aa4030; font-size: 25rpx; }
+.detail-notice button { flex-shrink: 0; margin: 0; }
+.detail-state { padding: 64rpx 32rpx; text-align: center; color: #73737d; font-size: 28rpx; }
+.name-editor-mask { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 36rpx; background: rgba(0, 0, 0, .3); }
+.name-editor { width: 100%; max-width: 360px; padding: 32rpx; background: #fff; box-sizing: border-box; }
+.name-editor-title { display: block; margin-bottom: 28rpx; font-size: 32rpx; font-weight: 600; }
+.name-editor input { height: 84rpx; padding: 0 20rpx; border: 1px solid #dce2ea; font-size: 30rpx; }
+.name-editor-error { display: block; margin-top: 12rpx; color: #aa4030; font-size: 26rpx; }
+.name-editor-actions { display: flex; gap: 20rpx; margin-top: 28rpx; }
+.name-editor-actions button { flex: 1; margin: 0; border-radius: 6rpx; font-size: 28rpx; }
 </style>

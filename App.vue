@@ -74,6 +74,8 @@
 	@import './styles/animations.css';
 	/* 引入公共库样式 */
 	@import './styles/utilities.css';
+	/* 告警等级统一色板 */
+	@import './styles/alarm-level.css';
 	/* */ 
 	@import './styles/global.css';
 

@@ -23,6 +23,7 @@
             <view class="info-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><text class="row-value">{{ userWxInfo.timezone || $t('account.notSet') }}</text></view>
             <view class="info-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><text class="row-value">{{ userWxInfo.default_language || $t('account.notSet') }}</text></view>
             <view class="info-row" @click="showLanguagePopup"><text class="row-label">{{ $t('account.appLanguage') }}</text><text class="row-value">{{ currentLanguage }}</text><view class="chevron" /></view>
+            <view class="info-row" @click="openVisualizationSettings"><text class="row-label">可视化连接</text><text class="row-value">ThingsVis</text><view class="chevron" /></view>
         </view>
         <template v-if="$login.isLoginType().isLogin">
             <view class="section-title">{{ $t('account.securitySettings') }}</view>
@@ -114,6 +115,7 @@
 		})
 	},
 		methods: {
+            openVisualizationSettings() { uni.navigateTo({ url: '/pages/account/visualization' }); },
             openPassword() { uni.navigateTo({ url: '/pages/account/password' }); },
 			showLogoutConfirm() {
 				this.logoutConfirmVisible = true
@@ -293,7 +295,7 @@
 	}
 </script>
 <style scoped>
-.account-page { --account-surface:#ffffff; --account-radius:12rpx; padding:0 28rpx calc(100rpx + env(safe-area-inset-bottom)); min-height:100vh; box-sizing:border-box; background:#F2F2F7; color:#1d1d1f; }
+.account-page { --account-surface:#ffffff; --account-radius:12rpx; padding:0 28rpx calc(100rpx + env(safe-area-inset-bottom)); min-height:100vh; box-sizing:border-box; background:#F2F2F7; color:#1d1d1f; font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif; }
 .account-header { padding:calc(30rpx + env(safe-area-inset-top)) 0 30rpx; }
 .account-title { display:block; font-size:44rpx; line-height:60rpx; font-weight:650; }
 .identity-card { display:flex; align-items:center; gap:24rpx; padding:32rpx 24rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); box-shadow:none; }

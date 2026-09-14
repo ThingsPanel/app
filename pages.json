@@ -84,6 +84,13 @@
 			}
 		},
 		{
+			"path": "pages/account/visualization",
+			"style": {
+				"navigationBarTitleText": "可视化连接",
+				"navigationBarBackgroundColor": "#F7F8FB"
+			}
+		},
+		{
 			"path": "pages/account/password",
 			"style": { "navigationBarTitleText": "修改密码", "navigationBarBackgroundColor": "#F2F2F7" }
 		},
@@ -132,7 +139,17 @@
 			"style": {
 				"navigationBarTitleText": "告警规则",
 				"enablePullDownRefresh": false,
-				"navigationBarBackgroundColor": "#F2F2F7"
+				"navigationBarBackgroundColor": "#F2F2F7",
+				"h5": {
+					"titleNView": {
+						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677FF" }]
+					}
+				},
+				"app-plus": {
+					"titleNView": {
+						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677FF" }]
+					}
+				}
 			}
 		},
 		{

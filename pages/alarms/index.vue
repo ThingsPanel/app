@@ -6,7 +6,6 @@
 			<view class="rule-entry" @click="openAlarmRules">
 				<view>
 					<text class="rule-entry-title">{{$t('pages.alarmRules.title')}}</text>
-					<text class="rule-entry-desc">{{$t('pages.alarmRules.editorDescription')}}</text>
 				</view>
 				<text class="rule-entry-arrow">›</text>
 			</view>
@@ -16,34 +15,23 @@
 			</view>
 
 			<!-- Alert List -->
-			<view class="alert-list">
-				<view class="tp-panel alert-card" v-for="item in list" :key="item.id" @click.stop="goDetail(item)">
-					<view class="card-inner">
-						<!-- Alert Description Header -->
-						<view class="alert-header">
-							<view class="alert-badge" :class="getLevelClass(item.alarm_level)">
-								<view class="badge-dot"></view>
-								<text class="badge-text">{{$t(`pages.alarms.alarmLevels.${item.alarm_level}`)}}</text>
-							</view>
-							<text v-if="item.warning_description" class="alert-desc">{{item.warning_description}}</text>
+			<view class="panel">
+				<view
+					class="alarm-row"
+					:class="getLevelClass(item.alarm_level)"
+					v-for="item in list"
+					:key="item.id"
+					@click.stop="goDetail(item)"
+				>
+					<view class="alarm-copy">
+						<view class="alarm-head">
+							<text class="alarm-name">{{ item.name || '--' }}</text>
+							<text class="alarm-level">{{$t(`pages.alarms.alarmLevels.${item.alarm_level || 'default'}`)}}</text>
 						</view>
-
-						<!-- Alert Details -->
-						<view class="alert-details">
-							<view class="detail-item">
-								<text class="detail-label">{{$t('pages.alarms.alertName')}}</text>
-								<text class="detail-value">{{item.name}}</text>
-							</view>
-							<view class="detail-item" v-if="item.content">
-								<text class="detail-label">{{$t('pages.alarms.alertContent')}}</text>
-								<text class="detail-value">{{item.content}}</text>
-							</view>
-							<view class="detail-item">
-								<text class="detail-label">{{$t('pages.alarms.alertTime')}}</text>
-								<text class="detail-value time-value">{{formatDate(item.created_at)}}</text>
-							</view>
-						</view>
+						<text v-if="item.content" class="alarm-description">{{ item.content }}</text>
+						<text class="alarm-time">{{formatAlarmTime(item.create_at || item.created_at)}}</text>
 					</view>
+					<text class="row-arrow">›</text>
 				</view>
 			</view>
 		</view>
@@ -55,15 +43,15 @@
 			:status="handleInfo.status" />
 
 		<!-- Scroll to Top Button -->
-		<view class="scroll-to-top" v-if="showScrollTop" @click="scrollToTop">
-			<image src="/static/icon/arrow-up.png" class="scroll-icon-img" mode="aspectFit" />
-		</view>
+		<button class="scroll-to-top" v-if="showScrollTop" :aria-label="$t('pages.devices.backToTop')" hover-class="scroll-to-top--pressed" @click="scrollToTop">
+			<view class="scroll-top-arrow" aria-hidden="true" />
+		</button>
 	</view>
 </template>
 
 <script>
-import dayjs from 'dayjs'
 import NotifyDialog from '@/components/notify-dialog'
+import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
 	components: { NotifyDialog },
@@ -107,16 +95,18 @@ export default {
 				duration: 300 // 动画持续时间，单位ms
 			});
 		},
-		formatDate(date) {
-			return dayjs(date).format('YYYY-MM-DD HH:mm')
-		},
+		formatAlarmTime,
 		getLevelClass(level) {
+			// 接口既有 'H'/'M'/'L' 字符串，也有 '1'/'2'/'3' 数字，两种都要认
 			const levelMap = {
+				H: 'level-high',
+				M: 'level-medium',
+				L: 'level-low',
 				'1': 'level-high',
 				'2': 'level-medium',
 				'3': 'level-low'
 			}
-			return levelMap[level] || 'level-default'
+			return levelMap[String(level ?? '').toUpperCase()] || 'level-default'
 		},
 		closeDialog(refresh){
 			this.showDialog = false
@@ -176,7 +166,8 @@ export default {
 			// 	}
 			// })
 		},
-		getList() {
+		getList(reset = false) {
+			if (this.loading) return
 			this.loading = true
 			this.API.apiRequest('/api/v1/alarm/info/history', {
 				page: this.page,
@@ -184,13 +175,19 @@ export default {
 			}, 'get').then(res => {
 				if (res.code === 200) {
 					const list = res.data.list || []
-					this.list = this.list.concat(list)
+					this.list = reset ? list : this.list.concat(list)
 					if (list.length < this.pageSize) {
 						this.loadEnd = true
 					}
+				} else {
+					throw new Error('alarm history load failed')
 				}
+			}).catch(() => {
+				if (!reset && this.page > 1) this.page--
+				uni.showToast({ title: this.$t('account.edit.loadFailed'), icon: 'none' })
 			}).finally(() => {
 				this.loading = false
+				uni.stopPullDownRefresh()
 			})
 		}
 	},
@@ -207,7 +204,7 @@ export default {
 		if (!this.loading) {
 			this.page = 1
 			this.loadEnd = false
-			this.getList()		
+			this.getList(true)
 		}
 	}
 }
@@ -218,53 +215,68 @@ export default {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	margin-bottom: 24rpx;
-	padding: 22rpx 24rpx;
+	padding: 24rpx;
 	border: 0;
 	border-radius: 12rpx;
 	background: #ffffff;
+
+	&:active {
+		background: #f8f9fb;
+	}
 }
 
 .rule-entry-title,
-.rule-entry-desc {
-	display: block;
-}
+
 
 .rule-entry-title {
-	margin-bottom: 6rpx;
+	margin-bottom: 0;
 	color: #1d1d1f;
-	font-size: 29rpx;
-	font-weight: 650;
+	font-size: 27rpx;
+	font-weight: 600;
+	line-height: 40rpx;
 }
 
 .rule-entry-desc {
 	max-width: 560rpx;
-	color: #6c7888;
+	color: #73737d;
 	font-size: 22rpx;
-	line-height: 1.4;
+	line-height: 32rpx;
 }
 
 .rule-entry-arrow {
-	color: #246fdd;
-	font-size: 48rpx;
+	color: #b0b7c3;
+	font-size: 34rpx;
+	line-height: 40rpx;
+	margin-left: 12rpx;
+	flex-shrink: 0;
 }
 
 /* Global Reset & Base */
 .tp-box {
 	width: 100%;
 	min-height: 100vh;
-	background: #F7FAFF;
+	background: #F2F2F7;
 	position: relative;
 	overflow: hidden;
 	color: #51515c;
-	font-size: 28rpx;
+	font-size: 22rpx;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+
+	/* 告警等级色板（鲜艳实色，与 alarm-rules 保持一致；本地声明避免依赖全局注入时序） */
+	--alarm-high: #FF4D35;
+	--alarm-medium: #FF9500;
+	--alarm-low: #1677ff;
+	--alarm-default: #98a2b3;
 }
 
 /* Content */
 .tp-content {
 	position: relative;
 	z-index: 1;
-	padding: 24rpx 28rpx;
+	padding: 24rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
+	display: flex;
+	flex-direction: column;
+	gap: 22rpx;
 }
 
 /* Empty State */
@@ -276,147 +288,104 @@ export default {
 	padding: 100rpx 30rpx;
 
 	.empty-text {
-		font-size: 32rpx;
+		font-size: 27rpx;
 		color: #73737d;
 		text-align: center;
 	}
 }
 
-/* Alert List */
-.alert-list {
-	padding-bottom: 40rpx;
-}
-
-.tp-panel {
+/* Alert List —— 与首页「告警动态」panel 同构：单个面板 + 行内分隔线 */
+.panel {
 	background: #ffffff;
-
-
 	border: 0;
 	border-radius: 12rpx;
 	box-shadow: none;
-	margin-bottom: 18rpx;
-	transition: all 0.3s ease;
 	overflow: hidden;
 }
 
-.alert-card:active {
-	transform: scale(0.98);
-	background: rgba(255, 255, 255, 0.9);
-}
-
-.card-inner {
-	padding: 24rpx;
-}
-
-/* Alert Header */
-.alert-header {
-	margin-bottom: 24rpx;
-	padding-bottom: 24rpx;
-	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-
-	.alert-desc {
-		font-size: 32rpx;
-		font-weight: 600;
-		color: #1d1d1f;
-		line-height: 1.5;
-		margin-top: 16rpx;
-		display: block;
-	}
-}
-
-.alert-badge {
-	display: inline-flex;
-	align-items: center;
-	padding: 8rpx 20rpx;
-	border-radius: 50rpx;
-	font-size: 22rpx;
-	font-weight: 600;
-
-	.badge-dot {
-		width: 12rpx;
-		height: 12rpx;
-		border-radius: 50%;
-		margin-right: 10rpx;
-	}
-
-	.badge-text {
-		font-size: 22rpx;
-	}
-
-	&.level-high {
-		background: rgba(239, 68, 68, 0.1);
-		color: #ef4444;
-
-		.badge-dot {
-			background: #ef4444;
-			box-shadow: none;
-		}
-	}
-
-	&.level-medium {
-		background: rgba(245, 158, 11, 0.1);
-		color: #f59e0b;
-
-		.badge-dot {
-			background: #f59e0b;
-			box-shadow: none;
-		}
-	}
-
-	&.level-low {
-		background: rgba(100, 108, 255, 0.1);
-		color: #646cff;
-
-		.badge-dot {
-			background: #646cff;
-			box-shadow: none;
-		}
-	}
-
-	&.level-default {
-		background: #f1f5f9;
-		color: #73737d;
-
-		.badge-dot {
-			background: #cbd5e1;
-		}
-	}
-}
-
-/* Alert Details */
-.alert-details {
+.alarm-row {
+	position: relative;
 	display: flex;
-	flex-direction: column;
-	gap: 16rpx;
-}
-
-.detail-item {
-	display: flex;
-	flex-direction: row;
 	align-items: flex-start;
-	justify-content: space-between;
-	font-size: 26rpx;
+	gap: 16rpx;
+	padding: 24rpx;
+	border-top: 1rpx solid #eeeef2;
 
-	.detail-label {
-		color: #73737d;
-		margin-right: 16rpx;
-		flex-shrink: 0;
-		width: 156rpx;
-		font-size: 26rpx;
+	&:first-child {
+		border-top: 0;
 	}
 
-	.detail-value {
-		flex: 1;
-		color: #1d1d1f;
-		word-break: break-word;
-		line-height: 1.6;
-		text-align: left;
-
-		&.time-value {
-			font-variant-numeric: tabular-nums;
-			color: #73737d;
-		}
+	&:active {
+		background: #f8f9fb;
 	}
+}
+
+.alarm-copy {
+	flex: 1;
+	min-width: 0;
+}
+
+.alarm-head {
+	display: flex;
+	align-items: center;
+	gap: 12rpx;
+}
+
+.alarm-name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #1d1d1f;
+	font-size: 27rpx;
+	font-weight: 600;
+	line-height: 40rpx;
+}
+
+/* 等级标签：饱和主色实底 + 白字，保证一眼可辨 */
+.alarm-level {
+	flex-shrink: 0;
+	padding: 4rpx 12rpx;
+	border-radius: 6rpx;
+	font-size: 20rpx;
+	line-height: 28rpx;
+	font-weight: 600;
+	color: #ffffff;
+	background: var(--alarm-default);
+}
+
+.alarm-row.level-high .alarm-level { background: var(--alarm-high); }
+.alarm-row.level-medium .alarm-level { background: var(--alarm-medium); }
+.alarm-row.level-low .alarm-level { background: var(--alarm-low); }
+
+.alarm-description {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	color: #73737d;
+	font-size: 22rpx;
+	line-height: 34rpx;
+	margin-top: 6rpx;
+	word-break: break-word;
+}
+
+.alarm-time {
+	display: block;
+	color: #73737d;
+	font-size: 20rpx;
+	line-height: 30rpx;
+	margin-top: 10rpx;
+	font-variant-numeric: tabular-nums;
+}
+
+.row-arrow {
+	flex-shrink: 0;
+	color: #b0b7c3;
+	font-size: 34rpx;
+	line-height: 40rpx;
+	align-self: center;
 }
 
 /* Scroll to Top Button */
@@ -424,44 +393,27 @@ export default {
 	position: fixed;
 	right: 40rpx;
 	bottom: 140rpx;
-	width: 88rpx;
-	height: 88rpx;
-	background: rgba(255, 255, 255, 0.9);
-
-
-	border-radius: 50%;
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	color: #1677FF;
+	border-radius: 14rpx;
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	border: 1px solid #dce6f3;
 	box-shadow: none;
-	border: 0;
 	z-index: 999;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-	.scroll-icon-img {
-		width: 44rpx;
-		height: 44rpx;
-		opacity: 0.8;
-	}
-
-	&:active {
-		transform: scale(0.92);
-		background: rgba(255, 255, 255, 1);
-		box-shadow: none;
-	}
+	&::after { border: none; }
+	&:active, &.scroll-to-top--pressed { background: #edf4ff; }
 }
-
-@keyframes fadeInUp {
-	from {
-		opacity: 0;
-		transform: translateY(20rpx);
-	}
-	to {
-		opacity: 1;
-		transform: translateY(0);
-	}
+.scroll-top-arrow {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	&::before { content: ''; position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; transform: rotate(45deg); }
+	&::after { content: ''; position: absolute; left: 9px; top: 3px; width: 2px; height: 16px; background: currentColor; }
 }
-
-.tp-box { background: #F2F2F7; }
 </style>

@@ -458,7 +458,7 @@ export default {
       alarmDescription: '告警描述',
       alarmDevices: '告警设备列表',
       noDevices: '暂无关联设备',
-      deviceID: '设备编码',
+      deviceID: '设备 ID',
       deviceName: '设备名称',
     },
     sceneAutomationEditor: {
