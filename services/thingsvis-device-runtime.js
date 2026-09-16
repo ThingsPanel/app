@@ -6,6 +6,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
   let schema, fields = [], initPayload, latest = {}, loaded = false
   const sockets = new Set(), timers = new Set(), writes = new Map()
   const initialHistory = new Map()
+  const historyQueries = new Map()
   const token = uni.getStorageSync('access_token')
   const emit = message => { if (!stopped) onMessage(message) }
   const state = (status, message = '') => { if (!stopped) onState({ status, message }) }
@@ -13,6 +14,10 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     if (stopped) return
     values = { ...values }
     fields.forEach(field => { if (values[field.id] === undefined && values[field.name] !== undefined) values[field.id] = values[field.name] })
+    // 重复的首值/心跳不应驱动整个历史缓冲重新比较和渲染。
+    values = Object.fromEntries(Object.entries(values).filter(([key, value]) =>
+      !Object.is(latest[key], value) && (typeof value !== 'object' || JSON.stringify(latest[key]) !== JSON.stringify(value))))
+    if (!Object.keys(values).length) return
     latest = { ...latest, ...values }
     if (loaded) emit({ type: 'tv:platform-data', payload: { fields: values, deviceId } })
   }
@@ -122,17 +127,25 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     const url = `${base}#/embed?${Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')}`
     return { url, initPayload, canvas: schema.canvas }
   }
-  async function history(payload) {
+  async function history(payload, reuseInitial = false) {
     const requests = collectDeviceHistory(schema, payload)
     for (const [id, range] of requests) {
       if (!fields.some(field => field.id === id && field.dataType === 'telemetry')) continue
       const config = payload.historyConfig || {}
-      const result = await api('telemetry/datas/statistic', { device_id: deviceId, key: id, time_range: normalizeHistoryRange(config.timeRange || range), aggregate_window: config.aggWindow || 'no_aggregate', aggregate_function: config.aggFunction || 'NONE_RAW' })
+      const query = { device_id: deviceId, key: id, time_range: normalizeHistoryRange(config.timeRange || range), aggregate_window: config.aggWindow || 'no_aggregate', aggregate_function: config.aggFunction || 'NONE_RAW' }
+      const signature = JSON.stringify(query)
+      if (reuseInitial && historyQueries.get(id) === signature && initialHistory.has(id)) {
+        if (loaded) emit({ type: 'tv:platform-history', payload: initialHistory.get(id) })
+        continue
+      }
+      const result = await api('telemetry/datas/statistic', query)
       const rows = normalizeHistoryRows(result)
       const historyPayload = { fieldId: id, history: rows, deviceId, bufferLimit: rows.length }
       initialHistory.set(id, historyPayload)
+      historyQueries.set(id, signature)
       if (loaded) emit({ type: 'tv:platform-history', payload: historyPayload })
-      push({ [`${id}__history`]: rows })
+      // 历史只走专用协议。作为普通字段推送会生成 __history__history 嵌套缓冲，
+      // 上千点历史反复进入状态深比较，会阻塞 iframe 主线程和组件加载。
     }
   }
   async function handleMessage(message) {
@@ -148,8 +161,9 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     if (['LOADED', 'tv:loaded'].includes(message.type)) {
       const firstLoad = !loaded
       loaded = true
-      initialHistory.forEach(payload => emit({ type: 'tv:platform-history', payload }))
-      emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
+      // LOADED 早于平台数据源就绪。历史留到 requestFieldData 回填，避免同一份
+      // 大数组在首屏被发送两次；实时首值也要在历史之后进入缓冲。
+      if (!initialHistory.size) emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
       state('ready')
       if (firstLoad) {
         connect('telemetry/datas/current/ws'); connect('device/online/status/ws', true)
@@ -177,7 +191,10 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     }
     if (message.type === 'thingsvis:requestFieldData') {
       if (payload.deviceId && payload.deviceId !== deviceId) return
-      try { await fetchLatest(); await history(payload) } catch (error) { report(error) }
+      try {
+        await history(payload, !payload.historyConfig)
+        emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
+      } catch (error) { report(error) }
     }
   }
   function stop() {

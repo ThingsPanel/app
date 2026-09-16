@@ -35,13 +35,13 @@
 				<!-- 手机号输入 -->
 				<view class="form-item">
 					<view class="tp-ipt phone-input-wrapper">
-						<picker mode="selector" :range="phonePrefixList" range-key="label" 
+<app-picker mode="selector" :range="phonePrefixList" range-key="label"
 							:value="phonePrefixIndex" @change="onPhonePrefixChange">
 							<view class="phone-prefix-selector">
 								<text class="prefix-text">{{ selectedPhonePrefix }}</text>
 								<text class="prefix-arrow">▼</text>
 							</view>
-						</picker>
+						</app-picker>
 						<input class="uni-input phone-input" type="number" v-model="formData.phone"
 							:placeholder="$t('pages.register.phonePlaceholder')" @blur="validatePhone" />
 					</view>
@@ -80,6 +80,7 @@
 			</view>
 		</view>
 	</view>
+  <app-action-sheet ref="appActionSheet" />
 </template>
   
 <script>
@@ -172,7 +173,7 @@ export default {
 
 	methods: {
 		showLanguagePopup() {
-			uni.showActionSheet({
+			this.$refs.appActionSheet.open({
 				itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
 				success: (res) => {
 					const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];

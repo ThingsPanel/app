@@ -33,9 +33,11 @@ assert.equal(collectDeviceHistory(historySchema).get('power'), 'last_24h')
 assert.equal(collectDeviceHistory(historySchema, { fieldIds: ['power__history'] }).get('power'), 'last_24h')
 assert.equal(collectDeviceHistory(historySchema, { fieldIds: ['power__history'], historyConfig: { timeRange: '1h' } }).get('power'), 'last_1h')
 original.nodes.push(historyNode)
+assert.equal(parseDeviceSchema(original, 'real-device', fields).dataSources[0].config.bufferSize, 1, '历史绑定必须开启专用消息缓冲')
 
 // 使用真实 runtime 和模拟传输检查写控制、去重与关闭；不会向设备发送请求。
 const calls = [], messages = [], states = []
+const historyRows = Array.from({ length: 8200 }, (_, i) => ({ ts: 1700000000 + i * 10, value: i % 60 }))
 globalThis.__deviceApi = async (path, data, method) => {
   calls.push({ path, data, method })
   if (path.startsWith('device/template/detail/')) return { app_chart_config: original }
@@ -46,7 +48,7 @@ globalThis.__deviceApi = async (path, data, method) => {
   if (path === 'telemetry/datas/pub') return { accepted: true }
   if (path === 'telemetry/datas/statistic') {
     assert.equal(data.time_range, 'last_24h')
-    return [{ ts: 1700000000, value: 2 }, { ts: 1700000060, value: 3 }]
+    return historyRows
   }
   throw new Error(`Unexpected API: ${path}`)
 }
@@ -71,11 +73,18 @@ assert.ok(started.url.startsWith('https://example.com/main.html#/embed?'))
 await runtime.handleMessage({ type: 'READY' })
 assert.equal(messages.at(-1).type, 'tv:init')
 await runtime.handleMessage({ type: 'LOADED' })
+assert.equal(messages.length, 1, 'LOADED 不应提前发送随后会重复回填的历史')
+await runtime.handleMessage({ type: 'thingsvis:requestFieldData', payload: { dataSourceId: 'device', fieldIds: ['power'], deviceId: 'real-device' } })
 assert.equal(messages[1].type, 'tv:platform-history', '历史必须先于实时值发给图表')
-assert.equal(messages[1].payload.bufferLimit, 2)
+assert.equal(messages[1].payload.bufferLimit, historyRows.length)
+assert.equal(messages[1].payload.history.length, historyRows.length, '完整历史不能被默认缓冲大小截断')
 assert.equal(messages[2].type, 'tv:platform-data')
-assert.equal(messages[2].payload.fields.power__history.length, 2)
+assert.equal(messages[2].payload.fields.power__history, undefined, '历史数组不能再作为实时字段进入嵌套缓冲')
 assert.equal(calls.filter(call => call.path === 'telemetry/datas/statistic').length, 1, 'LOADED 不重复拉取历史')
+assert.equal(calls.filter(call => call.path.startsWith('telemetry/datas/current/')).length, 1, '握手不重复查询已预加载的实时首值')
+assert.equal(messages.filter(item => item.type === 'tv:platform-history').length, 1, '一轮初始化只回填一次完整历史')
+assert.equal(calls.filter(call => call.path === 'telemetry/datas/statistic').length, 1, '数据源握手复用首屏历史')
+assert.ok(messages.filter(item => item.type === 'tv:platform-data').every(item => Object.keys(item.payload.fields).every(key => !key.endsWith('__history'))), '握手重放也不能将历史塞入实时字段')
 assert.equal(states.at(-1).status, 'ready')
 await runtime.handleMessage({ type: 'tv:error', payload: { message: 'runtime failed' } })
 assert.deepEqual(states.at(-1), { status: 'warning', message: 'runtime failed' })

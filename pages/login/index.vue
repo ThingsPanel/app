@@ -51,6 +51,7 @@
 		<!-- 消息提示框 -->
 		<app-toast ref="toast" :msg="toast.msg" direction="row" location="top"></app-toast>
 	</view>
+  <app-action-sheet ref="appActionSheet" />
 </template>
 
 <script>
@@ -116,7 +117,7 @@ export default {
 			// uni.setStorageSync('serverAddress', v.detail.value)
 		},
 		showLanguagePopup() {
-			uni.showActionSheet({
+			this.$refs.appActionSheet.open({
 				itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
 				success: (res) => {
 					const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];

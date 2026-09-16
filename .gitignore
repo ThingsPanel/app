@@ -7,3 +7,6 @@ output/
 .env
 .env.*
 !.env.example
+
+.workbuddy-ai/
+tmp/

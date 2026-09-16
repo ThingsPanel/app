@@ -1,0 +1,39 @@
+/* Shared overlay palette. Selector sheets use AppPicker on H5 and App. */
+page, :root {
+  --sheet-text: #202938;
+  --sheet-muted: #667085;
+  --sheet-accent: #1677ff;
+  --sheet-divider: #edf0f3;
+  --sheet-font: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+.uni-popup.uni-popup { z-index:10050 !important; }
+.uni-popup .uni-popup__wrapper.bottom {
+  border-radius:32rpx 32rpx 0 0;
+  overflow:hidden;
+  font-family:var(--sheet-font);
+}
+/* Native date/time pickers cannot be themed by CSS. These rules apply to H5. */
+/* #ifdef H5 */
+.app-sheet-scroll .uni-scroll-view {
+  scrollbar-width:none;
+}
+.app-sheet-scroll .uni-scroll-view::-webkit-scrollbar {
+  display:none;
+  width:0;
+  height:0;
+}
+.uni-picker-container .uni-picker-custom {
+  border-radius:32rpx 32rpx 0 0;
+  overflow:hidden;
+  font-family:var(--sheet-font);
+}
+.uni-picker-container .uni-picker-header {
+  border-bottom:2rpx solid var(--sheet-divider);
+}
+.uni-picker-container .uni-picker-action {
+  font-size:28rpx;
+  line-height:104rpx;
+  color:var(--sheet-muted);
+}
+.uni-picker-container .uni-picker-action-confirm { color:var(--sheet-accent); font-weight:600; }
+/* #endif */

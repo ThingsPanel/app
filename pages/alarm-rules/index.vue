@@ -17,18 +17,18 @@
       </view>
 
       <view class="compact-filters">
-        <picker :range="levelFilters" range-key="label" :value="levelFilters.findIndex(option => option.value === alarmLevel)" :disabled="loading" @change="selectLevel(levelFilters[Number($event.detail.value)].value)">
+<app-picker :range="levelFilters" range-key="label" :value="levelFilters.findIndex(option => option.value === alarmLevel)" :disabled="loading" @change="selectLevel(levelFilters[Number($event.detail.value)].value)">
           <view class="filter-trigger" :class="{ active: alarmLevel }">
             <text>{{ $t('pages.alarmRules.level') }} · {{ levelFilters.find(option => option.value === alarmLevel).label }}</text>
             <view class="filter-chevron" />
           </view>
-        </picker>
-        <picker :range="enabledFilters" range-key="label" :value="enabledFilters.findIndex(option => option.value === enabled)" :disabled="loading" @change="selectEnabled(enabledFilters[Number($event.detail.value)].value)">
+        </app-picker>
+<app-picker :range="enabledFilters" range-key="label" :value="enabledFilters.findIndex(option => option.value === enabled)" :disabled="loading" @change="selectEnabled(enabledFilters[Number($event.detail.value)].value)">
           <view class="filter-trigger" :class="{ active: enabled }">
             <text>{{ $t('common.status') }} · {{ enabledFilters.find(option => option.value === enabled).label }}</text>
             <view class="filter-chevron" />
           </view>
-        </picker>
+        </app-picker>
       </view>
     </view>
 

@@ -27,13 +27,13 @@
 					<view class="form-label">{{ $t('account.phone') }}</view>
 					<view class="tp-ipt">
 						<view class="phone-input-wrapper">
-							<picker mode="selector" :range="phonePrefixList" range-key="label" 
+<app-picker mode="selector" :range="phonePrefixList" range-key="label"
 								:value="phonePrefixIndex" @change="onPhonePrefixChange">
 								<view class="phone-prefix-selector">
 									<text class="prefix-text">{{ selectedPhonePrefix }}</text>
 									<text class="prefix-arrow">▼</text>
 								</view>
-							</picker>
+							</app-picker>
 							<input 
 								class="uni-input phone-number" 
 								v-model="formData.phone_number" 

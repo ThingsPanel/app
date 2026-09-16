@@ -172,9 +172,10 @@ var socketMsgQueue = {
 	}
 };
 var Dissolved_Oxygen1, PH1, temperature1;
-const TENCENT_MAP_KEY = 'A6DBZ-KXPLW-JKSRY-ONZF4-CPHY3-K6BL7'
+// 密钥不写入源码：统一由 utils/map-config.js 从环境变量读取（见 .env.example）。
 const TENCENT_MAP_SDK_URL = `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${TENCENT_MAP_KEY}`
-const REVERSE_GEOCODER_URL = 'https://api.bigdatacloud.net/data/reverse-geocode-client'
+// 逆地址解析统一走腾讯位置服务，避免设备经纬度发往境外服务。
+const TENCENT_REVERSE_GEOCODER_URL = 'https://apis.map.qq.com/ws/geocoder/v1/'
 let tencentMapSdkPromise = null
 let tencentGeocoder = null
 //
@@ -182,11 +183,11 @@ import {
 	mapState
 } from "vuex";
 import dayjs from 'dayjs';
+import { TENCENT_MAP_KEY } from '@/utils/map-config'
 import {
 	deviceList as deviceListApi,
 	getDeviceOverview,
-	getAlarmDeviceCount,
-	getDeviceGroupRelation
+	getAlarmDeviceCount
 } from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
@@ -452,21 +453,28 @@ export default {
 			// #endif
 
 			// #ifndef H5
+			// 逆地址解析同样走腾讯位置服务（与 H5 端共用同一把密钥），不再把设备经纬度发往境外服务。
+			// 注意：腾讯 WebService 按「来源域名」鉴权，需在控制台为本密钥配置来源域名；
+			// 小程序端为 servicewechat.com，App 端无固定来源，取不到地址时会优雅降级为空。
 			return new Promise(resolve => {
+				if (!TENCENT_MAP_KEY) { resolve(''); return }
 				uni.request({
-					url: REVERSE_GEOCODER_URL,
+					url: TENCENT_REVERSE_GEOCODER_URL,
 					data: {
-						latitude,
-						longitude,
-						localityLanguage: 'zh'
+						// 腾讯接口要求「纬度,经度」顺序。
+						location: `${latitude},${longitude}`,
+						key: TENCENT_MAP_KEY,
+						get_poi: 0
 					},
 					success: response => {
+						const result = response.data?.status === 0 ? response.data.result : null
+						const component = result?.address_component
 						const parts = [
-							response.data?.principalSubdivision,
-							response.data?.city,
-							response.data?.locality
+							component?.province,
+							component?.city,
+							component?.district
 						].filter((part, index, values) => part && values.indexOf(part) === index)
-						const address = parts.join('')
+						const address = parts.join('') || result?.address || ''
 						if (address) this.locationAddressCache[location] = address
 						resolve(address)
 					},
@@ -941,24 +949,6 @@ export default {
 			this.isMore = true
 		},
 		// 获取设备列表
-		async resolveDeviceGroups(devices) {
-			const queue = devices.map(device => this.deviceList.find(item => item.id === device.id)).filter(Boolean)
-			// Limit per-device requests because the list API does not include group names.
-			await Promise.all(Array.from({ length: Math.min(4, queue.length) }, async () => {
-				while (queue.length) {
-					const device = queue.shift()
-					try {
-						const response = await getDeviceGroupRelation({ device_id: device.id })
-						if (response.code !== 200 || !Array.isArray(response.data)) throw new Error('Invalid device groups response')
-						if (this.deviceList.includes(device)) {
-							device.display_groups = response.data.map(group => group.tier).filter(Boolean).join('、')
-						}
-					} catch (error) {
-						console.warn('Failed to load groups for device:', device.id, error)
-					}
-				}
-			}))
-		},
 		getDeviceList() {
 			clearInterval(this.timer)
 			this.isDeviceLoading = true
@@ -985,7 +975,7 @@ export default {
 				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '').replace(/\/$/, '') : ''
 				const newDevices = (res.data?.list || []).map(item => ({
 					...item,
-					display_groups: '',
+					display_groups: Array.isArray(item.group_paths) ? item.group_paths.filter(Boolean).join('、') : '',
 					currentIndex: 0,
 					latest_ts_name: item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : '',
 					image_url: item.image_url ? `${baseUrl}/${String(item.image_url).replace(/^\//, '')}` : '',
@@ -994,7 +984,6 @@ export default {
 				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
 				this.showDeviceLoadMore = newDevices.length === pageSize
 				this.deviceList = this.deviceList.concat(newDevices)
-				this.resolveDeviceGroups(newDevices)
 				this.$nextTick(() => {
 					setTimeout(() => this.scheduleViewportSubscription(), 300)
 				})

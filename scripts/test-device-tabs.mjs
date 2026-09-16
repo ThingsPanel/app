@@ -58,11 +58,32 @@ assert.equal(requests.length, 4, 'duplicate pagination while loading must be ign
 requests[3].resolve({ list: [{ id: 'second' }], total: 3 })
 await retry
 assert.deepEqual(list.items.value.map(item => item.id), ['latest', 'second'])
+// 接口无数据时返回 null / 缺省 list / 直接返回数组，都应视为空列表而不是格式异常
+const emptyPayload = list.load(true)
+requests[4].resolve(null)
+await emptyPayload
+assert.deepEqual(list.items.value, [], 'null 响应应视为空列表')
+assert.equal(list.error.value, '', 'null 响应不应报格式异常')
+assert.equal(list.total.value, 0)
+const missingList = list.load(true)
+requests[5].resolve({ total: 0 })
+await missingList
+assert.deepEqual(list.items.value, [], '缺省 list 字段应视为空列表')
+assert.equal(list.error.value, '')
+const rawArray = list.load(true)
+requests[6].resolve([{ id: 'raw' }])
+await rawArray
+assert.deepEqual(list.items.value.map(item => item.id), ['raw'], '直接返回数组时应正常展示')
+assert.equal(list.error.value, '')
+const malformedList = list.load(true)
+requests[7].resolve({ list: 'oops' })
+await malformedList
+assert.equal(list.error.value, '服务返回的列表格式异常', 'list 存在但不是数组时才报格式异常')
 const pending = list.load()
 app.unmount()
-requests[4].resolve({ list: [{ id: 'unmounted' }], total: 3 })
+requests[8].resolve({ list: [{ id: 'unmounted' }], total: 3 })
 await pending
-assert.equal(list.items.value.length, 2, 'unmounted components must ignore pending results')
+assert.equal(list.items.value.length, 0, 'unmounted components must ignore pending results')
 await list.load(true)
-assert.equal(requests.length, 5, 'unmounted components must not issue further requests')
-console.log('Device tabs: preservation, coordinates, pagination failures, duplicate requests, stale responses and unmount checks passed.')
+assert.equal(requests.length, 9, 'unmounted components must not issue further requests')
+console.log('Device tabs: preservation, coordinates, pagination failures, duplicate requests, stale responses, empty payloads and unmount checks passed.')

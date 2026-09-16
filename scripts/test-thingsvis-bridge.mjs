@@ -73,6 +73,10 @@ for (const type of ['READY', 'LOADED', 'tv:ready', 'tv:loaded']) dispatch({ type
 assert.equal(callbacks.length, 4)
 assert.ok(callbacks.every(entry => entry.name === 'onFrameEvent' && entry.value.session === 7))
 assert.deepEqual(callbacks.map(entry => entry.value.message.type), ['READY', 'LOADED', 'tv:ready', 'tv:loaded'])
+dispatch({ type: 'tv:render-ready' }, 'https://attacker.example')
+assert.equal(callbacks.length, 4)
+dispatch({ type: 'tv:render-ready' })
+assert.equal(callbacks.at(-1).value.message.type, 'tv:render-ready')
 
 dispatch({ type: 'tv:content-height', payload: { height: 900 } })
 assert.equal(frame.style.height, '900px')
@@ -85,7 +89,7 @@ assert.equal(frame.style.height, '20000px', 'invalid height must not alter layou
 host.clientWidth = 300
 resizeObservers[0].callback()
 assert.equal(frame.style.height, '400px')
-assert.equal(callbacks.length, 4, 'layout messages remain in render layer')
+assert.equal(callbacks.length, 5, 'layout messages remain in render layer')
 
 bridge.syncFrame({ ...state, session: 8 })
 assert.equal(frame.removed, true)
@@ -95,7 +99,7 @@ assert.equal(listeners.size, 1, 'reloading must replace the listener')
 bridge.sendMessages({ session: 7, messages: [{ type: 'STALE' }] })
 assert.equal(frames[1].sent.length, 0)
 dispatch({ type: 'READY' }, 'https://vis.example', frame.contentWindow)
-assert.equal(callbacks.length, 4, 'previous iframe must not reach current session')
+assert.equal(callbacks.length, 5, 'previous iframe must not reach current session')
 host.isConnected = false
 removalObservers[1].callback()
 assert.equal(listeners.size, 0)

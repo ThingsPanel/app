@@ -45,6 +45,7 @@
             @confirm="toQuitLogin"
         />
     </view>
+  <app-action-sheet ref="appActionSheet" />
 </template>
 <script>
 	//
@@ -269,7 +270,7 @@
 				this.$refs.serverPopup.close()
 			},
 			showLanguagePopup() {
-				uni.showActionSheet({
+				this.$refs.appActionSheet.open({
 					itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
 					success: (res) => {
 						const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];

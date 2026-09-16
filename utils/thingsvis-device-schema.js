@@ -65,6 +65,12 @@ export function parseDeviceSchema(raw, deviceId, fields) {
   schema.canvas.responsive = false
   schema.dataSources = (schema.dataSources || []).map(source => ['PLATFORM_FIELD', 'PLATFORM'].includes(String(source.type).toUpperCase())
     ? { ...source, config: { ...source.config, deviceId } } : source)
+  // 只有明确绑定历史的来源才开启历史缓冲，供专用 history 消息回填。
+  schema.dataSources.forEach(source => {
+    if (['PLATFORM_FIELD', 'PLATFORM'].includes(String(source.type).toUpperCase()) && collectDeviceHistory(schema, { dataSourceId: source.id }).size > 0) {
+      source.config.bufferSize = Math.max(1, Number(source.config.bufferSize) || 0)
+    }
+  })
   // 兼容模板编辑器保存的字段绑定，保留用户配置的手动动作。
   const events = { 'interaction/basic-switch': 'change', 'interaction/basic-slider': 'change', 'interaction/basic-select': 'change', 'interaction/basic-input': 'submit' }
   schema.nodes.forEach(node => {

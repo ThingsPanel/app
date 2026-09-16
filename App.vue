@@ -78,6 +78,7 @@
 	@import './styles/alarm-level.css';
 	/* */ 
 	@import './styles/global.css';
+	@import './styles/overlays.css';
 
 	/* #ifdef H5 */
 	/* 固定导航内容的行盒，避免字体加载和页面切换改变图文的垂直位置。 */

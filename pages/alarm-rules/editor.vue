@@ -20,22 +20,22 @@
 
       <view class="field">
         <text class="field-label">{{ $t('pages.alarmRules.level') }}</text>
-        <picker :range="levelOptions" range-key="label" :value="levelOptions.findIndex(item => item.value === form.alarm_level)" @change="selectLevel">
+<app-picker :range="levelOptions" range-key="label" :value="levelOptions.findIndex(item => item.value === form.alarm_level)" @change="selectLevel">
           <view class="field-control picker-control">
             <text class="level-value" :class="'level-' + form.alarm_level">{{ selectedLevelLabel }}</text>
             <view class="picker-arrow" />
           </view>
-        </picker>
+        </app-picker>
       </view>
 
       <view class="field">
         <text class="field-label">{{ $t('pages.alarmRules.notificationGroup') }}</text>
-        <picker :range="notificationGroups" range-key="name" :value="Math.max(0, notificationGroups.findIndex(item => item.id === form.notification_group_id))" @change="selectNotificationGroup">
+<app-picker :range="notificationGroups" range-key="name" :value="Math.max(0, notificationGroups.findIndex(item => item.id === form.notification_group_id))" @change="selectNotificationGroup">
           <view class="field-control picker-control">
             <text class="picker-value">{{ selectedNotificationGroupName }}</text>
             <view class="picker-arrow" />
           </view>
-        </picker>
+        </app-picker>
         <text v-if="!notificationGroups.length" class="field-help">{{ $t('pages.alarmRules.noGroupsHelp') }}</text>
       </view>
 

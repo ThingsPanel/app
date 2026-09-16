@@ -8,16 +8,33 @@
         <button v-if="!editing" class="save" :disabled="!deviceId" @click="beginEdit">编辑</button>
         <view v-else class="edit-actions"><button class="save" :disabled="saving" @click="cancelEdit">取消</button><button class="save" :disabled="saving || !deviceId" :loading="saving" @click="save">保存</button></view>
       </view>
-      <view class="field"><text class="label">经度</text><input v-if="editing" v-model.trim="longitude" :disabled="saving" class="input" placeholder="-180 至 180" /><text v-else class="coordinate-value">{{ longitude || '未设置' }}</text></view>
-      <view class="field"><text class="label">纬度</text><input v-if="editing" v-model.trim="latitude" :disabled="saving" class="input" placeholder="-90 至 90" /><text v-else class="coordinate-value">{{ latitude || '未设置' }}</text></view>
-      <text v-if="editing" class="hint">可以在地图上选点，也可以手动输入经纬度；保存后生效</text>
+      <device-location-map
+        v-if="editing || hasCoordinate"
+        :longitude="longitude"
+        :latitude="latitude"
+        :interactive="editing"
+        :resolve-address="!editing"
+        @pick="applyPickedCoordinate"
+        @address="handleAddress"
+      />
+      <view v-else class="state">未设置位置</view>
+      <!-- 只读态把解析出的地址用文字给出：小地图上不挂气泡，也就不会挤占图面。 -->
+      <view v-if="!editing && address" class="location-address">
+        <text class="label">位置地址</text>
+        <text class="coordinate-value">{{ address }}</text>
+      </view>
+      <view v-if="editing" class="location-fields">
+        <view class="field"><text class="label">经度</text><input v-model.trim="longitude" :disabled="saving" class="input" placeholder="-180 至 180" /></view>
+        <view class="field"><text class="label">纬度</text><input v-model.trim="latitude" :disabled="saving" class="input" placeholder="-90 至 90" /></view>
+        <text class="hint">可以在地图上点选，也可以直接输入经纬度；保存后生效</text>
+      </view>
       <text class="section-title extension-title">扩展信息</text>
       <view v-if="!visibleFields.length" class="state">暂无扩展信息</view>
       <view v-for="field in visibleFields" :key="field.name" class="extension-field">
         <text class="label">{{ field.name }}</text><text v-if="field.desc" class="hint">{{ field.desc }}</text>
         <text v-if="!editing" class="coordinate-value">{{ displayField(field) }}</text>
         <switch v-else-if="field.type === 'Boolean'" :checked="field.value === true" :disabled="saving" color="#1677ff" @change="field.value = $event.detail.value" />
-        <picker v-else-if="field.type === 'Enum'" :disabled="saving" :range="field.options || []" range-key="label" :value="Math.max(0, (field.options || []).findIndex(option => option.value === field.value))" @change="field.value = field.options[Number($event.detail.value)].value"><view class="input picker">{{ (field.options || []).find(option => option.value === field.value)?.label || field.value || '请选择' }}</view></picker>
+<app-picker v-else-if="field.type === 'Enum'" :disabled="saving" :range="field.options || []" range-key="label" :value="Math.max(0, (field.options || []).findIndex(option => option.value === field.value))" @change="field.value = field.options[Number($event.detail.value)].value"><view class="input picker">{{ (field.options || []).find(option => option.value === field.value)?.label || field.value || '请选择' }}</view></app-picker>
         <input v-else v-model="field.value" :disabled="saving" class="input" :placeholder="field.type === 'Number' ? '请输入数字' : '请输入'" />
       </view>
     </view>
@@ -27,7 +44,9 @@
 <script setup>
 import { computed, onBeforeUnmount, ref, watch } from 'vue'
 import { requestDeviceApi } from '@/api/modules/device-overview'
+import DeviceLocationMap from '@/features/devices/components/device-location-map.vue'
 import { buildAdditionalInfo, validateCoordinates, parseExtensionDefinitions } from '@/features/devices/utils/device-information'
+import { parseMapCoordinate } from '@/utils/map-config'
 const props = defineProps({ device: { type: Object, default: () => ({}) }, deviceId: { type: String, required: true } })
 const emit = defineEmits(['saved'])
 const latitude = ref('')
@@ -54,6 +73,12 @@ function displayField(field) {
   if (field.type === 'Enum') return field.options?.find(option => option.value === field.value)?.label || field.value || '未设置'
   return field.value === '' ? '未设置' : field.value
 }
+/** 地图点选结果回填到表单，与手动输入共用同一份状态。 */
+function applyPickedCoordinate(coordinate) {
+  longitude.value = String(coordinate.longitude)
+  latitude.value = String(coordinate.latitude)
+}
+const hasCoordinate = computed(() => parseMapCoordinate(longitude.value, latitude.value) !== null)
 const visibleFields = computed(() => fields.value.filter(field => field.enable === true))
 let additionalInfo = {}
 let version = 0
@@ -105,9 +130,10 @@ async function save() {
 <style scoped>
 .information-tab { padding: 14px 20px 24px; background: #fff; color: #202938; font-family: inherit; }
 .information-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
-.edit-actions { display: flex; gap: 8px; }
+.edit-actions { display: flex; gap: 10px; }
 .coordinate-value { display: block; min-width: 0; overflow-wrap: anywhere; color: #39465d; font-size: 12px; line-height: 22px; }
 .section-title { display: block; font-size: 14px; line-height: 22px; font-weight: 600; }
+.location-fields { margin-top: 14px; }
 .extension-title { border-top: 1px solid #f0f2f6; margin-top: 24px; padding-top: 22px; }
 .field { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
 .label { font-size: 12px; line-height: 20px; color: #6d7890; }
@@ -117,9 +143,10 @@ async function save() {
 .extension-field { margin-top: 18px; }
 .extension-field .input { margin-top: 8px; }
 .picker { line-height: 40px; }
-.save { margin: 0; padding: 0 14px; min-width: 62px; height: 40px; line-height: 40px; background: #f3f7ff; color: #1677ff; border-radius: 4px; font-size: 12px; font-weight: 500; font-family: inherit; }
+/* 与 device-automation-tab 的 .text-button / device-alarm-tab 的 .link 保持同一规格：透明底、蓝字、无圆角。 */
+.save { margin: 0; padding: 0 10px; background: transparent; color: #1677ff; border-radius: 0; font-size: 12px; font-weight: 400; line-height: 40px; font-family: inherit; }
 .save::after { border: 0; }
-.save[disabled] { color: #9aa5b5; background: #f5f6f8; }
+.save[disabled] { color: #98a2b3; }
 .state { padding: 28px 0; text-align: center; color: #8b95a6; font-size: 12px; }
 .error { color: #c64b4b; }
 </style>

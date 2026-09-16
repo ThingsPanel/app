@@ -1,6 +1,8 @@
 <template>
 	<view class="device-overview">
-		<view v-if="phase !== 'ready'" class="overview-state" :class="{ 'overview-state--error': phase === 'error' }" role="status">
+		<device-visualization-skeleton v-if="phase === 'loading'" />
+		<device-telemetry-fallback v-if="phase === 'empty'" :device="device" :device-id="deviceId" />
+		<view v-if="phase === 'error'" class="overview-state overview-state--error" role="status">
 			<text>{{ statusMessage }}</text>
 			<button v-if="phase === 'error'" size="mini" @click="reload">重新加载</button>
 			<text v-if="phase === 'error'" class="connection-hint">连接地址可在“我的 → 可视化连接”中调整</text>
@@ -11,6 +13,7 @@
 		<view
 			:id="frameId"
 			class="overview-frame"
+			:class="{ 'overview-frame--loading': phase === 'loading' }"
 			:frame-state="frameState"
 			:change:frame-state="thingsvisBridge.syncFrame"
 			:message-packet="messagePacket"
@@ -23,10 +26,13 @@
 <script>
 import { resolveThingsVisAddresses } from '@/utils/thingsvis-address'
 import { createDeviceRuntime } from '@/services/thingsvis-device-runtime'
+import DeviceVisualizationSkeleton from './device-visualization-skeleton.vue'
+import DeviceTelemetryFallback from './device-telemetry-fallback.vue'
 
 let frameSequence = 0
 
 export default {
+	components: { DeviceVisualizationSkeleton, DeviceTelemetryFallback },
 	props: {
 		device: { type: Object, required: true },
 		deviceId: { type: String, required: true }
@@ -85,7 +91,8 @@ export default {
 					onState: state => {
 						if (session !== this.session) return
 						if (state.status === 'warning') { this.streamMessage = state.message; return }
-						if (state.status === 'ready') clearTimeout(this.readyTimer)
+						// LOADED 只代表配置已接收，不能撤掉骨架。
+						if (state.status === 'ready') return
 						if (state.status === 'error') this.dispose()
 						this.phase = state.status
 						this.statusMessage = state.message || ''
@@ -98,7 +105,7 @@ export default {
 					if (session !== this.session || this.phase === 'ready') return
 					this.dispose()
 					this.phase = 'error'
-					this.statusMessage = 'ThingsVis 未响应，请检查连接设置、服务版本及网络后重试'
+					this.statusMessage = '可视化未完成渲染，请检查网络及 ThingsVis 是否已更新到支持渲染就绪通知的版本'
 				}, 25000)
 			} catch (error) {
 				if (session !== this.session) return
@@ -109,6 +116,14 @@ export default {
 		},
 		onFrameEvent(event) {
 			if (event.session !== this.session) return
+			if (event.message?.type === 'tv:render-ready') {
+				clearTimeout(this.readyTimer)
+				this.phase = 'ready'
+				return
+			}
+			if (event.message?.type === 'ERROR' && this.phase === 'loading') {
+				event.error = typeof event.message.payload === 'string' ? event.message.payload : '可视化组件加载失败'
+			}
 			if (event.error) {
 				this.dispose()
 				this.phase = 'error'
@@ -162,7 +177,7 @@ export default {
 					if (Number.isFinite(height) && height > 0) frame.style.height = `${Math.min(20000, Math.max(160, height))}px`
 					return
 				}
-				const accepted = ['READY', 'LOADED', 'ERROR', 'tv:ready', 'tv:loaded', 'thingsvis:editor-ready', 'tv:request-init', 'tv:platform-write', 'thingsvis:requestFieldData', 'tv:error']
+				const accepted = ['READY', 'LOADED', 'ERROR', 'tv:ready', 'tv:loaded', 'tv:render-ready', 'thingsvis:editor-ready', 'tv:request-init', 'tv:platform-write', 'thingsvis:requestFieldData', 'tv:error']
 				if (accepted.includes(message.type)) this.$ownerInstance.callMethod('onFrameEvent', { session: value.session, message })
 			}
 			window.addEventListener('message', this.frameListener)
@@ -191,7 +206,9 @@ export default {
 <!-- #endif -->
 
 <style scoped>
-.device-overview { background: #fff; }
+.device-overview { position: relative; background: #fff; }
+/* 保持 iframe 有真实尺寸，隐藏期间也能初始化图表。 */
+.overview-frame--loading { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; }
 .overview-state button { margin: 0; padding: 0 16px; color: #1677ff; background: #f3f7ff; border-radius: 4px; font-size: 12px; line-height: 40px; }
 .overview-state button::after { border: 0; }
 .overview-state { display: flex; align-items: center; flex-direction: column; gap: 16px; padding: 36px 20px; color: #737f94; font-size: 13px; line-height: 1.7; text-align: center; }
