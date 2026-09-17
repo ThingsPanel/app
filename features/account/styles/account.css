@@ -22,7 +22,7 @@
 		left: -15%;
 		width: 700rpx;
 		height: 700rpx;
-		background: radial-gradient(circle, rgba(100, 108, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
+		background: radial-gradient(circle, rgba(22, 119, 255, 0.25) 0%, rgba(255, 255, 255, 0) 70%);
 }
 
 .bg-glow-2 {
@@ -30,7 +30,7 @@
 		right: -10%;
 		width: 620rpx;
 		height: 620rpx;
-		background: radial-gradient(circle, rgba(167, 139, 250, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
+		background: radial-gradient(circle, rgba(22, 119, 255, 0.18) 0%, rgba(255, 255, 255, 0) 70%);
 }
 
 .tp-panel {
@@ -56,7 +56,7 @@
 		width: 140rpx;
 		height: 140rpx;
 		border-radius: 50%;
-		box-shadow: 0 12rpx 35rpx rgba(100, 108, 255, 0.25);
+		box-shadow: 0 12rpx 35rpx rgba(22, 119, 255, 0.25);
 		border: 6rpx solid rgba(255, 255, 255, 0.9);
 	}
 
@@ -95,7 +95,7 @@
 }
 
 .tp-panel-item-hover {
-		background: rgba(100, 108, 255, 0.06);
+		background: rgba(22, 119, 255, 0.06);
 		border-radius: 24rpx;
 	}
 
@@ -137,7 +137,7 @@
 }
 
 .quitLogin {
-		background: linear-gradient(135deg, #646cff, #8b5cf6);
+		background: linear-gradient(135deg, #1677ff, #4096ff);
 		color: #fff;
 }
 
@@ -178,13 +178,13 @@
 .tp-btn {
 		width: 100%;
 		line-height: 100rpx;
-		background: linear-gradient(135deg, #646cff, #8b5cf6);
+		background: linear-gradient(135deg, #1677ff, #4096ff);
 		border-radius: 24rpx;
 		font-size: 30rpx;
 		font-weight: 600;
 		color: #FFFFFF;
 		text-align: center;
-		box-shadow: 0 18rpx 35rpx rgba(100, 108, 255, 0.35);
+		box-shadow: 0 18rpx 35rpx rgba(22, 119, 255, 0.35);
 }
 
 .close-icon {
@@ -212,5 +212,5 @@
 }
 
 .language-option:active {
-		background-color: rgba(100, 108, 255, 0.08);
+		background-color: rgba(22, 119, 255, 0.08);
 }

@@ -7,9 +7,8 @@
   </view>
   <view v-if="visible" class="datetime-sheet-layer" @touchmove.stop.prevent>
     <view class="datetime-sheet-mask" @tap="close" />
-    <view class="datetime-sheet" @tap.stop>
-      <view class="sheet-grabber" />
-      <view class="sheet-header">
+    <view class="datetime-sheet app-sheet-surface" @tap.stop>
+      <view class="sheet-header app-sheet-header">
         <text class="sheet-action" @tap="close">取消</text>
         <text class="sheet-title">{{ title }}</text>
         <text class="sheet-action confirm" @tap="confirm">确定</text>

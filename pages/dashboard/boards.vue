@@ -42,7 +42,6 @@
 <script>
 import dayjs from 'dayjs'
 import { createBoardsClient } from '@/api/modules/boards'
-import { buildWebViewUrl } from '@/utils/platform-web'
 export default {
   data() { return { projectId: '', projectName: '', keyword: '', projects: [], boards: [], total: 0, page: 0, projectsLoading: false, searching: false, loadingMore: false, error: '', requestId: 0, disposed: false } },
   computed: {
@@ -118,8 +117,7 @@ export default {
     date(value) { return value && dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD') + ' ' : '' },
     openProject(project) { uni.navigateTo({ url: '/pages/dashboard/boards?projectId=' + encodeURIComponent(project.id) + '&projectName=' + encodeURIComponent(project.name) }) },
     openBoard(board) {
-      const url = buildWebViewUrl('/visualization-app/preview', { dashboardId: board.id, dashboardName: board.name, token: uni.getStorageSync('access_token'), lang: uni.getStorageSync('language'), statusBarHeight: uni.getSystemInfoSync().statusBarHeight || 0 })
-      uni.navigateTo({ url: '/pages/web-view/index?url=' + encodeURIComponent(url) + '&title=' + encodeURIComponent(board.name) })
+      uni.navigateTo({ url: '/pages/dashboard/detail?id=' + encodeURIComponent(board.id) + '&name=' + encodeURIComponent(board.name) })
     }
   }
 }

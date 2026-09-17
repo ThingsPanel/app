@@ -3,10 +3,10 @@
     <view role="button" :aria-label="title" :aria-disabled="disabled" tabindex="0" @click="open" @keydown.enter.prevent="open" @keydown.space.prevent="open"><slot /></view>
     <uni-popup ref="popup" type="bottom" background-color="#fff" :safe-area="false" @change="popupChanged">
       <view class="app-choice" role="dialog" :aria-label="title">
-        <view class="app-choice__header">
+        <view class="app-choice__header app-sheet-header">
           <button class="app-choice__action" @click="cancel">取消</button>
           <text class="app-choice__title">{{ title }}</text>
-          <button class="app-choice__action app-choice__confirm" :disabled="!range.length" @click="confirm">完成</button>
+          <button class="app-choice__action app-choice__confirm" :disabled="!range.length" @click="confirm">确定</button>
         </view>
         <scroll-view scroll-y :show-scrollbar="false" class="app-choice__list app-sheet-scroll" :style="{ height: Math.min(range.length * 104, 624) + 'rpx' }" :scroll-into-view="selectedId">
           <button v-for="(option, index) in range" :id="`${id}-${index}`" :key="index" class="app-choice__option" :class="{ 'is-selected': draft === index }" :aria-pressed="draft === index" @click="draft = index">

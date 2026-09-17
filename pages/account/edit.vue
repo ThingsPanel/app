@@ -1,65 +1,48 @@
 <template>
-	<view class="edit-container">
-		<view class="tp-box tp-box-sizing tp-flex tp-flex-col tp-pd-l-r-30">
-			<!-- 背景氛围元素 -->
-			<view class="bg-glow-2"></view>
+  <view class="edit-page">
+    <view class="avatar-row" @click="chooseAvatar">
+      <view><text class="row-title">{{ $t('account.edit.avatar') }}</text><text class="row-hint">{{ $t('account.edit.changeAvatar') }}</text></view>
+      <image :src="formData.avatarUrl || '/static/image/uhead.png'" class="avatar-image" mode="aspectFill" />
+      <view class="chevron" />
+    </view>
 
-			<!-- 头像上传区域 -->
-			<view class="avatar-section tp-flex tp-flex-col tp-flex-a-c tp-mg-t-50">
-				<view class="avatar-wrapper" @click="chooseAvatar">
-					<image :src="formData.avatarUrl || '/static/image/uhead.png'" class="avatar-image" mode="aspectFill"></image>
-					<view class="avatar-mask">
-						<text class="avatar-text">{{ $t('account.edit.changeAvatar') }}</text>
-					</view>
-				</view>
-			</view>
-
-			<!-- 表单区域 -->
-			<view class="form-section tp-panel tp-mg-t-50">
-				<view class="form-item">
-					<view class="form-label">{{ $t('account.name') }}</view>
-					<view class="tp-ipt">
-						<input class="uni-input" v-model="formData.name" :placeholder="$t('account.edit.namePlaceholder')" />
-					</view>
-				</view>
-
-				<view class="form-item">
-					<view class="form-label">{{ $t('account.phone') }}</view>
-					<view class="tp-ipt">
-						<view class="phone-input-wrapper">
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.basicInfo') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.name') }}</text><input class="row-input" v-model="formData.name" :placeholder="$t('account.edit.namePlaceholder')" /></view>
+      <view class="form-row phone-row"><text class="row-label">{{ $t('account.phone') }}</text><view class="phone-input-wrapper">
 <app-picker mode="selector" :range="phonePrefixList" range-key="label"
 								:value="phonePrefixIndex" @change="onPhonePrefixChange">
 								<view class="phone-prefix-selector">
 									<text class="prefix-text">{{ selectedPhonePrefix }}</text>
-									<text class="prefix-arrow">▼</text>
+									<text class="prefix-arrow">⌄</text>
 								</view>
 							</app-picker>
-							<input 
-								class="uni-input phone-number" 
+							<input
+								class="row-input phone-number"
 								v-model="formData.phone_number" 
 								:placeholder="$t('account.edit.phonePlaceholder')"
 								type="number"
 							/>
-						</view>
-					</view>
-				</view>
+						</view></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.email') }}</text><input class="row-input" v-model="formData.email" :placeholder="$t('account.edit.emailPlaceholder')" type="email" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.organization') }}</text><input class="row-input" v-model="formData.organization" :placeholder="$t('account.edit.organizationPlaceholder')" /></view>
+    </view>
 
-				<view class="form-item">
-					<view class="form-label">{{ $t('account.email') }}</view>
-					<view class="tp-ipt">
-						<input class="uni-input" v-model="formData.email" :placeholder="$t('account.edit.emailPlaceholder')" type="email" />
-					</view>
-				</view>
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.preferences') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><input class="row-input" v-model="formData.timezone" :placeholder="$t('account.edit.timezonePlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><app-picker class="picker-fill" mode="selector" :range="languageList" range-key="label" :value="languageIndex" @change="onLanguageChange"><view class="picker-value"><text>{{ selectedLanguage }}</text><text class="chevron">›</text></view></app-picker></view>
+    </view>
 
-				<!-- 提交按钮 -->
-				<view class="submit-section tp-mg-t-50">
-					<button class="submit-btn" type="primary" @click="submitForm" :loading="submitting">
-						{{ $t('common.save') }}
-					</button>
-				</view>
-			</view>
-		</view>
-	</view>
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.edit.address') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.province') }}</text><input class="row-input" v-model="formData.address.province" :placeholder="$t('account.edit.provincePlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.city') }}</text><input class="row-input" v-model="formData.address.city" :placeholder="$t('account.edit.cityPlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.district') }}</text><input class="row-input" v-model="formData.address.district" :placeholder="$t('account.edit.districtPlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.detailAddress') }}</text><input class="row-input" v-model="formData.address.detailed_address" :placeholder="$t('account.edit.detailedAddressPlaceholder')" /></view>
+    </view>
+    <button class="save-button" type="primary" @click="submitForm" :loading="submitting">{{ $t('common.save') }}</button>
+  </view>
 </template>
 
 <script>
@@ -76,8 +59,14 @@ export default {
 				timezone: '',
 				default_language: '',
 				avatar_url: '',
-				avatarUrl: '' // 用于显示的完整URL
+				avatarUrl: '', // 用于显示的完整URL
+				address: { province: '', city: '', district: '', detailed_address: '' }
 			},
+			languageIndex: 0,
+			languageList: [
+				{ value: 'zh-CN', label: '中文' },
+				{ value: 'en-US', label: 'English' }
+			],
 			// 当前选中的区号索引
 			phonePrefixIndex: 0,
 			// 国际电话区号列表
@@ -112,6 +101,9 @@ export default {
 				return this.phonePrefixList[this.phonePrefixIndex].code
 			}
 			return '+86'
+		},
+		selectedLanguage() {
+			return this.languageList[this.languageIndex]?.label || '中文'
 		}
 	},
 	onLoad() {
@@ -194,6 +186,9 @@ export default {
 						this.phonePrefixIndex = prefixIndex;
 					}
 
+					const address = data.address || {};
+					const languageIndex = this.languageList.findIndex(item => item.value === data.default_language);
+					this.languageIndex = languageIndex >= 0 ? languageIndex : 0;
 					this.formData = {
 						name: data.name || '',
 						phone_number: phoneNumber,
@@ -203,7 +198,11 @@ export default {
 						timezone: data.timezone || '',
 						default_language: data.default_language || '',
 						avatar_url: data.avatar_url || '',
-						avatarUrl: data.avatar_url ? (baseUrl + '/' + data.avatar_url) : ''
+						avatarUrl: data.avatar_url ? (baseUrl + '/' + data.avatar_url) : '',
+						address: {
+							province: address.province || '', city: address.city || '', district: address.district || '',
+							detailed_address: address.detailed_address || ''
+						}
 					};
 				}
 
@@ -224,6 +223,11 @@ export default {
 			if (this.phonePrefixList && this.phonePrefixList[index]) {
 				this.formData.phone_prefix = this.phonePrefixList[index].code
 			}
+		},
+
+		onLanguageChange(e) {
+			this.languageIndex = e.detail.value
+			this.formData.default_language = this.languageList[this.languageIndex]?.value || 'zh-CN'
 		},
 
 		// 选择头像
@@ -333,6 +337,7 @@ export default {
 			if (this.formData.timezone) updateData.timezone = this.formData.timezone;
 			if (this.formData.default_language) updateData.default_language = this.formData.default_language;
 			if (this.formData.avatar_url) updateData.avatar_url = this.formData.avatar_url;
+			updateData.address = { ...this.formData.address };
 
 			this.API.apiRequest('/api/v1/board/user/update', updateData, 'post').then(res => {
 
@@ -386,7 +391,7 @@ export default {
 	border-radius: 50%;
 	overflow: hidden;
 	border: 6rpx solid rgba(255, 255, 255, 0.9);
-	box-shadow: 0 12rpx 35rpx rgba(100, 108, 255, 0.25);
+	box-shadow: 0 12rpx 35rpx rgba(22, 119, 255, 0.25);
 }
 
 .avatar-image {
@@ -447,7 +452,7 @@ export default {
 }
 
 .tp-ipt:active {
-	border-color: rgba(100, 108, 255, 0.4);
+	border-color: rgba(22, 119, 255, 0.4);
 	background-color: rgba(248, 250, 252, 1);
 }
 
@@ -506,7 +511,7 @@ export default {
 	font-size: 30rpx;
 	font-weight: 600;
 	color: #fff;
-	background: #646cff;
+	background: #1677ff;
 	border: none;
 }
 
@@ -537,5 +542,36 @@ export default {
 .submit-section { margin-top:24px; }
 .submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:#1677ff; }
 
-.edit-container, .tp-box { background: #F2F2F7; }
+.edit-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx 28rpx calc(120rpx + env(safe-area-inset-bottom));
+  background: #f2f2f7;
+  color: #1d1d1f;
+  font-family: 'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif;
+}
+.avatar-row, .form-group { background: #fff; }
+.avatar-row { display:flex; align-items:center; min-height:144rpx; padding:0 24rpx; margin-bottom:24rpx; }
+.row-title, .row-hint { display:block; }
+.row-title { color:#1d1d1f; font-size:26rpx; line-height:38rpx; font-weight:400; }
+.row-hint { margin-top:4rpx; color:#98a2b3; font-size:21rpx; line-height:30rpx; }
+.avatar-image { width:96rpx; height:96rpx; margin-left:auto; border-radius:50%; background:#f2f4f7; }
+.avatar-row .chevron { margin-left:20rpx; }
+.group-title { display:block; padding:20rpx 24rpx 12rpx; color:#667085; font-size:22rpx; line-height:32rpx; }
+.form-group { margin-bottom:24rpx; }
+.form-row { display:flex; align-items:center; min-height:96rpx; padding:0 24rpx; border-top:1rpx solid #edf1f6; box-sizing:border-box; }
+.row-label { width:156rpx; flex-shrink:0; color:#1d1d1f; font-size:25rpx; line-height:36rpx; }
+.row-input { flex:1; min-width:0; height:56rpx; color:#344054; font-size:24rpx; line-height:36rpx; text-align:right; }
+.row-input::placeholder { color:#b3bdca; }
+.phone-input-wrapper { flex:1; min-width:0; }
+.phone-prefix-selector { min-width:98rpx; padding-right:18rpx; border-right:1rpx solid #edf1f6; justify-content:flex-start; }
+.prefix-text { color:#344054; font-size:24rpx; font-weight:400; }
+.prefix-arrow { color:#98a2b3; font-size:24rpx; }
+.phone-number { padding-left:20rpx; }
+.picker-fill { flex:1; }
+.picker-value { display:flex; align-items:center; justify-content:flex-end; min-height:96rpx; color:#344054; font-size:24rpx; }
+.picker-value .chevron, .chevron { color:#98a2b3; font-size:36rpx; font-style:normal; font-weight:300; line-height:1; }
+.save-button { width:100%; height:88rpx; margin-top:12rpx; border:0; border-radius:0; background:#1677ff; color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; }
+.save-button::after { border:0; }
+.save-button:active { background:#0d63d6; }
 </style>

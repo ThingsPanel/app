@@ -1,50 +1,43 @@
-<template xlang="wxml">
-  <view class="tree">
-    <view class="tree-mask" :class="{'show':showTree}" @tap="_maskClick"></view>
-    <view class="tree-cnt" :class="{'show':showTree}">
-      <view class="tree-bar">
-        <view class="tree-bar-cancel" :style="{'color':cancelColor}" hover-class="hover-c" @tap="_cancel">
-          {{ $t('common.close')}}
+<template>
+  <view v-if="showTree" class="tree">
+    <view class="tree-mask" @tap="_maskClick" @touchmove.stop.prevent></view>
+    <view class="tree-cnt" role="dialog" :aria-label="title" aria-modal="true">
+      <view class="tree-bar app-sheet-header">
+        <button class="tree-action app-sheet-cancel" @tap="_cancel">{{ $t('common.cancel') }}</button>
+        <view class="tree-heading">
+          <text class="tree-bar-title">{{ title }}</text>
         </view>
-        <view class="midInput" v-if="showSearch">
-          <input class="searchArea" @input="filterOp" :placeholder="$t('common.pleaseInput') + title" />
-          <icon  class="searchIcon" type="search" />
+        <button class="tree-action" :disabled="!canConfirm" @tap="_confirm">{{ $t('common.ok') }}</button>
+      </view>
+      <view v-if="showSearch" class="tree-search">
+        <image class="tree-search-icon" src="/static/icon/device-search.svg" mode="aspectFit" />
+        <input class="tree-search-input" :value="keyWord" :disabled="loading || !!error" :placeholder="$t('pages.devices.groupSearchPlaceholder')" confirm-type="search" @input="filterOp" />
+        <button v-if="keyWord" class="tree-clear" :aria-label="$t('pages.devices.clear')" @tap="filterOp({ detail: { value: '' } })">×</button>
+      </view>
+      <scroll-view class="tree-view-sc app-sheet-scroll" :scroll-y="true" :show-scrollbar="false" :style="{ height: listHeight * 2 + 'rpx' }">
+        <view class="tree-panel">
+          <button v-if="includeAllOption" class="tree-all" :class="{ 'is-selected': !selectedItems.length }" :aria-pressed="!selectedItems.length" @tap="selectAll">
+            <view class="tree-spacer" />
+            <view class="tree-label-content"><text>{{ $t('pages.devices.allGroups') }}</text></view>
+            <view class="tree-check" :class="{ 'is-checked': !selectedItems.length }" aria-hidden="true" />
+          </button>
+          <view v-if="loading" class="tree-state">{{ $t('pages.devices.groupsLoading') }}</view>
+          <view v-else-if="error" class="tree-state">
+            <text>{{ error }}</text><button class="tree-retry" @tap="$emit('retry')">{{ $t('pages.devices.retryGroups') }}</button>
+          </view>
+          <view v-else-if="!visibleRows.length" class="tree-state">
+            <text class="tree-state-title">{{ keyWord ? $t('pages.devices.noGroupMatch') : $t('pages.devices.noGroups') }}</text>
+          </view>
+          <view v-for="row in visibleRows" v-else :key="row.item.id" class="tree-item" :class="{ 'is-selected': row.item.checked }" :style="{ paddingLeft: (Math.min(row.item.rank, 4) * 16 + 16) * 2 + 'rpx' }">
+            <button v-if="!row.item.lastRank && !keyWord" class="tree-expand" :aria-label="$t(row.item.showChild ? 'pages.devices.collapseGroups' : 'pages.devices.expandGroups') + ' ' + row.item.name" :aria-expanded="row.item.showChild" @tap.stop="_treeItemTap(row.item, row.index)"><view class="tree-chevron" :class="{ 'is-open': row.item.showChild }" /></button>
+            <view v-else class="tree-spacer" />
+            <button class="tree-label" :aria-pressed="row.item.checked" @tap="selectRow(row.item, row.index)">
+              <view class="tree-label-content"><text class="tree-item-name">{{ row.item.name }}</text><text v-if="keyWord && row.item.parentId.length" class="tree-item-description">{{ parentPath(row.item) }}</text></view>
+              <view v-if="selectParent || row.item.lastRank" class="tree-check" :class="{ 'is-checked': row.item.checked }" aria-hidden="true" />
+            </button>
+          </view>
         </view>
-        <view class="tree-bar-title" v-else :style="{'color':titleColor}">{{title}}</view>
-        <view class="tree-bar-confirm" :style="{'color':confirmColor}" hover-class="hover-c"
-              @tap="_confirm">{{ $t('common.ok')}}</view>
-      </view>
-      <view class="tree-view">
-        <scroll-view class="tree-view-sc" :scroll-y="true">
-          <block v-for="(item, index) in treeList" :key="index">
-            <view v-if="item.isPickerShow == true || item.isPickerShow == undefined" class="tree-item" :style="[{
-            paddingLeft: item.rank*15 + 'px',
-            zIndex: item.rank*-1 +50
-            }]" :class="{
-              show: keyWord!=''?true:item.show,
-              last: item.lastRank,
-              showchild: item.showChild
-            }">
-              <view class="tree-label" @tap.stop="_treeItemTap(item, index)">
-                <image class="tree-icon"
-                       :src="item.lastRank ? lastIcon : item.showChild ? currentIcon : defaultIcon">
-                </image>
-                {{item.name}}
-              </view>
-              <view class="tree-check" @tap.stop="_treeItemSelect(item, index)"
-                    v-if="selectParent?true:item.lastRank">
-                <view class="tree-check-yes" v-if="item.checked" :class="{'radio':!multiple}"
-                      :style="{'border-color':confirmColor}">
-                  <view class="tree-check-yes-b" :style="{'background-color':confirmColor}">
-                  </view>
-                </view>
-                <view class="tree-check-no" v-else :class="{'radio':!multiple}"
-                      :style="{'border-color':confirmColor}"></view>
-              </view>
-            </view>
-          </block>
-        </scroll-view>
-      </view>
+      </scroll-view>
     </view>
   </view>
 </template>
@@ -53,6 +46,10 @@
 export default {
   name: "tree",
   props: {
+    foldAll: { type: Boolean, default: true },
+    includeAllOption: { type: Boolean, default: false },
+    loading: { type: Boolean, default: false },
+    error: { type: String, default: '' },
     showSearch:{
       type: Boolean,
       default: true
@@ -138,8 +135,32 @@ export default {
       keyWord:''
     }
   },
-  computed: {},
+  computed: {
+    selectedItems() { return this.treeList.filter(item => item.checked) },
+    canConfirm() { return (!this.loading && !this.error && this.selectedItems.length > 0) || (this.includeAllOption && !this.selectedItems.length) },
+    visibleRows() {
+      if (this.loading || this.error) return []
+      const keyword = this.keyWord.trim().toLowerCase()
+      return this.treeList.map((item, index) => ({ item, index })).filter(({ item }) => keyword ? String(item.name).toLowerCase().includes(keyword) : item.show)
+    },
+    hasBranches() { return this.treeList.some(item => !item.lastRank) },
+    allExpanded() { return this.treeList.filter(item => !item.lastRank).every(item => item.showChild) },
+    listHeight() {
+      const content = this.visibleRows.length ? this.visibleRows.length * 48 : 96
+      return Math.min(content + (this.includeAllOption ? 48 : 0), 360)
+    }
+  },
   methods: {
+    selectAll() { this.treeList.forEach(item => { item.checked = false }) },
+    selectRow(item, index) {
+      if (this.selectParent || item.lastRank) this._treeItemSelect(item, index)
+      else this._treeItemTap(item, index)
+    },
+    parentPath(item) { return item.parentId.map(id => this.treeList.find(parent => parent.id === id)?.name).filter(Boolean).join(' / ') },
+    toggleAll() {
+      const expand = !this.allExpanded
+      this.treeList.forEach(item => { item.show = expand || item.rank === 0; item.showChild = expand && !item.lastRank })
+    },
     // filterOp(e) {
     //   let keyWord = e.detail.value;
     //   if (keyWord != "") {
@@ -157,29 +178,7 @@ export default {
     //     this._initTree();
     //   }
     // },
-    filterOp(e) {
-      let keyWord = e.detail.value;
-      this.keyWord = keyWord
-      let oldArr = this.treeList;
-      if (keyWord != "") {
-        keyWord = keyWord.toLowerCase();
-        const newArr = oldArr.map((item)=>{
-          if (item.name.toString().toLowerCase().indexOf(keyWord) > -1) {
-            item['isPickerShow'] = true
-          }else{
-            item['isPickerShow'] = false
-          }
-          return item
-        })
-        this.treeList = newArr
-      } else {
-        const newArr = oldArr.map((item)=>{
-          delete item['isPickerShow']
-          return item
-        })
-        this.treeList = newArr
-      }
-    },
+    filterOp(e) { this.keyWord = e.detail.value || '' },
     //点击遮罩层
     _maskClick() {
       if (this.maskClick) {
@@ -188,6 +187,8 @@ export default {
       }
     },
     _show() {
+      this.keyWord = ''
+      this._initTree()
       this.showTree = true
     },
     _hide() {
@@ -198,6 +199,7 @@ export default {
       this.$emit("cancel", []);
     },
     _confirm() {
+      if (!this.canConfirm) return
       // 处理所选数据
       let rt = [];
       this.treeList.forEach((v, i) => {
@@ -294,8 +296,8 @@ export default {
           sonarrId: sonarrId, //子级id数组
           rank: rank, // 层级
           lastRank:lastRank,
-          showChild: false, //子级是否显示
-          show: rank==0?true:false, // 自身是否显示
+          showChild: !this.foldAll && !lastRank, // 默认展开由 foldAll 控制
+          show: !this.foldAll || rank === 0, // 子级不再无条件隐藏
           checked: item.isGqAddChecked?item.isGqAddChecked:false, //是否选中
           children: children
         }

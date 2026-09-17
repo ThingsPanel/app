@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs'
 
 const source = fs.readFileSync(new URL('../utils/thingsvis-address.js', import.meta.url), 'utf8')
-const { resolveThingsVisAddresses: resolve, getThingsVisSettings: get, saveThingsVisSettings: save } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
+const { resolveThingsVisAddresses: resolve, getThingsVisSettings: get, saveThingsVisSettings: save, hasCustomAddressSettings: hasCustom } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
 const memory = new Map()
 const storage = { getStorageSync: key => memory.get(key), setStorageSync: (key, value) => memory.set(key, value) }
 
@@ -20,6 +20,8 @@ assert.equal(addresses.thingsVisPageUrl, settings.thingsVisPageUrl)
 assert.equal(addresses.thingsPanelApiBase, 'https://one.example/api/v1')
 assert.equal(get('https://one.example/', storage).thingsVisApiBase, 'https://vis-api.example/api')
 assert.equal(get('https://two.example', storage).thingsVisApiBase, '')
+assert.equal(hasCustom('https://one.example', storage), true, '存在自定义地址时应判定为已配置')
+assert.equal(hasCustom('https://two.example', storage), false, '无自定义地址时应判定为默认')
 assert.equal(resolve({ serverAddress: 'http://[::1]:8080/', settings: {} }).thingsVisPageUrl, 'http://[::1]:8080/main/')
 for (const invalid of ['javascript:alert(1)', 'ftp://example.com', 'https://user:pass@example.com', 'https://example.com/?token=secret', 'https://example.com/#/embed', 'https://example.com:99999', 'https://', 'https://example.com\\evil']) {
   assert.throws(() => save({ thingsVisPageUrl: invalid }, { serverAddress: 'https://one.example', storage }))
@@ -27,4 +29,5 @@ for (const invalid of ['javascript:alert(1)', 'ftp://example.com', 'https://user
 assert.equal(get('https://one.example', storage).thingsVisPageUrl, settings.thingsVisPageUrl, 'invalid settings must not overwrite stored values')
 save({}, { serverAddress: 'https://one.example', storage })
 assert.equal(get('https://one.example', storage).thingsVisPageUrl, '', 'blank values reset overrides')
+assert.equal(hasCustom('https://one.example', storage), false, '清空覆盖后应回到默认')
 console.log('ThingsVis address tests passed')

@@ -51,6 +51,14 @@
 			}
 		},
 		{
+			"path": "pages/dashboard/detail",
+			"style": {
+				"navigationStyle": "custom",
+				"pageOrientation": "auto",
+				"disableScroll": true
+			}
+		},
+		{
 			"path": "pages/dashboard/boards",
 			"style": {
 				"navigationBarTitleText": "看板",
@@ -84,9 +92,9 @@
 			}
 		},
 		{
-			"path": "pages/account/visualization",
+			"path": "pages/account/service-config",
 			"style": {
-				"navigationBarTitleText": "可视化连接",
+				"navigationBarTitleText": "服务配置",
 				"navigationBarBackgroundColor": "#F7F8FB"
 			}
 		},
@@ -112,12 +120,8 @@
 					"titleNView": {
 						"buttons": [
 							{
-								"color": "#111111",
-								"colorPressed": "#666666",
 								"float": "right",
-								"fontSize": "24px",
-								"fontSrc": "/static/font/material-icons-regular.ttf",
-								"text": "",
+								"iconPath": "/static/icon/device-rotate.png",
 								"width": "50px"
 							}
 						]

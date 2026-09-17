@@ -48,6 +48,15 @@ export function getThingsVisSettings(serverAddress, storage) {
   }
 }
 
+/**
+ * 当前服务器下是否存在自定义地址覆盖，供「我的 → 服务配置」显示「已配置 / 默认」。
+ * 三项里任意一项非空即算已配置；全部为空表示完全按服务器地址自动推导。
+ */
+export function hasCustomAddressSettings(serverAddress, storage) {
+  const settings = getThingsVisSettings(serverAddress, storage)
+  return Boolean(settings.platformWebBase || settings.thingsVisPageUrl || settings.thingsVisApiBase)
+}
+
 /** Explicit options keep address resolution testable without uni-app or network access. */
 export function resolveThingsVisAddresses(options) {
   const source = storageOrDefault(options?.storage)

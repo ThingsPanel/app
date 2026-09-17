@@ -7,9 +7,8 @@
   </view>
   <view v-if="visible" class="time-sheet-layer" @touchmove.stop.prevent>
     <view class="time-sheet-mask" @tap="close" />
-    <view class="time-sheet" @tap.stop>
-      <view class="time-grabber" />
-      <view class="time-header">
+    <view class="time-sheet app-sheet-surface" @tap.stop>
+      <view class="time-header app-sheet-header">
         <text class="time-action" @tap="close">{{ $t('common.cancel') }}</text>
         <text class="time-title">{{ title || $t('pages.sceneAutomationEditor.selectTime') }}</text>
         <text class="time-action confirm" @tap="confirm">{{ $t('common.confirm') }}</text>

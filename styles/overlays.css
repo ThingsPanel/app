@@ -7,8 +7,31 @@ page, :root {
   --sheet-font: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 .uni-popup.uni-popup { z-index:10050 !important; }
+/* Shared three-column header for editable selection sheets. */
+.app-sheet-surface { border-radius:0 !important; box-shadow:none !important; font-family:var(--sheet-font); }
+.app-sheet-header {
+  display:grid !important;
+  grid-template-columns:96rpx minmax(0,1fr) 96rpx !important;
+  align-items:center !important;
+  gap:8rpx !important;
+  height:auto !important;
+  min-height:88rpx !important;
+  padding:0 24rpx !important;
+  border-bottom:1rpx solid var(--sheet-divider) !important;
+  font-family:var(--sheet-font);
+}
+.app-sheet-header > :first-child,.app-sheet-header > :last-child {
+  display:flex !important; align-items:center; min-height:88rpx !important;
+  margin:0 !important; padding:0 !important; font-size:26rpx !important;
+  line-height:36rpx !important; font-weight:400 !important; font-family:inherit;
+  background:transparent !important; border-radius:0 !important;
+}
+.app-sheet-header > :first-child { justify-content:flex-start !important; color:var(--sheet-muted) !important; }
+.app-sheet-header > :last-child { justify-content:flex-end !important; color:var(--sheet-accent); }
+.app-sheet-header > :nth-child(2) { text-align:center !important; font-size:28rpx !important; line-height:40rpx !important; font-weight:500 !important; min-width:0; overflow-wrap:anywhere; color:var(--sheet-text); }
+.app-sheet-header .tree-bar-title { font-size:28rpx; font-weight:500; }
 .uni-popup .uni-popup__wrapper.bottom {
-  border-radius:32rpx 32rpx 0 0;
+  border-radius:0 !important;
   overflow:hidden;
   font-family:var(--sheet-font);
 }
@@ -23,7 +46,7 @@ page, :root {
   height:0;
 }
 .uni-picker-container .uni-picker-custom {
-  border-radius:32rpx 32rpx 0 0;
+  border-radius:0 !important;
   overflow:hidden;
   font-family:var(--sheet-font);
 }

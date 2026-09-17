@@ -23,7 +23,7 @@
             <view class="info-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><text class="row-value">{{ userWxInfo.timezone || $t('account.notSet') }}</text></view>
             <view class="info-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><text class="row-value">{{ userWxInfo.default_language || $t('account.notSet') }}</text></view>
             <view class="info-row" @click="showLanguagePopup"><text class="row-label">{{ $t('account.appLanguage') }}</text><text class="row-value">{{ currentLanguage }}</text><view class="chevron" /></view>
-            <view class="info-row" @click="openVisualizationSettings"><text class="row-label">可视化连接</text><text class="row-value">ThingsVis</text><view class="chevron" /></view>
+            <view v-if="serviceConfigVisible" class="info-row" @click="openServiceConfig"><text class="row-label">{{ $t('account.serviceConfig') }}</text><text class="row-value">{{ addressConfigured ? $t('account.addressConfigured') : $t('account.addressDefault') }}</text><view class="chevron" /></view>
         </view>
         <template v-if="$login.isLoginType().isLogin">
             <view class="section-title">{{ $t('account.securitySettings') }}</view>
@@ -53,6 +53,8 @@
 		mapState
 	} from "vuex";
 	import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
+	import { hasCustomAddressSettings } from '@/utils/thingsvis-address'
+	import { isAdmin } from '@/features/auth/utils/role.js'
 	import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 	// 
 	export default {
@@ -76,6 +78,8 @@
 					lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
 				)?.label || '中文',
 				logoutConfirmVisible: false,
+				// 服务配置是否被手动覆盖过；storage 不是响应式的，所以在 onShow 里重新算。
+				addressConfigured: false,
 			}
 		},
 		//
@@ -97,6 +101,11 @@
                     { label: this.$t('account.detailAddress'), value: u.address?.detailed_address }
                 ];
             },
+            // 服务配置是管理员专属入口。资料还没回来时 authority 为空，按非管理员处理（fail-closed）：
+            // 宁可管理员晚一点看到，也不要让普通用户先看到再消失。
+            serviceConfigVisible() {
+                return isAdmin(this.userWxInfo.authority, this.userWxInfo.roles);
+            },
 			...mapState({
 				loginStatus: state => state.loginStatus,
 				token: state => state.token,
@@ -106,6 +115,7 @@
 	onLoad() {
 	},
 	onShow() {
+		this.addressConfigured = this.resolveAddressConfigured()
 		this.getUserInfo()
 		this.$nextTick(() => {
 			setTimeout(() => {
@@ -116,7 +126,15 @@
 		})
 	},
 		methods: {
-            openVisualizationSettings() { uni.navigateTo({ url: '/pages/account/visualization' }); },
+            openServiceConfig() { uni.navigateTo({ url: '/pages/account/service-config' }); },
+            // 地址存储格式异常（例如被外部写入脏数据）时按「默认」展示，不要让「我的」页整个挂掉。
+            resolveAddressConfigured() {
+                try {
+                    return hasCustomAddressSettings()
+                } catch (error) {
+                    return false
+                }
+            },
             openPassword() { uni.navigateTo({ url: '/pages/account/password' }); },
 			showLogoutConfirm() {
 				this.logoutConfirmVisible = true

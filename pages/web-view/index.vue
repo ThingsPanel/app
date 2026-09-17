@@ -38,6 +38,8 @@ export default {
     const separator = decodedUrl.includes('?') ? '&' : '?'
     this.url = `${decodedUrl}${separator}lang=${lang}`
     this.pageTitle = options.title ? safeDecodeRouteValue(options.title) : ''
+    // PC 看板按横向画布设计，独立预览时直接使用横屏以避免竖屏留白。
+    if (String(options.landscape || '') === '1') this.lockLandscape()
     this.applyNavTitle()
   },
   onShow() {
@@ -52,6 +54,12 @@ export default {
     this.restorePortrait()
   },
   methods: {
+    lockLandscape() {
+      // #ifdef APP-PLUS
+      this.isLandscape = true
+      plus.screen.lockOrientation('landscape-primary')
+      // #endif
+    },
     resolveNavTitle() {
       return this.pageTitle || this.$t('pages.deviceDetailTitle')
     },

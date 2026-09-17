@@ -7,9 +7,8 @@
   </view>
   <view v-if="visible" class="automation-sheet-layer" @touchmove.stop.prevent>
     <view class="automation-sheet-mask" @tap="cancel" />
-    <view class="automation-sheet" @tap.stop>
-      <view class="sheet-grabber" />
-      <view class="sheet-header">
+    <view class="automation-sheet app-sheet-surface" @tap.stop>
+      <view class="sheet-header app-sheet-header">
         <text class="sheet-action" @tap="cancel">取消</text>
         <text class="sheet-title">{{ title || placeholder }}</text>
         <text class="sheet-action sheet-confirm" @tap="confirm">确定</text>

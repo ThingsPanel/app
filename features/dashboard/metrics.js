@@ -23,6 +23,29 @@ export function todayRange(now = new Date()) {
   return { start_time: start.toISOString(), end_time: now.toISOString() }
 }
 
+/**
+ * 「常用设备」取最近有上报的设备：ts 越大越靠前，没有 ts 的按接口原顺序排在后面。
+ *
+ * 列表接口不支持按活跃度排序，所以调用方先多取一批，再在这里截断成一行。
+ * 排序是稳定的（时间相同回到接口顺序），设备状态实时变化也不会让卡片来回跳。
+ */
+export function recentDevices(list, limit = 6) {
+  if (!Array.isArray(list)) return []
+  return list
+    .map((device, index) => ({ device, index, time: toTimestamp(device?.ts) }))
+    .sort((a, b) => (b.time === a.time ? a.index - b.index : b.time - a.time))
+    .slice(0, Math.max(0, limit))
+    .map(entry => entry.device)
+}
+
+function toTimestamp(value) {
+  if (value === null || value === undefined || value === '') return -Infinity
+  const numeric = Number(value)
+  if (Number.isFinite(numeric)) return numeric
+  const parsed = Date.parse(value)
+  return Number.isFinite(parsed) ? parsed : -Infinity
+}
+
 export function trendSeries(points) {
   if (!Array.isArray(points)) throw new Error('缺少趋势数据')
   return points.map(point => ({

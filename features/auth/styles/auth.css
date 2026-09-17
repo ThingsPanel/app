@@ -109,7 +109,7 @@
 .link-text {
 	font-size: 26rpx;
 	font-weight: 600;
-	color: #646cff;
+	color: #1677ff;
 }
 
 .btn-group {
@@ -127,9 +127,9 @@
 }
 
 .tp-btn.primary {
-	background: #646cff !important;
+	background: #1677ff !important;
 	color: #ffffff;
-	box-shadow: 0 18rpx 35rpx rgba(100, 108, 255, 0.35);
+	box-shadow: 0 18rpx 35rpx rgba(22, 119, 255, 0.35);
 }
 
 .tp-btn[disabled] {

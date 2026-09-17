@@ -415,9 +415,9 @@ export default {
 .lang-switch {
 	padding: 8rpx 20rpx;
 	border-radius: 8rpx;
-	border: 1rpx solid rgba(100, 108, 255, 0.3);
-	background: rgba(100, 108, 255, 0.1);
-	color: #646cff;
+	border: 1rpx solid rgba(22, 119, 255, 0.3);
+	background: rgba(22, 119, 255, 0.1);
+	color: #1677ff;
 	font-size: 26rpx;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -428,7 +428,7 @@ export default {
 }
 
 .lang-switch:active {
-	background: rgba(100, 108, 255, 0.2);
+	background: rgba(22, 119, 255, 0.2);
 	transform: scale(0.98);
 }
 
@@ -439,7 +439,7 @@ export default {
 .lang-arrow {
 	font-size: 36rpx;
 	margin-top: -4rpx;
-	color: #646cff;
+	color: #1677ff;
 	opacity: 0.6;
 	font-weight: 300;
 }
@@ -511,7 +511,7 @@ export default {
 
 .code-btn {
 	font-size: 24rpx;
-	background: #4f46e5;
+	background: #1677ff;
 	color: #fff;
 	border-radius: 16rpx;
 	padding: 12rpx 26rpx;

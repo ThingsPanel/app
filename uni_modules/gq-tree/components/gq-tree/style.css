@@ -1,176 +1,30 @@
-.tree-mask {
-  position: fixed;
-  top: 0rpx;
-  right: 0rpx;
-  bottom: 0rpx;
-  left: 0rpx;
-  z-index: 9998;
-  background-color: rgba(0, 0, 0, 0.6);
-  opacity: 0;
-  transition: all 0.3s ease;
-  visibility: hidden;
-}
-.tree-mask.show {
-  visibility: visible;
-  opacity: 1;
-}
-.tree-cnt {
-  position: fixed;
-  top: 0rpx;
-  right: 0rpx;
-  bottom: 0rpx;
-  left: 0rpx;
-  z-index: 9999;
-  top: 360rpx;
-  transition: all 0.3s ease;
-  transform: translateY(100%);
-}
-.tree-cnt.show {
-  transform: translateY(0);
-}
-.tree-bar {
-  background-color: #fff;
-  height: 100rpx;
-  padding-left: 20rpx;
-  padding-right: 20rpx;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  box-sizing: border-box;
-  border-bottom-width: 1rpx !important;
-  border-bottom-style: solid;
-  border-bottom-color: #f5f5f5;
-  font-size: 32rpx;
-  color: #757575;
-  line-height: 1;
-}
-.midInput {
-  width: 64%;
-  height: 30px;
-  position: relative;
-  line-height: 30px;
-}
-.searchArea {
-  text-align: left;
-  background-color: #efefef;
-  border-radius: 20px;
-  padding: 4px 10px;
-}
-
-.searchIcon {
-  position: absolute;
-  right: 5px;
-  top: 0px;
-  width: 30px;
-  height: 30px;
-  text-align: center;
-  display: flex;
-  align-items: center;
-}
-
-
-.tree-bar-confirm {
-  color: #007aff;
-}
-.tree-view {
-  position: absolute;
-  top: 0rpx;
-  right: 0rpx;
-  bottom: 0rpx;
-  left: 0rpx;
-  top: 100rpx;
-  background-color: #fff;
-  padding-top: 20rpx;
-  padding-right: 20rpx;
-  padding-bottom: 20rpx;
-  padding-left: 20rpx;
-}
-.tree-view-sc {
-  height: 100%;
-  overflow: hidden;
-}
-.tree-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 26rpx;
-  color: #757575;
-  line-height: 1;
-  height: 0;
-  opacity: 0;
-  transition: 0.2s;
-  position: relative;
-  overflow: hidden;
-}
-.tree-item.show {
-  height: 80rpx;
-  opacity: 1;
-}
-.tree-item.showchild:before {
-  transform: rotate(90deg);
-}
-.tree-item.last:before {
-  opacity: 0;
-}
-.tree-icon {
-  width: 26rpx;
-  height: 26rpx;
-  margin-right: 8rpx;
-}
-.tree-label {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  height: 100%;
-  line-height: 1.2;
-}
-.tree-check {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.tree-check-yes,
-.tree-check-no {
-  width: 20px;
-  height: 20px;
-  border-top-left-radius: 20%;
-  border-top-right-radius: 20%;
-  border-bottom-right-radius: 20%;
-  border-bottom-left-radius: 20%;
-  border-top-width: 1rpx;
-  border-left-width: 1rpx;
-  border-bottom-width: 1rpx;
-  border-right-width: 1rpx;
-  border-style: solid;
-  border-color: #007aff;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  box-sizing: border-box;
-}
-.tree-check-yes-b {
-  width: 12px;
-  height: 12px;
-  border-top-left-radius: 20%;
-  border-top-right-radius: 20%;
-  border-bottom-right-radius: 20%;
-  border-bottom-left-radius: 20%;
-  background-color: #007aff;
-}
-.tree-check .radio {
-  border-top-left-radius: 50%;
-  border-top-right-radius: 50%;
-  border-bottom-right-radius: 50%;
-  border-bottom-left-radius: 50%;
-}
-.tree-check .radio .tree-check-yes-b {
-  border-top-left-radius: 50%;
-  border-top-right-radius: 50%;
-  border-bottom-right-radius: 50%;
-  border-bottom-left-radius: 50%;
-}
-.hover-c {
-  opacity: 0.6;
-}
+.tree { color:#1d1d1f; font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif; }
+.tree-mask { position:fixed; inset:0; z-index:10060; background:rgba(0,0,0,.36); }
+.tree-cnt { position:fixed; right:0; bottom:0; left:0; z-index:10061; padding:0 28rpx calc(16rpx + env(safe-area-inset-bottom)); max-height:85vh; box-sizing:border-box; border-radius:0; background:#fff; overflow:hidden; }
+.tree-bar { display:flex; align-items:center; min-height:80rpx; gap:8rpx; border-bottom:1rpx solid #f0f2f6; }
+.tree-heading { flex:1; min-width:0; }
+.tree-bar-title { font-size:26rpx; font-weight:500; }
+.tree button { margin:0; border:0; border-radius:0; background:transparent; box-shadow:none; font-family:inherit; }
+.tree button::after { border:0; }
+.tree button:focus-visible { outline:2rpx solid #1677ff; outline-offset:-2rpx; }
+.tree .tree-action { padding:0 16rpx; color:#1677ff; font-size:24rpx; line-height:80rpx; }
+.tree .tree-action[disabled] { color:#98a2b3; }
+.tree-search { display:flex; align-items:center; height:72rpx; margin-bottom:0; background:transparent; border-radius:0; border-bottom:1rpx solid #edf0f3; }
+.tree-search-icon { width:28rpx; height:28rpx; margin:0 12rpx 0 4rpx; opacity:.6; flex-shrink:0; }
+.tree-search-input { flex:1; min-width:0; height:72rpx; color:#1d1d1f; font-family:inherit; font-size:24rpx; }
+.tree .tree-clear { padding:0; width:72rpx; line-height:72rpx; color:#73737d; font-size:36rpx; }
+.tree-view-sc { width:100%; max-height:55vh; }
+.tree .tree-all,.tree-item { display:flex; align-items:center; width:100%; min-height:96rpx; padding:0 24rpx 0 32rpx; box-sizing:border-box; text-align:left; font-size:26rpx; line-height:40rpx; color:inherit; }
+.tree-item + .tree-item,.tree-all + .tree-item { border-top:1rpx solid #f0f2f6; }
+.tree .is-selected { color:#1677ff; }
+.tree .tree-label { display:flex; flex:1; align-items:center; gap:16rpx; min-width:0; min-height:96rpx; padding:16rpx 0; box-sizing:border-box; text-align:left; color:inherit; font-size:26rpx; line-height:40rpx; }
+.tree-label-content { flex:1; min-width:0; }
+.tree-item-name { overflow-wrap:anywhere; }
+.tree-item-description { display:block; color:#8b95a6; font-size:22rpx; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
+.tree .tree-expand,.tree-spacer { display:flex; align-items:center; justify-content:center; width:56rpx; min-height:88rpx; padding:0; margin-left:-16rpx; margin-right:8rpx; flex-shrink:0; }
+.tree-chevron { width:12rpx; height:12rpx; border-right:2rpx solid #8b95a6; border-bottom:2rpx solid #8b95a6; transform:rotate(-45deg); }
+.tree-chevron.is-open { transform:rotate(45deg); }
+.tree-check { width:32rpx; height:32rpx; flex-shrink:0; position:relative; }
+.tree-check.is-checked::after { content:''; position:absolute; left:10rpx; top:4rpx; width:10rpx; height:20rpx; border-right:3rpx solid #1677ff; border-bottom:3rpx solid #1677ff; transform:rotate(45deg); }
+.tree-state { padding:48rpx 20rpx; text-align:center; color:#8b95a6; font-size:24rpx; }
+.tree .tree-retry { color:#1677ff; font-size:24rpx; line-height:88rpx; }

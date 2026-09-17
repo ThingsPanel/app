@@ -13,7 +13,7 @@ export function createBoardsClient() {
     return new Promise((resolve, reject) => uni.request({
       url: `${addresses.thingsVisApiBase}/${path}`, data, method, timeout: 20000,
       header: { 'Content-Type': 'application/json', ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}) },
-      success: resolve, fail: () => reject(new Error('无法连接看板服务，请检查网络或可视化连接设置'))
+      success: resolve, fail: () => reject(new Error('无法连接看板服务，请检查网络或服务配置'))
     }))
   }
   async function authenticate() {
@@ -27,7 +27,7 @@ export function createBoardsClient() {
         userInfo: { id, email: user.email || `${user.userName}@thingspanel.local`, name: user.userName || 'ThingsPanel User', tenantId: admin ? 'thingspanel-sys-admin' : String(user.tenantId || user.tenant_id || 'default') },
         role: admin ? 'SUPER_ADMIN' : user.authority === 'TENANT_ADMIN' ? 'TENANT_ADMIN' : 'EDITOR'
       }, 'POST')
-      if (response.statusCode < 200 || response.statusCode >= 300 || !response.data?.accessToken) throw new Error('看板认证失败，请检查登录状态和可视化连接设置')
+      if (response.statusCode < 200 || response.statusCode >= 300 || !response.data?.accessToken) throw new Error('看板认证失败，请检查登录状态和服务配置')
       checkSession(); token = response.data.accessToken
     })().finally(() => { authenticating = null })
     return authenticating
@@ -43,6 +43,11 @@ export function createBoardsClient() {
     return response.data
   }
   return {
+    async preview(id) {
+      const result = await get(`dashboards/${encodeURIComponent(id)}`)
+      checkSession()
+      return { dashboard: result.data || result, token, platformToken, addresses }
+    },
     async projects() {
       const rows = []; let page = 1
       while (true) {

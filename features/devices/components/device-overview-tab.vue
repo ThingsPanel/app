@@ -5,7 +5,7 @@
 		<view v-if="phase === 'error'" class="overview-state overview-state--error" role="status">
 			<text>{{ statusMessage }}</text>
 			<button v-if="phase === 'error'" size="mini" @click="reload">重新加载</button>
-			<text v-if="phase === 'error'" class="connection-hint">连接地址可在“我的 → 可视化连接”中调整</text>
+			<text v-if="phase === 'error'" class="connection-hint">连接地址可在“我的 → 服务配置”中调整</text>
 		</view>
 		<text v-if="streamMessage" class="overview-stream-state" role="status">{{ streamMessage }}</text>
 		<!-- #ifdef APP-PLUS || H5 -->

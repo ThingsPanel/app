@@ -1,7 +1,7 @@
 import { requestDeviceApi } from '../api/modules/device-overview.js'
 import { rowsOf, extractDeviceFields, parseDeviceSchema, normalizeDeviceValues, normalizeDeviceWrite, collectDeviceHistory, normalizeHistoryRange, normalizeHistoryRows } from '../utils/thingsvis-device-schema.js'
 
-export function createDeviceRuntime({ device, deviceId, addresses, onMessage, onState }) {
+export function createDeviceRuntime({ device, deviceId, addresses, onMessage, onState, dataOnly }) {
   let stopped = false
   let schema, fields = [], initPayload, latest = {}, loaded = false
   const sockets = new Set(), timers = new Set(), writes = new Map()
@@ -88,6 +88,22 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
   async function start() {
     state('loading', '正在加载设备可视化')
     if (!token) throw new Error('登录状态已失效，请重新登录')
+    // 看板复用设备的数据通道，不加载设备模板、不重复认证，也不覆盖看板配置。
+    if (dataOnly) {
+      schema = dataOnly.schema
+      const templateId = device?.device_config?.device_template_id
+      if (templateId) {
+        const kinds = ['telemetry', 'attributes', 'events', 'commands']
+        const results = await Promise.all(kinds.map(kind => api(`device/model/${kind}`, { page: 1, page_size: 1000, device_template_id: templateId })))
+        fields = extractDeviceFields(Object.fromEntries(kinds.map((kind, index) => [kind, results[index]])))
+      }
+      initPayload = {}
+      push({ is_online: device.is_online, online_text: device.is_online === 1 ? '在线' : '离线' })
+      await fetchLatest()
+      await fetchAlarms()
+      await history({})
+      return { fields }
+    }
     const templateId = device?.device_config?.device_template_id
     if (!templateId) { state('empty', '设备尚未关联可视化模板'); return null }
     const template = await api(`device/template/detail/${encodeURIComponent(templateId)}`)

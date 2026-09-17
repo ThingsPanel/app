@@ -13,21 +13,21 @@
 			<view class="form-area">
 				<view class="tp-ipt">
 					<view class="inputicon">
-						<uni-icons type="person-filled" size="28" color="#4f46e5" />
+						<uni-icons type="person-filled" size="28" color="#1677ff" />
 					</view>
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.emailPlaceholder')"
 						v-model="email" />
 				</view>
 				<view class="tp-ipt">
 					<view class="inputicon">
-						<uni-icons type="locked-filled" size="28" color="#4f46e5" />
+						<uni-icons type="locked-filled" size="28" color="#1677ff" />
 					</view>
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.passwordPlaceholder')"
 						password=true v-model="password" />
 				</view>
 				<view class="tp-ipt">
 					<view class="inputicon">
-						<uni-icons type="cloud-upload-filled" size="28" color="#4f46e5" />
+						<uni-icons type="cloud-upload-filled" size="28" color="#1677ff" />
 					</view>
 					<input type="text" placeholder-class="tp-plc" placeholder="https://demo.thingspanel.cn"
 						v-model="server" @input="serverChange" />
@@ -353,9 +353,9 @@ export default {
 .lang-switch {
 	padding: 10rpx 20rpx;
 	border-radius: 12rpx;
-	border: 1rpx solid rgba(100, 108, 255, 0.3);
-	background: rgba(100, 108, 255, 0.1);
-	color: #646cff;
+	border: 1rpx solid rgba(22, 119, 255, 0.3);
+	background: rgba(22, 119, 255, 0.1);
+	color: #1677ff;
 	font-size: 26rpx;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -365,7 +365,7 @@ export default {
 }
 
 .lang-switch:active {
-	background: rgba(100, 108, 255, 0.2);
+	background: rgba(22, 119, 255, 0.2);
 	transform: scale(0.98);
 }
 
@@ -375,7 +375,7 @@ export default {
 
 .lang-arrow {
 	font-size: 32rpx;
-	color: #646cff;
+	color: #1677ff;
 	opacity: 0.6;
 	font-weight: 300;
 }

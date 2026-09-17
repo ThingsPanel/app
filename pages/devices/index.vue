@@ -106,7 +106,7 @@
 					@select="clickDevice"
 				/>
 				<view class="empty-state" v-if="!isDeviceLoading && deviceList.length === 0">
-					<image src="/static/image/device-empty-state.png" class="empty-illustration" mode="aspectFit" />
+					<image src="/static/image/device-empty-state-transparent.png" class="empty-illustration" mode="aspectFit" />
 					<text class="empty-title">{{ $t('pages.devices.emptyTitle') }}</text>
 					<text class="empty-description">{{ $t('pages.devices.emptyDescription') }}</text>
 				</view>
@@ -127,6 +127,10 @@
 			:cascade="false"
 			:selectParent="true"
 			:foldAll="false"
+			:includeAllOption="true"
+			:loading="groupsLoading"
+			:error="groupsError"
+			@retry="getGroupData"
 			confirmColor="#1677FF"
 			cancelColor="#757575"
 			:title="$t('pages.deviceDetail.groupSelection')"
@@ -191,6 +195,7 @@ import {
 } from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
+import { buildDeviceCard } from '@/features/devices/utils/device-card'
 //
 export default {
 	components: { DeviceListItem },
@@ -249,7 +254,8 @@ export default {
 			uiMode: 'popup',
 			funcMode: 'radio',
 			deviceGroupData: [],
-			// treeData: this.formatData(this.deviceGroupData.data), // 假设deviceGroupData是你的数据源
+			groupsLoading: false,
+			groupsError: '',
 			selectedGroupId: '' ,// 当前选中的group id
 			selectedGroupName: '',
 			searchKeyword: '',
@@ -782,6 +788,7 @@ export default {
 		},
 		// 展示分组
 		toShowNavDrawer() {
+			this.$refs.gqTree._show()
 			return this.getGroupData()
 		},
 		clearSelectedGroup() {
@@ -831,39 +838,43 @@ export default {
 			});
 		},*/
 		formatGroupData(data, parentId) {
-			return data.map(group => {
-			  const formattedGroup = {
-				id: group.group.id,
-				name: group.group.name,
-				isGqAddChecked: group.group.id === this.selectedGroupId,
-				pid: parentId,
-				children: group.children ? this.formatGroupData(group.children, group.group.id) : [],
-			  };
-			  return formattedGroup;
-			});
+			// 树接口存在包装节点和直接节点两种形式；null children 是合法叶子。
+			const list = data == null ? [] : Array.isArray(data) ? data : data.list
+			if (list == null && data && Object.prototype.hasOwnProperty.call(data, 'list')) return []
+			if (!Array.isArray(list)) throw new Error('Invalid device group tree')
+			return list.map(node => {
+				const group = node?.group || node
+				if (!group || group.id == null || !String(group.id).trim() || typeof group.name !== 'string') throw new Error('Invalid device group node')
+				const id = String(group.id)
+				return {
+					id,
+					name: group.name,
+					isGqAddChecked: id === String(this.selectedGroupId),
+					pid: parentId,
+					children: this.formatGroupData(node.children ?? group.children ?? [], id)
+				}
+			})
 		},
 		getGroupData() {
-
-			return this.API.apiRequest('/api/v1/device/group/tree', {
-			}, 'get').then(res => {
-				if (res.code !== 200 || !Array.isArray(res.data)) throw new Error('Device groups request failed')
+			if (this.groupsLoading) return
+			this.groupsLoading = true
+			this.groupsError = ''
+			return this.API.apiRequest('/api/v1/device/group/tree', {}, 'get').then(res => {
+				if (res?.code !== 200) throw new Error('Device groups request failed')
 				this.deviceGroupData = this.formatGroupData(res.data)
-				this.$nextTick(() => this.$refs.gqTree._show())
 			}).catch(error => {
 				console.warn('Failed to load device groups:', error)
-				this.toast.msg = this.$t('common.loadFailed')
-				this.$refs.toast.show()
+				this.deviceGroupData = []
+				this.groupsError = this.$t('pages.devices.groupsLoadFailed')
 			}).finally(() => {
-
-			});
+				this.groupsLoading = false
+			})
 		},
 		treeConfirm(e) {
 			const selected = e?.[0]
-			if (!selected) return
-			this.selectedGroupId = selected.id
-			this.selectedGroupName = selected.name
+			this.selectedGroupId = selected?.id ?? ''
+			this.selectedGroupName = selected?.name ?? ''
 			this.persistSelectedGroup()
-			this.$refs.navDrawer.close()
 			this.applyDeviceFilters()
 		},
 		treeCancel() {
@@ -971,14 +982,9 @@ export default {
 				}
 
 				const pageSize = 20
-				const serverUrl = uni.getStorageSync('serverAddress')
-				const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '').replace(/\/$/, '') : ''
 				const newDevices = (res.data?.list || []).map(item => ({
-					...item,
-					display_groups: Array.isArray(item.group_paths) ? item.group_paths.filter(Boolean).join('、') : '',
+					...buildDeviceCard(item),
 					currentIndex: 0,
-					latest_ts_name: item.ts ? dayjs(item.ts).format('YYYY-MM-DD HH:mm:ss') : '',
-					image_url: item.image_url ? `${baseUrl}/${String(item.image_url).replace(/^\//, '')}` : '',
 					chart_data: {}
 				}))
 				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
