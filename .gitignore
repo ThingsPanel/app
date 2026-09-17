@@ -2,6 +2,7 @@
 unpackage
 node_modules
 output/
+.design/
 .DS_Store
 *.local
 .env
