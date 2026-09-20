@@ -6,7 +6,7 @@ async function loadModule(relativePath) {
   return import('data:text/javascript;base64,' + Buffer.from(source).toString('base64'))
 }
 
-const { isNormalUser, isAdmin } = await loadModule('../features/auth/utils/role.js')
+const { isNormalUser, isAdmin, isTenantAdmin } = await loadModule('../features/auth/utils/role.js')
 const { recentDevices } = await loadModule('../features/dashboard/metrics.js')
 
 // 角色判断：只有 TENANT_USER 算普通用户，大小写与空格不影响结果
@@ -31,6 +31,13 @@ for (const value of ['', '   ', null, undefined, 'UNKNOWN_ROLE']) {
 assert.equal(isAdmin('TENANT_USER', ['SYS_ADMIN']), true)
 assert.equal(isAdmin('', ['tenant_admin']), true)
 assert.equal(isAdmin('', ['EDITOR']), false)
+
+// 租户管理员隐藏首页常用设备，系统管理员不隐藏
+assert.equal(isTenantAdmin('TENANT_ADMIN'), true)
+assert.equal(isTenantAdmin('SYS_ADMIN'), false)
+assert.equal(isTenantAdmin('TENANT_USER'), false)
+assert.equal(isTenantAdmin('', ['tenant_admin']), true)
+assert.equal(isTenantAdmin('', ['SYS_ADMIN']), false)
 assert.equal(isAdmin('', 'SYS_ADMIN'), false)
 
 // 常用设备：ts 越大越靠前

@@ -2,8 +2,8 @@
     "name" : "ThingsPanel",
     "appid" : "__UNI__71E31D5",
     "description" : "ThingsPanel物联网平台",
-    "versionName" : "1.1.15",
-    "versionCode" : 115,
+    "versionName" : "1.1.16",
+    "versionCode" : 116,
     "transformPx" : false,
     "vueVersion" : "3",
     /* 5+App特有相关 */
@@ -71,7 +71,7 @@
                 },
                 "maps" : {
                     "tencent" : {
-                        "key" : ""
+                        "key" : "A6DBZ-KXPLW-JKSRY-ONZF4-CPHY3-K6BL7"
                     }
                 }
             },
@@ -150,5 +150,6 @@
     "uniStatistics" : {
         "enable" : false
     },
-    "fallbackLocale" : "zh-Hans"
+    "fallbackLocale" : "zh-Hans",
+    "locale" : "zh-Hans"
 }

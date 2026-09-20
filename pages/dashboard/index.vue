@@ -11,7 +11,7 @@
     <view class="top-stats">
       <button class="stat-card stat-device" @click="openDevices">
         <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/device.svg" /></view><text class="stat-value">{{ device.total ?? '—' }}</text></view>
-        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ $t('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
+        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ formatMessage('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
       </button>
       <button class="stat-card stat-online" @click="openDevices">
         <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/check.svg" /></view><text class="stat-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text></view>
@@ -22,10 +22,10 @@
         <text class="stat-label">{{ $t('dashboard.alarmDevices') }}</text><text class="stat-note alarm-note">{{ $t('dashboard.viewActivity') }} <text>›</text></text>
       </button>
     </view>
-    <button v-if="errors.length" class="error-notice" @click="refresh">{{ $t('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
+    <button v-if="errors.length" class="error-notice" @click="refresh">{{ formatMessage('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
 
     <view class="panel">
-      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? $t('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? formatMessage('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
       <view class="operation-grid">
         <view class="operation-item operation-alarm"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bell.svg" /></view><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.todayAlarms') }}</text></view>
         <view class="operation-item operation-automation"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bolt.svg" /></view><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.automationRules') }}</text></view>
@@ -39,7 +39,7 @@
       </view>
     </view>
 
-    <view class="panel">
+    <view v-if="isTenantAdmin !== true" class="panel">
       <view class="section-heading"><text class="section-title">{{ $t('dashboard.commonDevices') }}</text><button class="more" @click="openDevices">{{ $t('pages.devices.allDevices') }} <text>›</text></button></view>
       <view v-if="!commonDevices.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('commonDevices') ? $t('dashboard.commonDevicesUnavailable') : $t('dashboard.noDevices') }}</view>
       <scroll-view v-else class="common-scroll" scroll-x :show-scrollbar="false">
@@ -71,8 +71,8 @@
       <view v-else class="group-grid">
         <button v-for="group in groups" :key="group.id" class="group-card" @click="openGroup(group)">
           <view class="group-heading"><image src="/static/icon/home/building.svg" /><text class="group-name">{{ group.name }}</text></view>
-          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? $t('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
-          <text class="group-counts">{{ $t('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
+          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? formatMessage('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
+          <text class="group-counts">{{ formatMessage('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
           <view class="group-rate" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }"><view class="rate-track"><view :style="{ width: (group.rate || 0) + '%' }" /></view><text>{{ group.rate ?? '—' }}%</text></view>
         </button>
       </view>
@@ -86,14 +86,14 @@ import { alarmHistory } from '@/api/modules/alarm'
 import { sceneAutomationsGet } from '@/api/modules/automation'
 import { getGroupStatistics, getUserProfile } from '@/api/modules/dashboard'
 import { count, responseData, onlineRate, todayRange, recentDevices } from '@/features/dashboard/metrics'
-import { isNormalUser } from '@/features/auth/utils/role'
+import { isNormalUser, isTenantAdmin } from '@/features/auth/utils/role'
 import { buildDeviceCard } from '@/features/devices/utils/device-card'
 import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
   data() {
     return {
-      loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false,
+      loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false, isTenantAdmin: null,
       shortcuts: [
         { key: 'devices', icon: '/static/icon/home/device.svg' },
         { key: 'alarms', icon: '/static/icon/home/bell.svg' },
@@ -108,6 +108,13 @@ export default {
   },
   onShow() { this.refresh() },
   methods: {
+    // App 端使用的 vue-i18n runtime 构建不包含消息编译器，命名占位符需要在翻译后补齐。
+    formatMessage(key, values) {
+      return Object.entries(values).reduce(
+        (message, [name, value]) => message.replace(new RegExp(`\\{${name}\\}`, 'g'), String(value)),
+        this.$t(key)
+      )
+    },
     // 选项式 API 不会自动暴露 import，模板要用必须先注册进 methods
     formatAlarmTime,
     /**
@@ -118,8 +125,11 @@ export default {
      */
     async resolveUserRole() {
       this.isNormalUser = false
+      this.isTenantAdmin = null
       try {
-        this.isNormalUser = isNormalUser(responseData(await getUserProfile()).authority)
+        const profile = responseData(await getUserProfile())
+        this.isNormalUser = isNormalUser(profile.authority)
+        this.isTenantAdmin = isTenantAdmin(profile.authority, profile.roles)
       } catch (error) {
         console.warn('首页角色信息加载失败', error.message)
       }
@@ -144,6 +154,8 @@ export default {
         ['alarmActivity', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],
         ['commonDevices', async () => {
           this.commonDevices = []
+          await rolePromise
+          if (this.isTenantAdmin === true) return
           // 接口不支持按活跃度排序，多取一批再挑最近有上报的设备
           const d = responseData(await deviceList({ page: 1, page_size: 12 }))
           if (!Array.isArray(d.list)) throw new Error('设备列表无效')

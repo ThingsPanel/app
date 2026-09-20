@@ -195,6 +195,7 @@ import {
 } from '@/api/modules/device'
 import deviceStatusSocket from '@/services/device-status-socket'
 import DeviceListItem from '@/features/devices/components/device-list-item.vue'
+import { mergeUniqueDevices } from '@/features/devices/utils/device-list'
 import { buildDeviceCard } from '@/features/devices/utils/device-card'
 //
 export default {
@@ -266,6 +267,7 @@ export default {
 			overviewTotals: { online: 0, offline: 0, alarm: 0 },
 			filterTotals: { total: 0, online: 0, offline: 0, alarm: 0 },
 			statsRequestSequence: 0,
+			deviceListRequestSequence: 0,
 			showScrollTop: false, // 控制回到顶部按钮显示
 			locationAddressCache: {}
 		}
@@ -939,7 +941,7 @@ export default {
 		},
 		loadMoreDevices() {
 			// 还有数据
-			if (this.devicePaginationStatus == 'more') {
+			if (!this.isDeviceLoading && this.devicePaginationStatus == 'more') {
 				this.$store.commit('incrementDevicePage');
 				this.getDeviceList();
 			} else if (this.devicePaginationStatus == 'noMore') { }
@@ -962,6 +964,7 @@ export default {
 		// 获取设备列表
 		getDeviceList() {
 			clearInterval(this.timer)
+			const requestSequence = ++this.deviceListRequestSequence
 			this.isDeviceLoading = true
 			const filters = {
 				group_id: this.selectedGroupId,
@@ -973,6 +976,8 @@ export default {
 			if (this.activeStatusFilter === 'offline') filters.is_online = 0
 			if (this.activeStatusFilter === 'alarm') filters.warn_status = 'Y'
 			deviceListApi(filters).then(res => {
+				// 切换分组、搜索词或状态后，旧请求可能比新请求更晚返回；旧结果不能污染当前列表。
+				if (requestSequence !== this.deviceListRequestSequence) return
 				if (res.code !== 200) {
 					this.showDeviceLoadMore = false
 					this.devicePaginationStatus = 'noMore'
@@ -989,15 +994,17 @@ export default {
 				}))
 				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
 				this.showDeviceLoadMore = newDevices.length === pageSize
-				this.deviceList = this.deviceList.concat(newDevices)
+				// 同一页被重复返回或后端意外包含重复行时，也只展示一个设备卡片。
+				this.deviceList = mergeUniqueDevices(this.deviceList, newDevices)
 				this.$nextTick(() => {
 					setTimeout(() => this.scheduleViewportSubscription(), 300)
 				})
 			}).catch(() => {
+				if (requestSequence !== this.deviceListRequestSequence) return
 				this.toast.msg = this.$t('common.loadFailed')
 				this.$refs.toast.show()
 			}).finally(() => {
-				this.isDeviceLoading = false
+				if (requestSequence === this.deviceListRequestSequence) this.isDeviceLoading = false
 			})
 		},
 		// 插件查询

@@ -5,6 +5,18 @@ const NORMAL_USER_AUTHORITY = 'TENANT_USER'
 const ADMIN_AUTHORITIES = new Set(['SYS_ADMIN', 'TENANT_ADMIN'])
 
 /**
+ * 是否为租户管理员。
+ *
+ * 仅根据租户管理员角色隐藏租户管理员专属不需要的首页模块，
+ * 系统管理员仍保留完整首页视图。
+ */
+export function isTenantAdmin(authority, roles) {
+  const matches = value => String(value ?? '').trim().toUpperCase() === 'TENANT_ADMIN'
+  if (matches(authority)) return true
+  return Array.isArray(roles) && roles.some(matches)
+}
+
+/**
  * 是否为普通用户。
  *
  * 取不到角色（空值、未知值、接口失败）时一律按「非普通用户」处理：
