@@ -1,9 +1,9 @@
 <template>
   <view class="business-tab" :class="{ embedded: alarmOnly }">
     <view class="toolbar">
-      <input v-model="name" class="search" placeholder="搜索场景联动" confirm-type="search" @confirm="search" />
-      <button class="text-button" @click="search">搜索</button>
-      <button class="text-button" @click="edit()">{{ alarmOnly ? '新增联动' : '新增' }}</button>
+      <AppSearch v-model="name" placeholder="搜索场景联动" action-label="搜索" @search="search" @action="search" @clear="search">
+        <button class="text-button" @click="edit()">{{ alarmOnly ? '新增联动' : '新增' }}</button>
+      </AppSearch>
     </view>
     <view v-if="!items.length && !loading && !error" class="state">暂无关联{{ alarmOnly ? '告警规则' : '场景联动' }}</view>
     <view v-for="item in items" :key="item.id" class="rule-row">
@@ -22,6 +22,7 @@
 </template>
 
 <script setup>
+import AppSearch from '@/components/app-search/index.vue'
 import { onBeforeUnmount, ref, watch } from 'vue'
 import { requestDeviceApi } from '@/api/modules/device-overview'
 import { useDeviceList } from '@/features/devices/utils/use-device-list'
@@ -83,9 +84,9 @@ async function toggle(item) {
 .toolbar,.row-heading,.actions { display:flex; align-items:center; gap:10px; }
 .toolbar { padding:14px 0; border-bottom:1px solid #f0f2f6; }
 .search { flex:1; min-width:0; font-size:12px; height:36px; background:#fafbfe; border:1px solid #edf0f5; border-radius:4px; padding:0 12px; }
-.text-button { background:transparent; color:#1677ff; font-size:12px; font-family:inherit; margin:0; padding:0 10px; line-height:40px; border-radius:0; }
+.text-button { background:transparent; color:var(--tp-color-primary, #1677ff); font-size:12px; font-family:inherit; margin:0; padding:0 10px; line-height:40px; border-radius:0; }
 .text-button::after { border:0; }.text-button[disabled] { color:#98a2b3; }
 .rule-row { padding:18px 0 10px; border-bottom:1px solid #f0f2f6; }.title { flex:1; font-size:14px; line-height:22px; font-weight:500; overflow-wrap:anywhere; }
 .status { font-size:11px; color:#8b95a6; }.description { display:block; margin-top:8px; font-size:12px; color:#7a8499; line-height:1.8; }.actions { justify-content:flex-end; margin-top:6px; }
-.state { text-align:center; padding:28px 8px; font-size:12px; color:#8b95a6; }.error { color:#c64b4b; }.more { margin:8px auto; }
+.state { text-align:center; padding:28px 8px; font-size:12px; color:#8b95a6; }.error { color:var(--tp-color-danger, #ff4d35); }.more { margin:8px auto; }
 </style>

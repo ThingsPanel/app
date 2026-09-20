@@ -49,7 +49,7 @@ export default {
 .field-label { display:block; padding:28rpx 24rpx 10rpx; background:#fff; color:#667085; font-size:22rpx; line-height:32rpx; }
 .address-input { display:block; box-sizing:border-box; width:100%; height:76rpx; padding:0 24rpx; background:#fff; border:0; border-bottom:1rpx solid #edf1f6; color:#344054; font-size:24rpx; font-family:inherit; }
 .address-input::placeholder { color:#b3bdca; }
-.settings-error { display:block; margin-top:18rpx; color:#c4320a; font-size:22rpx; }
-.save-button { width:100%; height:88rpx; margin-top:36rpx; border:0; border-radius:0; background:#1677ff; color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; font-family:inherit; }
+.settings-error { display:block; margin-top:18rpx; color:var(--tp-color-danger, #ff4d35); font-size:22rpx; }
+.save-button { width:100%; height:88rpx; margin-top:36rpx; border:0; border-radius:0; background:var(--tp-color-primary, #1677ff); color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; font-family:inherit; }
 .save-button::after { border: 0; }
 </style>

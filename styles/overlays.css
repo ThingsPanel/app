@@ -2,13 +2,13 @@
 page, :root {
   --sheet-text: #202938;
   --sheet-muted: #667085;
-  --sheet-accent: #1677ff;
+  --sheet-accent: var(--tp-color-primary, #1677ff);
   --sheet-divider: #edf0f3;
-  --sheet-font: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans CJK SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
 }
 .uni-popup.uni-popup { z-index:10050 !important; }
 /* Shared three-column header for editable selection sheets. */
-.app-sheet-surface { border-radius:0 !important; box-shadow:none !important; font-family:var(--sheet-font); }
+.app-sheet-surface { border-radius:0 !important; box-shadow:none !important; font-family: inherit; }
 .app-sheet-header {
   display:grid !important;
   grid-template-columns:96rpx minmax(0,1fr) 96rpx !important;
@@ -18,7 +18,7 @@ page, :root {
   min-height:88rpx !important;
   padding:0 24rpx !important;
   border-bottom:1rpx solid var(--sheet-divider) !important;
-  font-family:var(--sheet-font);
+  font-family: inherit;
 }
 .app-sheet-header > :first-child,.app-sheet-header > :last-child {
   display:flex !important; align-items:center; min-height:88rpx !important;
@@ -33,7 +33,7 @@ page, :root {
 .uni-popup .uni-popup__wrapper.bottom {
   border-radius:0 !important;
   overflow:hidden;
-  font-family:var(--sheet-font);
+  font-family: inherit;
 }
 /* Native date/time pickers cannot be themed by CSS. These rules apply to H5. */
 /* #ifdef H5 */
@@ -48,7 +48,7 @@ page, :root {
 .uni-picker-container .uni-picker-custom {
   border-radius:0 !important;
   overflow:hidden;
-  font-family:var(--sheet-font);
+  font-family: inherit;
 }
 .uni-picker-container .uni-picker-header {
   border-bottom:2rpx solid var(--sheet-divider);
@@ -59,4 +59,82 @@ page, :root {
   color:var(--sheet-muted);
 }
 .uni-picker-container .uni-picker-action-confirm { color:var(--sheet-accent); font-weight:600; }
+/* #endif */
+
+/* Dialog typography stays in px so desktop previews and phones share one scale. */
+page, :root {
+
+  --dialog-text: #202938;
+  --dialog-muted: #667085;
+  --dialog-accent: var(--tp-color-primary, #1677ff);
+  --dialog-danger: var(--tp-color-danger, #ff4d35);
+  --dialog-divider: #edf0f3;
+  --dialog-mask: rgba(29, 29, 31, .34);
+}
+.app-dialog-mask {
+  position:fixed; inset:0; z-index:10060; box-sizing:border-box;
+  display:flex; align-items:center; justify-content:center; padding:24px;
+  background:var(--dialog-mask); font-family: inherit;
+}
+.app-dialog {
+  width:100%; max-width:340px; max-height:85vh; overflow-y:auto;
+  box-sizing:border-box; border-radius:16px; background:#fff;
+  color:var(--dialog-text); box-shadow:0 8px 32px rgba(29,29,31,.16);
+  font-family: inherit; font-size:14px; line-height:1.5; font-weight:400;
+}
+.app-dialog-title {
+  padding:24px 24px 0; color:var(--dialog-text); text-align:center;
+  font-family:inherit; font-size:16px; line-height:24px; font-weight:500;
+  overflow-wrap:anywhere;
+}
+.app-dialog-body { padding:12px 24px 24px; }
+.app-dialog-copy {
+  display:block; color:var(--dialog-muted); text-align:center;
+  font-family:inherit; font-size:14px; line-height:22px; font-weight:400;
+  white-space:pre-wrap; overflow-wrap:anywhere;
+}
+.app-dialog-actions { display:flex; border-top:1px solid var(--dialog-divider); }
+.app-dialog .app-dialog-button {
+  display:flex; align-items:center; justify-content:center; flex:1; min-width:0;
+  position:relative; min-height:48px; margin:0; padding:10px 12px;
+  border:0; border-radius:0; box-shadow:none; background:transparent;
+  color:var(--dialog-muted); font-family: inherit; font-size:14px;
+  line-height:24px; font-weight:400; overflow-wrap:anywhere;
+}
+.app-dialog .app-dialog-button::after { border:0; }
+.app-dialog-button + .app-dialog-button::before {
+  content:''; position:absolute; left:0; top:12px; bottom:12px;
+  border-left:1px solid var(--dialog-divider);
+}
+.app-dialog .app-dialog-confirm { color:var(--dialog-accent); font-weight:400; }
+.app-dialog .app-dialog-danger { color:var(--dialog-danger); }
+.app-dialog .app-dialog-pressed { background:#f2f6ff; }
+.app-dialog .app-dialog-button[disabled] { opacity:.5; }
+.app-dialog .app-dialog-input {
+  display:block; box-sizing:border-box; width:100%; height:44px;
+  margin:4px 0 0; padding:0 12px; border:1px solid #dce2ea; border-radius:8px;
+  background:#fff; color:var(--dialog-text); text-align:left;
+  font-family: inherit; font-size:14px; line-height:22px; font-weight:400;
+}
+.app-dialog-input:focus-within { border-color:var(--dialog-accent); }
+.app-dialog-error { display:block; margin-top:8px; color:var(--dialog-danger); font-size:13px; line-height:20px; }
+/* H5 system overlays: also covers login expiry and framework validation. */
+/* #ifdef H5 */
+uni-modal, uni-toast { font-family: inherit; }
+uni-modal { z-index:10070; }
+uni-toast { z-index:10080; }
+.app-dialog-input .uni-input-input, .app-dialog-input .uni-input-placeholder { font-family: inherit; font-size:14px; font-weight:400; }
+uni-modal .uni-mask { background:var(--dialog-mask); }
+uni-modal .uni-modal { width:calc(100% - 48px); max-width:340px; border-radius:16px; background:#fff; box-shadow:0 8px 32px rgba(29,29,31,.16); font-family: inherit; }
+uni-modal .uni-modal__hd { padding:24px 24px 0; }
+uni-modal .uni-modal__title { color:var(--dialog-text); font-size:16px; line-height:24px; font-weight:500; }
+uni-modal .uni-modal__bd { padding:12px 24px 24px; color:var(--dialog-muted); font-size:14px; line-height:22px; font-weight:400; overflow-wrap:anywhere; }
+uni-modal .uni-modal__ft { font-size:14px; line-height:48px; font-weight:400; }
+uni-modal .uni-modal__btn_default { color:var(--dialog-muted) !important; }
+uni-modal .uni-modal__btn_primary { color:var(--dialog-accent) !important; font-weight:400; }
+uni-modal .uni-modal__ft::after { border-color:var(--dialog-divider); }
+uni-modal .uni-modal__btn::after { top:12px; bottom:12px; height:auto; border-color:var(--dialog-divider); }
+uni-toast .uni-toast, uni-toast .uni-simple-toast__text { border-radius:12px; font-family: inherit; }
+uni-toast .uni-simple-toast__text { font-size:14px; line-height:22px; font-weight:400; }
+uni-toast .uni-toast__content { font-family: inherit; font-size:14px; line-height:22px; font-weight:400; }
 /* #endif */

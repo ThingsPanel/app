@@ -125,7 +125,7 @@ export default {
 .sheet-header { display:grid; grid-template-columns:64px 1fr 64px; align-items:center; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
 .sheet-title { color:#172033; font-size:16px; font-weight:600; text-align:center; }
 .sheet-action { display:flex; align-items:center; min-height:44px; color:#667085; font-size:14px; }
-.sheet-action.confirm { justify-content:flex-end; color:#1677ff; font-weight:600; }
+.sheet-action.confirm { justify-content:flex-end; color:var(--tp-color-primary, #1677ff); font-weight:600; }
 .selection-labels { display:grid; grid-template-columns:3fr 2fr; padding:8px 12px 0; color:#667085; font-size:12px; text-align:center; }
 .datetime-picker { width:100%; height:240px; }
 .picker-option { display:flex; align-items:center; justify-content:center; height:48px; color:#172033; font-size:14px; white-space:nowrap; }

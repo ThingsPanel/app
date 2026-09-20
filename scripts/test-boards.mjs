@@ -3,7 +3,7 @@ import vm from 'node:vm'
 import assert from 'node:assert/strict'
 const source = fs.readFileSync(new URL('../pages/dashboard/boards.vue', import.meta.url), 'utf8')
 const script = source.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm, '')
-const component = vm.runInNewContext(script.replace('export default', 'globalThis.component =') + '; component', { clearTimeout, setTimeout })
+const component = vm.runInNewContext(script.replace('export default', 'globalThis.component =') + '; component', { clearTimeout, setTimeout, AppSearch: {} })
 const context = { ...component.data() }
 for (const [key, fn] of Object.entries(component.methods)) context[key] = fn.bind(context)
 context.projects = [{ name: '环境项目', id: 'p1' }, { name: 'TEST', id: 'p2' }]

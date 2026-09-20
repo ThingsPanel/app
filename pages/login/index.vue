@@ -355,7 +355,7 @@ export default {
 	border-radius: 12rpx;
 	border: 1rpx solid rgba(22, 119, 255, 0.3);
 	background: rgba(22, 119, 255, 0.1);
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	font-size: 26rpx;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -375,7 +375,7 @@ export default {
 
 .lang-arrow {
 	font-size: 32rpx;
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	opacity: 0.6;
 	font-weight: 300;
 }

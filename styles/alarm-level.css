@@ -1,28 +1,14 @@
-/**
- * 告警等级色板 —— 统一使用项目鲜艳主色，等级一律用实色 + 白字。
- *
- *   高 H/1 -> #FF4D35  正红（= 项目既有的「设备告警」色 chip-dot.alarm）
- *   中 M/2 -> #FF9500  橙
- *   低 L/3 -> #1677ff  品牌蓝（项目内出现 31 次的主色）
- *
- * 「高」用 #FF4D35：这是项目里已经代表告警语义的红色，与总览页 / 设备页
- * 的告警指示保持一致，不要另造红色。
- *
- * 不使用暗红 / 棕色文字，也不使用淡底浅字——实测在列表里辨识度不足。
- * 「低」不使用绿色，因为 #08bf63 / #37bd8c 在本项目已表示「在线 / 正常」。
- *
- * 注意：变量需在页面根容器内重复声明，不要依赖全局 @import 的注入时序。
- */
-
+/* 告警等级复用统一语义色：高=红、中=橙、低=主题蓝；正常/恢复=绿。
+ * 页面局部声明使用同一组变量和回退色，兼容不同端的样式注入顺序。 */
 page,
 .tp-box,
 .page {
-  --alarm-high: #FF4D35;
-  --alarm-medium: #FF9500;
-  --alarm-low: #1677ff;
+  --alarm-high: var(--tp-color-danger, #ff4d35);
+  --alarm-medium: var(--tp-color-warning, #ff9500);
+  --alarm-low: var(--tp-color-primary, #1677ff);
 
   --alarm-default: #98a2b3;
 
   /* 告警状态（正常 / 已恢复）：沿用项目绿，与等级色区分开 */
-  --alarm-status-normal: #08bf63;
+  --alarm-status-normal: var(--tp-color-success, #08bf63);
 }

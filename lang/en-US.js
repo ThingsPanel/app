@@ -172,6 +172,7 @@ export default {
     deviceList: 'Devices',
     automationTitle: 'Automation',
     dashboardTitle: 'Home',
+    boardsTitle: 'Boards',
     accountTitle: 'User Center',
     deviceDetailTitle: 'Device Detail',
     addDevice: 'Add Device',

@@ -11,6 +11,7 @@ import AppToast from '@/components/toast/index.vue'
 
 //通用导航栏
 import AppNavbar from '@/components/app-navbar/index.vue';
+import AppTabHeader from '@/components/app-tab-header/index.vue';
 import AppPicker from '@/components/app-picker/index.vue';
 import AppActionSheet from '@/components/app-action-sheet/index.vue';
 //接口访问请求
@@ -31,6 +32,7 @@ export function createApp() {
     app.component('authorize', Authorize)
     app.component('app-toast', AppToast)
     app.component('app-navbar', AppNavbar)
+    app.component('app-tab-header', AppTabHeader)
     app.component('app-picker', AppPicker)
     app.component('app-action-sheet', AppActionSheet)
     app.config.globalProperties.$login = login

@@ -108,13 +108,13 @@ form {
 }
 /* 背景色 */
 .uni-bg-red{
-	background:#F76260; color:#FFFFFF;
+	background:var(--tp-color-danger, #ff4d35); color:#FFFFFF;
 }
 .uni-bg-green{
-	background:#09BB07; color:#FFFFFF;
+	background:var(--tp-color-success, #08bf63); color:#FFFFFF;
 }
 .uni-bg-blue{
-	background:#1677ff; color:#FFFFFF;
+	background:var(--tp-color-primary, #1677ff); color:#FFFFFF;
 }
 /* 标题 */
 .uni-h1 {font-size: 80rpx; font-weight:700;}
@@ -165,15 +165,15 @@ radio-group label, checkbox-group label{
 }
 
 .uni-picker-container .uni-picker-action.uni-picker-action-confirm {
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 }
 
 .modal-container .modal-content .modal-row .modal-confirm {
-	color: #1677ff !important;
+	color: var(--tp-color-primary, #1677ff) !important;
 }
 
 .uni-modal .uni-modal__btn_primary {
-	color: #1677ff !important;
+	color: var(--tp-color-primary, #1677ff) !important;
 }
 
 .uni-form-item .with-fun{
@@ -198,7 +198,7 @@ radio-group label, checkbox-group label{
 /*数字角标*/
 .uni-badge,
 .uni-badge-default {
-	font-family: 'Helvetica Neue', Helvetica, sans-serif;
+	font-family: inherit;
 	font-size: 12px;
 	line-height: 1;
 	display: inline-block;
@@ -214,51 +214,51 @@ radio-group label, checkbox-group label{
 }
 .uni-badge-primary {
 	color: #FFFFFF;
-	background-color: #1677ff
+	background-color: var(--tp-color-primary, #1677ff)
 }
 .uni-badge-blue.uni-badge-inverted,
 .uni-badge-primary.uni-badge-inverted {
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	background-color: transparent
 }
 .uni-badge-green,
 .uni-badge-success {
 	color: #FFFFFF;
-	background-color: #4cd964;
+	background-color: var(--tp-color-success, #08bf63);
 }
 .uni-badge-green.uni-badge-inverted,
 .uni-badge-success.uni-badge-inverted {
-	color: #4cd964;
+	color: var(--tp-color-success, #08bf63);
 	background-color: transparent
 }
 .uni-badge-warning,
 .uni-badge-yellow {
 	color: #FFFFFF;
-	background-color: #f0ad4e
+	background-color: var(--tp-color-warning, #ff9500)
 }
 .uni-badge-warning.uni-badge-inverted,
 .uni-badge-yellow.uni-badge-inverted {
-	color: #f0ad4e;
+	color: var(--tp-color-warning, #ff9500);
 	background-color: transparent
 }
 .uni-badge-danger,
 .uni-badge-red {
 	color: #FFFFFF;
-	background-color: #dd524d
+	background-color: var(--tp-color-danger, #ff4d35)
 }
 .uni-badge-danger.uni-badge-inverted,
 .uni-badge-red.uni-badge-inverted {
-	color: #dd524d;
+	color: var(--tp-color-danger, #ff4d35);
 	background-color: transparent
 }
 .uni-badge-purple,
 .uni-badge-royal {
 	color: #FFFFFF;
-	background-color: #1677ff
+	background-color: var(--tp-color-primary, #1677ff)
 }
 .uni-badge-purple.uni-badge-inverted,
 .uni-badge-royal.uni-badge-inverted {
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	background-color: transparent
 }
 
@@ -347,7 +347,7 @@ radio-group label, checkbox-group label{
 	color: #8f8f94;
 }
 .uni-card-link {
-	color: #007AFF;
+	color: var(--tp-color-primary, #1677ff);
 }
 
 /* 列表 */
@@ -768,13 +768,13 @@ radio-group label, checkbox-group label{
 	content: '\e408';
 }
 .feedback-star.active {
-	color: #FFB400;
+	color: var(--tp-color-warning, #ff9500);
 }
 .feedback-star.active:after {
 	content: '\e438';
 }
 .feedback-submit {
-	background: #007AFF;
+	background: var(--tp-color-primary, #1677ff);
 	color: #FFFFFF;
 	margin: 20rpx;
 }
@@ -877,7 +877,7 @@ radio-group label, checkbox-group label{
 }
 
 .uni-tab-bar .active {
-	color: #007AFF;
+	color: var(--tp-color-primary, #1677ff);
 }
 
 .uni-tab-bar .swiper-box {
@@ -897,7 +897,7 @@ radio-group label, checkbox-group label{
 .uni-comment-face image{width:100%; border-radius:100%;}
 .uni-comment-body{width:100%;}
 .uni-comment-top{line-height:1.5em; justify-content:space-between;}
-.uni-comment-top text{color:#0A98D5; font-size:24rpx;}
+.uni-comment-top text{color:var(--tp-color-primary, #1677ff); font-size:24rpx;}
 .uni-comment-date{line-height:38rpx; flex-direction:row; justify-content:space-between; display:flex !important; flex-grow:1;}
 .uni-comment-date view{color:#666666; font-size:24rpx; line-height:38rpx;}
 .uni-comment-content{line-height:1.6em; font-size:28rpx; padding:8rpx 0;}
@@ -966,7 +966,7 @@ radio-group label, checkbox-group label{
 .uni-product-tip {
     position: absolute;
     right: 10rpx;
-    background-color: #ff3333;
+    background-color: var(--tp-color-danger, #ff4d35);
     color: #ffffff;
     padding: 0 10rpx;
     border-radius: 5rpx;
@@ -1053,7 +1053,7 @@ radio-group label, checkbox-group label{
 
 	/* 自定义节点颜色 */
 	.uni-timeline-last-item .uni-timeline-item-divider{
-		background-color: #1AAD19;
+		background-color: var(--tp-color-success, #08bf63);
 	}
 
 
@@ -1071,7 +1071,7 @@ radio-group label, checkbox-group label{
 }
 
 .uni-icon.uni-active {
-	color: #007aff;
+	color: var(--tp-color-primary, #1677ff);
 }
 
 .uni-icon-contact:before {
@@ -1458,7 +1458,7 @@ radio-group label, checkbox-group label{
 }
 
 .left-win-active text{
-	color: #007AFF !important;
+	color: var(--tp-color-primary, #1677ff) !important;
 }
 uni-modal .uni-modal__textarea{
 	background-color: #ffffff;

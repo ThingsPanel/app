@@ -1,14 +1,17 @@
-// Brand and semantic colors
-$color-brand-900: #0f5147;
-$color-brand-700: #147d6b;
-$color-brand-300: #63b7a4;
-$color-accent: #f18a4a;
+// Shared palette. CSS tokens in semantic-colors.css and native/SVG colors use the same values.
+$color-primary: #1677ff;
+$color-success: #08bf63;
+$color-warning: #ff9500;
+$color-brand-900: $color-primary;
+$color-brand-700: $color-primary;
+$color-brand-300: #8bbaff;
+$color-accent: $color-warning;
 $color-text: #18332f;
 $color-text-secondary: #657771;
 $color-border: #cbdad5;
 $color-surface: #ffffff;
 $color-canvas: #f2f6f4;
-$color-error: #dc4330;
+$color-error: #ff4d35;
 
 // Flat UI geometry
 $radius-small: 4rpx;

@@ -170,6 +170,7 @@ export default {
     deviceList: '设备',
     automationTitle: '自动化',
     dashboardTitle: '首页',
+    boardsTitle: '看板',
     accountTitle: '个人中心',
     deviceDetailTitle: '设备详情',
     addDevice: '添加设备',

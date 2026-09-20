@@ -225,14 +225,11 @@ export default {
 	}
 }
 
-.rule-entry-title,
-
-
 .rule-entry-title {
 	margin-bottom: 0;
 	color: #1d1d1f;
-	font-size: 27rpx;
-	font-weight: 600;
+	font-size: 26rpx;
+	font-weight: 500;
 	line-height: 40rpx;
 }
 
@@ -259,13 +256,14 @@ export default {
 	position: relative;
 	overflow: hidden;
 	color: #51515c;
-	font-size: 22rpx;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+	font-size: 24rpx;
+	/* 与首页一致，继承应用默认字体，避免页面单独切换字体族。 */
+	font-family: inherit;
 
 	/* 告警等级色板（鲜艳实色，与 alarm-rules 保持一致；本地声明避免依赖全局注入时序） */
-	--alarm-high: #FF4D35;
-	--alarm-medium: #FF9500;
-	--alarm-low: #1677ff;
+	--alarm-high: var(--tp-color-danger, #ff4d35);
+	--alarm-medium: var(--tp-color-warning, #ff9500);
+	--alarm-low: var(--tp-color-primary, #1677ff);
 	--alarm-default: #98a2b3;
 }
 
@@ -338,9 +336,9 @@ export default {
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	color: #1d1d1f;
-	font-size: 27rpx;
-	font-weight: 600;
-	line-height: 40rpx;
+	font-size: 26rpx;
+	font-weight: 500;
+	line-height: 36rpx;
 }
 
 /* 等级标签：饱和主色实底 + 白字，保证一眼可辨 */
@@ -365,10 +363,11 @@ export default {
 	-webkit-line-clamp: 2;
 	overflow: hidden;
 	color: #73737d;
-	font-size: 22rpx;
-	line-height: 34rpx;
+	font-size: 20rpx;
+	line-height: 30rpx;
 	margin-top: 6rpx;
 	word-break: break-word;
+	font-weight: 400;
 }
 
 .alarm-time {
@@ -398,7 +397,7 @@ export default {
 	margin: 0;
 	padding: 0;
 	background: #fff;
-	color: #1677FF;
+	color: var(--tp-color-primary, #1677ff);
 	border-radius: 14rpx;
 	display: flex;
 	align-items: center;

@@ -137,7 +137,7 @@
 }
 
 .quitLogin {
-		background: linear-gradient(135deg, #1677ff, #4096ff);
+		background: var(--tp-color-primary, #1677ff);
 		color: #fff;
 }
 
@@ -178,7 +178,7 @@
 .tp-btn {
 		width: 100%;
 		line-height: 100rpx;
-		background: linear-gradient(135deg, #1677ff, #4096ff);
+		background: var(--tp-color-primary, #1677ff);
 		border-radius: 24rpx;
 		font-size: 30rpx;
 		font-weight: 600;

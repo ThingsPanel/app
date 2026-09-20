@@ -9,7 +9,7 @@
     <view class="action-group-shell">
       <view class="tp-panel action-summary-card">
         <view v-if="!isActionEditing(actionGroupIndex)" class="automation-summary" @tap="startActionEdit(actionGroupIndex)">
-          <view class="summary-icon"><uni-icons type="paperplane-filled" size="18" color="#B77920" /></view>
+          <view class="summary-icon"><uni-icons type="paperplane-filled" size="18" color="#ff9500" /></view>
           <view class="summary-copy">
             <text class="summary-title">{{ getActionSummary(actionGroupItem).title }}</text>
             <text class="summary-line">{{ getActionSummary(actionGroupItem).subtitle }}</text>
@@ -109,7 +109,7 @@
                 class="tp-mg-t-b-10"
                 type="minus" 
                 size="40rpx" 
-                color="#FF3B30"
+                color="#ff4d35"
                 @click="deleteIfGroupsSubItem(actionGroupIndex, instructIndex)"
               ></uni-icons>
               
@@ -119,7 +119,7 @@
                 class="tp-mg-t-b-10"
                 type="plus" 
                 size="40rpx"
-                color="#1677FF"
+                color="#1677ff"
                 @click="addIfGroupsSubItem(actionGroupIndex)"
               ></uni-icons>
             </view>
@@ -813,8 +813,8 @@
     background: #fff;
   }
 
-  .editor-action { display:flex; flex:0 0 auto; align-items:center; min-height:44px; color:#1677FF; font-size:14px; white-space:nowrap; }
-  .editor-action-danger { margin-right: auto; color: #cf4b49; }
+  .editor-action { display:flex; flex:0 0 auto; align-items:center; min-height:44px; color:var(--tp-color-primary, #1677ff); font-size:14px; white-space:nowrap; }
+  .editor-action-danger { margin-right: auto; color: var(--tp-color-danger, #ff4d35); }
   .add-summary-row,
   .empty-add-card {
     box-sizing: border-box;
@@ -823,7 +823,7 @@
     justify-content: center;
     width: 100%;
     min-height: 44px;
-    color: #1677FF;
+    color: var(--tp-color-primary, #1677ff);
     font-size: 13px;
     font-weight: 500;
   }
@@ -872,8 +872,8 @@
 		color: #98a2b3;
   }
 
-  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
-  .field-error { display:block; margin:-4px 0 8px; color:#cf4b49; font-size:12px; line-height:17px; }
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family: inherit; font-size:13px; line-height:19px; }
+  .field-error { display:block; margin:-4px 0 8px; color:var(--tp-color-danger, #ff4d35); font-size:12px; line-height:17px; }
 	
 	.picker-wrapper {
 		position: relative;
@@ -914,7 +914,7 @@
 		border-bottom: 1rpx solid #e4e9f0;
 	}
 	
-	.search-input {
+	.automation-action-search-input {
 		width: 100%;
 		height: 80rpx;
 		border: 0;
@@ -954,9 +954,9 @@
   .popup-title { color:#1d1d1f; font-size:16px; font-weight:600; }
   .popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
   .popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
-  .search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
+  .automation-action-search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
   .select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#1d1d1f; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
-  .select_item:active { color:#1677FF; background:#f7faff; }
+  .select_item:active { color:var(--tp-color-primary, #1677ff); background:#f7faff; }
   .select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
   ::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
 	
@@ -965,7 +965,7 @@
 		box-sizing: border-box;
 	}
 
-	::v-deep .search-input .uni-input-input {
+	::v-deep .automation-action-search-input .uni-input-input {
 		padding: 16rpx 30rpx;
 		padding-left: 0;
 		height: 80rpx;

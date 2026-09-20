@@ -1,10 +1,8 @@
 <template>
   <view class="boards-page">
-    <view class="search">
-      <uni-icons type="search" size="18" color="#8b95a6" />
-      <input v-model="keyword" :placeholder="projectId ? '搜索看板' : '搜索项目或看板'" confirm-type="search" @input="scheduleSearch" @confirm="searchNow" />
-      <button v-if="keyword" class="clear" aria-label="清空搜索" @click="clearSearch">×</button>
-    </view>
+    <app-tab-header inset :title="$t('pages.boardsTitle')" />
+    <button v-if="projectId" class="project-back" @click="closeProject">‹ {{ projectName || '返回项目' }}</button>
+    <view class="board-search"><AppSearch v-model="keyword" :placeholder="projectId ? '搜索看板' : '搜索项目或看板'" @input="scheduleSearch" @search="searchNow" @clear="clearSearch" /></view>
     <view v-if="error" class="state error"><text>{{ error }}</text><button @click="retry">重新加载</button></view>
     <template v-if="!projectId">
       <view v-if="keyword.trim()" class="section-heading"><text>项目</text><text class="count">{{ filteredProjects.length }}</text></view>
@@ -40,9 +38,11 @@
 </template>
 
 <script>
+import AppSearch from '@/components/app-search/index.vue'
 import dayjs from 'dayjs'
 import { createBoardsClient } from '@/api/modules/boards'
 export default {
+  components: { AppSearch },
   data() { return { projectId: '', projectName: '', keyword: '', projects: [], boards: [], total: 0, page: 0, projectsLoading: false, searching: false, loadingMore: false, error: '', requestId: 0, disposed: false } },
   computed: {
     filteredProjects() { const query = this.keyword.trim().toLowerCase(); return this.projects.filter(item => String(item.name || '').toLowerCase().includes(query)) }
@@ -115,7 +115,23 @@ export default {
       await Promise.all(Array.from({ length: Math.min(4, queue.length) }, worker))
     },
     date(value) { return value && dayjs(value).isValid() ? dayjs(value).format('YYYY-MM-DD') + ' ' : '' },
-    openProject(project) { uni.navigateTo({ url: '/pages/dashboard/boards?projectId=' + encodeURIComponent(project.id) + '&projectName=' + encodeURIComponent(project.name) }) },
+    openProject(project) {
+      this.projectId = project.id
+      this.projectName = project.name
+      this.keyword = ''
+      uni.setNavigationBarTitle({ title: project.name || '看板' })
+      this.loadBoards(true)
+    },
+    closeProject() {
+      this.requestId++
+      this.projectId = ''
+      this.projectName = ''
+      this.keyword = ''
+      this.boards = []
+      this.total = 0
+      this.error = ''
+      uni.setNavigationBarTitle({ title: '看板' })
+    },
     openBoard(board) {
       uni.navigateTo({ url: '/pages/dashboard/detail?id=' + encodeURIComponent(board.id) + '&name=' + encodeURIComponent(board.name) })
     }
@@ -123,10 +139,12 @@ export default {
 }
 </script>
 
-<style scoped>
-.boards-page { min-height:100vh; box-sizing:border-box; padding:24rpx 28rpx calc(32rpx + env(safe-area-inset-bottom)); background:#f2f2f7; color:#202938; font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif; }
+<style scoped lang="scss">
+.board-search { margin-bottom:24rpx; }
+.boards-page { min-height:100vh; box-sizing:border-box; padding:24rpx 28rpx calc(32rpx + env(safe-area-inset-bottom)); background:#f2f2f7; color:#202938; font-family: inherit; }
 .boards-page button { margin:0; border:0; border-radius:0; background:transparent; font-family:inherit; font-weight:400; }
 .boards-page button::after { border:0; }
+.project-back { min-height:64rpx; margin-bottom:12rpx !important; color:var(--tp-color-primary, #1677ff) !important; font-size:24rpx !important; text-align:left; }
 .search { display:flex; align-items:center; gap:16rpx; min-height:72rpx; margin-bottom:24rpx; padding:0 20rpx; background:#fff; border-radius:12rpx; }
 .search input { flex:1; min-width:0; font-family:inherit; font-size:26rpx; }
 .search .clear { color:#667085; font-size:36rpx; padding:0 12rpx; line-height:72rpx; }
@@ -141,12 +159,13 @@ export default {
 .name { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; height:76rpx; overflow:hidden; font-size:26rpx; line-height:38rpx; font-weight:500; overflow-wrap:anywhere; }
 .project-card .name { height:auto; min-height:38rpx; }
 .board-copy { padding:20rpx; }
-.badge { flex-shrink:0; color:#1677ff; font-size:20rpx; }
+.badge { flex-shrink:0; color:var(--tp-color-primary, #1677ff); font-size:20rpx; }
 .description { display:block; font-size:22rpx; line-height:32rpx; height:32rpx; color:#667085; margin-top:8rpx; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .meta { display:block; margin-top:8rpx; }
 .board-thumbnail { position:relative; display:flex; align-items:center; justify-content:center; width:100%; height:0; padding-bottom:56.25%; background:#e9edf3; overflow:hidden; }
 .board-thumbnail image { position:absolute; inset:0; width:100%; height:100%; }
 .state { display:block; padding:48rpx 0; text-align:center; color:#8b95a6; font-size:24rpx; }
-.error { color:#c64b4b; }
-.state button,.boards-page .more { color:#1677ff; font-size:24rpx; line-height:88rpx; }
+.error { color:var(--tp-color-danger, #ff4d35); }
+.state button,.boards-page .more { color:var(--tp-color-primary, #1677ff); font-size:24rpx; line-height:88rpx; }
+@import '@/styles/tab-page-header.scss';
 </style>

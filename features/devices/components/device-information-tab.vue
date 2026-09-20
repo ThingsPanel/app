@@ -144,9 +144,9 @@ async function save() {
 .extension-field .input { margin-top: 8px; }
 .picker { line-height: 40px; }
 /* 与 device-automation-tab 的 .text-button / device-alarm-tab 的 .link 保持同一规格：透明底、蓝字、无圆角。 */
-.save { margin: 0; padding: 0 10px; background: transparent; color: #1677ff; border-radius: 0; font-size: 12px; font-weight: 400; line-height: 40px; font-family: inherit; }
+.save { margin: 0; padding: 0 10px; background: transparent; color: var(--tp-color-primary, #1677ff); border-radius: 0; font-size: 12px; font-weight: 400; line-height: 40px; font-family: inherit; }
 .save::after { border: 0; }
 .save[disabled] { color: #98a2b3; }
 .state { padding: 28px 0; text-align: center; color: #8b95a6; font-size: 12px; }
-.error { color: #c64b4b; }
+.error { color: var(--tp-color-danger, #ff4d35); }
 </style>

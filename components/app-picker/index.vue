@@ -61,7 +61,7 @@ export default {
 
 <style scoped>
 .app-picker { min-width:0; }
-.app-choice { padding-bottom:calc(24rpx + env(safe-area-inset-bottom)); color:var(--sheet-text); font-family:var(--sheet-font); }
+.app-choice { padding-bottom:calc(24rpx + env(safe-area-inset-bottom)); color:var(--sheet-text); font-family: inherit; }
 .app-choice__header { display:grid; grid-template-columns:120rpx minmax(0,1fr) 120rpx; align-items:center; min-height:104rpx; padding:0 24rpx; border-bottom:2rpx solid var(--sheet-divider); }
 .app-choice__title { font-size:32rpx; font-weight:600; text-align:center; }
 .app-choice button { margin:0; border:0; border-radius:0; background:transparent; font-family:inherit; box-shadow:none; }

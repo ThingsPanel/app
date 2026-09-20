@@ -148,10 +148,10 @@ export default {
 .range-header { display:grid; grid-template-columns:64px 1fr 64px; align-items:center; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
 .range-title { color:#172033; font-size:16px; font-weight:600; text-align:center; }
 .range-action { display:flex; align-items:center; min-height:44px; color:#667085; font-size:14px; }
-.range-action.confirm { justify-content:flex-end; color:#1677ff; font-weight:500; }
+.range-action.confirm { justify-content:flex-end; color:var(--tp-color-primary, #1677ff); font-weight:500; }
 .range-tabs { display:grid; grid-template-columns:1fr 1fr; margin:8px 12px 0; padding:3px; gap:4px; background:#f2f4f7; border-radius:8px; }
 .range-tab { display:flex; min-height:48px; flex-direction:column; align-items:center; justify-content:center; gap:1px; color:#667085; border-radius:6px; }
-.range-tab.active { color:#1677ff; background:#fff; box-shadow:0 1px 3px rgba(16,24,40,.08); }
+.range-tab.active { color:var(--tp-color-primary, #1677ff); background:#fff; box-shadow:0 1px 3px rgba(16,24,40,.08); }
 .range-tab-label { font-size:11px; line-height:16px; }
 .range-tab-value { font-size:14px; font-weight:500; line-height:20px; }
 .range-picker { width:100%; height:216px; }

@@ -94,19 +94,19 @@ function open(item) { uni.navigateTo({ url: '/pages/alarms/detail', success: res
 .query-actions button,.date-sheet button { margin:0; padding:0; border-radius:4px; font-family:inherit; font-size:13px; background:transparent; line-height:40px; }
 .quick-ranges button { color:#737d8c; white-space:nowrap; }
 .query-actions button { font-size:12px; }
-.quick-ranges button.active { color:#0052d9; font-weight:500; }
+.quick-ranges button.active { color:var(--tp-color-primary, #1677ff); font-weight:500; }
 .reset-button { color:#737d8c; min-width:36px; }
-.query-actions .query-button { padding:0 10px; color:#1677ff; background:transparent; font-size:12px; border-radius:0; }
+.query-actions .query-button { padding:0 10px; color:var(--tp-color-primary, #1677ff); background:transparent; font-size:12px; border-radius:0; }
 .query-actions .query-button[disabled] { color:#98a2b3; background:transparent; }
 .range-filter::after,.query-actions button::after,.date-sheet button::after { border:0; }
 .date-sheet { padding:0 20px 24px; color:#303744; font-family:inherit; }
 .date-sheet-header { display:flex; justify-content:space-between; align-items:center; height:56px; border-bottom:1px solid #f0f2f6; font-size:16px; font-weight:500; }
 .date-sheet-header button { min-width:44px; color:#737d8c; font-size:14px; }
-.date-sheet-header .confirm { color:#0052d9; }
+.date-sheet-header .confirm { color:var(--tp-color-primary, #1677ff); }
 .date-sheet-row,.date-sheet-row>view { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .date-sheet-row { min-height:56px; font-size:14px; border-bottom:1px solid #f0f2f6; }
 .date-sheet-hint { display:block; margin-top:16px; font-size:12px; color:#8a929f; }
 @media (max-width:360px) { .alarm-tab { padding:0 16px; } .range-filter,.status-filter { padding:0 8px; font-size:12px; } .status-picker { flex-basis:100px; } .quick-ranges { gap:6px; } .query-actions button { font-size:12px; } }
-.segments,.filters,.heading,.foot { display:flex; align-items:center; gap:10px; }.segments { border-bottom:1px solid #f0f2f6; padding:8px 0; }.segments button,.link { padding:0 12px; margin:0; border-radius:0; background:transparent; font-family:inherit; font-size:12px; line-height:40px; color:#7a8499; }.segments button::after,.link::after { border:0; }.segments button.selected,.link { color:#1677ff; }.selected { font-weight:500; }.filters { margin-top:12px; font-size:11px; color:#7a8499; flex-wrap:wrap; }.filter { padding:10px 12px; background:#fafbfe; border:1px solid #edf0f5; border-radius:4px; color:#66738a; }
-.history-row { padding:18px 0; border-bottom:1px solid #f0f2f6; }.name { flex:1; font-size:14px; line-height:22px; font-weight:500; overflow-wrap:anywhere; }.status { color:#c07820; font-size:11px; }.normal { color:#169a67; }.description { display:block; font-size:12px; color:#7a8499; margin:10px 0; line-height:1.8; }.foot { justify-content:space-between; font-size:11px; color:#8b95a6; }.detail { color:#1677ff; }.state { padding:28px 8px; text-align:center; font-size:12px; color:#8b95a6; }.error { color:#c64b4b; }.more { margin:8px auto; }
+.segments,.filters,.heading,.foot { display:flex; align-items:center; gap:10px; }.segments { border-bottom:1px solid #f0f2f6; padding:8px 0; }.segments button,.link { padding:0 12px; margin:0; border-radius:0; background:transparent; font-family:inherit; font-size:12px; line-height:40px; color:#7a8499; }.segments button::after,.link::after { border:0; }.segments button.selected,.link { color:var(--tp-color-primary, #1677ff); }.selected { font-weight:500; }.filters { margin-top:12px; font-size:11px; color:#7a8499; flex-wrap:wrap; }.filter { padding:10px 12px; background:#fafbfe; border:1px solid #edf0f5; border-radius:4px; color:#66738a; }
+.history-row { padding:18px 0; border-bottom:1px solid #f0f2f6; }.name { flex:1; font-size:14px; line-height:22px; font-weight:500; overflow-wrap:anywhere; }.status { color:var(--tp-color-warning, #ff9500); font-size:11px; }.normal { color:var(--tp-color-success, #08bf63); }.description { display:block; font-size:12px; color:#7a8499; margin:10px 0; line-height:1.8; }.foot { justify-content:space-between; font-size:11px; color:#8b95a6; }.detail { color:var(--tp-color-primary, #1677ff); }.state { padding:28px 8px; text-align:center; font-size:12px; color:#8b95a6; }.error { color:var(--tp-color-danger, #ff4d35); }.more { margin:8px auto; }
 </style>

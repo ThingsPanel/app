@@ -1,20 +1,7 @@
 <template>
   <view class="page">
     <view class="filter-panel">
-      <view class="filter-row">
-        <view class="search-field">
-          <image class="search-icon" src="/static/icon/device-search.svg" mode="aspectFit" />
-          <input
-            v-model.trim="keyword"
-            class="search-input"
-            :placeholder="$t('pages.alarmRules.searchPlaceholder')"
-            confirm-type="search"
-            @confirm="refresh"
-          />
-          <button v-if="keyword" class="search-clear" :aria-label="$t('pages.devices.clear')" @click="clearKeyword">×</button>
-        </view>
-        <button class="search-button" @click="refresh">{{ $t('common.search') }}</button>
-      </view>
+      <AppSearch v-model.trim="keyword" :placeholder="$t('pages.alarmRules.searchPlaceholder')" :action-label="$t('common.search')" @search="refresh" @action="refresh" @clear="clearKeyword" />
 
       <view class="compact-filters">
 <app-picker :range="levelFilters" range-key="label" :value="levelFilters.findIndex(option => option.value === alarmLevel)" :disabled="loading" @change="selectLevel(levelFilters[Number($event.detail.value)].value)">
@@ -82,10 +69,13 @@
     <view v-if="rules.length && !finished" class="load-more" @click="loadMore">
       {{ loading ? $t('common.loading') : $t('pages.alarmRules.loadMore') }}
     </view>
+    <ConfirmationModal ref="deleteDialog" danger :confirm-text="$t('common.delete')" :cancel-text="$t('common.cancel')" />
   </view>
 </template>
 
 <script>
+import AppSearch from '@/components/app-search/index.vue'
+import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 import {
   deleteAlarmRule,
   getAlarmRules,
@@ -93,6 +83,7 @@ import {
 } from '@/api/modules/alarm'
 
 export default {
+  components: { AppSearch, ConfirmationModal },
   data() {
     return {
       keyword: '',
@@ -203,7 +194,7 @@ export default {
       }
     },
     confirmDelete(rule) {
-      uni.showModal({
+      this.$refs.deleteDialog.open({
         title: this.$t('pages.alarmRules.deleteTitle'),
         content: this.$t('pages.alarmRules.deleteConfirm', { name: rule.name }),
         success: async result => {
@@ -232,19 +223,20 @@ export default {
 <style lang="scss" scoped>
 .page {
   --page-gutter: clamp(22rpx, 5vw, 34rpx);
-  --primary: #1677ff;
+  --primary: var(--tp-color-primary, #1677ff);
   --surface: #ffffff;
   --card-radius: 12rpx;
   min-height: 100vh;
-  padding: calc(env(safe-area-inset-top) + 30rpx) var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx);
+  // 系统导航栏已处理顶部安全区，内容区只保留紧凑间距。
+  padding: 12rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx);
   box-sizing: border-box;
   background: #f2f2f7;
   color: #1d1d1f;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: inherit;
   /* 与首页告警图标的橙红色一致，等级使用实色，避免暗红和棕色。 */
-  --alarm-high: #FF4D35;
-  --alarm-medium: #FF9500;
-  --alarm-low: #1677ff;
+  --alarm-high: var(--tp-color-danger, #ff4d35);
+  --alarm-medium: var(--tp-color-warning, #ff9500);
+  --alarm-low: var(--tp-color-primary, #1677ff);
 }
 
 .page button { display:flex; align-items:center; justify-content:center; margin:0; padding:0; border:0; border-radius:0; background:transparent; color:inherit; font:inherit; line-height:normal; }
@@ -252,14 +244,14 @@ export default {
 .page button:focus-visible { outline:2rpx solid var(--primary); outline-offset:4rpx; }
 
 .filter-panel {
-  margin-bottom:22rpx;
+  margin-bottom:8rpx;
   padding:0;
   overflow:hidden;
   border-radius:var(--card-radius);
   background:transparent;
 }
 
-.filter-row { display:flex; align-items:center; gap:14rpx; margin-bottom:18rpx; }
+.filter-row { display:flex; align-items:center; gap:14rpx; margin-bottom:4rpx; }
 
 .search-field {
   display:flex;
@@ -275,11 +267,15 @@ export default {
 
 .search-icon { width:24rpx; height:24rpx; flex-shrink:0; opacity:.6; }
 
-.search-input {
+.alarm-rule-search-input {
   flex:1;
   min-width:0;
   height:70rpx;
   padding:0 12rpx;
+  box-sizing:border-box;
+  border:0;
+  border-radius:0;
+  background:transparent;
   color:#1d1d1f;
   font-size:22rpx;
 }
@@ -417,7 +413,7 @@ export default {
   font-size:22rpx;
 }
 
-.page .text-action.danger { color:#ff4d35; }
+.page .text-action.danger { color:var(--tp-color-danger, #ff4d35); }
 
 .state-block {
   min-height:520rpx;

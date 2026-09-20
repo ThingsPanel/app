@@ -171,7 +171,7 @@ export default {
 .heading { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:56px; border-bottom:1px solid #f0f2f6; font-size:15px; }
 .heading text { overflow-wrap:anywhere; }
 .body { height:65vh; }
-button { margin:0; padding:0 8px; background:transparent; color:#1677ff; font-family:inherit; font-size:12px; line-height:44px; border-radius:0; }
+button { margin:0; padding:0 8px; background:transparent; color:var(--tp-color-primary, #1677ff); font-family:inherit; font-size:12px; line-height:44px; border-radius:0; }
 button::after { border:0; }
 .filters,.date-row,.stats { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
 .filters { padding:16rpx 0; flex-wrap:nowrap; gap:8rpx; }
@@ -184,7 +184,7 @@ button::after { border:0; }
 .record text:first-child { flex-shrink:0; color:#7a8499; }
 .header { color:#7a8499; }
 .state { display:block; padding:28px 0; text-align:center; color:#8b95a6; font-size:12px; }
-.error { color:#c64b4b; }
+.error { color:var(--tp-color-danger, #ff4d35); }
 .chart { height:240px; width:100%; }
 .stats { justify-content:space-between; color:#7a8499; font-size:11px; padding:12px 0; }
 </style>

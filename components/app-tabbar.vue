@@ -33,7 +33,7 @@ export default {
 </script>
 
 <style scoped>
-.app-tabbar { flex-shrink: 0; display: flex; height: calc(var(--tabbar-height) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; border-top: 1px solid; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.app-tabbar { flex-shrink: 0; display: flex; height: calc(var(--tabbar-height) + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); box-sizing: border-box; border-top: 1px solid; font-family: inherit; }
 .app-tabbar-item { flex: 1; min-width: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 .app-tabbar-item text { line-height: 1.4; }
 .app-tabbar-pressed { opacity: .6; }

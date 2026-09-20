@@ -209,11 +209,11 @@ export default {
 .device-overview { position: relative; background: #fff; }
 /* 保持 iframe 有真实尺寸，隐藏期间也能初始化图表。 */
 .overview-frame--loading { position: absolute; top: 0; left: 0; opacity: 0; pointer-events: none; }
-.overview-state button { margin: 0; padding: 0 16px; color: #1677ff; background: #f3f7ff; border-radius: 4px; font-size: 12px; line-height: 40px; }
+.overview-state button { margin: 0; padding: 0 16px; color: var(--tp-color-primary, #1677ff); background: #f3f7ff; border-radius: 4px; font-size: 12px; line-height: 40px; }
 .overview-state button::after { border: 0; }
 .overview-state { display: flex; align-items: center; flex-direction: column; gap: 16px; padding: 36px 20px; color: #737f94; font-size: 13px; line-height: 1.7; text-align: center; }
-.overview-state--error { color: #ad3c35; }
-.overview-stream-state { display: block; padding: 10px 16px; color: #946200; background: #fff8e8; font-size: 11px; }
+.overview-state--error { color: var(--tp-color-danger, #ff4d35); }
+.overview-stream-state { display: block; padding: 10px 16px; color: var(--tp-color-warning, #ff9500); background: #fff8e8; font-size: 11px; }
 .connection-hint { color: #8b95a6; font-size: 11px; }
 .overview-frame { width: 100%; overflow: hidden; }
 </style>

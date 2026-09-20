@@ -511,7 +511,7 @@ export default {
 	font-size: 30rpx;
 	font-weight: 600;
 	color: #fff;
-	background: #1677ff;
+	background: var(--tp-color-primary, #1677ff);
 	border: none;
 }
 
@@ -538,9 +538,9 @@ export default {
 .form-label { font-size:13px; font-weight:500; margin-bottom:8px; }
 .tp-ipt { border-radius:6px; padding:10px; background:#f8fafc; }
 .tp-ipt .uni-input, .prefix-text { font-size:14px; }
-.tp-ipt:active { border-color:#1677ff; }
+.tp-ipt:active { border-color:var(--tp-color-primary, #1677ff); }
 .submit-section { margin-top:24px; }
-.submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:#1677ff; }
+.submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:var(--tp-color-primary, #1677ff); }
 
 .edit-page {
   min-height: 100vh;
@@ -548,7 +548,7 @@ export default {
   padding: 24rpx 28rpx calc(120rpx + env(safe-area-inset-bottom));
   background: #f2f2f7;
   color: #1d1d1f;
-  font-family: 'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif;
+  font-family: inherit;
 }
 .avatar-row, .form-group { background: #fff; }
 .avatar-row { display:flex; align-items:center; min-height:144rpx; padding:0 24rpx; margin-bottom:24rpx; }
@@ -571,7 +571,7 @@ export default {
 .picker-fill { flex:1; }
 .picker-value { display:flex; align-items:center; justify-content:flex-end; min-height:96rpx; color:#344054; font-size:24rpx; }
 .picker-value .chevron, .chevron { color:#98a2b3; font-size:36rpx; font-style:normal; font-weight:300; line-height:1; }
-.save-button { width:100%; height:88rpx; margin-top:12rpx; border:0; border-radius:0; background:#1677ff; color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; }
+.save-button { width:100%; height:88rpx; margin-top:12rpx; border:0; border-radius:0; background:var(--tp-color-primary, #1677ff); color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; }
 .save-button::after { border:0; }
-.save-button:active { background:#0d63d6; }
+.save-button:active { background:var(--tp-color-primary, #1677ff); opacity:.85; }
 </style>

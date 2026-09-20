@@ -12,7 +12,7 @@ export default {
       const min = Math.min(...this.values)
       const max = Math.max(...this.values)
       const points = this.values.map((value, i) => `${i / (this.values.length - 1) * 96 + 2},${max === min ? 14 : 24 - (value - min) / (max - min) * 20}`).join(' ')
-      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 28"><polyline points="${points}" fill="none" stroke="#1677FF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`)
+      return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 28"><polyline points="${points}" fill="none" stroke="#1677ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`)
     }
   }
 }

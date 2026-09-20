@@ -80,7 +80,7 @@ export default {
 .time-header { display:grid; grid-template-columns:64px 1fr 64px; align-items:center; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
 .time-title { color:#1d1d1f; font-size:16px; font-weight:600; text-align:center; }
 .time-action { display:flex; align-items:center; min-height:44px; color:#667085; font-size:14px; }
-.time-action.confirm { justify-content:flex-end; color:#1677ff; font-weight:500; }
+.time-action.confirm { justify-content:flex-end; color:var(--tp-color-primary, #1677ff); font-weight:500; }
 .time-picker { width:100%; height:216px; }
 .time-option { display:flex; align-items:center; justify-content:center; height:48px; color:#1d1d1f; font-size:16px; }
 </style>

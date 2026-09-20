@@ -21,7 +21,7 @@
 					<view class="field-actions">
 						<button @click="openHistory(item, 'history')">历史列表</button>
 						<button :disabled="typeof item.value !== 'number' || item.dataType === 'enum'" @click="openHistory(item, 'trend')">趋势</button>
-						<button aria-label="更多" @click="more(item)">···</button>
+						<button class="field-more" aria-label="更多操作" @click="more(item)">更多</button>
 					</view>
 				</view>
 				<view class="telemetry-value-line">
@@ -35,10 +35,12 @@
 		</view>
 		<telemetry-history-sheet v-if="selectedField" :device-id="deviceId" :field="selectedField" :mode="historyMode" @close="selectedField = null" />
 	</view>
+  <ConfirmationModal ref="deleteDialog" danger confirm-text="删除" />
   <app-action-sheet ref="appActionSheet" />
 </template>
 
 <script>
+import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 import dayjs from 'dayjs'
 import { requestDeviceApi } from '@/api/modules/device-overview'
 import { resolveThingsVisAddresses } from '@/utils/thingsvis-address'
@@ -46,7 +48,7 @@ import { rowsOf } from '@/utils/thingsvis-device-schema'
 import TelemetryHistorySheet from './telemetry-history-sheet.vue'
 
 export default {
-	components: { TelemetryHistorySheet },
+	components: { ConfirmationModal, TelemetryHistorySheet },
 	props: {
 		device: { type: Object, required: true },
 		deviceId: { type: String, required: true }
@@ -69,7 +71,7 @@ export default {
 		more(item) {
 			this.$refs.appActionSheet.open({ itemList: ['删除遥测字段'], destructiveIndex: 0, success: result => {
 				if (result.tapIndex !== 0) return
-				uni.showModal({ title: '删除遥测字段', content: `确认删除 ${item.name} 的遥测数据？此操作不可撤销。`, confirmColor: '#c64b4b', success: async result => {
+				this.$refs.deleteDialog.open({ title: '删除遥测字段', content: `确认删除 ${item.name} 的遥测数据？此操作不可撤销。`, success: async result => {
 					if (!result.confirm) return
 					try {
 						await requestDeviceApi('telemetry/datas', { device_id: this.deviceId, key: item.key }, 'DELETE')
@@ -203,11 +205,12 @@ export default {
 
 <style scoped>
 .telemetry-fallback { padding: 0 20px 24px; color: #202938; background: #fff; font-family: inherit; }
-.telemetry-stream-state { display: block; margin-bottom: 12px; color: #a66a00; font-size: 11px; line-height: 18px; }
+.telemetry-stream-state { display: block; margin-bottom: 12px; color: var(--tp-color-warning, #ff9500); font-size: 11px; line-height: 18px; }
 .telemetry-list { display: flex; flex-direction: column; }
 .telemetry-card { padding: 16rpx 0 24rpx; border-bottom: 1rpx solid #f0f2f6; }
 .field-actions { display:flex; align-items:center; margin-left:auto; flex-shrink:0; }
-.field-actions button { margin:0; padding:0 7px; min-height:44px; font:inherit; font-size:12px; line-height:44px; color:#1677ff; background:transparent; border-radius:0; }
+.field-actions button { margin:0; padding:0 7px; min-width:44px; min-height:44px; font:inherit; font-size:12px; line-height:44px; letter-spacing:normal; white-space:nowrap; color:var(--tp-color-primary, #1677ff); background:transparent; border-radius:0; }
+.field-actions .field-more { color:var(--tp-color-text-secondary, #6f7b8f); }
 .field-actions button::after { border:0; }
 .field-actions button[disabled] { color:#b6bdc8; background:transparent; }
 .telemetry-card-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; }
@@ -217,12 +220,12 @@ export default {
 .telemetry-value { max-width: 100%; overflow: hidden; color: #202938; font-size: 32rpx; font-weight: 500; line-height: 44rpx; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .telemetry-unit { color: #6f7b8f; font-size: 12px; line-height: 20px; }
 .telemetry-time-line { display: flex; align-items: center; gap: 6px; margin-top: 4px; color: #98a1b1; font-size: 10px; line-height: 16px; font-variant-numeric: tabular-nums; }
-.telemetry-live-dot { width: 5px; height: 5px; border-radius: 50%; background: #08bf63; }
+.telemetry-live-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--tp-color-success, #08bf63); }
 .telemetry-loading { display: flex; flex-direction: column; gap: 10px; }
 .telemetry-skeleton { height: 112px; border-radius: 10px; background: linear-gradient(100deg, #edf0f4 20%, #f8f9fb 50%, #edf0f4 80%); background-size: 240% 100%; animation: telemetry-shimmer 1.5s ease-in-out infinite; }
 .telemetry-error, .telemetry-empty { display: flex; align-items: center; flex-direction: column; gap: 10px; padding: 36px 20px; color: #7b8699; font-size: 12px; line-height: 20px; text-align: center; }
-.telemetry-error { color: #ad3c35; }
-.telemetry-error button { margin: 0; padding: 0 16px; color: #1677ff; background: #f3f7ff; border: 0; border-radius: 4px; font-size: 12px; line-height: 40px; }
+.telemetry-error { color: var(--tp-color-danger, #ff4d35); }
+.telemetry-error button { margin: 0; padding: 0 16px; color: var(--tp-color-primary, #1677ff); background: #f3f7ff; border: 0; border-radius: 4px; font-size: 12px; line-height: 40px; }
 .telemetry-error button::after { border: 0; }
 .telemetry-empty-title { color: #566277; font-size: 13px; }
 .telemetry-empty-hint { color: #98a1b1; font-size: 11px; }

@@ -13,10 +13,7 @@
         <text class="sheet-title">{{ title || placeholder }}</text>
         <text class="sheet-action sheet-confirm" @tap="confirm">确定</text>
       </view>
-      <view v-if="searchable" class="sheet-search">
-        <uni-icons type="search" size="16" color="#98A2B3" />
-        <input v-model.trim="keyword" placeholder="搜索" confirm-type="search" />
-      </view>
+      <view v-if="searchable" class="sheet-search-area"><AppSearch v-model.trim="keyword" placeholder="搜索" /></view>
       <text v-if="isTruncated" class="sheet-hint">请输入名称搜索，当前显示前 {{ maxVisibleOptions }} 项</text>
       <scroll-view scroll-y class="sheet-list">
         <view
@@ -27,7 +24,7 @@
           @tap="choose(option)"
         >
           <text class="sheet-option-label">{{ optionLabel(option) }}</text>
-          <uni-icons v-if="isSelected(option)" type="checkmarkempty" size="18" color="#1677FF" />
+          <uni-icons v-if="isSelected(option)" type="checkmarkempty" size="18" color="#1677ff" />
         </view>
         <view v-if="filteredOptions.length === 0" class="sheet-empty">暂无可选项</view>
       </scroll-view>
@@ -36,7 +33,9 @@
 </template>
 
 <script>
+import AppSearch from '@/components/app-search/index.vue'
 export default {
+  components: { AppSearch },
   name: 'AutomationSelectSheet',
   props: {
     modelValue: { type: [String, Number, Boolean, Array], default: '' },
@@ -120,6 +119,7 @@ export default {
 </script>
 
 <style scoped>
+.sheet-search-area { padding:12rpx 24rpx; background:#f2f2f7; }
 .automation-select-trigger { display:flex; align-items:center; justify-content:space-between; width:100%; min-height:48px; gap:8px; }
 .automation-select-value { flex:1; min-width:0; overflow:hidden; color:#172033; font-size:13px; line-height:18px; text-overflow:ellipsis; white-space:nowrap; }
 .automation-select-value.placeholder { color:#98a2b3; }
@@ -131,14 +131,14 @@ export default {
 .sheet-header { display:grid; grid-template-columns:64px 1fr 64px; align-items:center; height:44px; padding:0 12px; border-bottom:1px solid #edf0f3; }
 .sheet-title { overflow:hidden; color:#172033; font-size:16px; font-weight:600; text-align:center; text-overflow:ellipsis; white-space:nowrap; }
 .sheet-action { display:flex; align-items:center; min-height:44px; color:#667085; font-size:14px; }
-.sheet-confirm { justify-content:flex-end; color:#1677ff; font-weight:500; }
+.sheet-confirm { justify-content:flex-end; color:var(--tp-color-primary, #1677ff); font-weight:500; }
 .sheet-search { display:flex; align-items:center; height:40px; margin:8px 12px; padding:0 10px; gap:8px; background:#f7f8fa; border:1px solid #dfe4eb; border-radius:8px; }
 .sheet-search input { flex:1; height:38px; color:#172033; font-size:13px; }
 .sheet-hint { display:block; padding:0 12px 6px; color:#667085; font-size:12px; line-height:18px; }
 .sheet-list { height:min(55vh,420px); }
 .sheet-option { display:flex; align-items:center; justify-content:space-between; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; border-bottom:1px solid #edf0f3; }
 .sheet-option-label { color:#172033; font-size:14px; line-height:20px; }
-.sheet-option.selected .sheet-option-label { color:#1677ff; font-weight:500; }
+.sheet-option.selected .sheet-option-label { color:var(--tp-color-primary, #1677ff); font-weight:500; }
 .sheet-option.disabled { opacity:.4; }
 .sheet-empty { padding:32px 16px; color:#98a2b3; font-size:13px; text-align:center; }
 </style>

@@ -417,7 +417,7 @@ export default {
 	border-radius: 8rpx;
 	border: 1rpx solid rgba(22, 119, 255, 0.3);
 	background: rgba(22, 119, 255, 0.1);
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	font-size: 26rpx;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -439,7 +439,7 @@ export default {
 .lang-arrow {
 	font-size: 36rpx;
 	margin-top: -4rpx;
-	color: #1677ff;
+	color: var(--tp-color-primary, #1677ff);
 	opacity: 0.6;
 	font-weight: 300;
 }
@@ -511,7 +511,7 @@ export default {
 
 .code-btn {
 	font-size: 24rpx;
-	background: #1677ff;
+	background: var(--tp-color-primary, #1677ff);
 	color: #fff;
 	border-radius: 16rpx;
 	padding: 12rpx 26rpx;
@@ -525,7 +525,7 @@ export default {
 
 .error-tip {
 	font-size: 24rpx;
-	color: #ef4444;
+	color: var(--tp-color-danger, #ff4d35);
 	margin-top: 8rpx;
 	padding-left: 8rpx;
 }

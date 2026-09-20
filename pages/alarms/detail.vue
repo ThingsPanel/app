@@ -177,15 +177,16 @@ export default {
 	position: relative;
 	overflow: hidden;
 	color: #51515c;
-	font-size: 22rpx;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+	font-size: 24rpx;
+	/* 与首页一致，继承应用默认字体。 */
+	font-family: inherit;
 
 	/* 告警等级色板（鲜艳实色，与 alarm-rules 保持一致；本地声明避免依赖全局注入时序） */
-	--alarm-high: #FF4D35;
-	--alarm-medium: #FF9500;
-	--alarm-low: #1677ff;
+	--alarm-high: var(--tp-color-danger, #ff4d35);
+	--alarm-medium: var(--tp-color-warning, #ff9500);
+	--alarm-low: var(--tp-color-primary, #1677ff);
 	--alarm-default: #98a2b3;
-	--alarm-status-normal: #08bf63;
+	--alarm-status-normal: var(--tp-color-success, #08bf63);
 }
 
 .tp-content {
@@ -231,9 +232,9 @@ export default {
 	flex: 1;
 	min-width: 0;
 	color: #1d1d1f;
-	font-size: 27rpx;
-	font-weight: 600;
-	line-height: 38rpx;
+	font-size: 26rpx;
+	font-weight: 500;
+	line-height: 36rpx;
 	word-break: break-word;
 }
 
@@ -277,7 +278,7 @@ export default {
 		min-width: 0;
 		color: #1d1d1f;
 		font-size: 22rpx;
-		font-weight: 500;
+		font-weight: 400;
 		line-height: 36rpx;
 		word-break: break-word;
 
@@ -312,7 +313,7 @@ export default {
 		width: 6rpx;
 		height: 26rpx;
 		border-radius: 3rpx;
-		background: #1677ff;
+		background: var(--tp-color-primary, #1677ff);
 		margin-right: 12rpx;
 		flex-shrink: 0;
 	}
@@ -320,10 +321,11 @@ export default {
 	.section-title {
 		flex: 1;
 		min-width: 0;
-		font-size: 27rpx;
+		font-size: 28rpx;
 		font-weight: 600;
 		color: #1d1d1f;
-	}
+		line-height: 40rpx;
+}
 
 	.section-count {
 		flex-shrink: 0;
@@ -332,12 +334,13 @@ export default {
 	}
 
 	.section-text {
-		font-size: 22rpx;
+		font-size: 20rpx;
 		color: #51515c;
-		line-height: 1.7;
+		line-height: 30rpx;
 		white-space: pre-wrap;
 		word-break: break-word;
-	}
+		font-weight: 400;
+}
 }
 
 .device-list {
@@ -374,7 +377,7 @@ export default {
 	.dot {
 		width: 12rpx;
 		height: 12rpx;
-		background: #1677ff;
+		background: var(--tp-color-primary, #1677ff);
 		border-radius: 50%;
 	}
 }
@@ -409,7 +412,7 @@ export default {
 	}
 
 	.info-value {
-		font-weight: 500;
+		font-weight: 400;
 		color: #1d1d1f;
 		flex: 1;
 		min-width: 0;

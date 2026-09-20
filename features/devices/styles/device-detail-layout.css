@@ -2,7 +2,7 @@
 	width: 200rpx;
 	height: 50rpx;
 	line-height: 50rpx;
-	background: #007AFF;
+	background: var(--tp-color-primary, #1677ff);
 	color: #fff;
 	border-radius: 20rpx;
 	text-align: center;
@@ -10,7 +10,7 @@
 }
 
 .addytt {
-	color: #207AF5;
+	color: var(--tp-color-primary, #1677ff);
 	font-size: 26rpx;
 	padding: 19rpx 0;
 	text-align: center;
@@ -63,7 +63,7 @@
 
 .confirmbtn {
 	color: #fff;
-	background-color: #007AFF;
+	background-color: var(--tp-color-primary, #1677ff);
 	width: 300rpx;
 	text-align: center;
 	border-radius: 0;
@@ -87,7 +87,7 @@
 
 .yttitle {
 	font-size: 34rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	color: #0F0F0F;
 }
@@ -98,7 +98,7 @@
 	padding: 23rpx;
 	text-align: center;
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #333333;
 }
@@ -118,7 +118,7 @@
 
 .sp_item_title {
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #434343;
 	margin-top: 20rpx;
@@ -126,7 +126,7 @@
 
 .sp_item_status {
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #999999;
 	margin-top: 19rpx;
@@ -139,7 +139,7 @@
 
 .tp-flex-1 {
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #434343;
 }
@@ -158,7 +158,7 @@
 }
 
 .tp_panel_first {
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 	margin-right: 29rpx;
 	color: #fff;
 }
@@ -185,7 +185,7 @@
 }
 
 .tp-grid-three>view.tp_panel_first {
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 	margin-right: 29rpx;
 	color: #fff;
 }
@@ -195,7 +195,7 @@
 	font-weight: bold;
 	color: #333333;
 	position: relative;
-	/* background: #207AF5; */
+	/* background: var(--tp-color-primary, #1677ff); */
 }
 
 .tp-grid-three>view.tp-panel>view:first-child>view:first-child>text {
@@ -231,9 +231,9 @@
 .tp-add {
 	float: right;
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
-	color: #207AF5;
+	color: var(--tp-color-primary, #1677ff);
 }
 
 .tp-add image {
@@ -264,12 +264,12 @@
 	width: 64rpx;
 	height: 64rpx;
 	opacity: 0.41;
-	background: #82d4d8;
+	background: #eaf2ff;
 	border-radius: 20rpx;
 }
 
 .tp-panel-two>view.tp-panel>view:last-child>view>text {
-	color: #005b5f;
+	color: var(--tp-color-primary, #1677ff);
 	font-size: 36rpx;
 }
 
@@ -324,7 +324,7 @@
 
 .tp-time {
 	font-size: 22rpx;
-	font-family: monospace;
+	font-family: inherit;
 	font-weight: 400;
 	color: #999999;
 
@@ -352,7 +352,7 @@
 
 
 .tp-log-item>view.tp-circle.tp-active {
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 }
 
 .tp-log-item>view:nth-child(3) {
@@ -387,7 +387,7 @@
 	border-bottom: 1rpx solid #E5E7E7;
 	line-height: 100rpx;
 	font-size: 32rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	color: #333333;
 	text-align: center;
@@ -415,7 +415,7 @@
 
 .info_header_d {
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #434343;
 	flex: 1
@@ -423,7 +423,7 @@
 
 .info_header_t {
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #434343;
 	margin-right: 28rpx;
@@ -443,7 +443,7 @@
 
 .info_list .item .value {
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #434343;
 	flex: 1
@@ -451,14 +451,14 @@
 
 .info_list .item .label {
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #666666;
 }
 
 .device_name {
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #0C3163;
 	/* margin-top: 20rpx; */
@@ -467,7 +467,7 @@
 
 .device_unit {
 	font-size: 42rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	color: #0C3163;
 	margin-left: 108rpx;
@@ -477,7 +477,7 @@
 
 .device_unit text {
 	font-size: 16rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	color: #0C3163;
 	position: absolute;
@@ -509,7 +509,7 @@
 
 .device_list .device_item .device_name .device_name_l .item-name {
 	font-size: 32rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #333333;
 	padding-top: 15rpx;
@@ -526,16 +526,16 @@
 
 .device_list .device_item .device_name .device_name_l .item-name .name_device{
 	font-size: 32rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #333333;
 	
 } 
 .device_list .device_item .device_name .device_name_l .item-info span {
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
-	color: #51C31E;
+	color: var(--tp-color-success, #08bf63);
 	display: flex;
 	padding-top: 11rpx;
 	margin-left: 32rpx;
@@ -543,7 +543,7 @@
 }
 .device_list .device_item .device_name .device_name_l .item-info .grey {
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #8E96AC;
 	display: flex;
@@ -556,7 +556,7 @@
 .device_list .device_item .device_name .device_name_l .item-info span i {
 	width: 12rpx;
 	height: 12rpx;
-	background: #51C31E;
+	background: var(--tp-color-success, #08bf63);
 	border-radius: 50%;
 	margin-right: 10rpx;
 	margin-top: 11rpx;
@@ -564,7 +564,7 @@
 
 .device_list .device_item .device_name .device_name_l .item-time {
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #BEC1C6;
 	margin-top: 26rpx;
@@ -573,7 +573,7 @@
 
 .device_list .device_item .device_name .device_name_r {
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #999999;
 	margin-top: 28rpx;
@@ -606,7 +606,7 @@
 }
 
 .device_list .device_item .device_tab .active {
-	/* background: #207AF5; */
+	/* background: var(--tp-color-primary, #1677ff); */
 	color: #FFFFFF;
 }
 .device_list .device_item .device_tab_item_container { 
@@ -615,15 +615,15 @@
 	border-radius: 10rpx;
 }
 .device_list .device_item.active .device_tab_item_container { 
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 }
 .device_list .device_item .device_tab .active .device_tab_item_container{
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 }
 
 .device_list .device_item .device_tab .device_tab_item .tab-label {
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	padding-left: 24rpx;
 	padding-top: 20rpx;
@@ -631,7 +631,7 @@
 
 .device_list .device_item .device_tab .device_tab_item .tab-value {
 	font-size: 42rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	padding-top: 14rpx;
 	/* margin-left: 125rpx; */
@@ -645,7 +645,7 @@
 
 .device_list .device_item .device_tab .device_tab_item .tab-value .value-unit {
 	font-size: 16rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: bold;
 	margin-left: 10rpx;
 	margin-top: -10rpx;
@@ -663,14 +663,14 @@
 
 .device_list .device_item .device_switch .switch_l .switch_l_name {
 	font-size: 30rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #434343;
 }
 
 .device_list .device_item .device_switch .switch_l .switch_l_state {
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #999999;
 	padding-top: 17rpx;

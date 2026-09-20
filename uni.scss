@@ -17,10 +17,10 @@
 /* 颜色变量 */
 
 /* 行为相关颜色 */
-$uni-color-primary: #007aff;
-$uni-color-success: #4cd964;
-$uni-color-warning: #f0ad4e;
-$uni-color-error: #dd524d;
+$uni-color-primary: $color-primary;
+$uni-color-success: $color-success;
+$uni-color-warning: $color-warning;
+$uni-color-error: $color-error;
 
 /* 文字基本颜色 */
 $uni-text-color:#333333;//基本色

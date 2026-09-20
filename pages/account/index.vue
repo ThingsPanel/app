@@ -1,6 +1,6 @@
 <template>
     <view class="account-page">
-        <view class="account-header"><text class="account-title">{{ $t('pages.accountTitle') }}</text></view>
+        <app-tab-header inset :title="$t('pages.accountTitle')" />
         <view v-if="loadError" class="load-error" @click="getUserInfo">{{ $t('account.retryLoad') }}</view>
         <view class="identity-card">
             <image class="avatar" :src="userWxInfo.avatarUrl || uhead" mode="aspectFill" @error="userWxInfo.avatarUrl = uhead" />
@@ -313,8 +313,8 @@
 		}
 	}
 </script>
-<style scoped>
-.account-page { --account-surface:#ffffff; --account-radius:12rpx; padding:0 28rpx calc(100rpx + env(safe-area-inset-bottom)); min-height:100vh; box-sizing:border-box; background:#F2F2F7; color:#1d1d1f; font-family:'PingFang SC','Microsoft YaHei','Noto Sans CJK SC',-apple-system,BlinkMacSystemFont,sans-serif; }
+<style scoped lang="scss">
+.account-page { --account-surface:#ffffff; --account-radius:12rpx; padding:0 28rpx calc(100rpx + env(safe-area-inset-bottom)); min-height:100vh; box-sizing:border-box; background:#F2F2F7; color:#1d1d1f; font-family: inherit; }
 .account-header { padding:calc(30rpx + env(safe-area-inset-top)) 0 30rpx; }
 .account-title { display:block; font-size:44rpx; line-height:60rpx; font-weight:650; }
 .identity-card { display:flex; align-items:center; gap:24rpx; padding:32rpx 24rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); box-shadow:none; }
@@ -322,7 +322,7 @@
 .identity-copy { flex:1; min-width:0; display:flex; flex-direction:column; gap:6px; }
 .identity-name { font-size:30rpx; line-height:42rpx; font-weight:600; overflow-wrap:anywhere; }
 .identity-role { font-size:22rpx; line-height:32rpx; color:#73737d; }
-.edit-link { display:flex; align-items:center; justify-content:center; margin:0; padding:0 20rpx; min-width:72rpx; min-height:64rpx; line-height:32rpx; box-sizing:border-box; border-radius:10rpx; font-size:22rpx; color:#1677ff; background:#edf4ff; flex-shrink:0; }
+.edit-link { display:flex; align-items:center; justify-content:center; margin:0; padding:0 20rpx; min-width:72rpx; min-height:64rpx; line-height:32rpx; box-sizing:border-box; border-radius:10rpx; font-size:22rpx; color:var(--tp-color-primary, #1677ff); background:#edf4ff; flex-shrink:0; }
 .edit-link::after, .logout-button::after { border:0; }
 .section-title { font-size:28rpx; line-height:40rpx; font-weight:600; margin:26rpx 2rpx 12rpx; }
 .info-card { background:var(--account-surface); border:0; border-radius:var(--account-radius); padding:0 24rpx; box-shadow:none; }
@@ -335,7 +335,8 @@
 .security-row { display:flex; align-items:center; min-height:84rpx; padding:18rpx 0; box-sizing:border-box; }
 .password-label { flex:1; min-width:0; font-size:24rpx; line-height:36rpx; }
 .logout-button { margin-top:24rpx; height:84rpx; line-height:84rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); color:#5f5f6b; font-size:24rpx; font-weight:400; box-shadow:none; }
-.load-error { color:#b45309; background:#fff7ed; padding:12px; margin-bottom:12px; font-size:13px; border-radius:6px; }
+.load-error { color:var(--tp-color-warning, #ff9500); background:#fff7ed; padding:12px; margin-bottom:12px; font-size:13px; border-radius:6px; }
 
 .account-page { background: #F2F2F7; }
+@import '@/styles/tab-page-header.scss';
 </style>

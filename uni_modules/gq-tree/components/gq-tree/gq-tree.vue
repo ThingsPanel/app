@@ -9,11 +9,7 @@
         </view>
         <button class="tree-action" :disabled="!canConfirm" @tap="_confirm">{{ $t('common.ok') }}</button>
       </view>
-      <view v-if="showSearch" class="tree-search">
-        <image class="tree-search-icon" src="/static/icon/device-search.svg" mode="aspectFit" />
-        <input class="tree-search-input" :value="keyWord" :disabled="loading || !!error" :placeholder="$t('pages.devices.groupSearchPlaceholder')" confirm-type="search" @input="filterOp" />
-        <button v-if="keyWord" class="tree-clear" :aria-label="$t('pages.devices.clear')" @tap="filterOp({ detail: { value: '' } })">×</button>
-      </view>
+      <view v-if="showSearch" class="tree-search-area"><AppSearch :model-value="keyWord" :disabled="loading || !!error" :placeholder="$t('pages.devices.groupSearchPlaceholder')" @input="filterOp" /></view>
       <scroll-view class="tree-view-sc app-sheet-scroll" :scroll-y="true" :show-scrollbar="false" :style="{ height: listHeight * 2 + 'rpx' }">
         <view class="tree-panel">
           <button v-if="includeAllOption" class="tree-all" :class="{ 'is-selected': !selectedItems.length }" :aria-pressed="!selectedItems.length" @tap="selectAll">
@@ -43,7 +39,9 @@
 </template>
 
 <script>
+import AppSearch from '@/components/app-search/index.vue'
 export default {
+  components: { AppSearch },
   name: "tree",
   props: {
     foldAll: { type: Boolean, default: true },
@@ -496,6 +494,7 @@ export default {
 }
 </script>
 
-<style scoped>
-@import "./style.css";
+<style scoped lang="scss">
+@import "./style";
+.tree-search-area { padding:12rpx 24rpx; background:#f2f2f7; }
 </style>

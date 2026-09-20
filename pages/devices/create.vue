@@ -75,7 +75,7 @@
 .field-label { display:block; font-size:26rpx; line-height:38rpx; font-weight:500; }
 .name-input { box-sizing:border-box; width:100%; height:88rpx; margin-top:20rpx; padding:0 22rpx; border-radius:10rpx; background:#f6f7f9; font-size:30rpx; color:#1d1d1f; }
 .name-placeholder { color:#91919b; }
-.submit-button { margin:28rpx 0 0; min-height:88rpx; line-height:88rpx; padding:0 24rpx; background:#1677ff; color:#fff; border-radius:12rpx; font-size:28rpx; font-weight:500; }
+.submit-button { margin:28rpx 0 0; min-height:88rpx; line-height:88rpx; padding:0 24rpx; background:var(--tp-color-primary, #1677ff); color:#fff; border-radius:12rpx; font-size:28rpx; font-weight:500; }
 .submit-button::after { border:0; }
 .submit-button[disabled] { color:#fff; background:#8bbaff; }
 </style>

@@ -328,7 +328,7 @@ export default {
 </script>
 
 <style lang="scss">
-.editor-submit { margin:24rpx 28rpx; border:0; border-radius:12rpx; background:#1677ff; color:#fff; font-size:28rpx; line-height:84rpx; }
+.editor-submit { margin:24rpx 28rpx; border:0; border-radius:12rpx; background:var(--tp-color-primary, #1677ff); color:#fff; font-size:28rpx; line-height:84rpx; }
 .editor-submit::after { border:0; }
 
 
@@ -479,7 +479,7 @@ export default {
     width: 100%;
     height: 88rpx;
     line-height: 88rpx;
-    background: #1677FF;
+    background: var(--tp-color-primary, #1677ff);
     border-radius: 32rpx;
     font-size: 30rpx;
     font-weight: 600;
@@ -577,14 +577,14 @@ export default {
   .modern-btn {
     height: 88rpx;
     line-height: 88rpx;
-    background: #1677FF;
+    background: var(--tp-color-primary, #1677ff);
     border-radius: 16rpx;
     box-shadow: none;
   }
 
   .modern-btn:active {
     transform: none;
-    background: #0f6fe8;
+    background: var(--tp-color-primary, #1677ff);
     box-shadow: none;
   }
 

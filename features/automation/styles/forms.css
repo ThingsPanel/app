@@ -1,8 +1,8 @@
 .add_btn {
 		font-size: 26rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 500;
-		color: #1677FF;
+		color: var(--tp-color-primary, #1677ff);
 	}
 	.tp_pd_l_r_80 {
 		width: 690rpx;
@@ -81,11 +81,11 @@
 
 	.tp-txt {
 		font-size: 26rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		color: #434343;
 		display: flex;
 		justify-content: space-between;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: bold;
 		padding-left: 48rpx;
 	}
@@ -152,7 +152,7 @@
 		width: 100%;
 		height: 86rpx;
 		line-height: 86rpx;
-		background: #1677FF;
+		background: var(--tp-color-primary, #1677ff);
 		box-shadow: 0 2rpx 8rpx rgba(22, 119, 255, 0.12);
 		border-radius: 14rpx;
 		font-size: 26rpx;
@@ -175,7 +175,7 @@
 		border-bottom: 1rpx solid #E5E7E7;
 		line-height: 100rpx;
 		font-size: 32rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: bold;
 		color: #333333;
 		text-align: center;
@@ -203,7 +203,7 @@
 	
 	.info_header_d {
 		font-size: 26rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 400;
 		color: #434343;
 		flex: 1
@@ -211,7 +211,7 @@
 	
 	.info_header_t {
 		font-size: 26rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 400;
 		color: #434343;
 		margin-right: 28rpx;
@@ -231,7 +231,7 @@
 	
 	.info_list .item .value {
 		font-size: 28rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 500;
 		color: #434343;
 		flex: 1
@@ -239,7 +239,7 @@
 	
 	.info_list .item .label {
 		font-size: 26rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 400;
 		color: #666666;
 	}
@@ -255,31 +255,31 @@
 		width: 272rpx;
 		height: 86rpx;
 		line-height: 86rpx;
-		border: 2rpx solid #1677FF;
+		border: 2rpx solid var(--tp-color-primary, #1677ff);
 		border-radius: 16rpx;
 		font-size: 32rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 500;
-		color: #1677FF;
+		color: var(--tp-color-primary, #1677ff);
 	}
 	
 	.info_btn .btn_save {
 		width: 272rpx;
 		height: 86rpx;
-		background: #1677FF;
+		background: var(--tp-color-primary, #1677ff);
 		border-radius: 16rpx;
 		line-height: 86rpx;
 		font-size: 32rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 500;
 		color: #FFFFFF;
 		margin-left: 25rpx;
 	}
 	.del_btn {
 		font-size: 26rpx !important;
-		font-family: Source Han Sans CN !important;
+		font-family: inherit !important;
 		font-weight: 500 !important;
-		color: #FF3B30 !important;
+		color: var(--tp-color-danger, #ff4d35) !important;
 		width: 100% !important;
 		text-align: center !important;
 	}

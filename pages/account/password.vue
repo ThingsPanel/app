@@ -59,8 +59,8 @@ export default {
 .label { display:block; font-size:13px; margin-bottom:6px; }
 input { height:44px; font-size:14px; }
 .hint, .error { display:block; margin-top:12px; font-size:12px; line-height:20px; color:#73737d; }
-.error { color:#c24132; }
-.save { margin-top:20px; height:44px; line-height:44px; border-radius:6px; background:#1677ff; color:#fff; font-size:14px; }
+.error { color:var(--tp-color-danger, #ff4d35); }
+.save { margin-top:20px; height:44px; line-height:44px; border-radius:6px; background:var(--tp-color-primary, #1677ff); color:#fff; font-size:14px; }
 .save::after { border:0; }
 .save[disabled] { opacity:.6; }
 

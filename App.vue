@@ -28,15 +28,7 @@
 				}
 			});
 
-			uni.getPushClientId({
-				success: (res) => {
-					const push_clientid = res.cid;
-					console.log('客户端推送标识==>:', push_clientid);
-				},
-				fail(err) {
-					console.log("获取客户端标识错误:", err);
-				}
-			});
+			// 推送 ID 由登录流程获取并绑定；启动时不为日志重复请求连接。
 		},
 		onShow: function() {
 			// console.log('App Show')
@@ -66,6 +58,7 @@
 </script>
 
 <style>
+	@import './styles/semantic-colors.css';
 	/* 引入公共样式 */
 	@import './styles/uni-components.css';
 	/* 引入字体库样式 */
@@ -86,7 +79,7 @@
 		flex: 0 0 auto;
 		height: 52px;
 		min-height: 52px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		font-family: inherit;
 	}
 	uni-tabbar .uni-tabbar__icon {
 		flex: 0 0 20px;

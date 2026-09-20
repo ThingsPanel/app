@@ -1,11 +1,6 @@
 <template>
 	<view class="tp-box">
-		<view class="tp-header">
-			<view class="header-main tp-flex tp-flex-j-s tp-flex-a-c">
-				<view class="header-title-group">
-					<view class="page-title">{{ $t('pages.devices.pageHeading') }}</view>
-					<text class="header-device-count">{{ overviewState === 'ready' ? deviceTotal : '—' }} {{ $t('pages.devices.totalUnit') }}</text>
-				</view>
+        <app-tab-header :title="$t('pages.devices.pageHeading')" :meta="(overviewState === 'ready' ? deviceTotal : '—') + ' ' + $t('pages.devices.totalUnit')">
 				<view class="header-actions tp-flex tp-flex-a-c">
 					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" role="button" :aria-label="$t('scanActivation.scan')" @click="scanDevice">
 						<image src="/static/icon/home/scan.svg" mode="aspectFit" />
@@ -14,8 +9,7 @@
 						<image src="/static/icon/notify.svg" mode="aspectFit" />
 					</view>
 				</view>
-			</view>
-		</view>
+        </app-tab-header>
 
 		<view class="overview-section">
 			<view class="overview-card" :aria-busy="overviewState === 'loading'">
@@ -42,23 +36,7 @@
 		</view>
 
 		<view class="device-toolbar">
-			<view class="search-row">
-				<view class="device-search">
-					<image src="/static/icon/device-search.svg" class="search-icon" mode="aspectFit" />
-					<input
-					v-model.trim="searchKeyword"
-					class="search-input"
-					confirm-type="search"
-					:placeholder="$t('pages.devices.searchPlaceholder')"
-					@confirm="applyDeviceFilters"
-					/>
-					<text v-if="searchKeyword" class="search-clear" @click="clearSearch">×</text>
-				</view>
-				<view class="filter-button tp-flex tp-flex-a-c tp-flex-j-c" @click="toShowNavDrawer">
-					<image src="/static/icon/device-filter.svg" class="filter-icon" />
-					<text>{{ $t('pages.devices.filter') }}</text>
-				</view>
-			</view>
+            <AppSearch v-model.trim="searchKeyword" :placeholder="$t('pages.devices.searchPlaceholder')" :action-label="$t('pages.devices.filter')" action-icon="/static/icon/device-filter.svg" @search="applyDeviceFilters" @action="toShowNavDrawer" @clear="clearSearch" />
 			<view class="device-view-toolbar">
 				<view class="group-controls">
 					<button class="group-selector" :aria-label="$t('pages.devices.selectGroup')" @click="toShowNavDrawer"><text class="group-name">{{ selectedGroupName || $t('pages.devices.allGroups') }}</text><view class="group-chevron" /></button>
@@ -131,7 +109,7 @@
 			:loading="groupsLoading"
 			:error="groupsError"
 			@retry="getGroupData"
-			confirmColor="#1677FF"
+			confirmColor="#1677ff"
 			cancelColor="#757575"
 			:title="$t('pages.deviceDetail.groupSelection')"
 			titleColor="#333333"
@@ -164,6 +142,7 @@
 </template>
 
 <script>
+import AppSearch from '@/components/app-search/index.vue'
 var socketOpen = false;
 var socketMsgQueue = {
 	wid: '',
@@ -199,7 +178,7 @@ import { mergeUniqueDevices } from '@/features/devices/utils/device-list'
 import { buildDeviceCard } from '@/features/devices/utils/device-card'
 //
 export default {
-	components: { DeviceListItem },
+	components: { AppSearch, DeviceListItem },
 	data() {
 		return {
 			isDeviceLoading: true,
@@ -1198,7 +1177,7 @@ export default {
 
 <style lang="scss" scoped>
 .tp-box {
-	--page-gutter: clamp(22rpx, 5vw, 34rpx);
+	--page-gutter: 28rpx;
 	--radius-card: 10rpx;
 	--radius-control: 10rpx;
 	--radius-chip: 8rpx;
@@ -1230,7 +1209,7 @@ export default {
 .notify-action image { width: 36rpx; height: 36rpx; }
 
 .device-toolbar {
-	padding: 12rpx var(--page-gutter) 0;
+	padding: 0 var(--page-gutter);
 	/* 渐变终点与设备区一致，避免筛选栏下出现白灰硬边界。 */
 	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 42%, #f7f8fa 100%);
 }
@@ -1280,7 +1259,7 @@ export default {
 .filter-row {
 	display: inline-flex;
 	gap: 14rpx;
-	padding: 14rpx 0 16rpx;
+	padding: 4rpx 0 0;
 }
 
 .filter-chip {
@@ -1295,7 +1274,7 @@ export default {
 	line-height: 31rpx;
 
 	&.active {
-		color: #1677ff;
+		color: var(--tp-color-primary, #1677ff);
 		background: rgba(233,242,255,.88);
 		border-color: #a9cafa;
 		box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
@@ -1306,14 +1285,14 @@ export default {
 	.filter-chip, .device-search { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
 }
 .chip-dot { width: 10rpx; height: 10rpx; margin-right: 9rpx; border-radius: 50%; background: #aab1bc; }
-.chip-dot.online { background: #08bf63; }.chip-dot.alarm { background: #ff4d35; }
-.chip-count { margin-left: 8rpx; color: #7d8799; }.filter-chip.active .chip-count { color: #1677ff; }
+.chip-dot.online { background: var(--tp-color-success, #08bf63); }.chip-dot.alarm { background: var(--tp-color-danger, #ff4d35); }
+.chip-count { margin-left: 8rpx; color: #7d8799; }.filter-chip.active .chip-count { color: var(--tp-color-primary, #1677ff); }
 
 /* Content */
-.tp-content { padding: 16rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx); }
+.tp-content { padding: 22rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx); }
 
 .overview-section { padding: 18rpx var(--page-gutter) 14rpx; background: #fff; }
-.overview-card { padding: 18rpx 26rpx 14rpx; background: #1677FF; color: #fff; border-radius: var(--radius-card); }
+.overview-card { padding: 18rpx 26rpx 14rpx; background: var(--tp-color-primary, #1677ff); color: #fff; border-radius: var(--radius-card); }
 .overview-heading { display: flex; align-items: center; justify-content: space-between; color: #e4eeff; font-size: 21rpx; line-height: 28rpx; margin-bottom: 12rpx; }
 .overview-scope { color: #c8dcfa; font-size: 18rpx; }
 .overview-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -1327,15 +1306,15 @@ export default {
 .online-rate-fill { height: 100%; background: #a5d2ff; }
 .online-rate-value { color: #fff; font-size: 21rpx; font-weight: 500; font-variant-numeric: tabular-nums; }
 .overview-retry { width: 100%; border-radius: 0; background: transparent; padding-right: 0; padding-left: 0; }
-.device-view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; margin-top: 12rpx; }
+.device-view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; margin-top: 8rpx; }
 .group-controls { display: flex; align-items: center; min-width: 0; flex: 1; }
 .group-selector { display: flex; align-items: center; gap: 12rpx; min-width: 0; max-width: 100%; min-height: 44px; margin: 0; padding: 0 8rpx 0 0; background: none; color: #51515c; border-radius: 0; font-size: 22rpx; line-height: 34rpx; }
 .group-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .group-chevron { flex-shrink: 0; width: 10rpx; height: 10rpx; border-right: 2rpx solid #8090a5; border-bottom: 2rpx solid #8090a5; transform: rotate(45deg); margin: -5rpx 5rpx 0 0; }
-.group-reset { flex-shrink: 0; min-height: 44px; padding: 0 12rpx; margin: 0; background: transparent; color: #1677FF; font-size: 20rpx; line-height: 44px; }
+.group-reset { flex-shrink: 0; min-height: 44px; padding: 0 12rpx; margin: 0; background: transparent; color: var(--tp-color-primary, #1677ff); font-size: 20rpx; line-height: 44px; }
 .view-switch { display: flex; gap: 0; flex-shrink: 0; margin-right: -14px; }
 .view-switch-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; background: transparent; border-radius: 8rpx; color: #7b899d; }
-.view-switch-button.active { color: #1677ff; background: transparent; }
+.view-switch-button.active { color: var(--tp-color-primary, #1677ff); background: transparent; }
 .group-selector::after, .group-reset::after, .view-switch-button::after, .overview-retry::after { border: none; }
 .view-grid-icon, .view-list-icon { width: 16px; height: 16px; flex-shrink: 0; box-sizing: border-box; }
 .view-switch .view-grid-icon { transform: translateX(12px); }
@@ -1422,7 +1401,7 @@ export default {
 .tp-panel-popup {
 	background: #ffffff;
 	border-radius: 8rpx 8rpx 0 0;
-	border-top: 6rpx solid #147d6b;
+	border-top: 6rpx solid var(--tp-color-primary, #1677ff);
 	padding: 40rpx;
 	color: #18332f;
 }
@@ -1458,7 +1437,7 @@ export default {
 	margin: 0;
 	padding: 0;
 	background: #fff;
-	color: #1677FF;
+	color: var(--tp-color-primary, #1677ff);
 	border-radius: var(--radius-control);
 	display: flex;
 	align-items: center;
@@ -1491,7 +1470,7 @@ export default {
 .notify-action image { width:44rpx; height:44rpx; }
 .header-title-group { display:flex; align-items:baseline; gap:16rpx; min-width:0; flex-wrap:wrap; }
 .header-device-count { color:#73737d; font-size:22rpx; line-height:32rpx; font-weight:400; }
-.overview-section { padding:16rpx var(--page-gutter) 24rpx; }
+.overview-section { padding:0 var(--page-gutter) 22rpx; }
 .overview-card { position:relative; padding:24rpx 0; background:var(--device-glass-surface); border-radius:var(--device-card-radius); box-shadow:none; }
 .overview-heading, .overview-metrics, .overview-footer { position:relative; z-index:1; }
 .overview-heading { color:#73737d; margin-bottom:20rpx; gap:12rpx; flex-wrap:wrap; }
@@ -1505,7 +1484,7 @@ export default {
 .metric-icon { width:36rpx; height:36rpx; }
 .metric-label { color:#475467; margin:18rpx 0 0; font-size:21rpx; line-height:30rpx; white-space:normal; }
 .metric-rate { color:#66758a; margin-top:8rpx; font-size:20rpx; line-height:28rpx; font-variant-numeric:tabular-nums; }
-.metric-alarm .metric-rate { color:#c76b26; }
+.metric-alarm .metric-rate { color:var(--tp-color-warning, #ff9500); }
 .metric-value { min-width:0; color:#1d1d1f; line-height:52rpx; font-size:40rpx; font-weight:650; letter-spacing:-1rpx; }
 .overview-footer { color:#73737d; border:0; padding-left:20rpx; padding-right:20rpx; }
 .device-search, .filter-button { background:var(--device-glass-surface); border:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
@@ -1513,12 +1492,13 @@ export default {
 .search-icon, .filter-icon { width:24rpx; height:24rpx; flex-shrink:0; }
 .filter-chip { position:relative; padding:10rpx 6rpx 16rpx; background:transparent; border:0; border-radius:0; box-shadow:none; backdrop-filter:none; }
 .filter-chip.active { background:transparent; box-shadow:none; font-weight:600; }
-.filter-chip.active::after { content:''; position:absolute; bottom:0; left:6rpx; width:26rpx; height:4rpx; border-radius:2rpx; background:#1677ff; }
+.filter-chip.active::after { content:''; position:absolute; bottom:0; left:6rpx; width:26rpx; height:4rpx; border-radius:2rpx; background:var(--tp-color-primary, #1677ff); }
 .view-switch { margin-right:0; }
-.view-switch-button { width:52rpx; height:88rpx; justify-content:flex-end; }
+.view-switch-button { width:44rpx; min-width:32px; height:44px; justify-content:flex-end; }
 .view-mode-icon { width:32rpx; height:32rpx; }
 .device-list--rows { background:var(--device-glass-surface); box-shadow:none; border:0; border-radius:var(--device-card-radius); overflow:hidden; }
 .device-skeleton { background:#fff; border:0; }
 
 .pagehome, .device-page, .tp-box { background: #F2F2F7; }
+@import '@/styles/tab-page-header.scss';
 </style>

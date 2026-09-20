@@ -223,7 +223,7 @@ export default {
 <!-- #endif -->
 
 <style scoped>
-.board-detail { position:fixed; inset:0; display:flex; flex-direction:column; background:var(--board-background); color:#202938; font-family:'PingFang SC','Microsoft YaHei',sans-serif; }
+.board-detail { position:fixed; inset:0; display:flex; flex-direction:column; background:var(--board-background); color:#202938; font-family: inherit; }
 .board-detail button { margin:0; border:0; border-radius:0; font-family:inherit; font-size:26rpx; font-weight:400; min-height:44px; line-height:44px; padding:0 16rpx; }
 .board-detail button::after { border:0; }
 .board-detail button:active { opacity:.65; }
@@ -235,10 +235,10 @@ export default {
 .board-stage { position:relative; flex:1; min-height:0; overflow:hidden; }
 .board-frame { position:absolute; inset:0; overflow:hidden; }
 .board-state { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24rpx; background:#f5f6f8; color:#667085; font-size:26rpx; padding:32rpx; text-align:center; }
-.board-state button { color:#1677ff; background:#eaf2ff; }
+.board-state button { color:var(--tp-color-primary, #1677ff); background:#eaf2ff; }
 .board-tools { position:absolute; bottom:calc(12px + env(safe-area-inset-bottom)); left:50%; transform:translateX(-50%); display:flex; white-space:nowrap; background:rgba(20,29,44,.9); }
 .board-tools button,.fullscreen-actions button { color:#fff; background:transparent; min-width:44px; font-size:13px; }
-.board-warning { position:absolute; left:0; right:0; top:0; padding:8px 16px; background:#fff5dd; color:#79520b; font-size:24rpx; }
+.board-warning { position:absolute; left:0; right:0; top:0; padding:8px 16px; background:#fff5dd; color:var(--tp-color-warning, #ff9500); font-size:24rpx; }
 .fullscreen-actions { position:absolute; top:env(safe-area-inset-top); left:env(safe-area-inset-left); right:env(safe-area-inset-right); display:flex; justify-content:space-between; pointer-events:none; }
 .fullscreen-actions button { pointer-events:auto; background:rgba(20,29,44,.9); }
 .board-detail--fullscreen { z-index:999; }

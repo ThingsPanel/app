@@ -61,6 +61,7 @@
 		{
 			"path": "pages/dashboard/boards",
 			"style": {
+                "navigationStyle": "custom",
 				"navigationBarTitleText": "看板",
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
@@ -146,12 +147,12 @@
 				"navigationBarBackgroundColor": "#F2F2F7",
 				"h5": {
 					"titleNView": {
-						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677FF" }]
+						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677ff" }]
 					}
 				},
 				"app-plus": {
 					"titleNView": {
-						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677FF" }]
+						"buttons": [{ "text": "＋", "float": "right", "fontSize": "26px", "width": "44px", "color": "#1677ff" }]
 					}
 				}
 			}
@@ -191,7 +192,7 @@
 	},
 	"tabBar": {
 		"color": "#7F8CA0",
-		"selectedColor": "#1677FF",
+		"selectedColor": "#1677ff",
 		"height": "52px",
 		"iconWidth": "20px",
 		"fontSize": "10px",
@@ -205,6 +206,13 @@
 				"text": "%pages.dashboardTitle%",
 				"iconPath": "static/tabbar/dashboard.png",
 				"selectedIconPath": "static/tabbar/dashboard-selected.png"
+			},
+			{
+				"pagePath": "pages/dashboard/boards",
+				"key": "pages.boardsTitle",
+				"text": "%pages.boardsTitle%",
+				"iconPath": "static/tabbar/boards.png",
+				"selectedIconPath": "static/tabbar/boards-selected.png"
 			},
 			{
 				"pagePath": "pages/devices/index",

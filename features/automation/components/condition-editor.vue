@@ -24,7 +24,7 @@
                 @tap="startConditionEdit(ifGroupIndex, ifIndex)"
               >
                 <view class="summary-icon" :class="ifItem.ifType === '2' ? 'summary-icon-time' : 'summary-icon-device'">
-                  <uni-icons :type="ifItem.ifType === '2' ? 'calendar' : 'gear'" size="18" :color="ifItem.ifType === '2' ? '#1677FF' : '#238563'" />
+                  <uni-icons :type="ifItem.ifType === '2' ? 'calendar' : 'gear'" size="18" :color="ifItem.ifType === '2' ? '#1677ff' : '#08bf63'" />
                 </view>
                 <view class="summary-copy">
                   <text class="summary-title">{{ getConditionSummary(ifItem).title }}</text>
@@ -1326,8 +1326,8 @@
     border-top: 1rpx solid #edf0f3;
   }
 
-  .editor-action { display:flex; align-items:center; min-height:44px; color:#1677FF; font-size:14px; }
-  .editor-action-danger { color: #cf4b49; }
+  .editor-action { display:flex; align-items:center; min-height:44px; color:var(--tp-color-primary, #1677ff); font-size:14px; }
+  .editor-action-danger { color: var(--tp-color-danger, #ff4d35); }
   .add-summary-row,
   .empty-add-card {
     box-sizing: border-box;
@@ -1336,7 +1336,7 @@
     justify-content: center;
     width: 100%;
     min-height: 44px;
-    color: #1677FF;
+    color: var(--tp-color-primary, #1677ff);
     font-size: 13px;
     font-weight: 500;
   }
@@ -1358,7 +1358,7 @@
   }
   
   .uni-button--warn {
-    background-color: #cf4b49;
+    background-color: var(--tp-color-danger, #ff4d35);
     color: #fff;
   }
   
@@ -1371,8 +1371,8 @@
   .datetime-form-row { display:flex; align-items:center; box-sizing:border-box; width:100%; min-height:48px; padding:0 2px; gap:8px; border-bottom:1px solid #edf0f3; }
   .datetime-label { flex:0 0 78px; color:#1d1d1f; font-size:13px; font-weight:500; line-height:18px; }
   .datetime-control { flex:1; min-width:0; }
-  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family:ui-monospace, SFMono-Regular, Consolas, monospace; font-size:13px; line-height:19px; }
-  .field-error { display:block; margin:-4px 0 8px; color:#cf4b49; font-size:12px; line-height:17px; }
+  .automation-json-input { box-sizing:border-box; width:100%; min-height:88px; margin:8px 0; padding:10px 12px; color:#1d1d1f; background:#f7f8fa; border: 0; border-radius:8px; font-family: inherit; font-size:13px; line-height:19px; }
+  .field-error { display:block; margin:-4px 0 8px; color:var(--tp-color-danger, #ff4d35); font-size:12px; line-height:17px; }
   
   .picker-wrapper picker {
     flex: 1;
@@ -1411,7 +1411,7 @@
     border-bottom: 1rpx solid #e4e9f0;
   }
   
-  .search-input {
+  .automation-condition-search-input {
     width: 100%;
     height: 80rpx;
     border: 0;
@@ -1465,13 +1465,13 @@
 .popup-title { color:#1d1d1f; font-size:16px; font-weight:600; }
 .popup-close { display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-10px; }
 .popup-search { padding:8px 12px; border-bottom:1px solid #edf0f3; }
-.search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
+.automation-condition-search-input { height:40px; padding:0 10px; color:#1d1d1f; font-size:13px; background:#f7f8fa; border: 0; border-radius:8px; }
 .select_item { display:flex; align-items:center; justify-content:flex-start; box-sizing:border-box; min-height:48px; margin-left:16px; padding:0 16px 0 0; color:#1d1d1f; border-bottom:1px solid #edf0f3; font-size:14px; font-weight:400; text-align:left; }
-.select_item:active { color:#1677FF; background:#f7faff; }
+.select_item:active { color:var(--tp-color-primary, #1677ff); background:#f7faff; }
 .select_item.empty { justify-content:center; margin:0; color:#98a2b3; }
 ::v-deep .uni-popup__wrapper.bottom { overflow:hidden; padding-bottom:env(safe-area-inset-bottom); border-radius:16px 16px 0 0; box-shadow:0 -4px 18px rgba(16,24,40,.08); }
 
-::v-deep .search-input .uni-input-input {
+::v-deep .automation-condition-search-input .uni-input-input {
   padding: 16rpx 30rpx;
   padding-left: 0;
   height: 80rpx;

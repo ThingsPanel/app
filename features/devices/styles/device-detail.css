@@ -13,7 +13,7 @@
 	padding-right: 40rpx;
 }
 .send button{
-	background: #207AF5;
+	background: var(--tp-color-primary, #1677ff);
 	border-radius: 10rpx;
 	border: none;
 	font-size: 28rpx;
@@ -52,14 +52,14 @@
 }
 .control_l .control_l_item .control_l_item_l .sp_item_title{
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #434343;
 	margin-top: 20rpx;
 }
 .control_l .control_l_item .control_l_item_l .sp_item_status{
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #999999;
 	margin-top: 20rpx;
@@ -81,7 +81,7 @@
 }
 .warning .warning_t{
 	font-size: 26rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	margin-left: 52rpx;
 	color: #898989;
@@ -114,16 +114,16 @@
 .warning .warning_c .warning_c_l .warning_c_l_i .warning_c_l_i_t{
 	margin-top: 10rpx;
 	font-size: 28rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #434343;
 }
 .warning .warning_c .warning_c_l .warning_c_l_i .warning_c_l_i_c{
 	margin-top: 10rpx;
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
-	color: #E22F40;
+	color: var(--tp-color-danger, #ff4d35);
 }
 .warning .warning_c .warning_c_r{
 	margin-top: 32rpx;
@@ -148,7 +148,7 @@
 }
 .warning .warning_c .warning_c_r .warning_c_r_btn span{
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #585858;
 }
@@ -193,29 +193,29 @@
 
 .device_info .device_name .name {
 	font-size: 32rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 500;
 	color: #333333;
 }
 
 .device_info .device_name .state {
 	font-size: 22rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	margin-left: 32rpx;
 }
 
 .device_info .device_name .green {
-	color: #51C31E;
+	color: var(--tp-color-success, #08bf63);
 }
 
 .device_info .device_name .red {
-	color: #FF0000;
+	color: var(--tp-color-danger, #ff4d35);
 }
 
 .device_info .updatetime {
 	font-size: 24rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #BEC1C6;
 	margin-top: 16rpx;
@@ -243,7 +243,7 @@
 	/* padding-top: 35rpx; */
 	/* margin-left: 31rpx; */
 	font-size: 30rpx;
-	font-family: Source Han Sans CN;
+	font-family: inherit;
 	font-weight: 400;
 	color: #333333;
 }

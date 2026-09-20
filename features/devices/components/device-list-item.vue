@@ -107,12 +107,12 @@ export default {
 }
 
 .status-dot { position: absolute; z-index: 2; right: 16rpx; top: 14rpx; width: 10rpx; height: 10rpx; background: #a8b0bd; border: 3rpx solid #fff; border-radius: 50%; }
-.status-dot.status-on { background: #08bf63; }
-.status-dot.status-alarm { background: #ff3b30; animation: device-alarm-blink 1s ease-in-out infinite; }
+.status-dot.status-on { background: var(--tp-color-success, #08bf63); }
+.status-dot.status-alarm { background: var(--tp-color-danger, #ff4d35); animation: device-alarm-blink 1s ease-in-out infinite; }
 
 @keyframes device-alarm-blink {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 59, 48, .25); }
-  50% { opacity: .35; box-shadow: 0 0 0 7rpx rgba(255, 59, 48, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(255, 77, 53, .25); }
+  50% { opacity: .35; box-shadow: 0 0 0 7rpx rgba(255, 77, 53, 0); }
 }
 
 .card-inner {
@@ -174,7 +174,7 @@ export default {
   justify-content: flex-start;
   color: #73737d;
   font-size: 17rpx;
-  font-family: Arial, sans-serif;
+  font-family: inherit;
   line-height: 28rpx;
   white-space: nowrap;
   overflow: hidden;
