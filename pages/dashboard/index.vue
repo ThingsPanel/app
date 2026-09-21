@@ -1,5 +1,10 @@
 <template>
-  <view class="home-page">
+  <view v-if="homeResolving" class="custom-home"><BoardLoading /></view>
+  <view v-else-if="selectedHome" class="custom-home">
+    <BoardDeck v-if="homeVisible" ref="homeViewer" :initial-id="selectedHome.id" home-mode @system-home="showSystemHome" @unavailable="homeUnavailable" />
+  </view>
+  <view v-else class="home-page">
+    <view v-if="homePreferenceError" class="home-preference-notice"><text>{{ homePreferenceError }}</text><button @click="openHome">重试</button></view>
     <app-tab-header inset :title="$t('dashboard.title')" :subtitle="$t('dashboard.tenantOverview') + ' · ' + (loading ? $t('dashboard.updating') : $t('dashboard.overviewSubtitle'))">
       <view class="header-actions">
         <button class="icon-button" :aria-label="$t('scanActivation.scan')" @click="scanDevice"><image src="/static/icon/home/scan.svg" /></button>
@@ -80,6 +85,9 @@
 </template>
 
 <script>
+import BoardLoading from '@/components/board-loading/index.vue'
+import BoardDeck from '@/components/board-deck/index.vue'
+import { openHomePreference } from '@/services/dashboard-home'
 import dayjs from 'dayjs'
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
 import { alarmHistory } from '@/api/modules/alarm'
@@ -91,8 +99,10 @@ import { buildDeviceCard } from '@/features/devices/utils/device-card'
 import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
+  components: { BoardDeck, BoardLoading },
   data() {
     return {
+      homeResolving: true, homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,
       loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false, isTenantAdmin: null,
       shortcuts: [
         { key: 'devices', icon: '/static/icon/home/device.svg' },
@@ -106,8 +116,27 @@ export default {
       ]
     }
   },
-  onShow() { this.refresh() },
+  onShow() { this.homeVisible = true; this.openHome() },
+  onHide() { this.homeVisible = false; this.homeGeneration++ },
+  onUnload() { this.homeVisible = false; this.homeGeneration++ },
+  onBackPress() { return Boolean(this.$refs.homeViewer?.handleBack()) },
   methods: {
+    async openHome() {
+      const generation = ++this.homeGeneration
+      this.homeResolving = true; this.homePreferenceError = ''; this.selectedHome = null
+      try {
+        if (uni.getStorageSync('access_token')) {
+          const preference = await openHomePreference()
+          if (!this.homeVisible || generation !== this.homeGeneration) return
+          this.selectedHome = preference.read()
+        }
+      } catch (error) { if (generation === this.homeGeneration) this.homePreferenceError = '首页偏好读取失败，暂时显示系统首页' }
+      finally {
+        if (this.homeVisible && generation === this.homeGeneration) { this.homeResolving = false; if (!this.selectedHome) this.refresh() }
+      }
+    },
+    showSystemHome() { this.selectedHome = null; this.homeResolving = false; this.refresh() },
+    homeUnavailable() { this.showSystemHome(); uni.showToast({ title: '看板已删除或无权访问，已返回系统首页', icon: 'none' }) },
     // 标准构建先执行插值；App runtime 若保留占位符，再补齐未解析的参数。
     formatMessage(key, values) {
       return Object.entries(values).reduce(
@@ -350,4 +379,12 @@ export default {
 .group-rate.warning .rate-track view { background:var(--tp-color-warning, #ff9500); }
 @media (max-width:360px) { .stat-heading { gap:6rpx; } .stat-value { font-size:36rpx; } .stat-icon { width:46rpx; height:46rpx; } .operation-item { gap:8rpx; padding-left:12rpx; } }
 @import '@/styles/tab-page-header.scss';
+</style>
+
+<style scoped>
+.custom-home { position:relative; height:calc(100vh - var(--window-bottom, 0px)); }
+.home-preference-loading { padding:35vh 24px; text-align:center; color:#667085; background:#f2f2f7; }
+.home-preference-notice { display:flex; align-items:center; gap:12px; padding:12px; background:#fff5dd; font-size:13px; border-radius:8px; }
+.home-preference-notice text { flex:1; }
+.home-preference-notice button { min-height:44px; margin:0; color:#1677ff; font-size:14px; }
 </style>

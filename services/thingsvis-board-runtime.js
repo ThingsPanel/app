@@ -12,8 +12,11 @@ export function createBoardRuntime({ boardId, onMessage, onState }) {
   const emit = message => { if (current()) onMessage(message) }
   const warn = message => { if (current()) onState({ status: 'warning', message }) }
   async function start() {
-    preview = await createBoardsClient().preview(boardId)
+    const client = createBoardsClient()
+    preview = await client.preview(boardId)
     if (!current()) return null
+    if (preview.dashboard.thumbnail) onState({ thumbnail: preview.dashboard.thumbnail })
+    else void client.thumbnail(boardId).then(thumbnail => { if (current() && thumbnail) onState({ thumbnail }) }).catch(() => {})
     prepared = prepareBoardSchema(preview.dashboard)
     for (const source of prepared.schema.dataSources) {
       if (source.type === 'PLATFORM_FIELD' && collectDeviceHistory(prepared.schema, { dataSourceId: source.id }).size) source.config.bufferSize = Math.max(100, Number(source.config.bufferSize) || 0)

@@ -37,7 +37,11 @@ export function createBoardsClient() {
     if (!token) await authenticate()
     const response = await request(path, params, 'GET', token)
     if (response.statusCode === 401 && retry) { token = ''; return get(path, params, false) }
-    if (response.statusCode < 200 || response.statusCode >= 300) throw new Error(response.statusCode === 403 ? '没有权限查看这些看板' : '看板加载失败，请重试')
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      const error = new Error(response.statusCode === 403 ? '没有权限查看此看板' : response.statusCode === 404 ? '看板已删除或不可访问' : '看板加载失败，请重试')
+      error.statusCode = response.statusCode
+      throw error
+    }
     checkSession()
     if ((path === 'projects' || path === 'dashboards') && !Array.isArray(response.data?.data)) throw new Error('看板服务返回格式异常')
     return response.data

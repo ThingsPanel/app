@@ -20,6 +20,7 @@
         </view>
         <view class="section-title">{{ $t('account.preferences') }}</view>
         <view class="info-card">
+            <view v-if="$login.isLoginType().isLogin" class="info-row" @click="openHomeSettings"><text class="row-label">App 首页</text><text class="row-value">{{ appHomeName }}</text><view class="chevron" /></view>
             <view class="info-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><text class="row-value">{{ userWxInfo.timezone || $t('account.notSet') }}</text></view>
             <view class="info-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><text class="row-value">{{ userWxInfo.default_language || $t('account.notSet') }}</text></view>
             <view class="info-row" @click="showLanguagePopup"><text class="row-label">{{ $t('account.appLanguage') }}</text><text class="row-value">{{ currentLanguage }}</text><view class="chevron" /></view>
@@ -48,6 +49,7 @@
   <app-action-sheet ref="appActionSheet" />
 </template>
 <script>
+import { openHomePreference } from '@/services/dashboard-home'
 	//
 	import {
 		mapState
@@ -62,6 +64,7 @@
 		// 
 		data() {
 			return {
+				appHomeName: '系统默认首页',
 				isLogin: false,
                 loadError: false,
 				isGetPhone: false,
@@ -115,6 +118,7 @@
 	onLoad() {
 	},
 	onShow() {
+        this.refreshAppHome()
 		this.addressConfigured = this.resolveAddressConfigured()
 		this.getUserInfo()
 		this.$nextTick(() => {
@@ -126,6 +130,16 @@
 		})
 	},
 		methods: {
+            async replayBoardGuide() {
+                try { const preference = await openHomePreference(); preference.resetGuides(); uni.switchTab({ url: '/pages/dashboard/boards' }) }
+                catch (error) { uni.showToast({ title: error.message || '请重试', icon: 'none' }) }
+            },
+            openHomeSettings() { uni.navigateTo({ url: '/pages/account/home-preference' }) },
+            async refreshAppHome() {
+                this.appHomeName = '读取中…'
+                try { const preference = await openHomePreference(); this.appHomeName = preference.read()?.name || '系统默认首页' }
+                catch { this.appHomeName = '点击查看' }
+            },
             openServiceConfig() { uni.navigateTo({ url: '/pages/account/service-config' }); },
             // 地址存储格式异常（例如被外部写入脏数据）时按「默认」展示，不要让「我的」页整个挂掉。
             resolveAddressConfigured() {

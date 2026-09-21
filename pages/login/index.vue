@@ -267,7 +267,7 @@ export default {
 						},
 					});
 					uni.switchTab({
-						url: '../devices/index'
+						url: '../dashboard/index'
 					});
 
 				} else {

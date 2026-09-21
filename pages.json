@@ -182,7 +182,9 @@
 				"enablePullDownRefresh": false,
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
-		}
+		},
+        { "path": "pages/dashboard/search", "style": { "navigationBarTitleText": "搜索看板", "navigationBarBackgroundColor": "#FFFFFF" } },
+        { "path": "pages/account/home-preference", "style": { "navigationBarTitleText": "App 首页", "navigationBarBackgroundColor": "#F2F2F7" } }
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
