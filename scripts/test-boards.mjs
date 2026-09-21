@@ -6,27 +6,33 @@ const script = source.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import 
 const component = vm.runInNewContext(script.replace('export default', 'globalThis.component =') + '; component', { clearTimeout, setTimeout, AppSearch: {} })
 const context = { ...component.data() }
 for (const [key, fn] of Object.entries(component.methods)) context[key] = fn.bind(context)
-context.projects = [{ name: '环境项目', id: 'p1' }, { name: 'TEST', id: 'p2' }]
-context.keyword = ' test '
-assert.equal(component.computed.filteredProjects.call(context)[0].id, 'p2')
+// An empty search must list every dashboard, even when entered through an old project link.
+context.keyword = ''
+context.projectId = 'legacy-project'
 const pending = []
 context.client = { dashboards: params => new Promise((resolve, reject) => pending.push({ params, resolve, reject })) }
 const old = context.loadBoards(true)
+assert.equal(pending[0].params.projectId, undefined)
+assert.equal(pending[0].params.keyword, undefined)
 context.keyword = '环境'
 const current = context.loadBoards(true)
-pending[1].resolve({ data: [{ id: 'new' }], meta: { total: 2 } }); await current
+pending[1].resolve({ data: [{ id: 'new' }], meta: { total: 42, totalPages: 3 } }); await current
 pending[0].resolve({ data: [{ id: 'old' }], meta: { total: 1 } }); await old
 assert.equal(context.boards[0].id, 'new')
-assert.equal(context.total, 2)
+assert.equal(context.total, 42)
 const next = context.loadBoards(false)
 assert.equal(pending[2].params.page, 2)
 pending[2].reject(new Error('network')); await next
 assert.equal(context.boards[0].id, 'new'); assert.equal(context.page, 1)
-context.projectId = 'p1'; context.keyword = ''
-const scoped = context.loadBoards(true)
-assert.equal(pending[3].params.projectId, 'p1')
+const retry = context.retry()
+assert.equal(pending[3].params.page, 2)
+pending[3].resolve({ data: [{ id: 'next' }], meta: { total: 42, totalPages: 3 } }); await retry
+assert.equal(context.boards.length, 2)
+context.keyword = ''
+const unscoped = context.loadBoards(true)
+assert.equal(pending[4].params.projectId, undefined)
 context.disposed = true
-pending[3].resolve({ data: [{ id: 'late' }], meta: { total: 1 } }); await scoped
+pending[4].resolve({ data: [{ id: 'late' }], meta: { total: 1 } }); await unscoped
 assert.equal(context.boards.length, 0)
 assert.equal(context.thumbnailUrl('abc='), 'data:image/png;base64,abc=')
 assert.equal(context.thumbnailUrl('https://example.test/preview.png'), 'https://example.test/preview.png')
@@ -57,4 +63,4 @@ assert.equal((await client.projects()).length, 2)
 assert.equal(ssoCalls, 2)
 identity = 'session-b'
 await assert.rejects(() => client.dashboards({}), /登录或服务器已切换/)
-console.log('Boards: project search, scoped queries, stale responses, pagination errors, unload, SSO retry and account isolation passed.')
+console.log('Boards: all-dashboard queries, legacy links, stale responses, pagination retry, unload, SSO retry and account isolation passed.')
