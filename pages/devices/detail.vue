@@ -19,6 +19,7 @@
 					<view class="device-main">
 						<view class="title-line">
 							<text class="device-name">{{ deviceName }}</text>
+							<view class="status-dot" :class="{ 'status-dot--online': isOnline }" role="img" :aria-label="statusLabel" :title="statusLabel" />
 						</view>
 
 						<view class="context-line">
@@ -31,28 +32,11 @@
 									<image class="edit-icon" src="/static/icon/device-edit.svg" mode="aspectFit" aria-hidden="true" />
 								</button>
 							</view>
-							<view class="status-badge" :class="statusClass">
-								<view class="status-dot" />
-								<text>{{ statusLabel }}</text>
-							</view>
 						</view>
-					</view>
-				</view>
-
-				<view class="meta-list">
-					<view class="meta-row">
-						<text class="meta-label">设备 ID</text>
-						<view class="meta-value-group">
-							<text class="meta-value meta-value--id">{{ deviceId || '--' }}</text>
-							<button class="copy-action" hover-class="inline-action--pressed" aria-label="复制设备 ID" :disabled="!deviceId" @click="copyDeviceId">
-								<view class="copy-icon copy-icon--back" aria-hidden="true" />
-								<view class="copy-icon copy-icon--front" aria-hidden="true" />
-							</button>
+						<view class="last-report">
+							<text class="last-report-label">最后上报</text>
+							<text class="last-report-time">{{ lastReportedAt }}</text>
 						</view>
-					</view>
-					<view class="meta-row">
-						<text class="meta-label">最后上报</text>
-						<text class="meta-value meta-value--time">{{ lastReportedAt }}</text>
 					</view>
 				</view>
 			</view>
@@ -147,10 +131,6 @@ export default {
 		statusLabel() {
 			if (!this.hasKnownStatus) return '状态未知'
 			return this.isOnline ? '在线' : '离线'
-		},
-		statusClass() {
-			if (!this.hasKnownStatus) return 'status-badge--unknown'
-			return this.isOnline ? 'status-badge--online' : 'status-badge--offline'
 		},
 		deviceImageSrc() {
 			const path = this.device.image_url || this.device.device_config?.image_url
@@ -252,10 +232,6 @@ export default {
 				this.savingName = false
 			}
 		},
-		copyDeviceId() {
-			if (!this.deviceId) return
-			uni.setClipboardData({ data: this.deviceId })
-		},
 	}
 }
 </script>
@@ -286,20 +262,16 @@ export default {
 .top-action--pressed, .inline-action--pressed, .detail-tab--pressed { opacity: .56; }
 
 .page-scroll { flex: 1; min-height: 0; height: 0; background: var(--detail-canvas); }
-.device-summary { --summary-muted: #657187; --summary-label-width: 56px; --summary-column-gap: 12px; padding: 16px 20px 8px; background: #ffffff; box-sizing: border-box; }
+.device-summary { --summary-muted: #657187; --summary-label-width: 72px; --summary-column-gap: 12px; padding: 16px 20px 8px; background: #ffffff; box-sizing: border-box; }
 .device-summary text { font-family: inherit; }
 .device-identity { display: grid; grid-template-columns: var(--summary-label-width) minmax(0, 1fr); align-items: start; column-gap: var(--summary-column-gap); }
-.device-image-card { display: flex; align-items: center; justify-content: center; width: var(--summary-label-width); height: 56px; }
-.device-image { width: 48px; height: 48px; }
+.device-summary .device-image-card { display: flex; align-items: center; justify-content: center; width: var(--summary-label-width); height: 72px; }
+.device-summary .device-image { width: 64px; height: 64px; }
 .device-main { flex: 1; min-width: 0; }
-.title-line { display: flex; align-items: flex-start; min-width: 0; }
-.device-name { flex: 1; min-width: 0; overflow-wrap: anywhere; color: var(--detail-text); font-size: 18px; font-weight: 600; line-height: 26px; }
-.status-badge { display: flex; align-items: center; flex-shrink: 0; gap: 6px; color: var(--summary-muted); font-size: 12px; line-height: 20px; }
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #a9b1be; }
-.status-badge--online { color: var(--alarm-status-normal, var(--tp-color-success, #08bf63)); }
-.status-badge--online .status-dot { background: var(--alarm-status-normal, var(--tp-color-success, #08bf63)); }
-.status-badge--offline .status-dot { background: #a9b1be; }
-.status-badge--unknown .status-dot { background: var(--tp-color-warning, #ff9500); }
+.device-summary .title-line { min-width: 0; line-height: 26px; }
+.device-summary .device-name { overflow-wrap: anywhere; color: var(--detail-text); font-size: 18px; font-weight: 600; }
+.device-summary .status-dot { display: inline-block; vertical-align: middle; width: 6px; height: 6px; margin-left: 8px; border-radius: 50%; background: #a9b1be; }
+.device-summary .status-dot--online { background: var(--alarm-status-normal, var(--tp-color-success, #08bf63)); }
 
 .context-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; min-height: 28px; }
 .context-details { display: flex; flex: 1; align-items: center; gap: 8px; min-width: 0; }
@@ -314,17 +286,9 @@ export default {
 .device-summary .edit-action[disabled], .device-summary .copy-action[disabled] { opacity: .4; cursor: default; }
 .edit-icon { width: 16px; height: 16px; }
 
-.meta-list { display: flex; flex-direction: column; margin-top: 12px; }
-.meta-row { display: grid; grid-template-columns: var(--summary-label-width) minmax(0, 1fr); align-items: center; min-height: 28px; column-gap: var(--summary-column-gap); }
-.device-summary .copy-action { margin-top: -8px; margin-bottom: -8px; }
-.meta-label { color: var(--summary-muted); font-size: 12px; line-height: 20px; }
-.meta-value-group { display: flex; align-items: center; min-width: 0; }
-.meta-value { min-width: 0; overflow: hidden; color: var(--detail-text); font-size: 13px; line-height: 20px; white-space: nowrap; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
-.device-summary .meta-value--id { flex: 1; font-family: inherit; font-size: 12px; }
-.meta-value--time { overflow: visible; white-space: normal; overflow-wrap: anywhere; }
-.copy-icon { position: absolute; width: 10px; height: 10px; border: 1px solid #7c879a; border-radius: 2px; box-sizing: border-box; }
-.copy-icon--back { margin: -4px 0 0 -4px; }
-.copy-icon--front { margin: 4px 0 0 4px; background: #ffffff; }
+.device-summary .last-report { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px; margin-top: 4px; font-size: 12px; line-height: 20px; }
+.device-summary .last-report-label { flex-shrink: 0; color: var(--summary-muted); }
+.device-summary .last-report-time { min-width: 0; overflow-wrap: anywhere; color: var(--summary-muted); font-variant-numeric: tabular-nums; }
 
 .detail-panel { min-height: 720rpx; background: var(--detail-canvas); border-radius: 0; overflow: hidden; }
 .detail-tabs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); height: 80rpx; padding: 0 18rpx; background: #ffffff; border-bottom: 2rpx solid var(--detail-border); box-sizing: border-box; }

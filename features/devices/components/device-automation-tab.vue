@@ -1,6 +1,6 @@
 <template>
   <view class="business-tab" :class="{ embedded: alarmOnly }">
-    <view class="toolbar">
+    <view class="toolbar" :class="{ 'automation-search': !alarmOnly }">
       <AppSearch v-model="name" placeholder="搜索场景联动" action-label="搜索" @search="search" @action="search" @clear="search">
         <button class="text-button" @click="edit()">{{ alarmOnly ? '新增联动' : '新增' }}</button>
       </AppSearch>
@@ -83,7 +83,8 @@ async function toggle(item) {
 .business-tab.embedded { padding:0; }
 .toolbar,.row-heading,.actions { display:flex; align-items:center; gap:10px; }
 .toolbar { padding:14px 0; border-bottom:1px solid #f0f2f6; }
-.search { flex:1; min-width:0; font-size:12px; height:36px; background:#fafbfe; border:1px solid #edf0f5; border-radius:4px; padding:0 12px; }
+.automation-search :deep(.app-search-field) { background:#f3f4f6; border-radius:4px; }
+.automation-search :deep(.app-search-field:focus-within) { box-shadow:inset 0 0 0 1px var(--tp-color-primary, #1677ff); }
 .text-button { background:transparent; color:var(--tp-color-primary, #1677ff); font-size:12px; font-family:inherit; margin:0; padding:0 10px; line-height:40px; border-radius:0; }
 .text-button::after { border:0; }.text-button[disabled] { color:#98a2b3; }
 .rule-row { padding:18px 0 10px; border-bottom:1px solid #f0f2f6; }.title { flex:1; font-size:14px; line-height:22px; font-weight:500; overflow-wrap:anywhere; }

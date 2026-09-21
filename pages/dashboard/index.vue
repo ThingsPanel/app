@@ -80,6 +80,7 @@
 </template>
 
 <script>
+import dayjs from 'dayjs'
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
 import { alarmHistory } from '@/api/modules/alarm'
 import { sceneAutomationsGet } from '@/api/modules/automation'
@@ -184,7 +185,7 @@ export default {
       await Promise.all(tasks.map(async ([label, task]) => {
         try { await task() } catch (error) { this.errors.push(label); console.warn(this.$t('dashboard.title') + label + '加载失败', error.message) }
       }))
-      this.updatedAt = this.errors.length ? '' : now.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false })
+      this.updatedAt = this.errors.length ? '' : dayjs().format('HH:mm')
       this.loading = false
     },
     navigate(url) { uni.navigateTo({ url, fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) }) },
