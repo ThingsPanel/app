@@ -16,7 +16,7 @@ function instance(component, props = {}) {
 }
 
 const requests = []
-const deck = component('../components/board-deck/index.vue', { BoardViewer: {}, BoardLoading: {}, createBoardsClient: () => ({ dashboards: params => new Promise((resolve, reject) => requests.push({ params, resolve, reject })) }) })
+const deck = component('../components/board-deck/index.vue', { BoardViewer: {}, BoardLoading: {}, BoardPicker: {}, createBoardsClient: () => ({ dashboards: params => new Promise((resolve, reject) => requests.push({ params, resolve, reject })) }) })
 const state = instance(deck, { initialId: 'b', homeMode: false, showBack: false })
 const load = state.load()
 assert.equal(requests[0].params.limit, 100)
@@ -49,6 +49,35 @@ assert.equal(failed.error, 'offline')
 const retry = failed.load(); requests[5].resolve({ data: [], meta: { totalPages: 0 } }); await retry
 assert.equal(failed.error, ''); assert.equal(failed.boards.length, 0)
 
+// Fullscreen is deck-owned so switching boards cannot reset orientation state.
+state.fullscreen = true; state.switching = false; state.index = 1
+state.change(1, 'swipe')
+assert.equal(state.current.id, 'c')
+assert.equal(state.fullscreen, true, 'fullscreen survives a board switch')
+clearTimeout(state.unlockTimer); state.switching = false
+
+// Viewer paging must accept vertical swipes in fullscreen while preserving the
+// existing interaction guard used for draggable/clickable widgets.
+const orientationCalls = [], tabCalls = []
+const viewer = component('../components/board-viewer/index.vue', {
+  BoardLoading: {}, createBoardRuntime() {}, openHomePreference() {},
+  uni: {
+    hideTabBar: options => tabCalls.push(['hide', options.animation]),
+    showTabBar: options => tabCalls.push(['show', options.animation])
+  },
+  plus: { screen: { lockOrientation: value => orientationCalls.push(value) } }
+})
+const viewerEvents = []
+const viewerState = {
+  ...viewer.data.call({ initialFullscreen: true }), homeMode: false, interactive: false, fullscreen: true,
+  $emit: (...args) => viewerEvents.push(args)
+}
+for (const [key, method] of Object.entries(viewer.methods)) viewerState[key] = method.bind(viewerState)
+viewerState.requestPage(1)
+assert.deepEqual(viewerEvents.pop(), ['page-change', 1, 'swipe'], 'fullscreen swipe changes page')
+viewerState.interactive = true; viewerState.requestPage(-1)
+assert.equal(viewerEvents.length, 0, 'widget interaction still blocks paging')
+
 // Execute the actual renderjs gesture layer with a minimal DOM, not a copy of its logic.
 const viewerSource = fs.readFileSync(new URL('../components/board-viewer/index.vue', import.meta.url), 'utf8')
 const bridge = viewerSource.match(/<script module="boardBridge" lang="renderjs">([\s\S]*?)<\/script>/)[1]
@@ -73,4 +102,23 @@ frame.gestures.onpointerup(event(180, 150, 2))
 frame.setInteractive(true); swipe(150, 100); assert.equal(events.length, 0, 'widget mode does not switch')
 frame.setInteractive(false); frame.position.zoom = 2; swipe(150, 100); assert.equal(events.length, 0, 'zoomed canvas drag does not switch')
 frame.destroy()
+
+// LOADED starts data delivery but must not expose a capable runtime before paint.
+const loadingViewer = instance(viewer, { session: 7, isGrid: true, phase: 'loading' })
+loadingViewer.onFrameEvent({ session: 7, message: { type: 'READY', payload: { renderReadyModes: ['grid'] } } })
+loadingViewer.onFrameEvent({ session: 7, message: { type: 'LOADED' } })
+await new Promise(resolve => setTimeout(resolve, 850))
+assert.equal(loadingViewer.phase, 'loading', 'capable runtime waits for actual render-ready')
+loadingViewer.onFrameEvent({ session: 6, message: { type: 'tv:render-ready' } })
+assert.equal(loadingViewer.phase, 'loading', 'stale frame cannot reveal the current board')
+loadingViewer.onFrameEvent({ session: 7, message: { type: 'tv:render-ready' } })
+assert.equal(loadingViewer.phase, 'ready')
+assert.equal(loadingViewer.revealing, true)
+loadingViewer.dispose()
+loadingViewer.phase = 'loading'
+loadingViewer.onFrameEvent({ session: loadingViewer.session, message: { type: 'LOADED' } })
+assert.equal(loadingViewer.phase, 'loading', 'legacy runtime does not reveal immediately')
+await new Promise(resolve => setTimeout(resolve, 850))
+assert.equal(loadingViewer.phase, 'loaded', 'legacy fallback does not claim confirmed render readiness')
+loadingViewer.dispose()
 console.log('Board deck: all pages, deduplication, initial selection, bounds, stale loads, deleted home, retry, and actual renderjs gestures passed.')

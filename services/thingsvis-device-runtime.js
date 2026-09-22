@@ -99,9 +99,8 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       }
       initPayload = {}
       push({ is_online: device.is_online, online_text: device.is_online === 1 ? '在线' : '离线' })
-      await fetchLatest()
-      await fetchAlarms()
-      await history({})
+      // 三类请求互不依赖；仍等历史就绪后握手，保持图表先历史、后实时的顺序。
+      await Promise.all([fetchLatest(), fetchAlarms(), history({})])
       return { fields }
     }
     const templateId = device?.device_config?.device_template_id
@@ -145,14 +144,14 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
   }
   async function history(payload, reuseInitial = false) {
     const requests = collectDeviceHistory(schema, payload)
-    for (const [id, range] of requests) {
-      if (!fields.some(field => field.id === id && field.dataType === 'telemetry')) continue
+    async function loadField([id, range]) {
+      if (!fields.some(field => field.id === id && field.dataType === 'telemetry')) return
       const config = payload.historyConfig || {}
       const query = { device_id: deviceId, key: id, time_range: normalizeHistoryRange(config.timeRange || range), aggregate_window: config.aggWindow || 'no_aggregate', aggregate_function: config.aggFunction || 'NONE_RAW' }
       const signature = JSON.stringify(query)
       if (reuseInitial && historyQueries.get(id) === signature && initialHistory.has(id)) {
         if (loaded) emit({ type: 'tv:platform-history', payload: initialHistory.get(id) })
-        continue
+        return
       }
       const result = await api('telemetry/datas/statistic', query)
       const rows = normalizeHistoryRows(result)
@@ -163,6 +162,14 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       // 历史只走专用协议。作为普通字段推送会生成 __history__history 嵌套缓冲，
       // 上千点历史反复进入状态深比较，会阻塞 iframe 主线程和组件加载。
     }
+    // 限制单设备并发，避免多字段历史逐个等待，也避免瞬间发出全部请求。
+    const entries = [...requests]
+    let failure
+    for (let offset = 0; offset < entries.length && !stopped; offset += 4) {
+      const results = await Promise.allSettled(entries.slice(offset, offset + 4).map(loadField))
+      failure ||= results.find(result => result.status === 'rejected')
+    }
+    if (failure) throw failure.reason
   }
   async function handleMessage(message) {
     if (stopped || !initPayload || !message) return

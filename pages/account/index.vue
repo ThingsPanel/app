@@ -165,8 +165,6 @@ import { openHomePreference } from '@/services/dashboard-home'
 					uni.removeStorageSync('access_token')
 					uni.removeStorageSync('wx_code')
 					uni.removeStorageSync('ywId')
-					uni.removeStorageSync('email')
-					uni.removeStorageSync('password')
 					this.API.apiRequest('/api/v1/push-id/logout', {
 						push_id: push_id
 					}, 'post').then(res => {

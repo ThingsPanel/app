@@ -1,6 +1,6 @@
 import httpClient from './client'
+import { clearSessionStorage, isSessionExpiredCode } from '@/features/auth/session'
 
-const AUTH_ERROR_CODES = new Set([401, 402, 403])
 let authModalVisible = false
 
 function getAuthHeaders(headers = {}) {
@@ -20,7 +20,7 @@ function handleAuthError() {
     content: '登录状态已过期，请重新登录。',
     showCancel: false,
     complete() {
-      uni.clearStorageSync()
+      clearSessionStorage()
       uni.reLaunch({ url: '/pages/login/index' })
       authModalVisible = false
     }
@@ -39,7 +39,8 @@ export async function apiRequest(url, data, method = 'GET', headers = {}) {
   })
   const responseBody = response.data
 
-  if (AUTH_ERROR_CODES.has(responseBody?.code)) handleAuthError()
+  // 402/403 是业务或权限错误，只有 401 才能把用户送回登录页。
+  if (isSessionExpiredCode(responseBody?.code)) handleAuthError()
   return responseBody
 }
 

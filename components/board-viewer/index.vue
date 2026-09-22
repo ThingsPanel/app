@@ -3,14 +3,17 @@
     <view v-if="!fullscreen && !homeMode" class="board-nav" @touchstart="startSwipe" @touchend="endSwipe" :style="{ paddingTop: statusBarHeight + 'px' }">
       <button v-if="showBack" class="nav-action" aria-label="返回" @click="goBack"><view class="back-icon" /></button>
       <view class="board-title"><text>{{ title }}</text></view>
-      <text v-if="deckMode" class="page-position">{{ pageIndex + 1 }} / {{ pageCount }}</text>
-      <button class="nav-action" aria-label="搜索看板" @click="openSearch"><image class="toolbar-icon" src="/static/icon/board-search.svg" mode="aspectFit" /></button>
+      <view class="board-nav-end">
+        <text v-if="deckMode" class="page-position">{{ pageIndex + 1 }} / {{ pageCount }}</text>
+        <button class="nav-action" aria-label="查看全部看板" @click="openSearch"><image class="toolbar-icon" src="/static/icon/board-search.svg" mode="aspectFit" /></button>
+      </view>
     </view>
     <view class="board-stage">
       <!-- #ifdef APP-PLUS || H5 -->
       <view :id="frameId" class="board-frame" :frame-state="frameState" :change:frame-state="boardBridge.syncFrame" :message-packet="messagePacket" :change:message-packet="boardBridge.sendMessages" :command="command" :change:command="boardBridge.control" />
       <!-- #endif -->
-      <transition name="preview-fade"><BoardLoading v-if="phase === 'loading'" :thumbnail="previewThumbnail" :background="background" :dark="darkCanvas" /></transition>
+      <!-- App 的逻辑层元素不保证具有 DOM classList，不能使用 Vue DOM Transition。 -->
+      <BoardLoading v-if="phase === 'loading' || revealing" :key="session" :active="phase === 'loading'" :background="background" :dark="darkCanvas" />
       <view v-if="phase === 'error' || phase === 'empty'" class="board-state" role="status" @touchstart="startSwipe" @touchend="endSwipe">
         <text>{{ statusMessage }}</text>
         <button v-if="phase === 'error'" @click="reload">重新加载</button>
@@ -31,14 +34,6 @@
         <button :class="{ selected: interactive }" :aria-pressed="interactive" :disabled="!['ready', 'loaded'].includes(phase)" @click="toggleInteractive"><image :src="interactive ? '/static/icon/board-check.svg' : '/static/icon/board-touch.svg'" /><text>{{ interactive ? '完成操作' : '操作看板' }}</text></button>
       </view>
       <text v-if="operationTip" class="operation-tip" role="status">可点击控件、拖动图表，点“完成操作”后继续滑动</text>
-      <view v-if="!homeMode && frameState?.url && ['ready', 'loaded'].includes(phase)" class="board-tools">
-        <template v-if="!isGrid">
-          <button aria-label="缩小看板" @click="sendCommand('zoom-out')">−</button>
-          <button aria-label="适应屏幕" @click="sendCommand('reset')">复位</button>
-          <button aria-label="放大看板" @click="sendCommand('zoom-in')">＋</button>
-        </template>
-        <button aria-label="重新加载看板" @click="reload">刷新</button>
-      </view>
     </view>
   </view>
 </template>
@@ -54,9 +49,9 @@ let sequence = 0
 const RENDER_READY_WARNING = ''
 export default {
   components: { BoardLoading },
-  props: { initialId: { type: String, required: true }, initialName: { type: String, default: '看板' }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, deckMode: { type: Boolean, default: false }, pageIndex: { type: Number, default: 0 }, pageCount: { type: Number, default: 1 } },
-  emits: ['back', 'system-home', 'unavailable', 'page-change'],
-  data() { return { previewThumbnail: '', boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: false, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
+  props: { initialId: { type: String, required: true }, initialName: { type: String, default: '看板' }, initialFullscreen: { type: Boolean, default: false }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, deckMode: { type: Boolean, default: false }, pageIndex: { type: Number, default: 0 }, pageCount: { type: Number, default: 1 } },
+  emits: ['back', 'system-home', 'unavailable', 'page-change', 'fullscreen-change'],
+  data() { return { revealing: false, renderReadySupported: false, boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: this.initialFullscreen, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
   computed: { darkCanvas() {
     const color = this.background || ''
     const hex = color.match(/^#([a-f0-9]{6}|[a-f0-9]{3})$/i)
@@ -73,11 +68,21 @@ export default {
     this.boardId = this.initialId
     this.title = this.initialName
     this.statusBarHeight = uni.getSystemInfoSync().statusBarHeight || 0
+    if (this.fullscreen) this.applyFullscreen(true)
     this.reload()
     this.loadPreferences()
   },
-  beforeUnmount() { this.disposed = true; clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose(); this.restorePortrait() },
+  beforeUnmount() {
+    this.disposed = true; clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose()
+    // Deck owns fullscreen across page switches and restores portrait when the deck itself closes.
+    if (!this.deckMode) this.restorePortrait()
+  },
   methods: {
+    markLoadStage(stage) {
+      if (!this.loadStartedAt || !this.loadStages || this.loadStages.has(stage)) return
+      this.loadStages.add(stage)
+      console.info('[BoardPerf]', stage, Date.now() - this.loadStartedAt, 'ms')
+    },
     async loadPreferences() {
       try {
         const preference = await openHomePreference()
@@ -92,7 +97,7 @@ export default {
       try { this.preference?.finishGuide('swipe') } catch { /* Can retry next visit. */ }
     },
     requestPage(direction) {
-      if (this.homeMode || this.interactive || this.fullscreen) return
+      if (this.homeMode || this.interactive) return
       this.$emit('page-change', direction, 'swipe')
     },
     dismissOperationTip() {
@@ -126,12 +131,15 @@ export default {
     openSearch() { uni.navigateTo({ url: '/pages/dashboard/search' }) },
     fullscreenBack() { if (this.showBack) this.goBack(); else this.toggleFullscreen() },
     dispose() {
+      clearTimeout(this.legacyReadyTimer); clearTimeout(this.revealTimer)
+      this.revealing = false; this.renderReadySupported = false
       clearTimeout(this.operationTimer)
       this.session++; clearTimeout(this.readyTimer); clearTimeout(this.sendTimer)
       this.sendTimer = null; this.pendingMessages = []; this.runtime?.stop(); this.runtime = null
       this.frameState = { id: this.frameId, session: this.session, url: '' }
     },
     async reload() {
+      this.loadStartedAt = Date.now(); this.loadStages = new Set()
       this.dispose(); this.phase = 'loading'; this.warning = ''; this.statusMessage = '正在加载看板…'; this.interactive = false; this.operationTip = false
       if (!this.boardId) { this.phase = 'error'; this.statusMessage = '缺少看板 ID'; return }
       const session = this.session
@@ -142,10 +150,11 @@ export default {
             this.pendingMessages.push(message)
             if (this.sendTimer) return
             this.sendTimer = setTimeout(() => { this.sendTimer = null; this.messagePacket = { session, sequence: Date.now(), messages: this.pendingMessages.splice(0) } }, 0)
-          }, onState: state => { if (session !== this.session) return; if (state.message) this.warning = state.message; if (typeof state.thumbnail === 'string') this.previewThumbnail = state.thumbnail }
+          }, onState: state => { if (session !== this.session) return; if (state.message) this.warning = state.message }
         })
         const result = await this.runtime.start()
         if (session !== this.session) return
+        this.markLoadStage('config-ready')
         if (!result) throw new Error('登录或服务器已切换，请重新打开看板')
         this.title = result.name || this.title
         this.background = typeof result.canvas.background === 'string' ? result.canvas.background : result.canvas.background?.color || '#f5f6f8'
@@ -161,13 +170,25 @@ export default {
     },
     onFrameEvent(event) {
       if (event.session !== this.session) return
-      if (event.pageDirection && !this.interactive && !this.fullscreen) { this.requestPage(event.pageDirection); return }
+      if (event.pageDirection && !this.interactive) { this.requestPage(event.pageDirection); return }
       if (event.error) { this.phase = 'error'; this.statusMessage = event.error; return }
       const type = event.message?.type
-      // 老版本固定画布没有 render-ready：允许显示配置，但不谎报实际组件渲染成功。
-      if (['LOADED', 'tv:loaded'].includes(type) && this.phase === 'loading') this.phase = 'loaded'
-      if (type === 'tv:render-ready') { this.phase = 'ready'; clearTimeout(this.readyTimer) }
+      if (['READY', 'tv:ready', 'tv:request-init', 'thingsvis:editor-ready'].includes(type)) this.markLoadStage('frame-ready')
+      if (['LOADED', 'tv:loaded'].includes(type)) this.markLoadStage('schema-loaded')
+      if (type === 'tv:render-ready') this.markLoadStage('render-ready')
+      if (event.message?.payload?.renderReadyModes?.includes(this.isGrid ? 'grid' : 'fixed')) this.renderReadySupported = true
+      // Older runtimes and fixed canvases do not advertise render-ready support.
+      if (['LOADED', 'tv:loaded'].includes(type) && this.phase === 'loading' && !this.renderReadySupported && !this.legacyReadyTimer) {
+        const session = this.session
+        this.legacyReadyTimer = setTimeout(() => { if (session === this.session && this.phase === 'loading') this.reveal('loaded') }, 800)
+      }
+      if (type === 'tv:render-ready' && ['loading', 'loaded'].includes(this.phase)) this.reveal('ready')
       Promise.resolve(this.runtime?.handleMessage(event.message)).catch(error => { if (event.session === this.session) this.warning = error.message || '看板数据加载失败' })
+    },
+    reveal(phase) {
+      clearTimeout(this.legacyReadyTimer); clearTimeout(this.readyTimer); clearTimeout(this.revealTimer)
+      this.revealing = this.phase === 'loading'; this.phase = phase
+      this.revealTimer = setTimeout(() => { this.revealing = false }, 180)
     },
     sendCommand(kind, enabled) { this.command = { session: this.session, sequence: (this.command?.sequence || 0) + 1, kind, enabled } },
     toggleInteractive() {
@@ -178,21 +199,23 @@ export default {
         if (this.operationTip) this.operationTimer = setTimeout(() => this.dismissOperationTip(), 5000)
       } else this.dismissOperationTip()
     },
-    toggleFullscreen() {
-      this.fullscreen = !this.fullscreen
-      if (this.fullscreen) uni.hideTabBar({ animation: false, fail() {} })
+    applyFullscreen(enabled) {
+      if (enabled) uni.hideTabBar({ animation: false, fail() {} })
       else uni.showTabBar({ animation: false, fail() {} })
       // #ifdef APP-PLUS
-      plus.screen.lockOrientation(this.fullscreen ? 'landscape-primary' : 'portrait-primary')
+      plus.screen.lockOrientation(enabled ? 'landscape-primary' : 'portrait-primary')
       // #endif
+    },
+    toggleFullscreen() {
+      this.fullscreen = !this.fullscreen
+      this.applyFullscreen(this.fullscreen)
+      this.$emit('fullscreen-change', this.fullscreen)
       this.sendCommand('reset')
     },
     restorePortrait() {
-      if (this.fullscreen) uni.showTabBar({ animation: false, fail() {} })
-      // #ifdef APP-PLUS
-      if (this.fullscreen) plus.screen.lockOrientation('portrait-primary')
-      // #endif
+      if (this.fullscreen) this.applyFullscreen(false)
       this.fullscreen = false
+      this.$emit('fullscreen-change', false)
     },
     goBack() { this.restorePortrait(); this.$emit('back') }
   }
@@ -318,9 +341,6 @@ export default {
 <!-- #endif -->
 
 <style scoped>
-.preview-fade-leave-active { transition:opacity .18s ease-out; pointer-events:none; }
-.preview-fade-leave-to { opacity:0; }
-@media(prefers-reduced-motion:reduce) { .preview-fade-leave-active { transition:none; } }
 .board-detail { position:absolute; inset:0; display:flex; flex-direction:column; background:var(--board-background); color:#202938; font-family: inherit; }
 .board-detail button { margin:0; border:0; border-radius:0; font-family:inherit; font-size:26rpx; font-weight:400; min-height:44px; line-height:44px; padding:0 16rpx; }
 .board-detail button::after { border:0; }
@@ -330,7 +350,8 @@ export default {
 .board-detail .nav-action { flex:0 0 40px; width:40px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; background:transparent; }
 .back-icon { width:12px; height:12px; border-left:1.5px solid currentColor; border-bottom:1.5px solid currentColor; transform:rotate(45deg); }
 .board-title text:first-child { overflow:hidden; text-overflow:ellipsis; }
-.toolbar-icon { width:19px; height:19px; }
+.board-nav-end { display:flex; align-items:center; flex-shrink:0; gap:2px; }
+.toolbar-icon { width:18px; height:18px; }
 .board-stage { position:relative; flex:1; min-height:0; overflow:hidden; }
 .board-frame { position:absolute; inset:0; overflow:hidden; }
 .board-state { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24rpx; background:#f5f6f8; color:#667085; font-size:26rpx; padding:32rpx; text-align:center; }
@@ -340,7 +361,7 @@ export default {
 /* #ifdef H5 */
 @media (orientation:portrait) { .board-detail--fullscreen { width:100vh; height:100vw; inset:auto; top:0; left:0; transform-origin:top left; transform:translateX(100vw) rotate(90deg); } }
 /* #endif */
-.page-position { flex-shrink:0; font-size:11px; color:#8993a3; font-variant-numeric:tabular-nums; margin-right:6px; }
+.page-position { flex-shrink:0; font-size:12px; line-height:20px; color:#7f8b9d; font-variant-numeric:tabular-nums; white-space:nowrap; }
 .side-tools { position:absolute; right:12px; top:50%; transform:translateY(-50%); display:flex; flex-direction:column; gap:8px; }
 .board-detail .side-tools button { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; width:56px; min-height:52px; padding:4px 0; border-radius:0; background:transparent; color:#73737d; font-size:11px; line-height:16px; font-weight:400; }
 .side-tools image { width:21px; height:21px; opacity:.85; }
@@ -348,9 +369,7 @@ export default {
 .board-detail--dark .side-tools image { filter:brightness(0) invert(1); }
 .board-detail .side-tools .selected { color:var(--tp-color-primary,#1677ff); }
 .side-tools button[disabled] { opacity:.45; }
-.board-tools { position:absolute; bottom:16px; left:50%; transform:translateX(-50%); display:flex; white-space:nowrap; background:#29313e; border-radius:6px; padding:0 4px; }
-.board-detail .board-tools button,.board-detail .fullscreen-actions button { color:#fff; background:transparent; min-width:44px; font-size:13px; }
-.board-detail .board-tools button { font-size:12px; font-weight:400; padding:0 7px; }
+.board-detail .fullscreen-actions button { color:#fff; background:transparent; min-width:44px; font-size:13px; }
 .fullscreen-actions { position:absolute; top:env(safe-area-inset-top,0px); left:env(safe-area-inset-left,0px); right:env(safe-area-inset-right,0px); display:flex; justify-content:space-between; pointer-events:none; }
 .board-detail .fullscreen-actions button { pointer-events:auto; background:rgba(20,29,44,.9); }
 .operation-tip { position:absolute; bottom:70px; left:16px; right:80px; color:#51515c; background:rgba(242,242,247,.94); padding:6px 8px; font-size:12px; line-height:1.6; pointer-events:none; }

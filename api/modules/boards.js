@@ -1,12 +1,20 @@
 import { requestDeviceApi } from './device-overview'
 import { resolveThingsVisAddresses } from '@/utils/thingsvis-address'
 
+// 列表和查看器共享短期认证；仅保留当前会话，不持久化凭证或看板数据。
+let sharedAuth = null
+const AUTH_TTL = 5 * 60 * 1000
+
 export function createBoardsClient() {
   const addresses = resolveThingsVisAddresses()
   const platformToken = uni.getStorageSync('access_token')
-  let token = '', authenticating = null
+  let token = ''
+  const scope = JSON.stringify([platformToken, addresses.thingsPanelApiBase, addresses.thingsVisApiBase])
+  if (sharedAuth?.scope !== scope) sharedAuth = { scope, token: '', expiresAt: 0, pending: null }
+  const auth = sharedAuth
   function checkSession() {
-    if (!platformToken || platformToken !== uni.getStorageSync('access_token') || addresses.thingsVisApiBase !== resolveThingsVisAddresses().thingsVisApiBase) throw new Error('登录或服务器已切换，请重新打开看板')
+    const current = resolveThingsVisAddresses()
+    if (!platformToken || platformToken !== uni.getStorageSync('access_token') || addresses.thingsVisApiBase !== current.thingsVisApiBase || addresses.thingsPanelApiBase !== current.thingsPanelApiBase || auth !== sharedAuth) throw new Error('登录或服务器已切换，请重新打开看板')
   }
   function request(path, data, method = 'GET', bearer = '') {
     checkSession()
@@ -17,7 +25,9 @@ export function createBoardsClient() {
     }))
   }
   async function authenticate() {
-    if (!authenticating) authenticating = (async () => {
+    checkSession()
+    if (auth.token && Date.now() < auth.expiresAt) { token = auth.token; return }
+    if (!auth.pending) auth.pending = (async () => {
       const user = await requestDeviceApi('user/detail')
       const id = user.userId || user.id
       if (!id) throw new Error('无法获取当前用户身份')
@@ -28,15 +38,23 @@ export function createBoardsClient() {
         role: admin ? 'SUPER_ADMIN' : user.authority === 'TENANT_ADMIN' ? 'TENANT_ADMIN' : 'EDITOR'
       }, 'POST')
       if (response.statusCode < 200 || response.statusCode >= 300 || !response.data?.accessToken) throw new Error('看板认证失败，请检查登录状态和服务配置')
-      checkSession(); token = response.data.accessToken
-    })().finally(() => { authenticating = null })
-    return authenticating
+      checkSession(); auth.token = response.data.accessToken
+      auth.expiresAt = Date.now() + AUTH_TTL
+    })().finally(() => { auth.pending = null })
+    await auth.pending
+    checkSession(); token = auth.token
   }
   async function get(path, params, retry = true) {
     checkSession()
-    if (!token) await authenticate()
-    const response = await request(path, params, 'GET', token)
-    if (response.statusCode === 401 && retry) { token = ''; return get(path, params, false) }
+    await authenticate()
+    const usedToken = token
+    const response = await request(path, params, 'GET', usedToken)
+    checkSession()
+    if (response.statusCode === 401) {
+      // 迟到的旧请求不能清除其他请求刚刷新的 token。
+      if (auth.token === usedToken) { auth.token = ''; auth.expiresAt = 0 }
+      if (retry) return get(path, params, false)
+    }
     if (response.statusCode < 200 || response.statusCode >= 300) {
       const error = new Error(response.statusCode === 403 ? '没有权限查看此看板' : response.statusCode === 404 ? '看板已删除或不可访问' : '看板加载失败，请重试')
       error.statusCode = response.statusCode

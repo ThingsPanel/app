@@ -270,7 +270,7 @@ export default {
 .device-main { flex: 1; min-width: 0; }
 .device-summary .title-line { min-width: 0; line-height: 26px; }
 .device-summary .device-name { overflow-wrap: anywhere; color: var(--detail-text); font-size: 18px; font-weight: 600; }
-.device-summary .status-dot { display: inline-block; vertical-align: middle; width: 6px; height: 6px; margin-left: 8px; border-radius: 50%; background: #a9b1be; }
+.device-summary .status-dot { display: inline-block; vertical-align: text-top; width: 6px; height: 6px; margin-left: 8px; border-radius: 50%; background: #a9b1be; }
 .device-summary .status-dot--online { background: var(--alarm-status-normal, var(--tp-color-success, #08bf63)); }
 
 .context-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; min-height: 28px; }

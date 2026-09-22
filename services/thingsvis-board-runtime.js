@@ -15,13 +15,11 @@ export function createBoardRuntime({ boardId, onMessage, onState }) {
     const client = createBoardsClient()
     preview = await client.preview(boardId)
     if (!current()) return null
-    if (preview.dashboard.thumbnail) onState({ thumbnail: preview.dashboard.thumbnail })
-    else void client.thumbnail(boardId).then(thumbnail => { if (current() && thumbnail) onState({ thumbnail }) }).catch(() => {})
     prepared = prepareBoardSchema(preview.dashboard)
     for (const source of prepared.schema.dataSources) {
       if (source.type === 'PLATFORM_FIELD' && collectDeviceHistory(prepared.schema, { dataSourceId: source.id }).size) source.config.bufferSize = Math.max(100, Number(source.config.bufferSize) || 0)
     }
-    const params = { mode: 'embedded', context: 'dashboard', provider: 'thingspanel', saveTarget: 'host', toolbar: '0', token: preview.token, thingsvisApiBaseUrl: preview.addresses.thingsVisApiBase, platformApiBaseUrl: preview.addresses.thingsPanelApiBase }
+    const params = { mode: 'embedded', context: 'dashboard', provider: 'thingspanel', saveTarget: 'host', toolbar: '0', hostLoading: '1', token: preview.token, thingsvisApiBaseUrl: preview.addresses.thingsVisApiBase, platformApiBaseUrl: preview.addresses.thingsPanelApiBase }
     return {
       url: preview.addresses.thingsVisPageUrl.split('#')[0] + '#/embed?' + Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&'),
       canvas: prepared.schema.canvas, name: preview.dashboard.name, empty: !prepared.schema.nodes.length

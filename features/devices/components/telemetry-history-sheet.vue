@@ -1,4 +1,6 @@
 <template>
+  <!-- App renderjs needs a persistent element root, even while uni-popup is closed. -->
+  <view class="telemetry-history-host">
   <uni-popup ref="popup" type="bottom" background-color="#fff" @change="onPopupChange">
     <view class="sheet">
       <view class="heading"><text>{{ field.name }} · {{ mode === 'trend' ? '趋势' : '历史列表' }}</text><button @click="$refs.popup.close()">关闭</button></view>
@@ -26,7 +28,9 @@
           <text v-if="!rows.length" class="state">所选时间范围内暂无数据</text>
           <template v-else>
             <view v-if="mode === 'trend'">
+              <!-- #ifdef APP-PLUS || H5 -->
               <view :id="chartId" class="chart" :chart-data="chartData" :change:chart-data="plot.update" />
+              <!-- #endif -->
               <view class="stats"><text>最小 {{ stats.min }}</text><text>最大 {{ stats.max }}</text><text>平均 {{ stats.avg }}</text></view>
             </view>
             <view class="record header"><text>时间</text><text>值{{ field.unit ? ` (${field.unit})` : '' }}</text></view>
@@ -37,6 +41,7 @@
       </scroll-view>
     </view>
   </uni-popup>
+  </view>
 </template>
 
 <script>

@@ -1,37 +1,42 @@
 <template>
-	<view class="tp-login-box plain-layout">
-		<view class="plain-header tp-flex tp-flex-row tp-flex-a-c">
-			<image class="brand-logo" src="/static/icon/app-mark.png" mode="heightFix" />
+	<view class="tp-login-box login-layout">
+		<view class="login-header">
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
-				<text class="lang-arrow">›</text>
+				<view class="lang-arrow" aria-hidden="true"></view>
 			</view>
 		</view>
-		<view class="plain-container">
-			<view class="card-title plain-title">{{ $t('pages.login.title') }}</view>
+
+		<view class="brand-block">
+			<image class="brand-logo" src="/static/icon/app-mark.png" mode="aspectFit" />
+			<text class="brand-name">ThingsPanel</text>
+		</view>
+
+		<view class="login-container">
+			<view class="login-title">{{ $t('pages.login.heading') }}</view>
 
 			<view class="form-area">
 				<view class="tp-ipt">
-					<view class="inputicon">
-						<uni-icons type="person-filled" size="28" color="#1677ff" />
-					</view>
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.emailPlaceholder')"
 						v-model="email" />
 				</view>
-				<view class="tp-ipt">
-					<view class="inputicon">
-						<uni-icons type="locked-filled" size="28" color="#1677ff" />
-					</view>
+				<view class="tp-ipt password-field">
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.passwordPlaceholder')"
-						password=true v-model="password" />
-				</view>
-				<view class="tp-ipt">
-					<view class="inputicon">
-						<uni-icons type="cloud-upload-filled" size="28" color="#1677ff" />
+						:password="!passwordVisible" v-model="password" />
+					<view class="password-toggle" @tap="passwordVisible = !passwordVisible">
+						<uni-icons :type="passwordVisible ? 'eye-slash' : 'eye'" size="22" color="#8e97ad" />
 					</view>
-					<input type="text" placeholder-class="tp-plc" placeholder="https://demo.thingspanel.cn"
-						v-model="server" @input="serverChange" />
 				</view>
+			</view>
+
+			<view class="server-row">
+				<view class="server-copy">
+					<text class="server-label">{{ $t('pages.login.currentServer') }}</text>
+					<input v-if="serverEditing" class="server-input" type="text" v-model="server"
+						focus confirm-type="done" @input="serverChange" @confirm="finishServerEdit" @blur="finishServerEdit" />
+					<text v-else class="server-value">{{ displayServer }}</text>
+				</view>
+				<text class="server-change" @tap="startServerEdit">{{ $t('pages.login.changeServer') }}</text>
 			</view>
 
 			<view class="btn-group">
@@ -39,8 +44,8 @@
 					@tap="doLoginSubmit">{{ $t('pages.login.loginButton') }}</button>
 			</view>
 
-			<view class="foot-tip center" style="margin-top: 0;">
-				<!-- <text>{{ $t('pages.login.noAccount') || 'No account?' }}</text> -->
+			<view class="foot-tip center">
+				<text>{{ $t('pages.login.noAccount') }}</text>
 				<text class="link-text" @tap="goToRegister">{{ $t('pages.login.registerButton') }}</text>
 			</view>
 		</view>
@@ -75,12 +80,21 @@ export default {
 			email: '',
 			password: '',
 			server: '',
+			serverEditing: false,
+			passwordVisible: false,
 			currentLanguage: AVAILABLE_LANGUAGES.find(
 				lang => lang.code === (uni.getStorageSync('language') || 'zh-CN')
 			)?.label || '中文',
 			toast: {
 				msg: ''
 			},
+		}
+	},
+	computed: {
+		displayServer() {
+			return String(this.server || 'https://demo.thingspanel.cn')
+				.replace(/^https?:\/\//i, '')
+				.replace(/\/+$/, '');
 		}
 	},
 	// 
@@ -105,13 +119,20 @@ export default {
 		this.syncLanguageLabel();
 
 		this.server = uni.getStorageSync('serverAddress') || '';
-		if (uni.getStorageSync('email') && uni.getStorageSync('password')) {
-			this.email = uni.getStorageSync('email');
-			this.password = uni.getStorageSync('password');
-			this.toLogin();
-		}
+		// 回填上次成功登录的账号密码，但不自动提交，避免会话过期后闪回首页。
+		this.email = uni.getStorageSync('email') || '';
+		this.password = uni.getStorageSync('password') || '';
+		this.passwordVisible = false;
 	},
 	methods: {
+		startServerEdit() {
+			this.server = this.server || 'https://demo.thingspanel.cn';
+			this.serverEditing = true;
+		},
+		finishServerEdit() {
+			this.server = String(this.server || '').trim();
+			this.serverEditing = false;
+		},
 		serverChange(v) {
 			console.log("serverChange", v.detail.value)
 			// uni.setStorageSync('serverAddress', v.detail.value)
@@ -322,86 +343,132 @@ export default {
 </script>
 
 <style>
-@import url("@/features/auth/styles/auth.css");
-
-.plain-layout {
+.login-layout {
+	--login-primary: #1677ff;
+	--login-ink: #111a2c;
+	--login-muted: #8b93aa;
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-	background-image: url('/static/image/bg.png');
-	background-size: cover;
-	background-position: top center;
-	background-repeat: no-repeat;
-	gap: 40rpx;
+	width: 100%;
 	min-height: 100vh;
+	padding: 0 50rpx 100rpx;
+	box-sizing: border-box;
+	background: radial-gradient(circle at 18% 42%, rgba(73, 105, 255, 0.035), transparent 36%), radial-gradient(circle at 82% 68%, rgba(109, 131, 255, 0.03), transparent 32%), #f7f8fc;
+	color: var(--login-ink);
 }
 
-.plain-header {
-	margin-top: 30rpx;
+.login-header {
+	position: absolute;
+	top: calc(var(--status-bar-height, 0px) + 44rpx);
+	right: 50rpx;
 	width: 100%;
-	max-width: 640rpx;
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
-}
-
-.brand-logo {
-	height: 60rpx;
+	justify-content: flex-end;
 }
 
 .lang-switch {
-	padding: 10rpx 20rpx;
-	border-radius: 12rpx;
-	border: 1rpx solid rgba(22, 119, 255, 0.3);
-	background: rgba(22, 119, 255, 0.1);
-	color: var(--tp-color-primary, #1677ff);
-	font-size: 26rpx;
+	min-height: 44rpx;
+	padding: 6rpx 0 6rpx 18rpx;
+	color: #727b92;
+	font-size: 28rpx;
 	cursor: pointer;
-	transition: all 0.3s ease;
 	display: flex;
 	align-items: center;
-	gap: 8rpx;
+	gap: 16rpx;
 }
 
 .lang-switch:active {
-	background: rgba(22, 119, 255, 0.2);
-	transform: scale(0.98);
+	opacity: 0.62;
 }
 
 .lang-label {
 	font-weight: 500;
+	line-height: 1;
 }
 
 .lang-arrow {
-	font-size: 32rpx;
-	color: var(--tp-color-primary, #1677ff);
-	opacity: 0.6;
-	font-weight: 300;
+	width: 14rpx;
+	height: 14rpx;
+	border-right: 4rpx solid #7c8499;
+	border-bottom: 4rpx solid #7c8499;
+	transform: rotate(45deg) translateY(-4rpx);
 }
 
-.plain-container {
-	flex: 1;
+.brand-block {
+	margin-top: calc(var(--status-bar-height, 0px) + 200rpx);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.brand-logo {
+	width: 96rpx;
+	height: 96rpx;
+	border-radius: 16rpx;
+	box-shadow: 0 10rpx 26rpx rgba(22, 119, 255, 0.13);
+}
+
+.brand-name {
+	margin-top: 18rpx;
+	font-size: 36rpx;
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: -1rpx;
+	color: #101828;
+}
+
+.login-container {
+	width: 100%;
+	max-width: 650rpx;
+	margin-top: 92rpx;
+	display: flex;
+	flex-direction: column;
+}
+
+.login-title {
+	font-size: 42rpx;
+	font-weight: 700;
+	line-height: 1.2;
+	letter-spacing: 1rpx;
+	color: var(--login-ink);
+}
+
+.form-area {
 	width: 100%;
 	display: flex;
 	flex-direction: column;
-	align-items: left;
-	justify-content: center;
 	gap: 24rpx;
+	margin-top: 42rpx;
 }
 
-.plain-title {
-	text-align: left;
-	margin-bottom: 12rpx;
-}
+.tp-ipt { width: 100%; height: 96rpx; padding: 0 28rpx; border: 0; border-radius: 14rpx; background: rgba(255,255,255,.94); box-sizing: border-box; display: flex; align-items: center; box-shadow: 0 2rpx 7rpx rgba(26,39,75,.018); }
+.tp-ipt input { flex: 1; min-width: 0; height: 96rpx; font-size: 28rpx; font-weight: 400; color: var(--login-ink); text-align: left; }
+.tp-plc { font-size: 27rpx; font-weight: 400; color: #929ab0; }
+.password-field { padding-right: 8px; min-height: 44px; }
+.password-toggle { flex: 0 0 44px; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; cursor: pointer; }
+.password-toggle:active { background: rgba(22,119,255,.06); }
+.server-row { width: 100%; min-height: 72rpx; margin-top: 42rpx; padding-right: 8px; box-sizing: border-box; display: flex; align-items: center; justify-content: space-between; gap: 24rpx; }
+.server-copy { min-width: 0; flex: 1; display: flex; flex-direction: column; gap: 8rpx; }
+.server-label { font-size: 23rpx; font-weight: 400; line-height: 1.2; color: #8a92a8; }
+.server-value, .server-input { font-size: 27rpx; font-weight: 400; line-height: 1.25; color: #13203a; }
+.server-input { width: 100%; height: 40rpx; padding: 0; border-bottom: 2rpx solid var(--login-primary); }
+.server-change { flex-shrink: 0; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; font-size: 26rpx; font-weight: 500; color: var(--login-primary); cursor: pointer; }
+.server-change:active { background: rgba(22,119,255,.06); }
+.btn-group { width: 100%; margin-top: 46rpx; }
+.tp-btn { width: 100%; height: 92rpx; line-height: 92rpx; border: 0; border-radius: 14rpx; font-size: 29rpx; font-weight: 500; }
+.tp-btn::after { border: 0; }
+.tp-btn.primary { background: linear-gradient(90deg, #1877ff 0%, #2586ff 52%, #1675f7 100%); color: #fff; box-shadow: 0 16rpx 30rpx rgba(22,119,255,.16); }
+.tp-btn.primary:active { opacity: .88; }
+.foot-tip { margin-top: 54rpx; display: flex; align-items: center; justify-content: center; gap: 10rpx; font-size: 24rpx; color: #9299ad; }
+.link-text { font-size: 24rpx; font-weight: 500; color: var(--login-primary); }
 
-.plain-container .form-area,
-.plain-container .btn-group,
-.plain-container .foot-tip {
-	width: 100%;
-	max-width: 640rpx;
-	align-self: center;
+@media screen and (max-height: 680px) {
+	.brand-block { margin-top: calc(var(--status-bar-height, 0px) + 170rpx); }
+	.login-container { margin-top: 56rpx; }
+	.form-area { margin-top: 30rpx; }
 }
-
-.plain-layout { background: #F2F2F7; }
 </style>
