@@ -1,5 +1,6 @@
 <template>
-	<view class="tp-login-box login-layout">
+	<view v-if="restoringSession" style="position:fixed;inset:0;z-index:10"><BoardLoading background="#f7f8fc" /></view>
+	<view v-show="!restoringSession" class="tp-login-box login-layout">
 		<view class="login-header">
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
@@ -68,13 +69,17 @@ import {
 import uniIcons from "@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue";
 import login from "../../store/login";
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
+import BoardLoading from '@/components/board-loading/index.vue'
+import { restoreSession } from '@/features/auth/restore-session'
 // 
 export default {
 	components: {
+		BoardLoading,
 		uniIcons
 	},
 	data() {
 		return {
+			restoringSession: Boolean(uni.getStorageSync('access_token')),
 			disabled: true,
 			loading: false,
 			email: '',
@@ -106,7 +111,22 @@ export default {
 			this.onBtnChange();
 		}
 	},
+	async onReady() {
+		if (!this.restoringSession) return;
+		try {
+			const result = await restoreSession();
+			if (this.loginPageHidden) return;
+			if (result === 'valid' || result === 'unavailable') {
+				await new Promise((resolve, reject) => uni.switchTab({ url: '/pages/dashboard/index', success: resolve, fail: reject }));
+			}
+		} catch {
+			uni.showToast({ title: '进入首页失败，请重试登录', icon: 'none' });
+		} finally { this.restoringSession = false; }
+	},
+	onHide() { this.loginPageHidden = true; },
+	onUnload() { this.loginPageHidden = true; },
 	onShow() {
+		this.loginPageHidden = false;
 		try {
 			uni.setNavigationBarTitle({
 				title: this.$t('pages.loginTitle')

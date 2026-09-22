@@ -1,5 +1,8 @@
 <script>
+	import { reportAppError } from '@/services/app-errors'
 	export default {
+		onError(error) { reportAppError(error, 'runtime') },
+		onUnhandledRejection(event) { reportAppError(event?.reason, 'promise') },
 		onLaunch: async function() {
 			uni.onPushMessage(async (res) => {
 				console.log('收到推送消息==>:', res);

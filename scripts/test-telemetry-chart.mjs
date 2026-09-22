@@ -12,7 +12,8 @@ const component = vm.runInNewContext(script.replace(/import .* from 'echarts'/, 
 })
 for (const type of ['line', 'bar', 'scatter']) {
   const start = Date.now()
-  component.methods.update.call({}, { id: 'chart', type, points: Array.from({ length: 60 }, (_, i) => [start + i * 1000, 24 + i / 10]), unit: '' })
+  const state = { ...component.methods }
+  state.update({ id: 'chart', type, points: Array.from({ length: 60 }, (_, i) => [start + i * 1000, 24 + i / 10]), unit: '' })
   assert.equal(options.dataZoom.length, 0)
   assert.equal(settings.notMerge, true)
   assert.equal(options.xAxis.splitNumber, 3)

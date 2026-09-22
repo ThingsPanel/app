@@ -20,6 +20,7 @@ export function request(options = {}) {
     header: { 'content-type': 'application/json' },
     method: 'GET',
     responseType: 'text',
+    timeout: 20000,
     ...options,
     url: buildRequestUrl(options.url || '')
   }
@@ -30,19 +31,32 @@ export function request(options = {}) {
   }
 
   return new Promise((resolve, reject) => {
-    uni.request({
+    let settled = false, task
+    const timeout = Number(requestOptions.timeout) > 0 ? Number(requestOptions.timeout) : 20000
+    const finish = (callback, value) => {
+      if (settled) return
+      settled = true; clearTimeout(timer); callback(value)
+    }
+    const timer = setTimeout(() => {
+      const error = new Error('请求超时，请检查网络后重试')
+      error.code = 'REQUEST_TIMEOUT'
+      finish(reject, error)
+      try { task?.abort() } catch { /* Already completed or unsupported. */ }
+    }, timeout)
+    try { task = uni.request({
       ...requestOptions,
+      timeout,
       success(response) {
         if (response.statusCode >= 200 && response.statusCode < 300) {
-          resolve(response)
+          finish(resolve, response)
           return
         }
-        reject(response)
+        finish(reject, response)
       },
       fail(error) {
-        reject(error)
+        finish(reject, error)
       }
-    })
+    }) } catch (error) { finish(reject, error) }
   })
 }
 

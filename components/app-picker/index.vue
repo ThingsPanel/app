@@ -1,8 +1,8 @@
 <template>
   <view class="app-picker">
-    <view role="button" :aria-label="title" :aria-disabled="disabled" tabindex="0" @click="open" @keydown.enter.prevent="open" @keydown.space.prevent="open"><slot /></view>
+    <view role="button" :aria-label="title" :aria-disabled="disabled" tabindex="0" @click.stop="open" @keydown.enter.prevent="open" @keydown.space.prevent="open"><slot /></view>
     <uni-popup ref="popup" type="bottom" background-color="#fff" :safe-area="false" @change="popupChanged">
-      <view class="app-choice" role="dialog" :aria-label="title">
+      <view class="app-choice" role="dialog" :aria-label="title" @click.stop>
         <view class="app-choice__header app-sheet-header">
           <button class="app-choice__action" @click="cancel">取消</button>
           <text class="app-choice__title">{{ title }}</text>
@@ -50,7 +50,7 @@ export default {
       this.$refs.popup.close()
     },
     popupChanged(event) {
-      if (!event.show && this.opened) {
+      if (event?.show === false && this.opened) {
         if (!this.committed) this.$emit('cancel')
         this.opened = false; this.selectedId = ''
       }

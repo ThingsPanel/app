@@ -60,7 +60,7 @@ clearTimeout(state.unlockTimer); state.switching = false
 // existing interaction guard used for draggable/clickable widgets.
 const orientationCalls = [], tabCalls = []
 const viewer = component('../components/board-viewer/index.vue', {
-  BoardLoading: {}, createBoardRuntime() {}, openHomePreference() {},
+  BoardLoading: {}, createBoardRuntime() {}, openHomePreference() {}, reportAppError() {},
   uni: {
     hideTabBar: options => tabCalls.push(['hide', options.animation]),
     showTabBar: options => tabCalls.push(['show', options.animation])

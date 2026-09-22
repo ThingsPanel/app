@@ -34,12 +34,19 @@
         <button :class="{ selected: interactive }" :aria-pressed="interactive" :disabled="!['ready', 'loaded'].includes(phase)" @click="toggleInteractive"><image :src="interactive ? '/static/icon/board-check.svg' : '/static/icon/board-touch.svg'" /><text>{{ interactive ? '完成操作' : '操作看板' }}</text></button>
       </view>
       <text v-if="operationTip" class="operation-tip" role="status">可点击控件、拖动图表，点“完成操作”后继续滑动</text>
+      <view v-if="showZoomGuide" class="zoom-guide">
+        <view class="zoom-guide__pill">
+          <text class="zoom-guide__copy" role="status">双指缩放 · 放大后拖动 · 双击还原</text>
+          <button class="zoom-guide__close" aria-label="关闭缩放提示" @touchstart.stop @touchend.stop @click.stop="dismissZoomGuide"><view class="zoom-guide__cross" aria-hidden="true" /></button>
+        </view>
+      </view>
     </view>
   </view>
 </template>
 
 <script>
 import BoardLoading from '@/components/board-loading/index.vue'
+import { reportAppError } from '@/services/app-errors'
 import { createBoardRuntime } from '@/services/thingsvis-board-runtime'
 import { openHomePreference } from '@/services/dashboard-home'
 let sequence = 0
@@ -51,14 +58,24 @@ export default {
   components: { BoardLoading },
   props: { initialId: { type: String, required: true }, initialName: { type: String, default: '看板' }, initialFullscreen: { type: Boolean, default: false }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, deckMode: { type: Boolean, default: false }, pageIndex: { type: Number, default: 0 }, pageCount: { type: Number, default: 1 } },
   emits: ['back', 'system-home', 'unavailable', 'page-change', 'fullscreen-change'],
-  data() { return { revealing: false, renderReadySupported: false, boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: this.initialFullscreen, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
+  errorCaptured(error) {
+    reportAppError(error, 'board')
+    this.failBoard('看板显示异常，请重新加载')
+    return false
+  },
+  data() { return { zoomed: false, zoomGuidePending: false, revealing: false, renderReadySupported: false, boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: this.initialFullscreen, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
   computed: { darkCanvas() {
     const color = this.background || ''
     const hex = color.match(/^#([a-f0-9]{6}|[a-f0-9]{3})$/i)
     const rgb = hex ? (hex[1].length === 3 ? hex[1].split('').map(v => parseInt(v + v, 16)) : [0, 2, 4].map(i => parseInt(hex[1].slice(i, i + 2), 16))) : color.match(/[\d.]+/g)?.slice(0, 3).map(Number)
     return rgb?.length === 3 && rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722 < 140
-  }, showSwipeGuide() { return !this.homeMode && this.guidePending && this.deckMode && this.pageCount > 1 && !this.interactive && !this.fullscreen && ['ready', 'loaded'].includes(this.phase) } },
+  }, showSwipeGuide() { return !this.homeMode && !this.zoomed && this.guidePending && this.deckMode && this.pageCount > 1 && !this.interactive && !this.fullscreen && ['ready', 'loaded'].includes(this.phase) },
+  showZoomGuide() { return !this.homeMode && !this.interactive && this.zoomGuidePending && !this.showSwipeGuide && ['ready', 'loaded'].includes(this.phase) } },
   watch: {
+    showZoomGuide(visible) {
+      clearTimeout(this.zoomGuideTimer)
+      if (visible) this.zoomGuideTimer = setTimeout(() => this.dismissZoomGuide(), 8000)
+    },
     showSwipeGuide(visible) {
       clearTimeout(this.guideTimer)
       if (visible) this.guideTimer = setTimeout(() => this.dismissSwipeGuide(), 6000)
@@ -73,7 +90,7 @@ export default {
     this.loadPreferences()
   },
   beforeUnmount() {
-    this.disposed = true; clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose()
+    this.disposed = true; clearTimeout(this.zoomGuideTimer); clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose()
     // Deck owns fullscreen across page switches and restores portrait when the deck itself closes.
     if (!this.deckMode) this.restorePortrait()
   },
@@ -90,14 +107,19 @@ export default {
         this.preference = preference
         this.isHome = preference.read()?.id === this.boardId
         this.guidePending = !preference.guideSeen('swipe')
+        this.zoomGuidePending = !preference.guideSeen('zoom')
       } catch { /* Preference failure must not prevent viewing. */ }
     },
     dismissSwipeGuide() {
       this.guidePending = false
       try { this.preference?.finishGuide('swipe') } catch { /* Can retry next visit. */ }
     },
+    dismissZoomGuide() {
+      clearTimeout(this.zoomGuideTimer); this.zoomGuidePending = false
+      try { this.preference?.finishGuide('zoom') } catch { /* Can retry next visit. */ }
+    },
     requestPage(direction) {
-      if (this.homeMode || this.interactive) return
+      if (this.homeMode || this.interactive || this.zoomed) return
       this.$emit('page-change', direction, 'swipe')
     },
     dismissOperationTip() {
@@ -131,18 +153,29 @@ export default {
     openSearch() { uni.navigateTo({ url: '/pages/dashboard/search' }) },
     fullscreenBack() { if (this.showBack) this.goBack(); else this.toggleFullscreen() },
     dispose() {
+      this.zoomed = false
+      clearTimeout(this.loadDeadline)
       clearTimeout(this.legacyReadyTimer); clearTimeout(this.revealTimer)
       this.revealing = false; this.renderReadySupported = false
       clearTimeout(this.operationTimer)
       this.session++; clearTimeout(this.readyTimer); clearTimeout(this.sendTimer)
-      this.sendTimer = null; this.pendingMessages = []; this.runtime?.stop(); this.runtime = null
+      this.sendTimer = null; this.pendingMessages = []
+      try { this.runtime?.stop() } catch (error) { reportAppError(error, 'board') }
+      this.runtime = null
       this.frameState = { id: this.frameId, session: this.session, url: '' }
+    },
+    failBoard(message) {
+      this.dispose(); this.phase = 'error'; this.warning = ''
+      this.statusMessage = message || '看板加载失败，请重试'
     },
     async reload() {
       this.loadStartedAt = Date.now(); this.loadStages = new Set()
       this.dispose(); this.phase = 'loading'; this.warning = ''; this.statusMessage = '正在加载看板…'; this.interactive = false; this.operationTip = false
       if (!this.boardId) { this.phase = 'error'; this.statusMessage = '缺少看板 ID'; return }
       const session = this.session
+      this.loadDeadline = setTimeout(() => {
+        if (session === this.session && this.phase === 'loading') this.failBoard('看板加载超时，请重试')
+      }, 45000)
       try {
         this.runtime = createBoardRuntime({ boardId: this.boardId,
           onMessage: message => {
@@ -159,19 +192,20 @@ export default {
         this.title = result.name || this.title
         this.background = typeof result.canvas.background === 'string' ? result.canvas.background : result.canvas.background?.color || '#f5f6f8'
         this.isGrid = result.canvas.mode === 'grid'; this.interactive = this.homeMode || (!this.deckMode && this.isGrid)
-        if (result.empty) { this.phase = 'empty'; this.statusMessage = '看板尚未添加内容'; return }
+        if (result.empty) { clearTimeout(this.loadDeadline); this.phase = 'empty'; this.statusMessage = '看板尚未添加内容'; return }
         this.frameState = { id: this.frameId, session, ...result, paging: !this.homeMode && this.deckMode && this.pageCount > 1, browse: !this.homeMode && this.deckMode, interactive: this.interactive }
         this.readyTimer = setTimeout(() => {
           if (session !== this.session || this.phase === 'ready') return
-          if (this.phase === 'loading') { this.phase = 'error'; this.statusMessage = '看板连接超时，请重试'; this.runtime?.stop() }
+          if (this.phase === 'loading') this.failBoard('看板连接超时，请重试')
           else if (RENDER_READY_WARNING) this.warning = RENDER_READY_WARNING
         }, 45000)
       } catch (error) { if (session === this.session) { this.dispose(); this.phase = 'error'; this.statusMessage = error.message || '看板加载失败'; if ([403, 404].includes(error.statusCode)) this.$emit('unavailable', { id: this.boardId }) } }
     },
     onFrameEvent(event) {
       if (event.session !== this.session) return
+      if (typeof event.zoomed === 'boolean') { this.zoomed = event.zoomed; return }
       if (event.pageDirection && !this.interactive) { this.requestPage(event.pageDirection); return }
-      if (event.error) { this.phase = 'error'; this.statusMessage = event.error; return }
+      if (event.error) { reportAppError(new Error(), 'board'); this.failBoard(event.error); return }
       const type = event.message?.type
       if (['READY', 'tv:ready', 'tv:request-init', 'thingsvis:editor-ready'].includes(type)) this.markLoadStage('frame-ready')
       if (['LOADED', 'tv:loaded'].includes(type)) this.markLoadStage('schema-loaded')
@@ -183,9 +217,12 @@ export default {
         this.legacyReadyTimer = setTimeout(() => { if (session === this.session && this.phase === 'loading') this.reveal('loaded') }, 800)
       }
       if (type === 'tv:render-ready' && ['loading', 'loaded'].includes(this.phase)) this.reveal('ready')
-      Promise.resolve(this.runtime?.handleMessage(event.message)).catch(error => { if (event.session === this.session) this.warning = error.message || '看板数据加载失败' })
+      Promise.resolve().then(() => {
+        if (event.session === this.session) return this.runtime?.handleMessage(event.message)
+      }).catch(error => { if (event.session === this.session) { reportAppError(error, 'board'); this.warning = '看板数据加载失败，请重试' } })
     },
     reveal(phase) {
+      clearTimeout(this.loadDeadline)
       clearTimeout(this.legacyReadyTimer); clearTimeout(this.readyTimer); clearTimeout(this.revealTimer)
       this.revealing = this.phase === 'loading'; this.phase = phase
       this.revealTimer = setTimeout(() => { this.revealing = false }, 180)
@@ -261,11 +298,23 @@ class BoardFrame {
       const rotated = host.closest('.board-detail--fullscreen') && window.innerHeight > window.innerWidth
       return rotated ? { x: event.clientY - rect.top, y: rect.right - event.clientX } : { x: event.clientX - rect.left, y: event.clientY - rect.top }
     }
-    this.gestures.onpointerdown = event => { this.gestures.setPointerCapture(event.pointerId); this.pointers.set(event.pointerId, point(event)); if (this.pointers.size === 1) { this.swipeStart = point(event); this.swipeTime = Date.now(); this.hadMultiplePointers = false } else this.hadMultiplePointers = true; this.anchor() }
+    this.gestures.onpointerdown = event => {
+      if (this.interactive || (event.pointerType === 'mouse' && event.button !== 0)) return
+      try { this.gestures.setPointerCapture(event.pointerId) } catch { /* A cancelled pointer may no longer be capturable. */ }
+      this.pointers.set(event.pointerId, point(event))
+      if (this.pointers.size === 1) {
+        this.swipeStart = point(event); this.swipeTime = Date.now()
+        this.hadMultiplePointers = false; this.moved = false; this.startedZoomed = this.position.zoom > 1
+      } else { this.hadMultiplePointers = true; this.lastTap = null }
+      this.anchor()
+    }
     this.gestures.onpointermove = event => {
-      if (!this.pointers.has(event.pointerId) || (this.state.browse && this.position.zoom === 1)) return
+      if (this.interactive || !this.pointers.has(event.pointerId)) return
       this.pointers.set(event.pointerId, point(event))
       const points = [...this.pointers.values()], first = points[0]
+      if (this.swipeStart && Math.hypot(first.x - this.swipeStart.x, first.y - this.swipeStart.y) > 10) { this.moved = true; this.lastTap = null }
+      // Only single-finger browsing is reserved for paging; two fingers always reach pinch handling.
+      if (this.state.browse && this.position.zoom === 1 && points.length === 1) return
       if (points.length > 1 && this.start.distance) {
         const second = points[1], distance = Math.hypot(second.x - first.x, second.y - first.y)
         const zoom = Math.max(1, Math.min(5, this.start.zoom * distance / this.start.distance))
@@ -276,21 +325,45 @@ class BoardFrame {
       this.draw()
     }
     const up = event => {
+      if (this.interactive || !this.pointers.has(event.pointerId)) return
       const end = point(event)
-      if (this.state.paging && this.swipeStart && !this.hadMultiplePointers && this.position.zoom === 1 && !this.interactive) {
+      if (this.state.paging && this.swipeStart && !this.hadMultiplePointers && !this.startedZoomed && this.position.zoom === 1) {
         const dy = end.y - this.swipeStart.y, dx = end.x - this.swipeStart.x
         if (Date.now() - this.swipeTime < 1000 && Math.abs(dy) >= 64 && Math.abs(dy) > Math.abs(dx) * 1.4) this.notify({ pageDirection: dy < 0 ? 1 : -1 })
       }
+      const touchTap = event.pointerType === 'touch' || event.pointerType === 'pen'
+      if (touchTap && this.swipeStart && !this.hadMultiplePointers && !this.moved && Date.now() - this.swipeTime < 300 && Math.hypot(end.x - this.swipeStart.x, end.y - this.swipeStart.y) < 10) {
+        if (this.lastTap && Date.now() - this.lastTap.time < 320 && Math.hypot(end.x - this.lastTap.x, end.y - this.lastTap.y) < 24) {
+          this.doubleTap(); this.lastTap = null
+        } else this.lastTap = { ...end, time: Date.now() }
+      } else this.lastTap = null
       this.swipeStart = null; this.pointers.delete(event.pointerId); this.anchor()
     }
-    this.gestures.onpointerup = up; this.gestures.onpointercancel = event => { this.swipeStart = null; this.pointers.delete(event.pointerId); this.anchor() }
-    this.gestures.ondblclick = () => { if (!this.state.browse) this.zoom(this.position.zoom > 1 ? 1 : 2) }
+    this.gestures.onpointerup = up
+    this.gestures.onpointercancel = () => this.clearGesture()
+    this.gestures.onlostpointercapture = event => { if (this.pointers.has(event.pointerId)) this.clearGesture() }
+    this.gestures.ondblclick = event => { if (!this.interactive && (!event?.pointerType || event.pointerType === 'mouse') && Date.now() - (this.lastTouchDoubleTap || 0) > 500) this.doubleTap(false) }
     this.gestures.onwheel = event => { event.preventDefault(); if (this.state.paging && !this.interactive && this.position.zoom === 1) { if (Math.abs(event.deltaY) > 30 && Date.now() - (this.lastWheel || 0) > 700) { this.lastWheel = Date.now(); this.notify({ pageDirection: event.deltaY > 0 ? 1 : -1 }) } } else if (!this.state.browse) this.zoom(this.position.zoom * (event.deltaY < 0 ? 1.15 : 0.87)) }
     this.resize = new ResizeObserver(() => this.reset())
     this.resize.observe(host)
     this.removal = new MutationObserver(() => { if (!host.isConnected) this.destroy() })
     this.removal.observe(document.body, { childList: true, subtree: true })
+    this.blurListener = () => this.clearGesture()
+    this.visibilityListener = () => { if (document.hidden) this.clearGesture() }
+    window.addEventListener('blur', this.blurListener)
+    document.addEventListener?.('visibilitychange', this.visibilityListener)
     this.setInteractive(state.interactive || (!state.browse && state.canvas?.mode === 'grid'))
+  }
+  clearGesture() {
+    const ids = [...this.pointers.keys()]
+    this.pointers.clear(); this.swipeStart = null; this.lastTap = null; this.start = null
+    this.hadMultiplePointers = false; this.moved = false
+    for (const id of ids) { try { this.gestures.releasePointerCapture?.(id) } catch { /* Pointer already released. */ } }
+  }
+  doubleTap(touch = true) {
+    if (touch) this.lastTouchDoubleTap = Date.now()
+    if (this.state.browse) this.reset()
+    else this.zoom(this.position.zoom > 1 ? 1 : 2)
   }
   anchor() {
     const points = [...this.pointers.values()]
@@ -307,9 +380,13 @@ class BoardFrame {
     this.position = fitBoardViewport(width, height, next, width / 2 - (width / 2 - x) * next / zoom, height / 2 - (height / 2 - y) * next / zoom)
     this.draw()
   }
-  reset() { this.position = { zoom: 1, x: 0, y: 0 }; this.pointers.clear(); this.draw() }
-  draw() { const p = this.position; this.frame.style.transform = `translate(${p.x}px,${p.y}px) scale(${p.zoom})` }
-  setInteractive(enabled) { this.interactive = enabled; this.gestures.style.display = enabled ? 'none' : 'block'; this.frame.style.pointerEvents = enabled ? 'auto' : 'none'; this.pointers.clear() }
+  reset() { this.position = { zoom: 1, x: 0, y: 0 }; this.clearGesture(); this.draw() }
+  draw() {
+    const p = this.position; this.frame.style.transform = `translate(${p.x}px,${p.y}px) scale(${p.zoom})`
+    const zoomed = p.zoom > 1
+    if (zoomed !== Boolean(this.reportedZoomed)) { this.reportedZoomed = zoomed; this.notify({ zoomed }) }
+  }
+  setInteractive(enabled) { this.interactive = enabled; this.gestures.style.display = enabled ? 'none' : 'block'; this.frame.style.pointerEvents = enabled ? 'auto' : 'none'; this.clearGesture() }
   command(value) {
     if (value.kind === 'reset') this.reset()
     if (value.kind === 'zoom-in') this.zoom(this.position.zoom * 1.25)
@@ -318,6 +395,9 @@ class BoardFrame {
   }
   send(messages) { for (const message of messages || []) this.frame.contentWindow?.postMessage(JSON.parse(JSON.stringify(message)), this.origin) }
   destroy() {
+    this.clearGesture()
+    window.removeEventListener('blur', this.blurListener)
+    document.removeEventListener?.('visibilitychange', this.visibilityListener)
     window.removeEventListener('message', this.listener)
     this.resize?.disconnect(); this.removal?.disconnect(); this.pointers.clear()
     this.frame.remove(); this.gestures.remove()
@@ -326,15 +406,28 @@ class BoardFrame {
 
 export default {
   methods: {
+    bridgeFailure(session) {
+      try { this.viewer?.destroy() } catch { /* Best-effort cleanup. */ }
+      this.viewer = null
+      try { this.$ownerInstance.callMethod('onFrameEvent', { session, error: '看板渲染失败，请重新加载' }) } catch { /* Owner may already be unmounted. */ }
+    },
     syncFrame(state) {
+      try {
       this.viewer?.destroy(); this.viewer = null
       if (!state?.url) return
       const host = document.getElementById(state.id)
-      if (!host) return
+      if (!host) throw new Error('Missing board host')
       this.viewer = new BoardFrame(host, state, event => this.$ownerInstance.callMethod('onFrameEvent', { ...event, session: state.session }))
+      } catch { this.bridgeFailure(state?.session) }
     },
-    sendMessages(packet) { if (this.viewer && packet && packet.session === this.viewer.state.session) this.viewer.send(packet.messages) },
-    control(command) { if (this.viewer && command && command.session === this.viewer.state.session) this.viewer.command(command) }
+    sendMessages(packet) {
+      try { if (this.viewer && packet && packet.session === this.viewer.state.session) this.viewer.send(packet.messages) }
+      catch { this.bridgeFailure(packet?.session) }
+    },
+    control(command) {
+      try { if (this.viewer && command && command.session === this.viewer.state.session) this.viewer.command(command) }
+      catch { this.bridgeFailure(command?.session) }
+    }
   }
 }
 </script>
@@ -373,6 +466,15 @@ export default {
 .fullscreen-actions { position:absolute; top:env(safe-area-inset-top,0px); left:env(safe-area-inset-left,0px); right:env(safe-area-inset-right,0px); display:flex; justify-content:space-between; pointer-events:none; }
 .board-detail .fullscreen-actions button { pointer-events:auto; background:rgba(20,29,44,.9); }
 .operation-tip { position:absolute; bottom:70px; left:16px; right:80px; color:#51515c; background:rgba(242,242,247,.94); padding:6px 8px; font-size:12px; line-height:1.6; pointer-events:none; }
+.zoom-guide { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); left:16px; right:16px; display:flex; justify-content:center; pointer-events:none; }
+.zoom-guide__pill { display:flex; align-items:center; max-width:100%; box-sizing:border-box; padding-left:14px; border:1px solid rgba(120,130,145,.12); border-radius:12px; color:#51515c; background:rgba(248,249,251,.96); box-shadow:0 3px 12px rgba(20,29,44,.06); }
+.zoom-guide__copy { min-width:0; padding:10px 0; font-size:12px; line-height:20px; text-align:center; }
+.board-detail .zoom-guide__close { display:flex; align-items:center; justify-content:center; flex:0 0 44px; width:44px; height:44px; min-height:44px; padding:0; border-radius:12px; background:transparent; color:inherit; pointer-events:auto; }
+.zoom-guide__close:focus-visible { outline:2px solid var(--tp-color-primary,#1677ff); outline-offset:-4px; }
+.zoom-guide__cross { position:relative; width:12px; height:12px; opacity:.7; }
+.zoom-guide__cross::before,.zoom-guide__cross::after { content:''; position:absolute; left:5px; top:0; width:1.5px; height:12px; border-radius:1px; background:currentColor; transform:rotate(45deg); }
+.zoom-guide__cross::after { transform:rotate(-45deg); }
+.board-detail--dark .zoom-guide__pill { color:#e4e7ee; background:rgba(31,39,52,.96); border-color:rgba(220,226,235,.12); box-shadow:none; }
 .swipe-guide { position:absolute; left:50%; bottom:110px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:#fff; text-shadow:0 1px 3px #000; font-size:13px; white-space:nowrap; pointer-events:none; }
 .swipe-demo { height:80px; width:36px; position:relative; }
 .swipe-demo::before { content:'↑'; position:absolute; top:0; left:11px; font-size:26px; }

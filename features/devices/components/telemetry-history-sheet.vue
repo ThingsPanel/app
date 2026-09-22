@@ -2,7 +2,7 @@
   <!-- App renderjs needs a persistent element root, even while uni-popup is closed. -->
   <view class="telemetry-history-host">
   <uni-popup ref="popup" type="bottom" background-color="#fff" @change="onPopupChange">
-    <view class="sheet">
+    <view class="sheet" @click.stop>
       <view class="heading"><text>{{ field.name }} · {{ mode === 'trend' ? '趋势' : '历史列表' }}</text><button @click="$refs.popup.close()">关闭</button></view>
       <scroll-view scroll-y :show-scrollbar="false" class="body app-sheet-scroll">
         <view class="filters">
@@ -46,6 +46,7 @@
 
 <script>
 import dayjs from 'dayjs'
+import { reportAppError } from '@/services/app-errors'
 import { requestDeviceApi } from '@/api/modules/device-overview'
 import { rowsOf, normalizeHistoryRows } from '@/utils/thingsvis-device-schema'
 let sequence = 0
@@ -69,13 +70,21 @@ export default {
     stats() {
       const values = normalizeHistoryRows(this.rows).map(row => row.value)
       if (!values.length) return { min: '--', max: '--', avg: '--' }
-      return { min: Math.min(...values), max: Math.max(...values), avg: Number((values.reduce((a,b) => a+b,0) / values.length).toFixed(3)) }
+      const summary = values.reduce((result, value) => ({ min: Math.min(result.min, value), max: Math.max(result.max, value), sum: result.sum + value }), { min: Infinity, max: -Infinity, sum: 0 })
+      return { min: summary.min, max: summary.max, avg: Number((summary.sum / values.length).toFixed(3)) }
     }
   },
   mounted() { this.$refs.popup.open(); this.load(true) },
   beforeUnmount() { this.requestId++ },
   methods: {
-    onPopupChange(event) { if (!event.show) this.$emit('close') },
+    onChartError(event) {
+      if (event?.requestId !== this.requestId) return
+      reportAppError(new Error(), 'chart')
+      this.loading = false; this.error = '图表绘制失败，请重新查询或关闭后重试'
+    },
+    // Native picker/input change events can reach the popup listener on App.
+    // Missing `show` is not a popup-close notification.
+    onPopupChange(event) { if (event?.show === false) this.$emit('close') },
     filters() {
       const hours = this.ranges[this.rangeIndex].hours
       const end = hours ? Date.now() : dayjs(`${this.dates.end}T${this.times.end}:59`).valueOf()
@@ -99,10 +108,12 @@ export default {
         this.rows = reset ? rowsOf(result) : [...this.rows, ...rowsOf(result)]
         this.total = Number(result?.total || this.rows.length); this.page = page
       } catch (error) { if (id === this.requestId) this.error = error.message || '查询失败' }
-      finally { if (id === this.requestId) { this.loading = false; this.$nextTick(() => this.draw()) } }
+      finally { if (id === this.requestId) { this.loading = false; this.$nextTick(() => { if (id === this.requestId && !this.error) this.draw() }) } }
     },
     draw() {
-      this.chartData = { id: this.chartId, type: ['line', 'bar', 'scatter'][this.chartIndex], points: normalizeHistoryRows(this.rows).sort((a,b) => a.ts-b.ts).map(row => [row.ts,row.value]), unit: this.field.unit || '' }
+      try {
+        this.chartData = { id: this.chartId, requestId: this.requestId, type: ['line', 'bar', 'scatter'][this.chartIndex], points: normalizeHistoryRows(this.rows).sort((a,b) => a.ts-b.ts).map(row => [row.ts,row.value]), unit: this.field.unit || '' }
+      } catch (error) { reportAppError(error, 'chart'); this.error = '图表数据处理失败，请重新查询' }
     },
     async exportData() {
       this.exporting = true
@@ -131,8 +142,18 @@ export default {
 import * as echarts from 'echarts'
 export default {
   methods: {
+    cleanup() {
+      this.observer?.disconnect(); this.removal?.disconnect()
+      const chart = this.chart; this.chart = null
+      try { chart?.dispose() } catch { /* A damaged chart must not prevent closing. */ }
+    },
+    fail(data) {
+      this.cleanup()
+      try { this.$ownerInstance.callMethod('onChartError', { requestId: data?.requestId }) } catch { /* Owner already closed. */ }
+    },
     update(data) {
-      this.observer?.disconnect(); this.chart?.dispose(); this.chart = null
+      try {
+      this.cleanup()
       const element = data && document.getElementById(data.id)
       if (!element || !data.points.length) return
       this.chart = echarts.init(element)
@@ -161,10 +182,13 @@ export default {
         dataZoom: [],
         series: [{ type: data.type, data: data.points, symbolSize: 5, connectNulls: false }]
       }, { notMerge: true })
-      this.observer = new ResizeObserver(() => this.chart?.resize()); this.observer.observe(element)
+      this.observer = new ResizeObserver(() => {
+        try { this.chart?.resize() } catch { this.fail(data) }
+      }); this.observer.observe(element)
       this.removal?.disconnect()
-      this.removal = new MutationObserver(() => { if (!element.isConnected) { this.observer?.disconnect(); this.chart?.dispose(); this.chart=null; this.removal.disconnect() } })
+      this.removal = new MutationObserver(() => { if (!element.isConnected) this.cleanup() })
       this.removal.observe(document.body,{childList:true,subtree:true})
+      } catch { this.fail(data) }
     }
   }
 }

@@ -1,4 +1,5 @@
 import App from './App'
+import { reportAppError } from '@/services/app-errors'
 import { createSSRApp } from 'vue'
 import store from './store'
 import i18n, { updateTabbarText } from './lang/index'
@@ -20,6 +21,7 @@ import { updateCurrentPageTitle } from '@/utils/page-title'
 
 export function createApp() {
     const app = createSSRApp(App)
+    app.config.errorHandler = error => reportAppError(error, 'vue')
 
     app.use(store)
     app.use(i18n)
