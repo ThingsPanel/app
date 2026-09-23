@@ -1,16 +1,17 @@
 <template>
-  <view class="boards-page"><BoardDeck v-if="visible" ref="deck" :initial-id="selectedId" @change="selectedId = $event.id" /></view>
+  <view class="boards-page"><BoardTabDeck v-if="visible" ref="deck" active-path="pages/dashboard/boards" :initial-id="selectedId" @change="selectedId = $event.id" /></view>
 </template>
 <script>
-import BoardDeck from '@/components/board-deck/index.vue'
+import BoardTabDeck from '@/components/board-tab-deck/index.vue'
 export default {
-  components: { BoardDeck },
+  components: { BoardTabDeck },
   data() { return { visible: false, selectedId: '' } },
   onShow() { this.visible = true },
   onHide() { this.visible = false },
+  onUnload() { this.visible = false },
   onBackPress() { return this.$refs.deck?.handleBack() || false }
 }
 </script>
 <style scoped>
-.boards-page { height:calc(100vh - var(--window-bottom, 0px)); overflow:hidden; }
+.boards-page { overflow:hidden; }
 </style>

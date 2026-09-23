@@ -1,7 +1,7 @@
 <template>
   <view v-if="homeResolving" class="custom-home"><BoardLoading /></view>
   <view v-else-if="selectedHome" class="custom-home">
-    <BoardDeck v-if="homeVisible" ref="homeViewer" :initial-id="selectedHome.id" home-mode @system-home="showSystemHome" @unavailable="homeUnavailable" />
+    <BoardTabDeck v-if="homeVisible" ref="homeViewer" active-path="pages/dashboard/index" :initial-id="selectedHome.id" home-mode @system-home="showSystemHome" @unavailable="homeUnavailable" />
   </view>
   <view v-else class="home-page">
     <view v-if="homePreferenceError" class="home-preference-notice"><text>{{ homePreferenceError }}</text><button @click="openHome">重试</button></view>
@@ -86,7 +86,7 @@
 
 <script>
 import BoardLoading from '@/components/board-loading/index.vue'
-import BoardDeck from '@/components/board-deck/index.vue'
+import BoardTabDeck from '@/components/board-tab-deck/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
 import dayjs from 'dayjs'
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
@@ -99,7 +99,7 @@ import { buildDeviceCard } from '@/features/devices/utils/device-card'
 import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
-  components: { BoardDeck, BoardLoading },
+  components: { BoardTabDeck, BoardLoading },
   data() {
     return {
       homeResolving: true, homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,

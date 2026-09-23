@@ -5,38 +5,54 @@ export function normalizeHistoryRange(value) {
   return typeof value === 'string' && value.startsWith('last_') ? value : presets[value] || 'last_30d'
 }
 
+// Match ThingsVis / ThingsPanel Web history defaults; keep the requested time span.
+const historyWindows = { last_5m: '30s', last_15m: '30s', last_30m: '30s', last_1h: '30s', last_3h: '30s', last_6h: '1m', last_12h: '2m', last_24h: '5m', last_3d: '10m', last_7d: '30m', last_15d: '1h', last_30d: '3h', last_60d: '6h', last_90d: '1d', last_6m: '7d', last_1y: '1mo' }
+export function normalizeHistoryConfig(config = {}) {
+  const timeRange = normalizeHistoryRange(config.timeRange)
+  const windows = ['30s', '1m', '2m', '5m', '10m', '30m', '1h', '3h', '6h', '1d', '7d', '1mo']
+  const minimum = historyWindows[timeRange] || '30s'
+  const aggWindow = windows.indexOf(config.aggWindow) >= windows.indexOf(minimum) ? config.aggWindow : minimum
+  const fn = String(config.aggFunction || '').toLowerCase()
+  return { timeRange, aggWindow, aggFunction: ['avg', 'max', 'min', 'sum', 'diff'].includes(fn) ? fn : 'avg' }
+}
+
 export function collectDeviceHistory(schema, payload = {}) {
+  return new Map([...collectDeviceHistoryConfigs(schema, payload)].map(([id, config]) => [id, config.timeRange]))
+}
+
+export function collectDeviceHistoryConfigs(schema, payload = {}) {
   const requests = new Map()
-  const weights = { last_1h: 1, last_6h: 6, last_24h: 24, last_7d: 168, last_30d: 720 }
-  const add = (id, range) => {
+  const ranges = Object.keys(historyWindows)
+  const requested = (payload.fieldIds || []).filter(id => typeof id === 'string')
+  const allowed = schema.dataSources?.map(source => source.id)
+  const add = (id, config = {}) => {
     if (!id) return
-    if (!range && requests.has(id)) return
-    const next = normalizeHistoryRange(range)
-    if (!requests.has(id) || (weights[next] || 0) > (weights[requests.get(id)] || 0)) requests.set(id, next)
+    if (requested.length && !requested.includes(id + '__history') && !requested.includes(id)) return
+    if (!config.timeRange && requests.has(id)) return
+    const next = normalizeHistoryConfig(config)
+    if (!requests.has(id) || ranges.indexOf(next.timeRange) > ranges.indexOf(requests.get(id).timeRange)) requests.set(id, next)
   }
-  const scan = (value, range) => {
+  const scan = (value, config) => {
     if (typeof value === 'string') {
       for (const match of value.matchAll(/\{\{\s*ds\.([^.\s]+)\.data\.(.+?)\s*\}\}/g)) {
         if (payload.dataSourceId && payload.dataSourceId !== match[1]) continue
+        if (allowed && !allowed.includes(match[1])) continue
         const root = match[2].split(/[.\[\]]/)[0]
-        if (root.endsWith('__history')) add(root.slice(0, -9), range)
+        if (root.endsWith('__history')) add(root.slice(0, -9), config)
       }
-    } else if (value && typeof value === 'object') Object.values(value).forEach(item => scan(item, range))
+    } else if (value && typeof value === 'object') Object.values(value).forEach(item => scan(item, config))
   }
   for (const node of schema.nodes || []) {
     for (const binding of node.data || []) {
-      scan(binding.expression, binding.historyConfig?.timeRange || node.props?.timeRangePreset)
+      scan(binding.expression, { ...binding.historyConfig, timeRange: binding.historyConfig?.timeRange || node.props?.timeRangePreset })
     }
-    scan(node.props, node.props?.timeRangePreset)
+    scan(node.props, { timeRange: node.props?.timeRangePreset })
   }
-  const requested = (payload.fieldIds || []).filter(id => typeof id === 'string')
-  requested.filter(id => id.endsWith('__history')).forEach(id => {
-    const field = id.slice(0, -9)
-    if (payload.historyConfig?.timeRange) requests.set(field, normalizeHistoryRange(payload.historyConfig.timeRange))
+  requested.filter(id => id.endsWith('__history') || requests.has(id)).forEach(id => {
+    const field = id.endsWith('__history') ? id.slice(0, -9) : id
+    if (payload.historyConfig) requests.set(field, normalizeHistoryConfig({ ...requests.get(field), ...payload.historyConfig }))
     else if (!requests.has(field)) add(field)
   })
-  const source = schema.dataSources.find(item => item.id === payload.dataSourceId)
-  if (source?.config?.bufferSize > 0 && requests.size === 0) requested.forEach(id => add(id, payload.historyConfig?.timeRange))
   return requests
 }
 

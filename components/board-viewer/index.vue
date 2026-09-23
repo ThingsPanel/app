@@ -56,8 +56,8 @@ let sequence = 0
 const RENDER_READY_WARNING = ''
 export default {
   components: { BoardLoading },
-  props: { initialId: { type: String, required: true }, initialName: { type: String, default: '看板' }, initialFullscreen: { type: Boolean, default: false }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, deckMode: { type: Boolean, default: false }, pageIndex: { type: Number, default: 0 }, pageCount: { type: Number, default: 1 } },
-  emits: ['back', 'system-home', 'unavailable', 'page-change', 'fullscreen-change'],
+props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: String, required: true }, initialName: { type: String, default: '看板' }, initialFullscreen: { type: Boolean, default: false }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, deckMode: { type: Boolean, default: false }, pageIndex: { type: Number, default: 0 }, pageCount: { type: Number, default: 1 } },
+  emits: ['back', 'system-home', 'unavailable', 'page-change', 'fullscreen-change', 'appearance'],
   errorCaptured(error) {
     reportAppError(error, 'board')
     this.failBoard('看板显示异常，请重新加载')
@@ -191,6 +191,9 @@ export default {
         if (!result) throw new Error('登录或服务器已切换，请重新打开看板')
         this.title = result.name || this.title
         this.background = typeof result.canvas.background === 'string' ? result.canvas.background : result.canvas.background?.color || '#f5f6f8'
+        const canvasImage = result.canvas.background?.image
+        const image = typeof canvasImage === 'string' && /^(https?:\/\/|\/|data:image\/(png|jpeg|webp|gif);)/i.test(canvasImage.trim()) ? canvasImage.trim() : ''
+        this.$emit('appearance', { color: this.background, dark: this.darkCanvas, image })
         this.isGrid = result.canvas.mode === 'grid'; this.interactive = this.homeMode || (!this.deckMode && this.isGrid)
         if (result.empty) { clearTimeout(this.loadDeadline); this.phase = 'empty'; this.statusMessage = '看板尚未添加内容'; return }
         this.frameState = { id: this.frameId, session, ...result, paging: !this.homeMode && this.deckMode && this.pageCount > 1, browse: !this.homeMode && this.deckMode, interactive: this.interactive }
@@ -237,8 +240,10 @@ export default {
       } else this.dismissOperationTip()
     },
     applyFullscreen(enabled) {
-      if (enabled) uni.hideTabBar({ animation: false, fail() {} })
-      else uni.showTabBar({ animation: false, fail() {} })
+      if (!this.managedTabbar) {
+        if (enabled) uni.hideTabBar({ animation: false, fail() {} })
+        else uni.showTabBar({ animation: false, fail() {} })
+      }
       // #ifdef APP-PLUS
       plus.screen.lockOrientation(enabled ? 'landscape-primary' : 'portrait-primary')
       // #endif

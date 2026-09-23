@@ -5,8 +5,8 @@
     <view v-else-if="!boards.length" class="deck-state"><text>暂无看板</text><text class="deck-note">创建看板后，就能在这里直接查看。</text></view>
     <view v-else class="deck-slide" :class="direction < 0 ? 'slide-previous' : 'slide-next'" :key="current.id">
       <BoardViewer ref="viewer" :initial-id="current.id" :initial-name="current.name" :home-mode="homeMode" :show-back="showBack"
-        :initial-fullscreen="fullscreen" deck-mode :page-index="index" :page-count="boards.length"
-        @fullscreen-change="fullscreen = $event" @page-change="change" @back="$emit('back')"
+        :initial-fullscreen="fullscreen" :managed-tabbar="managedTabbar" deck-mode :page-index="index" :page-count="boards.length"
+        @fullscreen-change="setFullscreen" @appearance="$emit('appearance', $event)" @page-change="change" @back="$emit('back')"
         @system-home="$emit('system-home')" @unavailable="$emit('unavailable', $event)" />
     </view>
   </view>
@@ -17,21 +17,22 @@ import BoardViewer from '@/components/board-viewer/index.vue'
 import { createBoardsClient } from '@/api/modules/boards'
 export default {
   components: { BoardViewer, BoardLoading },
-  props: { initialId: { type: String, default: '' }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false } },
-  emits: ['back', 'system-home', 'unavailable', 'change'],
+  props: { initialId: { type: String, default: '' }, homeMode: { type: Boolean, default: false }, showBack: { type: Boolean, default: false }, managedTabbar: { type: Boolean, default: false } },
+  emits: ['back', 'system-home', 'unavailable', 'change', 'fullscreen-change', 'appearance'],
   data() { return { boards: [], index: 0, loading: true, error: '', direction: 1, generation: 0, fullscreen: false } },
   computed: { current() { return this.boards[this.index] } },
   mounted() { this.load() },
   beforeUnmount() {
     this.generation++; clearTimeout(this.unlockTimer)
     if (this.fullscreen) {
-      uni.showTabBar({ animation: false, fail() {} })
+      if (!this.managedTabbar) uni.showTabBar({ animation: false, fail() {} })
       // #ifdef APP-PLUS
       plus.screen.lockOrientation('portrait-primary')
       // #endif
     }
   },
   methods: {
+    setFullscreen(enabled) { this.fullscreen = enabled; this.$emit('fullscreen-change', enabled) },
     handleBack() { return this.$refs.viewer?.handleBack() || false },
     async load() {
       const generation = ++this.generation

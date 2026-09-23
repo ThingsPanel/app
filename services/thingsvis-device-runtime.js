@@ -1,12 +1,13 @@
 import { requestDeviceApi } from '../api/modules/device-overview.js'
-import { rowsOf, extractDeviceFields, parseDeviceSchema, normalizeDeviceValues, normalizeDeviceWrite, collectDeviceHistory, normalizeHistoryRange, normalizeHistoryRows } from '../utils/thingsvis-device-schema.js'
+import { rowsOf, extractDeviceFields, parseDeviceSchema, normalizeDeviceValues, normalizeDeviceWrite, collectDeviceHistoryConfigs, normalizeHistoryRows } from '../utils/thingsvis-device-schema.js'
 
 export function createDeviceRuntime({ device, deviceId, addresses, onMessage, onState, dataOnly }) {
   let stopped = false
   let schema, fields = [], initPayload, latest = {}, loaded = false
   const sockets = new Set(), timers = new Set(), writes = new Map()
   const initialHistory = new Map()
-  const historyQueries = new Map()
+  const historyCache = new Map(), historyPending = new Map(), historyVersions = new Map()
+  let historyWarning = ''
   const token = uni.getStorageSync('access_token')
   const emit = message => { if (!stopped) onMessage(message) }
   const state = (status, message = '') => { if (!stopped) onState({ status, message }) }
@@ -71,7 +72,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       if (!statusOnly) fetchLatest().catch(report)
       heartbeat = setInterval(() => socket.send({ data: 'ping', fail: reconnect }), 8000)
       timers.add(heartbeat)
-      if (loaded) state('warning')
+      if (loaded) state('warning', historyWarning)
     })
     socket.onMessage(event => {
       if (stopped || event.data === 'pong' || event.data === 'ping') return
@@ -100,7 +101,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       initPayload = {}
       push({ is_online: device.is_online, online_text: device.is_online === 1 ? '在线' : '离线' })
       // 三类请求互不依赖；仍等历史就绪后握手，保持图表先历史、后实时的顺序。
-      await Promise.all([fetchLatest(), fetchAlarms(), history({})])
+      await Promise.all([fetchLatest().catch(report), fetchAlarms().catch(report), history({}).catch(error => { historyWarning = error.message; report(error) })])
       return { fields }
     }
     const templateId = device?.device_config?.device_template_id
@@ -135,32 +136,39 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     await fetchLatest()
     await fetchAlarms()
     // 首屏先准备历史数据，避免实时值被图表缓冲成一段临时曲线。
-    await history({})
+    await history({}).catch(error => { historyWarning = error.message; report(error) })
     if (stopped) return null
     const base = addresses.thingsVisPageUrl.split('#')[0]
     const params = { mode: 'embedded', provider: 'thingspanel', saveTarget: 'host', context: 'current-device', thingsvisApiBaseUrl: addresses.thingsVisApiBase, platformApiBaseUrl: addresses.thingsPanelApiBase, token: sso.accessToken }
     const url = `${base}#/embed?${Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')}`
     return { url, initPayload, canvas: schema.canvas }
   }
-  async function history(payload, reuseInitial = false) {
-    const requests = collectDeviceHistory(schema, payload)
-    async function loadField([id, range]) {
+  async function history(payload) {
+    const requests = collectDeviceHistoryConfigs(schema, payload)
+    async function loadField([id, config]) {
       if (!fields.some(field => field.id === id && field.dataType === 'telemetry')) return
-      const config = payload.historyConfig || {}
-      const query = { device_id: deviceId, key: id, time_range: normalizeHistoryRange(config.timeRange || range), aggregate_window: config.aggWindow || 'no_aggregate', aggregate_function: config.aggFunction || 'NONE_RAW' }
+      const query = { device_id: deviceId, key: id, time_range: config.timeRange, aggregate_window: config.aggWindow, aggregate_function: config.aggFunction }
       const signature = JSON.stringify(query)
-      if (reuseInitial && historyQueries.get(id) === signature && initialHistory.has(id)) {
-        if (loaded) emit({ type: 'tv:platform-history', payload: initialHistory.get(id) })
+      const cached = historyCache.get(signature)
+      if (cached && Date.now() - cached.time < 5000) {
+        historyVersions.set(id, signature)
+        if (loaded) emit({ type: 'tv:platform-history', payload: cached.payload })
         return
       }
-      const result = await api('telemetry/datas/statistic', query)
-      const rows = normalizeHistoryRows(result)
-      const historyPayload = { fieldId: id, history: rows, deviceId, bufferLimit: rows.length }
-      initialHistory.set(id, historyPayload)
-      historyQueries.set(id, signature)
-      if (loaded) emit({ type: 'tv:platform-history', payload: historyPayload })
-      // 历史只走专用协议。作为普通字段推送会生成 __history__history 嵌套缓冲，
-      // 上千点历史反复进入状态深比较，会阻塞 iframe 主线程和组件加载。
+      historyVersions.set(id, signature)
+      if (historyPending.has(signature)) { await historyPending.get(signature); return }
+      const task = (async () => {
+        const result = await api('telemetry/datas/statistic', query)
+        const rows = normalizeHistoryRows(result)
+        const historyPayload = { fieldId: id, history: rows, deviceId, bufferLimit: rows.length }
+        initialHistory.set(id, historyPayload)
+        historyCache.set(signature, { time: Date.now(), payload: historyPayload })
+        if (historyCache.size > 64) historyCache.delete(historyCache.keys().next().value)
+        if (loaded && historyVersions.get(id) === signature) emit({ type: 'tv:platform-history', payload: historyPayload })
+        // 历史只走专用协议，不能作为普通实时字段进入嵌套缓冲。
+      })()
+      historyPending.set(signature, task)
+      try { await task } finally { historyPending.delete(signature) }
     }
     // 限制单设备并发，避免多字段历史逐个等待，也避免瞬间发出全部请求。
     const entries = [...requests]
@@ -170,6 +178,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       failure ||= results.find(result => result.status === 'rejected')
     }
     if (failure) throw failure.reason
+    return entries.length > 0
   }
   async function handleMessage(message) {
     if (stopped || !initPayload || !message) return
@@ -188,6 +197,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
       // 大数组在首屏被发送两次；实时首值也要在历史之后进入缓冲。
       if (!initialHistory.size) emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
       state('ready')
+      if (historyWarning) state('warning', historyWarning)
       if (firstLoad) {
         connect('telemetry/datas/current/ws'); connect('device/online/status/ws', true)
         const timer = setInterval(() => fetchAlarms().catch(report), 30000); timers.add(timer)
@@ -215,15 +225,17 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     if (message.type === 'thingsvis:requestFieldData') {
       if (payload.deviceId && payload.deviceId !== deviceId) return
       try {
-        await history(payload, !payload.historyConfig)
+        const queried = await history(payload)
+        if (queried && historyWarning) { historyWarning = ''; state('warning', '') }
         emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } })
-      } catch (error) { report(error) }
+      } catch (error) { historyWarning = error.message; report(error); emit({ type: 'tv:platform-data', payload: { fields: latest, deviceId } }) }
     }
   }
   function stop() {
     stopped = true
     timers.forEach(timer => { clearTimeout(timer); clearInterval(timer) }); timers.clear()
     sockets.forEach(socket => socket.close({})); sockets.clear(); writes.clear()
+    historyCache.clear(); historyPending.clear(); historyVersions.clear(); initialHistory.clear()
   }
   return { start, handleMessage, stop }
 }
