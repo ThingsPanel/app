@@ -39,7 +39,7 @@ original.nodes.push(historyNode)
 assert.equal(parseDeviceSchema(original, 'real-device', fields).dataSources[0].config.bufferSize, 1, '历史绑定必须开启专用消息缓冲')
 
 // 使用真实 runtime 和模拟传输检查写控制、去重与关闭；不会向设备发送请求。
-const calls = [], messages = [], states = []
+const calls = [], messages = [], states = [], sockets = []
 const historyRows = Array.from({ length: 8200 }, (_, i) => ({ ts: 1700000000 + i * 10, value: i % 60 }))
 globalThis.__deviceApi = async (path, data, method) => {
   calls.push({ path, data, method })
@@ -61,7 +61,11 @@ globalThis.uni = {
     assert.equal(options.data.userInfo.tenantId, 'thingspanel-sys-admin')
     options.success({ statusCode: 200, data: { accessToken: 'test-sso' } })
   },
-  connectSocket: () => ({ onOpen() {}, onMessage() {}, onError() {}, onClose() {}, close() {} })
+  connectSocket: () => {
+    const socket = { onOpen(callback) { this.open = callback }, onMessage() {}, onError(callback) { this.error = callback }, onClose() {}, send() {}, close() {} }
+    sockets.push(socket)
+    return socket
+  }
 }
 const helperUrl = `data:text/javascript;base64,${Buffer.from(await readFile(new URL('../utils/thingsvis-device-schema.js', import.meta.url))).toString('base64')}`
 const runtimeSource = (await readFile(new URL('../services/thingsvis-device-runtime.js', import.meta.url), 'utf8'))
@@ -77,6 +81,20 @@ await runtime.handleMessage({ type: 'READY' })
 assert.equal(messages.at(-1).type, 'tv:init')
 await runtime.handleMessage({ type: 'LOADED' })
 assert.equal(messages.length, 1, 'LOADED 不应提前发送随后会重复回填的历史')
+assert.equal(states.at(-1).status, 'ready')
+assert.equal(sockets.length, 2)
+sockets[0].open()
+assert.equal(calls.filter(call => call.path.startsWith('telemetry/datas/current/')).length, 1, '首次 WebSocket 连接复用已加载的首值')
+const originalSetTimeout = globalThis.setTimeout
+let reconnectNow
+try {
+  globalThis.setTimeout = callback => { reconnectNow = callback; return 1 }
+  sockets[0].error()
+} finally { globalThis.setTimeout = originalSetTimeout }
+reconnectNow()
+assert.equal(sockets.length, 3)
+sockets[2].open()
+assert.equal(calls.filter(call => call.path.startsWith('telemetry/datas/current/')).length, 2, '断线重连后补读实时值')
 await runtime.handleMessage({ type: 'thingsvis:requestFieldData', payload: { dataSourceId: 'device', fieldIds: ['power'], deviceId: 'real-device' } })
 assert.equal(messages[1].type, 'tv:platform-history', '历史必须先于实时值发给图表')
 assert.equal(messages[1].payload.bufferLimit, historyRows.length)
@@ -84,11 +102,10 @@ assert.equal(messages[1].payload.history.length, historyRows.length, '完整历�
 assert.equal(messages[2].type, 'tv:platform-data')
 assert.equal(messages[2].payload.fields.power__history, undefined, '历史数组不能再作为实时字段进入嵌套缓冲')
 assert.equal(calls.filter(call => call.path === 'telemetry/datas/statistic').length, 1, 'LOADED 不重复拉取历史')
-assert.equal(calls.filter(call => call.path.startsWith('telemetry/datas/current/')).length, 1, '握手不重复查询已预加载的实时首值')
+assert.equal(calls.filter(call => call.path.startsWith('telemetry/datas/current/')).length, 2, '数据源握手不额外查询实时值')
 assert.equal(messages.filter(item => item.type === 'tv:platform-history').length, 1, '一轮初始化只回填一次完整历史')
 assert.equal(calls.filter(call => call.path === 'telemetry/datas/statistic').length, 1, '数据源握手复用首屏历史')
 assert.ok(messages.filter(item => item.type === 'tv:platform-data').every(item => Object.keys(item.payload.fields).every(key => !key.endsWith('__history'))), '握手重放也不能将历史塞入实时字段')
-assert.equal(states.at(-1).status, 'ready')
 await runtime.handleMessage({ type: 'tv:error', payload: { message: 'runtime failed' } })
 assert.deepEqual(states.at(-1), { status: 'warning', message: 'runtime failed' })
 const request = { type: 'tv:platform-write', requestId: 'one', payload: { deviceId: 'real-device', dataSourceId: 'device', data: { power: false } } }

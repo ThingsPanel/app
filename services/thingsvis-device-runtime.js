@@ -4,6 +4,7 @@ import { rowsOf, extractDeviceFields, parseDeviceSchema, normalizeDeviceValues, 
 export function createDeviceRuntime({ device, deviceId, addresses, onMessage, onState, dataOnly }) {
   let stopped = false
   let schema, fields = [], initPayload, latest = {}, loaded = false
+  let latestLoaded = false, realtimeSocketOpened = false
   const sockets = new Set(), timers = new Set(), writes = new Map()
   const initialHistory = new Map()
   const historyCache = new Map(), historyPending = new Map(), historyVersions = new Map()
@@ -38,6 +39,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     const mapped = { ...raw }
     fields.forEach(field => { if (raw[field.id] === undefined && raw[field.name] !== undefined) mapped[field.id] = raw[field.name] })
     push(mapped)
+    latestLoaded = true
   }
   async function fetchAlarms() {
     const eventFields = fields.filter(field => field.dataType === 'event')
@@ -68,8 +70,12 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     socket.onOpen(() => {
       if (stopped) { socket.close({}); return }
       socket.send({ data: JSON.stringify({ device_id: deviceId, token }), fail: reconnect })
-      // 重连期间属性也可能变化，不能只等待下一条遥测推送。
-      if (!statusOnly) fetchLatest().catch(report)
+      // 首次连接复用启动时的首值；断线重连后再补读可能错过的属性。
+      if (!statusOnly) {
+        const reopened = realtimeSocketOpened
+        realtimeSocketOpened = true
+        if (reopened || !latestLoaded) fetchLatest().catch(report)
+      }
       heartbeat = setInterval(() => socket.send({ data: 'ping', fail: reconnect }), 8000)
       timers.add(heartbeat)
       if (loaded) state('warning', historyWarning)
