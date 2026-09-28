@@ -1,13 +1,9 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
-import list from './module/list'
-Vue.use(Vuex)
-const store = new Vuex.Store({
+import { createStore } from 'vuex'
+import list from './modules/list'
+
+const store = createStore({
   modules: {
-		list  
-		},
-  state: {
-    name:'小程序'
-  },
+		list
+	}
 })
 export default store

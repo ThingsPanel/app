@@ -1,0 +1,14 @@
+/* 告警等级复用统一语义色：高=红、中=橙、低=主题蓝；正常/恢复=绿。
+ * 页面局部声明使用同一组变量和回退色，兼容不同端的样式注入顺序。 */
+page,
+.tp-box,
+.page {
+  --alarm-high: var(--tp-color-danger, #ff4d35);
+  --alarm-medium: var(--tp-color-warning, #ff9500);
+  --alarm-low: var(--tp-color-primary, #1677ff);
+
+  --alarm-default: #98a2b3;
+
+  /* 告警状态（正常 / 已恢复）：沿用项目绿，与等级色区分开 */
+  --alarm-status-normal: var(--tp-color-success, #08bf63);
+}

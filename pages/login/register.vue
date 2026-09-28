@@ -1,7 +1,7 @@
 <template>
 	<view class="tp-login-box plain-layout">
 		<view class="plain-header tp-flex tp-flex-row tp-flex-a-c">
-			<image class="brand-logo" src="/static/icon/logo.png" mode="heightFix" />
+			<image class="brand-logo" src="/static/icon/app-mark.png" mode="heightFix" />
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
 				<text class="lang-arrow">›</text>
@@ -35,13 +35,13 @@
 				<!-- 手机号输入 -->
 				<view class="form-item">
 					<view class="tp-ipt phone-input-wrapper">
-						<picker mode="selector" :range="phonePrefixList" range-key="label" 
+<app-picker mode="selector" :range="phonePrefixList" range-key="label"
 							:value="phonePrefixIndex" @change="onPhonePrefixChange">
 							<view class="phone-prefix-selector">
 								<text class="prefix-text">{{ selectedPhonePrefix }}</text>
 								<text class="prefix-arrow">▼</text>
 							</view>
-						</picker>
+						</app-picker>
 						<input class="uni-input phone-input" type="number" v-model="formData.phone"
 							:placeholder="$t('pages.register.phonePlaceholder')" @blur="validatePhone" />
 					</view>
@@ -80,13 +80,14 @@
 			</view>
 		</view>
 	</view>
+  <app-action-sheet ref="appActionSheet" />
 </template>
   
 <script>
 import {
 	fetchEmailCode,
 	registerByEmail
-} from '@/service/auth'
+} from '@/api/modules/auth'
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 
 export default {
@@ -95,7 +96,7 @@ export default {
 			setTimeout(() => {
 				try {
 					uni.setNavigationBarTitle({
-						title: this.$t('pages.register')
+						title: this.$t('pages.register.title')
 					});
 				} catch (e) {
 					console.warn('设置导航栏标题失败:', e);
@@ -172,7 +173,7 @@ export default {
 
 	methods: {
 		showLanguagePopup() {
-			uni.showActionSheet({
+			this.$refs.appActionSheet.open({
 				itemList: AVAILABLE_LANGUAGES.map(lang => lang.label),
 				success: (res) => {
 					const selectedLang = AVAILABLE_LANGUAGES[res.tapIndex];
@@ -183,7 +184,7 @@ export default {
 						setTimeout(() => {
 							try {
 								uni.setNavigationBarTitle({
-									title: this.$t('pages.register')
+									title: this.$t('pages.register.title')
 								});
 							} catch (e) {
 								console.warn('设置导航栏标题失败:', e);
@@ -366,7 +367,7 @@ export default {
 		// 返回登录页
 		handleBack() {
 			uni.navigateTo({
-				url: '/pages/login/login'
+				url: '/pages/login/index'
 			})
 		},
 		
@@ -383,7 +384,7 @@ export default {
 </script>
   
 <style>
-@import url("@/common/login.css");
+@import url("@/features/auth/styles/auth.css");
 
 .plain-layout {
 	display: flex;
@@ -414,9 +415,9 @@ export default {
 .lang-switch {
 	padding: 8rpx 20rpx;
 	border-radius: 8rpx;
-	border: 1rpx solid rgba(100, 108, 255, 0.3);
-	background: rgba(100, 108, 255, 0.1);
-	color: #646cff;
+	border: 1rpx solid rgba(22, 119, 255, 0.3);
+	background: rgba(22, 119, 255, 0.1);
+	color: var(--tp-color-primary, #1677ff);
 	font-size: 26rpx;
 	cursor: pointer;
 	transition: all 0.3s ease;
@@ -427,7 +428,7 @@ export default {
 }
 
 .lang-switch:active {
-	background: rgba(100, 108, 255, 0.2);
+	background: rgba(22, 119, 255, 0.2);
 	transform: scale(0.98);
 }
 
@@ -438,7 +439,7 @@ export default {
 .lang-arrow {
 	font-size: 36rpx;
 	margin-top: -4rpx;
-	color: #646cff;
+	color: var(--tp-color-primary, #1677ff);
 	opacity: 0.6;
 	font-weight: 300;
 }
@@ -510,7 +511,7 @@ export default {
 
 .code-btn {
 	font-size: 24rpx;
-	background: #4f46e5;
+	background: var(--tp-color-primary, #1677ff);
 	color: #fff;
 	border-radius: 16rpx;
 	padding: 12rpx 26rpx;
@@ -524,7 +525,7 @@ export default {
 
 .error-tip {
 	font-size: 24rpx;
-	color: #ef4444;
+	color: var(--tp-color-danger, #ff4d35);
 	margin-top: 8rpx;
 	padding-left: 8rpx;
 }
@@ -565,4 +566,6 @@ button[disabled] {
 .phone-input {
 	flex: 1;
 }
+
+.plain-layout { background: #F2F2F7; }
 </style>

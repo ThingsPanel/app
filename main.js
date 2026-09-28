@@ -1,41 +1,46 @@
-import Vue from 'vue'
 import App from './App'
+import { reportAppError } from '@/services/app-errors'
+import { createSSRApp } from 'vue'
 import store from './store'
 import i18n, { updateTabbarText } from './lang/index'
-//
-Vue.prototype.$store = store
-//
-Vue.config.productionTip = false
+import login from '@/store/login'
 
-Vue.prototype.$login = require('@/store/login') //判断是否登陆
-
-//登录框提示框
-import needLogin from '@/components/login/needLogin.vue';
- Vue.component('needLogin',needLogin)
 //授权提示框
-import authorize from '@/components/login/authorize.vue';
- Vue.component('authorize',authorize)
+import Authorize from '@/components/login/authorize.vue';
 //消息提示框
-import CysToast from '@/components/aui-toast/aui-toast.vue'
-Vue.component('cys-toast',CysToast)
+import AppToast from '@/components/toast/index.vue'
 
 //通用导航栏
-import customNav from '@/components/customNav/customNav.vue';
-Vue.component('customNav',customNav)
+import AppNavbar from '@/components/app-navbar/index.vue';
+import AppTabHeader from '@/components/app-tab-header/index.vue';
+import AppPicker from '@/components/app-picker/index.vue';
+import AppActionSheet from '@/components/app-action-sheet/index.vue';
 //接口访问请求
-import api from '@/API/'
-Vue.prototype.API = api
-// 
-App.mpType = 'app'
-// 
-const app = new Vue({
-    i18n,
-    ...App
-})
+import api from '@/api/request'
+import { updateCurrentPageTitle } from '@/utils/page-title'
 
-app.$mount()
+export function createApp() {
+    const app = createSSRApp(App)
+    app.config.errorHandler = error => reportAppError(error, 'vue')
 
-// Update titles on initial load
-updateTabbarText()
+    app.use(store)
+    app.use(i18n)
+    app.mixin({
+        onShow() {
+            updateCurrentPageTitle(i18n)
+            updateTabbarText()
+        }
+    })
+    app.component('authorize', Authorize)
+    app.component('app-toast', AppToast)
+    app.component('app-navbar', AppNavbar)
+    app.component('app-tab-header', AppTabHeader)
+    app.component('app-picker', AppPicker)
+    app.component('app-action-sheet', AppActionSheet)
+    app.config.globalProperties.$login = login
+    app.config.globalProperties.API = api
 
-export default app
+    return {
+        app
+    }
+}

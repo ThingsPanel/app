@@ -1,0 +1,577 @@
+<template>
+  <view class="edit-page">
+    <view class="avatar-row" @click="chooseAvatar">
+      <view><text class="row-title">{{ $t('account.edit.avatar') }}</text><text class="row-hint">{{ $t('account.edit.changeAvatar') }}</text></view>
+      <image :src="formData.avatarUrl || '/static/image/uhead.png'" class="avatar-image" mode="aspectFill" />
+      <view class="chevron" />
+    </view>
+
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.basicInfo') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.name') }}</text><input class="row-input" v-model="formData.name" :placeholder="$t('account.edit.namePlaceholder')" /></view>
+      <view class="form-row phone-row"><text class="row-label">{{ $t('account.phone') }}</text><view class="phone-input-wrapper">
+<app-picker mode="selector" :range="phonePrefixList" range-key="label"
+								:value="phonePrefixIndex" @change="onPhonePrefixChange">
+								<view class="phone-prefix-selector">
+									<text class="prefix-text">{{ selectedPhonePrefix }}</text>
+									<text class="prefix-arrow">⌄</text>
+								</view>
+							</app-picker>
+							<input
+								class="row-input phone-number"
+								v-model="formData.phone_number" 
+								:placeholder="$t('account.edit.phonePlaceholder')"
+								type="number"
+							/>
+						</view></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.email') }}</text><input class="row-input" v-model="formData.email" :placeholder="$t('account.edit.emailPlaceholder')" type="email" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.organization') }}</text><input class="row-input" v-model="formData.organization" :placeholder="$t('account.edit.organizationPlaceholder')" /></view>
+    </view>
+
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.preferences') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><input class="row-input" v-model="formData.timezone" :placeholder="$t('account.edit.timezonePlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><app-picker class="picker-fill" mode="selector" :range="languageList" range-key="label" :value="languageIndex" @change="onLanguageChange"><view class="picker-value"><text>{{ selectedLanguage }}</text><text class="chevron">›</text></view></app-picker></view>
+    </view>
+
+    <view class="form-group">
+      <text class="group-title">{{ $t('account.edit.address') }}</text>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.province') }}</text><input class="row-input" v-model="formData.address.province" :placeholder="$t('account.edit.provincePlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.city') }}</text><input class="row-input" v-model="formData.address.city" :placeholder="$t('account.edit.cityPlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.edit.district') }}</text><input class="row-input" v-model="formData.address.district" :placeholder="$t('account.edit.districtPlaceholder')" /></view>
+      <view class="form-row"><text class="row-label">{{ $t('account.detailAddress') }}</text><input class="row-input" v-model="formData.address.detailed_address" :placeholder="$t('account.edit.detailedAddressPlaceholder')" /></view>
+    </view>
+    <button class="save-button" type="primary" @click="submitForm" :loading="submitting">{{ $t('common.save') }}</button>
+  </view>
+</template>
+
+<script>
+export default {
+	data() {
+		return {
+			submitting: false,
+			formData: {
+				name: '',
+				phone_number: '',
+				phone_prefix: '+86',
+				email: '',
+				organization: '',
+				timezone: '',
+				default_language: '',
+				avatar_url: '',
+				avatarUrl: '', // 用于显示的完整URL
+				address: { province: '', city: '', district: '', detailed_address: '' }
+			},
+			languageIndex: 0,
+			languageList: [
+				{ value: 'zh-CN', label: '中文' },
+				{ value: 'en-US', label: 'English' }
+			],
+			// 当前选中的区号索引
+			phonePrefixIndex: 0,
+			// 国际电话区号列表
+			phonePrefixList: [
+				{ code: '+86', label: '+86 中国', country: '中国' },
+				{ code: '+1', label: '+1 美国/加拿大', country: '美国' },
+				{ code: '+44', label: '+44 英国', country: '英国' },
+				{ code: '+81', label: '+81 日本', country: '日本' },
+				{ code: '+82', label: '+82 韩国', country: '韩国' },
+				{ code: '+65', label: '+65 新加坡', country: '新加坡' },
+				{ code: '+852', label: '+852 香港', country: '香港' },
+				{ code: '+853', label: '+853 澳门', country: '澳门' },
+				{ code: '+886', label: '+886 台湾', country: '台湾' },
+				{ code: '+61', label: '+61 澳大利亚', country: '澳大利亚' },
+				{ code: '+64', label: '+64 新西兰', country: '新西兰' },
+				{ code: '+33', label: '+33 法国', country: '法国' },
+				{ code: '+49', label: '+49 德国', country: '德国' },
+				{ code: '+39', label: '+39 意大利', country: '意大利' },
+				{ code: '+34', label: '+34 西班牙', country: '西班牙' },
+				{ code: '+7', label: '+7 俄罗斯', country: '俄罗斯' },
+				{ code: '+91', label: '+91 印度', country: '印度' },
+				{ code: '+55', label: '+55 巴西', country: '巴西' },
+				{ code: '+52', label: '+52 墨西哥', country: '墨西哥' },
+				{ code: '+27', label: '+27 南非', country: '南非' }
+			]
+		}
+	},
+	computed: {
+		// 当前选中的区号显示文本
+		selectedPhonePrefix() {
+			if (this.phonePrefixList && this.phonePrefixList.length > 0 && this.phonePrefixIndex >= 0) {
+				return this.phonePrefixList[this.phonePrefixIndex].code
+			}
+			return '+86'
+		},
+		selectedLanguage() {
+			return this.languageList[this.languageIndex]?.label || '中文'
+		}
+	},
+	onLoad() {
+		this.loadUserInfo();
+	},
+	onShow() {
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('account.edit.title')
+				})
+			}, 100)
+		})
+	},
+	methods: {
+		// 加载用户信息
+		loadUserInfo() {
+
+
+			const serverUrl = uni.getStorageSync('serverAddress');
+			const baseUrl = serverUrl ? serverUrl.replace('/api/v1', '') : '';
+
+			this.API.apiRequest('/api/v1/board/user/info', {}, 'get').then(res => {
+				if (res.code == 200 && res.data) {
+					const data = res.data;
+
+					// 处理手机号：拆分前缀和号码
+					let phoneNumber = '';
+					let phonePrefix = '+86';
+
+					// 优先使用 phone_prefix 和 phone_number
+					if (data.phone_prefix) {
+						phonePrefix = data.phone_prefix;
+					}
+					if (data.phone_number) {
+						phoneNumber = String(data.phone_number);
+					}
+
+					// 如果 phone_number 包含前缀（以 + 开头），需要拆分
+					if (phoneNumber && phoneNumber.startsWith('+')) {
+						// 尝试匹配已知的前缀
+						for (let i = 0; i < this.phonePrefixList.length; i++) {
+							const prefix = this.phonePrefixList[i].code;
+							if (phoneNumber.startsWith(prefix)) {
+								phonePrefix = prefix;
+								phoneNumber = phoneNumber.substring(prefix.length).trim();
+								break;
+							}
+						}
+					}
+
+					// 如果没有 phone_number，尝试从 mobile 中提取
+					if (!phoneNumber && data.mobile) {
+						const mobileStr = String(data.mobile);
+						if (mobileStr.includes('-')) {
+							const parts = mobileStr.split('-');
+							phonePrefix = parts[0] || '+86';
+							phoneNumber = parts[1] || '';
+						} else if (mobileStr.startsWith('+')) {
+							// mobile 包含前缀
+							for (let i = 0; i < this.phonePrefixList.length; i++) {
+								const prefix = this.phonePrefixList[i].code;
+								if (mobileStr.startsWith(prefix)) {
+									phonePrefix = prefix;
+									phoneNumber = mobileStr.substring(prefix.length).trim();
+									break;
+								}
+							}
+							if (!phoneNumber) {
+								phoneNumber = mobileStr;
+							}
+						} else {
+							phoneNumber = mobileStr;
+						}
+					}
+
+					// 查找对应的前缀索引
+					const prefixIndex = this.phonePrefixList.findIndex(item => item.code === phonePrefix);
+					if (prefixIndex >= 0) {
+						this.phonePrefixIndex = prefixIndex;
+					}
+
+					const address = data.address || {};
+					const languageIndex = this.languageList.findIndex(item => item.value === data.default_language);
+					this.languageIndex = languageIndex >= 0 ? languageIndex : 0;
+					this.formData = {
+						name: data.name || '',
+						phone_number: phoneNumber,
+						phone_prefix: phonePrefix,
+						email: data.email || '',
+						organization: data.organization || '',
+						timezone: data.timezone || '',
+						default_language: data.default_language || '',
+						avatar_url: data.avatar_url || '',
+						avatarUrl: data.avatar_url ? (baseUrl + '/' + data.avatar_url) : '',
+						address: {
+							province: address.province || '', city: address.city || '', district: address.district || '',
+							detailed_address: address.detailed_address || ''
+						}
+					};
+				}
+
+			}).catch(err => {
+				console.error('加载用户信息失败:', err);
+
+				uni.showToast({
+					title: this.$t('account.edit.loadFailed'),
+					icon: 'none'
+				});
+			});
+		},
+
+		// 区号选择器变化事件
+		onPhonePrefixChange(e) {
+			const index = e.detail.value
+			this.phonePrefixIndex = index
+			if (this.phonePrefixList && this.phonePrefixList[index]) {
+				this.formData.phone_prefix = this.phonePrefixList[index].code
+			}
+		},
+
+		onLanguageChange(e) {
+			this.languageIndex = e.detail.value
+			this.formData.default_language = this.languageList[this.languageIndex]?.value || 'zh-CN'
+		},
+
+		// 选择头像
+		chooseAvatar() {
+			uni.chooseImage({
+				count: 1,
+				sizeType: ['compressed'],
+				sourceType: ['album', 'camera'],
+				success: (res) => {
+					const tempFilePath = res.tempFilePaths[0];
+					this.uploadAvatar(tempFilePath);
+				},
+				fail: (err) => {
+					console.error('选择图片失败:', err);
+				}
+			});
+		},
+
+		// 上传头像
+		uploadAvatar(filePath) {
+
+
+			const serverUrl = uni.getStorageSync('serverAddress');
+			const baseUrl = serverUrl || 'https://demo.thingspanel.cn';
+			const token = uni.getStorageSync('access_token');
+
+			uni.uploadFile({
+				url: baseUrl + '/api/v1/file/up',
+				filePath: filePath,
+				name: 'file',
+				formData: {
+					type: 'user_icon'
+				},
+				header: {
+					'x-token': token
+				},
+				success: (uploadRes) => {
+					try {
+						const res = JSON.parse(uploadRes.data);
+						if (res.code == 200 && res.data && res.data.path) {
+							this.formData.avatar_url = res.data.path;
+							this.formData.avatarUrl = baseUrl.replace('/api/v1', '') + '/' + res.data.path;
+							uni.showToast({
+								title: this.$t('account.edit.uploadSuccess'),
+								icon: 'success'
+							});
+						} else {
+							uni.showToast({
+								title: res.message || this.$t('account.edit.uploadFailed'),
+								icon: 'none'
+							});
+						}
+					} catch (e) {
+						console.error('解析上传结果失败:', e);
+						uni.showToast({
+							title: this.$t('account.edit.uploadFailed'),
+							icon: 'none'
+						});
+					}
+
+				},
+				fail: (err) => {
+					console.error('上传失败:', err);
+
+					uni.showToast({
+						title: this.$t('account.edit.uploadFailed'),
+						icon: 'none'
+					});
+				}
+			});
+		},
+
+		// 提交表单
+		submitForm() {
+			// 简单验证
+			if (this.formData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.formData.email)) {
+				uni.showToast({
+					title: this.$t('account.edit.emailInvalid'),
+					icon: 'none'
+				});
+				return;
+			}
+			if (this.formData.phone_number && !/^[0-9]+$/.test(this.formData.phone_number)) {
+				uni.showToast({
+					title: this.$t('account.edit.phoneInvalid'),
+					icon: 'none'
+				});
+				return;
+			}
+			this.submitUserInfo();
+		},
+
+		// 提交用户信息
+		submitUserInfo() {
+			if (this.submitting) return;
+
+			this.submitting = true;
+
+
+			// 构建请求数据
+			const updateData = {};
+			if (this.formData.name) updateData.name = this.formData.name;
+			if (this.formData.phone_number) updateData.phone_number = this.formData.phone_number;
+			if (this.formData.phone_prefix) updateData.phone_prefix = this.formData.phone_prefix;
+			if (this.formData.email) updateData.email = this.formData.email;
+			if (this.formData.organization) updateData.organization = this.formData.organization;
+			if (this.formData.timezone) updateData.timezone = this.formData.timezone;
+			if (this.formData.default_language) updateData.default_language = this.formData.default_language;
+			if (this.formData.avatar_url) updateData.avatar_url = this.formData.avatar_url;
+			updateData.address = { ...this.formData.address };
+
+			this.API.apiRequest('/api/v1/board/user/update', updateData, 'post').then(res => {
+
+				if (res.code == 200) {
+					uni.showToast({
+						title: this.$t('account.edit.saveSuccess'),
+						icon: 'none'
+					});
+					setTimeout(() => {
+						uni.navigateBack();
+					}, 1500);
+				} else {
+					uni.showToast({
+						title: res.message || this.$t('account.edit.saveFailed'),
+						icon: 'none'
+					});
+				}
+				this.submitting = false;
+			}).catch(err => {
+				console.error('更新用户信息失败:', err);
+
+				uni.showToast({
+					title: this.$t('account.edit.updateFailed'),
+					icon: 'none'
+				});
+				this.submitting = false;
+			});
+		}
+	}
+}
+</script>
+
+<style scoped>
+@import '@/features/account/styles/account.css';
+
+.edit-container {
+	width: 100%;
+	min-height: 100vh;
+}
+
+.avatar-section {
+	margin-bottom: 40rpx;
+	position: relative;
+	z-index: 1;
+}
+
+.avatar-wrapper {
+	position: relative;
+	width: 200rpx;
+	height: 200rpx;
+	border-radius: 50%;
+	overflow: hidden;
+	border: 6rpx solid rgba(255, 255, 255, 0.9);
+	box-shadow: 0 12rpx 35rpx rgba(22, 119, 255, 0.25);
+}
+
+.avatar-image {
+	width: 100%;
+	height: 100%;
+}
+
+.avatar-mask {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	opacity: 0;
+	transition: opacity 0.3s;
+}
+
+.avatar-wrapper:active .avatar-mask {
+	opacity: 1;
+}
+
+.avatar-text {
+	color: #fff;
+	font-size: 24rpx;
+	text-align: center;
+}
+
+.form-section {
+	position: relative;
+	z-index: 1;
+}
+
+.form-item {
+	margin-bottom: 40rpx;
+}
+
+.form-item:last-of-type {
+	margin-bottom: 0;
+}
+
+.form-label {
+	font-size: 28rpx;
+	color: #1d1d1f;
+	margin-bottom: 20rpx;
+	font-weight: 600;
+}
+
+.tp-ipt {
+	background-color: rgba(248, 250, 252, 0.8);
+	border: 1rpx solid rgba(226, 232, 240, 0.8);
+	border-radius: 16rpx;
+	padding: 24rpx;
+	transition: all 0.3s ease;
+}
+
+.tp-ipt:active {
+	border-color: rgba(22, 119, 255, 0.4);
+	background-color: rgba(248, 250, 252, 1);
+}
+
+.tp-ipt .uni-input {
+	font-size: 28rpx;
+	color: #1d1d1f;
+	width: 100%;
+}
+
+.phone-input-wrapper {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	gap: 0;
+	width: 100%;
+}
+
+.phone-prefix-selector {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8rpx;
+	padding: 0 20rpx 0 0;
+	border-right: 1rpx solid rgba(226, 232, 240, 0.8);
+	flex-shrink: 0;
+	cursor: pointer;
+	min-width: 140rpx;
+}
+
+.prefix-text {
+	font-size: 28rpx;
+	color: #1d1d1f;
+	font-weight: 500;
+}
+
+.prefix-arrow {
+	font-size: 20rpx;
+	color: #94a3b8;
+	margin-left: 4rpx;
+}
+
+.phone-number {
+	flex: 1;
+	padding-left: 20rpx;
+}
+
+.submit-section {
+	margin-top: 60rpx;
+}
+
+.submit-btn {
+	width: 100%;
+	height: 100rpx;
+	line-height: 100rpx;
+	border-radius: 16rpx;
+	font-size: 30rpx;
+	font-weight: 600;
+	color: #fff;
+	background: var(--tp-color-primary, #1677ff);
+	border: none;
+}
+
+.submit-btn:active {
+	opacity: 0.9;
+	transform: scale(0.98);
+}
+
+.tp-ipt {
+	padding: 0;
+}
+
+.tp-ipt .uni-input {
+	background-color: transparent !important;
+}
+
+/* Match the profile and device pages without changing the edit workflow. */
+.tp-box { background:linear-gradient(180deg,#fff,#f7f8fa 240px); }
+.bg-glow-2 { display:none; }
+.avatar-section { margin:24px 0; }
+.avatar-wrapper { width:72px; height:72px; border:2px solid #fff; box-shadow:none; }
+.form-section { margin-top:0; border:1px solid #e5eaf2; border-radius:6px; box-shadow:none; background:#fff; padding:18px; }
+.form-item { margin-bottom:20px; }
+.form-label { font-size:13px; font-weight:500; margin-bottom:8px; }
+.tp-ipt { border-radius:6px; padding:10px; background:#f8fafc; }
+.tp-ipt .uni-input, .prefix-text { font-size:14px; }
+.tp-ipt:active { border-color:var(--tp-color-primary, #1677ff); }
+.submit-section { margin-top:24px; }
+.submit-btn { height:44px; line-height:44px; border-radius:6px; font-size:14px; background:var(--tp-color-primary, #1677ff); }
+
+.edit-page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 24rpx 28rpx calc(120rpx + env(safe-area-inset-bottom));
+  background: #f2f2f7;
+  color: #1d1d1f;
+  font-family: inherit;
+}
+.avatar-row, .form-group { background: #fff; }
+.avatar-row { display:flex; align-items:center; min-height:144rpx; padding:0 24rpx; margin-bottom:24rpx; }
+.row-title, .row-hint { display:block; }
+.row-title { color:#1d1d1f; font-size:26rpx; line-height:38rpx; font-weight:400; }
+.row-hint { margin-top:4rpx; color:#98a2b3; font-size:21rpx; line-height:30rpx; }
+.avatar-image { width:96rpx; height:96rpx; margin-left:auto; border-radius:50%; background:#f2f4f7; }
+.avatar-row .chevron { margin-left:20rpx; }
+.group-title { display:block; padding:20rpx 24rpx 12rpx; color:#667085; font-size:22rpx; line-height:32rpx; }
+.form-group { margin-bottom:24rpx; }
+.form-row { display:flex; align-items:center; min-height:96rpx; padding:0 24rpx; border-top:1rpx solid #edf1f6; box-sizing:border-box; }
+.row-label { width:156rpx; flex-shrink:0; color:#1d1d1f; font-size:25rpx; line-height:36rpx; }
+.row-input { flex:1; min-width:0; height:56rpx; color:#344054; font-size:24rpx; line-height:36rpx; text-align:right; }
+.row-input::placeholder { color:#b3bdca; }
+.phone-input-wrapper { flex:1; min-width:0; }
+.phone-prefix-selector { min-width:98rpx; padding-right:18rpx; border-right:1rpx solid #edf1f6; justify-content:flex-start; }
+.prefix-text { color:#344054; font-size:24rpx; font-weight:400; }
+.prefix-arrow { color:#98a2b3; font-size:24rpx; }
+.phone-number { padding-left:20rpx; }
+.picker-fill { flex:1; }
+.picker-value { display:flex; align-items:center; justify-content:flex-end; min-height:96rpx; color:#344054; font-size:24rpx; }
+.picker-value .chevron, .chevron { color:#98a2b3; font-size:36rpx; font-style:normal; font-weight:300; line-height:1; }
+.save-button { width:100%; height:88rpx; margin-top:12rpx; border:0; border-radius:0; background:var(--tp-color-primary, #1677ff); color:#fff; font-size:26rpx; font-weight:400; line-height:88rpx; }
+.save-button::after { border:0; }
+.save-button:active { background:var(--tp-color-primary, #1677ff); opacity:.85; }
+</style>

@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<view class="authorizeBtn">
-			<view class="authorizetitle"><image src="../../static/icon/fisheryLogo.png"/></view>
+			<view class="authorizetitle"><image src="../../static/icon/product-wordmark.png"/></view>
 			<view class="authorizeInfo">{{ $t('components.authorize.info') }}</view>
 			<button @click="toCancel" class="cancel">{{ $t('components.authorize.cancelBtn') }}</button>
 			<!-- #ifdef MP-WEIXIN -->
@@ -64,7 +64,7 @@ export default {
 	}
 	.authorizeInfo {
 		font-size: 28rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: 500;
 		color: #333333;
 		margin-top: 30rpx;
@@ -77,7 +77,7 @@ export default {
 		background: #07C160;
 		border-radius: 8rpx;
 		font-size: 28rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: bold;
 		color: #FFFFFF;
 		text-align: center;
@@ -90,7 +90,7 @@ export default {
 		background: #F2F2F2;
 		border-radius: 8rpx;
 		font-size: 28rpx;
-		font-family: Source Han Sans CN;
+		font-family: inherit;
 		font-weight: bold;
 		color: #07C160;
 		margin-right: 27rpx;

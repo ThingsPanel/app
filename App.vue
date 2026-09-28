@@ -1,5 +1,8 @@
 <script>
+	import { reportAppError } from '@/services/app-errors'
 	export default {
+		onError(error) { reportAppError(error, 'runtime') },
+		onUnhandledRejection(event) { reportAppError(event?.reason, 'promise') },
 		onLaunch: async function() {
 			uni.onPushMessage(async (res) => {
 				console.log('收到推送消息==>:', res);
@@ -28,15 +31,7 @@
 				}
 			});
 
-			uni.getPushClientId({
-				success: (res) => {
-					const push_clientid = res.cid;
-					console.log('客户端推送标识==>:', push_clientid);
-				},
-				fail(err) {
-					console.log("获取客户端标识错误:", err);
-				}
-			});
+			// 推送 ID 由登录流程获取并绑定；启动时不为日志重复请求连接。
 		},
 		onShow: function() {
 			// console.log('App Show')
@@ -50,7 +45,7 @@
 			},
 			navigateToDetail(data) {
 				uni.navigateTo({
-					url: '/pages/notify/detail',
+					url: '/pages/alarms/detail',
 					success: (navRes) => {
 						if (navRes.eventChannel) {
 							navRes.eventChannel.emit('acceptData', { item: data });
@@ -66,14 +61,41 @@
 </script>
 
 <style>
+	@import './styles/semantic-colors.css';
 	/* 引入公共样式 */
-	@import './common/uni.css';
+	@import './styles/uni-components.css';
 	/* 引入字体库样式 */
-	@import './common/icon.css';
+	@import './styles/icon-font.css';
 	/* 引入动画库 */
-	@import './common/animate.css';
+	@import './styles/animations.css';
 	/* 引入公共库样式 */
-	@import './common/util.css';
+	@import './styles/utilities.css';
+	/* 告警等级统一色板 */
+	@import './styles/alarm-level.css';
 	/* */ 
-	@import './common/common.css';
+	@import './styles/global.css';
+	@import './styles/overlays.css';
+
+	/* #ifdef H5 */
+	/* 固定导航内容的行盒，避免字体加载和页面切换改变图文的垂直位置。 */
+	uni-tabbar .uni-tabbar__bd {
+		flex: 0 0 auto;
+		height: 52px;
+		min-height: 52px;
+		font-family: inherit;
+	}
+	uni-tabbar .uni-tabbar__icon {
+		flex: 0 0 20px;
+	}
+	uni-tabbar .uni-tabbar__icon img {
+		display: block;
+	}
+	uni-tabbar .uni-tabbar__label {
+		flex: 0 0 16px;
+		height: 16px;
+		line-height: 16px !important;
+		font-weight: 400;
+		white-space: nowrap;
+	}
+	/* #endif */
 </style>

@@ -1,0 +1,67 @@
+/* All text follows the same application default as the home page.
+ * Avoid a universal selector: icon fonts must keep their own font-family. */
+button,
+input,
+textarea,
+select {
+	font-family: inherit;
+}
+
+/* #ifdef H5 */
+.uni-input-input,
+.uni-input-placeholder,
+.uni-textarea-textarea,
+.uni-textarea-placeholder {
+	font-family: inherit;
+}
+/* #endif */
+
+page {
+	background-size: cover;
+	background-attachment: fixed
+}
+
+.fishlogo {
+	padding-top: 388rpx;
+	width: 252rpx;
+	height: 122rpx;
+	margin: 0 auto;
+}
+
+.fishlogo image {
+	width: 252rpx;
+	height: 122rpx;
+}
+
+.authLogin {
+	margin-top: 133rpx;
+}
+
+.authLogin button {
+	width: 282rpx;
+	height: 77rpx;
+	background: var(--tp-color-primary, #1677ff);
+	box-shadow: 0px 8rpx 31rpx 1rpx rgba(147, 147, 147, 0.35);
+	border-radius: 39rpx;
+	font-size: 28rpx;
+	font-family: inherit;
+	font-weight: bold;
+	color: #FFFFFF;
+}
+
+.selectlist {
+	width: 100%;
+	max-height: 700rpx;
+}
+
+.select_item {
+	padding: 10rpx;
+	text-align: center;
+	font-size: 26rpx;
+	font-weight: bold;
+	color: #333333;
+	height: 80rpx;
+	line-height: 80rpx;
+	border-bottom: 1rpx solid #F2F2F3;
+	/* background: #fff; */
+}

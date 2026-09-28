@@ -1,4 +1,13 @@
 .idea
 unpackage
 node_modules
-*.json
+output/
+.design/
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+
+.workbuddy-ai/
+tmp/

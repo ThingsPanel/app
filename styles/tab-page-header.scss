@@ -1,0 +1,8 @@
+/* Header spacing belongs to app-tab-header; page roots must not add a top inset. */
+.home-page,
+.boards-page,
+.account-page,
+.tp-box {
+  padding-top: 0;
+  margin-top: 0;
+}

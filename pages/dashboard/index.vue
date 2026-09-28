@@ -1,0 +1,390 @@
+<template>
+  <view v-if="homeResolving" class="custom-home"><BoardLoading /></view>
+  <view v-else-if="selectedHome" class="custom-home">
+    <BoardTabDeck v-if="homeVisible" ref="homeViewer" active-path="pages/dashboard/index" :initial-id="selectedHome.id" home-mode @system-home="showSystemHome" @unavailable="homeUnavailable" />
+  </view>
+  <view v-else class="home-page">
+    <view v-if="homePreferenceError" class="home-preference-notice"><text>{{ homePreferenceError }}</text><button @click="openHome">重试</button></view>
+    <app-tab-header inset :title="$t('dashboard.title')" :subtitle="$t('dashboard.tenantOverview') + ' · ' + (loading ? $t('dashboard.updating') : $t('dashboard.overviewSubtitle'))">
+      <view class="header-actions">
+        <button class="icon-button" :aria-label="$t('scanActivation.scan')" @click="scanDevice"><image src="/static/icon/home/scan.svg" /></button>
+        <button class="icon-button" :aria-label="$t('dashboard.notifications')" @click="navigate('/pages/alarms/index')"><image src="/static/icon/notify.svg" /></button>
+      </view>
+    </app-tab-header>
+
+    <view class="top-stats">
+      <button class="stat-card stat-device" @click="openDevices">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/device.svg" /></view><text class="stat-value">{{ device.total ?? '—' }}</text></view>
+        <text class="stat-label">{{ $t('dashboard.deviceTotal') }}</text><text class="stat-note">{{ formatMessage('dashboard.onlineCount', { count: device.online ?? '—' }) }}</text>
+      </button>
+      <button class="stat-card stat-online" @click="openDevices">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/check.svg" /></view><text class="stat-value">{{ device.rate ?? '—' }}<text class="unit">%</text></text></view>
+        <text class="stat-label">{{ $t('dashboard.onlineRate') }}</text><view class="stat-rate-track" aria-hidden="true"><view :style="{ width: (device.rate ?? 0) + '%' }" /></view>
+      </button>
+      <button class="stat-card stat-alarm" @click="navigate('/pages/alarms/index')">
+        <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/bell.svg" /></view><text class="stat-value">{{ alarmDevices ?? '—' }}</text></view>
+        <text class="stat-label">{{ $t('dashboard.alarmDevices') }}</text><text class="stat-note alarm-note">{{ $t('dashboard.viewActivity') }} <text>›</text></text>
+      </button>
+    </view>
+    <button v-if="errors.length" class="error-notice" @click="refresh">{{ formatMessage('dashboard.loadFailed', { sections: errors.map(key => $t('dashboard.' + key)).join(', ') }) }}</button>
+
+    <view class="panel">
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.operations') }}</text><button class="more" :disabled="loading" @click="refresh">{{ loading ? $t('dashboard.updating') : updatedAt ? formatMessage('dashboard.updatedAt', { time: updatedAt }) : $t('dashboard.refresh') }}</button></view>
+      <view class="operation-grid">
+        <view class="operation-item operation-alarm"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bell.svg" /></view><text class="operation-value">{{ todayAlarms ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.todayAlarms') }}</text></view>
+        <view class="operation-item operation-automation"><view class="operation-icon-wrap"><image class="operation-icon" src="/static/icon/home/bolt.svg" /></view><text class="operation-value">{{ automationTotal ?? '—' }}</text><text class="operation-label">{{ $t('dashboard.automationRules') }}</text></view>
+      </view>
+    </view>
+
+    <view class="panel">
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.shortcuts') }}</text></view>
+      <view class="shortcut-grid">
+        <button v-for="entry in shortcuts" :key="entry.key" class="shortcut" @click="openShortcut(entry.key)"><image :src="entry.icon" /><text>{{ $t('dashboard.' + entry.key) }}</text></button>
+      </view>
+    </view>
+
+    <view v-if="isTenantAdmin !== true" class="panel">
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.commonDevices') }}</text><button class="more" @click="openDevices">{{ $t('pages.devices.allDevices') }} <text>›</text></button></view>
+      <view v-if="!commonDevices.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('commonDevices') ? $t('dashboard.commonDevicesUnavailable') : $t('dashboard.noDevices') }}</view>
+      <scroll-view v-else class="common-scroll" scroll-x :show-scrollbar="false">
+        <view class="common-row">
+          <button v-for="item in commonDevices" :key="item.id" class="common-card" @click="openDevice(item)">
+            <view class="common-dot" :class="'status-' + deviceStatus(item)" />
+            <view class="common-thumb"><image :src="item.image_url || '/static/image/default-device-hub.png'" mode="aspectFit" /></view>
+            <text class="common-name">{{ item.name }}</text>
+            <text class="common-context">{{ deviceContext(item) }}</text>
+            <view class="common-meta"><image v-if="item.latest_ts_name" class="common-clock" src="/static/icon/device-clock.svg" /><text class="common-time">{{ item.latest_ts_name }}</text></view>
+          </button>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="panel">
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.alarmActivity') }}</text><button class="more" @click="navigate('/pages/alarms/index')">{{ $t('dashboard.viewAll') }} <text>›</text></button></view>
+      <view v-if="!alarms.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('alarmActivity') ? $t('dashboard.alarmsUnavailable') : $t('dashboard.noAlarms') }}</view>
+      <button v-for="item in alarms" :key="item.id" class="alarm-row" :class="levelClass(item.alarm_status)" @click="openAlarm(item)">
+        <view class="alarm-dot" :class="{ recovered: item.alarm_status === 'N' }" />
+        <view class="alarm-copy"><text class="alarm-name">{{ item.name || item.alarm_config_name || $t('dashboard.alarmRecord') }}</text><text class="alarm-description">{{ item.content || item.description || $t('dashboard.viewDetails') }}</text></view>
+        <text class="alarm-level" :class="{ recovered: item.alarm_status === 'N' }">{{ alarmLevel(item.alarm_status) }}</text><text class="alarm-time">{{ formatAlarmTime(item.create_at) }}</text>
+      </button>
+    </view>
+
+    <view v-if="!isNormalUser" class="panel">
+      <view class="section-heading"><text class="section-title">{{ $t('dashboard.groupStatus') }}</text><button class="more" @click="openGroupPicker">{{ $t('dashboard.viewAll') }} <text>›</text></button></view>
+      <view v-if="!groups.length" class="empty-message">{{ loading ? $t('common.loading') : errors.includes('groupStatus') ? $t('dashboard.groupsUnavailable') : $t('dashboard.noGroups') }}</view>
+      <view v-else class="group-grid">
+        <button v-for="group in groups" :key="group.id" class="group-card" @click="openGroup(group)">
+          <view class="group-heading"><image src="/static/icon/home/building.svg" /><text class="group-name">{{ group.name }}</text></view>
+          <text class="group-status" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }">{{ !group.statistics ? $t('dashboard.statisticsUnavailable') : group.statistics.alarm_total > 0 ? formatMessage('dashboard.groupAlarmCount', { count: group.statistics.alarm_total }) : $t('dashboard.noAlarmDevices') }}</text>
+          <text class="group-counts">{{ formatMessage('dashboard.groupCounts', { total: group.statistics?.device_total ?? '—', online: group.statistics?.online_total ?? '—' }) }}</text>
+          <view class="group-rate" :class="{ warning: group.statistics && group.statistics.alarm_total > 0 }"><view class="rate-track"><view :style="{ width: (group.rate || 0) + '%' }" /></view><text>{{ group.rate ?? '—' }}%</text></view>
+        </button>
+      </view>
+    </view>
+  </view>
+</template>
+
+<script>
+import BoardLoading from '@/components/board-loading/index.vue'
+import BoardTabDeck from '@/components/board-tab-deck/index.vue'
+import { openHomePreference } from '@/services/dashboard-home'
+import dayjs from 'dayjs'
+import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
+import { alarmHistory } from '@/api/modules/alarm'
+import { sceneAutomationsGet } from '@/api/modules/automation'
+import { getGroupStatistics, getUserProfile } from '@/api/modules/dashboard'
+import { count, responseData, onlineRate, todayRange, recentDevices } from '@/features/dashboard/metrics'
+import { isNormalUser, isTenantAdmin } from '@/features/auth/utils/role'
+import { buildDeviceCard } from '@/features/devices/utils/device-card'
+import { formatAlarmTime } from '@/utils/datetime'
+
+export default {
+  components: { BoardTabDeck, BoardLoading },
+  data() {
+    return {
+      homeResolving: true, homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,
+      loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false, isTenantAdmin: null,
+      shortcuts: [
+        { key: 'devices', icon: '/static/icon/home/device.svg' },
+        { key: 'alarms', icon: '/static/icon/home/bell.svg' },
+        { key: 'automation', icon: '/static/icon/home/bolt.svg' },
+        { key: 'boards', icon: '/static/icon/home/grid.svg' },
+        { key: 'groups', icon: '/static/icon/home/folder.svg' },
+        { key: 'rules', icon: '/static/icon/home/ticket.svg' },
+        { key: 'scenes', icon: '/static/icon/home/scene.svg' },
+        { key: 'account', icon: '/static/icon/home/person.svg' }
+      ]
+    }
+  },
+  onShow() { this.homeVisible = true; this.openHome() },
+  onHide() { this.homeVisible = false; this.homeGeneration++ },
+  onUnload() { this.homeVisible = false; this.homeGeneration++ },
+  onBackPress() { return Boolean(this.$refs.homeViewer?.handleBack()) },
+  methods: {
+    async openHome() {
+      const generation = ++this.homeGeneration
+      this.homeResolving = true; this.homePreferenceError = ''; this.selectedHome = null
+      try {
+        if (uni.getStorageSync('access_token')) {
+          const preference = await openHomePreference()
+          if (!this.homeVisible || generation !== this.homeGeneration) return
+          this.selectedHome = preference.read()
+        }
+      } catch (error) { if (generation === this.homeGeneration) this.homePreferenceError = '首页偏好读取失败，暂时显示系统首页' }
+      finally {
+        if (this.homeVisible && generation === this.homeGeneration) { this.homeResolving = false; if (!this.selectedHome) this.refresh() }
+      }
+    },
+    showSystemHome() { this.selectedHome = null; this.homeResolving = false; this.refresh() },
+    homeUnavailable() { this.showSystemHome(); uni.showToast({ title: '看板已删除或无权访问，已返回系统首页', icon: 'none' }) },
+    // 标准构建先执行插值；App runtime 若保留占位符，再补齐未解析的参数。
+    formatMessage(key, values) {
+      return Object.entries(values).reduce(
+        (message, [name, value]) => message.replace(new RegExp(`\\{${name}\\}`, 'g'), () => String(value)),
+        this.$t(key, values)
+      )
+    },
+    // 选项式 API 不会自动暴露 import，模板要用必须先注册进 methods
+    formatAlarmTime,
+    /**
+     * 读取当前账号角色，决定首页是否展示「分组状态」。
+     *
+     * 角色取不到时保持 isNormalUser=false（按管理员处理）：首页宁可多显示一个模块，
+     * 也不要因为一次请求失败就把管理员的模块吞掉；这里也不计入 errors，避免无谓的报错提示。
+     */
+    async resolveUserRole() {
+      this.isNormalUser = false
+      this.isTenantAdmin = null
+      try {
+        const profile = responseData(await getUserProfile())
+        this.isNormalUser = isNormalUser(profile.authority)
+        this.isTenantAdmin = isTenantAdmin(profile.authority, profile.roles)
+      } catch (error) {
+        console.warn('首页角色信息加载失败', error.message)
+      }
+    },
+    async refresh() {
+      if (this.loading) return
+      this.loading = true
+      this.errors = []
+      const now = new Date()
+      // 分组模块是否展示由角色决定，groupStatus 任务需要等这个结果
+      const rolePromise = this.resolveUserRole()
+      const tasks = [
+        ['deviceStatistics', async () => { this.device = {}; const d = responseData(await getDeviceOverview()); this.device = { total: count(d.device_total), online: count(d.device_on), rate: onlineRate(d.device_total, d.device_on) } }],
+        ['alarmDevices', async () => { this.alarmDevices = null; this.alarmDevices = count(responseData(await getAlarmDeviceCount()).alarm_device_total) }],
+        ['todayAlarms', async () => {
+          this.todayAlarms = null
+          // 历史表还包含恢复记录（N）；仅累计 H/M/L，避免将恢复算作新告警。
+          const results = await Promise.all(['H', 'M', 'L'].map(alarm_status => alarmHistory({ page: 1, page_size: 1, ...todayRange(now), alarm_status })))
+          this.todayAlarms = results.reduce((sum, result) => sum + count(responseData(result).total), 0)
+        }],
+        ['automationRules', async () => { this.automationTotal = null; this.automationTotal = count(responseData(await sceneAutomationsGet({ page: 1, page_size: 1 })).total) }],
+        ['alarmActivity', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],
+        ['commonDevices', async () => {
+          this.commonDevices = []
+          await rolePromise
+          if (this.isTenantAdmin === true) return
+          // 接口不支持按活跃度排序，多取一批再挑最近有上报的设备
+          const d = responseData(await deviceList({ page: 1, page_size: 12 }))
+          if (!Array.isArray(d.list)) throw new Error('设备列表无效')
+          this.commonDevices = recentDevices(d.list, 6).map(buildDeviceCard)
+        }],
+        ['groupStatus', async () => {
+          this.groups = []
+          await rolePromise
+          // 普通用户拿不到分组数据，请求只会返回空态，直接跳过
+          if (this.isNormalUser) return
+          const d = responseData(await getDeviceGroup({ page: 1, page_size: 3 }))
+          if (!Array.isArray(d.list)) throw new Error('分组列表无效')
+          this.groups = await Promise.all(d.list.map(async group => {
+            try {
+              const statistics = responseData(await getGroupStatistics(group.id)).statistics
+              const rate = onlineRate(statistics.device_total, statistics.online_total)
+              count(statistics.alarm_total)
+              return { ...group, statistics, rate }
+            } catch (error) {
+              console.warn('首页分组统计加载失败', group.id, error.message)
+              if (!this.errors.includes('groupStatistics')) this.errors.push('groupStatistics')
+              return { ...group, statistics: null, rate: null }
+            }
+          }))
+        }]
+      ]
+      await Promise.all(tasks.map(async ([label, task]) => {
+        try { await task() } catch (error) { this.errors.push(label); console.warn(this.$t('dashboard.title') + label + '加载失败', error.message) }
+      }))
+      this.updatedAt = this.errors.length ? '' : dayjs().format('HH:mm')
+      this.loading = false
+    },
+    navigate(url) { uni.navigateTo({ url, fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) }) },
+    openDevices() { uni.switchTab({ url: '/pages/devices/index' }) },
+    openGroup(group) { uni.setStorageSync('device_list_selected_group', { id: group.id, name: group.name }); this.openDevices() },
+    openGroupPicker() { uni.setStorageSync('dashboard_open_groups', true); this.openDevices() },
+    openShortcut(key) {
+      if (key === 'devices') return this.openDevices()
+      if (key === 'boards') return uni.switchTab({ url: '/pages/dashboard/boards' })
+      if (key === 'groups') return this.openGroupPicker()
+      if (key === 'account') return uni.switchTab({ url: '/pages/account/index' })
+      if (key === 'automation' || key === 'scenes') {
+        uni.setStorageSync('dashboard_automation_tab', key === 'scenes' ? '场景管理' : '场景联动')
+        return uni.switchTab({ url: '/pages/automation/index' })
+      }
+      const routes = { alarms: '/pages/alarms/index', rules: '/pages/alarm-rules/index', add: '/pages/devices/create' }
+      if (routes[key]) this.navigate(routes[key])
+    },
+    scanDevice() {
+      // #ifdef H5
+      uni.showToast({ title: this.$t('scanActivation.appOnly'), icon: 'none' })
+      // #endif
+      // #ifndef H5
+      uni.scanCode({
+        success: ({ result }) => {
+          if (!result || !String(result).trim()) {
+            uni.showToast({ title: this.$t('scanActivation.empty'), icon: 'none' })
+            return
+          }
+          this.navigate('/pages/devices/create?code=' + encodeURIComponent(result))
+        },
+        fail: error => {
+          if (!/cancel/i.test(error.errMsg || '')) uni.showToast({ title: this.$t('dashboard.scanFailed'), icon: 'none' })
+        }
+      })
+      // #endif
+    },
+    alarmLevel(status) { return { H: this.$t('dashboard.high'), M: this.$t('dashboard.medium'), L: this.$t('dashboard.low'), N: this.$t('dashboard.recovered') }[status] || this.$t('dashboard.unknown') },
+    // 设备卡片：状态优先级与设备列表一致 —— 告警 > 在线 > 离线
+    hasDeviceAlarm(device) {
+      const status = String(device?.warn_status ?? '').trim().toUpperCase()
+      return status !== '' && status !== 'N'
+    },
+    deviceStatus(device) {
+      if (this.hasDeviceAlarm(device)) return 'alarming'
+      return Number(device?.is_online) === 1 ? 'online' : 'offline'
+    },
+    deviceTypeLabel(device) {
+      const key = { 1: 'typeDirect', 2: 'typeGateway', 3: 'typeSubDevice' }[String(device?.device_type)]
+      return key ? this.$t('dashboard.' + key) : ''
+    },
+    deviceContext(device) {
+      return [this.deviceTypeLabel(device), device?.display_groups].filter(Boolean).join(' | ')
+    },
+    openDevice(device) {
+      uni.setStorageSync('device_detail_preview', { ...device })
+      uni.navigateTo({ url: `/pages/devices/detail?device_id=${encodeURIComponent(device.id || '')}`, fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) })
+    },
+    levelClass(status) {
+      // H/M/L 映射到等级色；N(已恢复) 与未知状态不加类，走 .recovered / 默认色
+      const key = String(status ?? '').toUpperCase()
+      return { H: 'level-high', M: 'level-medium', L: 'level-low' }[key] || ''
+    },
+    openAlarm(item) { uni.navigateTo({ url: '/pages/alarms/detail', success: ({ eventChannel }) => eventChannel.emit('acceptData', { item }), fail: () => uni.showToast({ title: this.$t('dashboard.alarmOpenFailed'), icon: 'none' }) }) }
+  }
+}
+</script>
+
+<style scoped lang="scss">
+.home-page { --home-blue:var(--tp-color-primary, #1677ff); --home-surface:#ffffff; --home-radius:12rpx;
+  /* 告警等级色板：与 pages/alarms、pages/alarm-rules 完全一致 */
+  --alarm-high:var(--tp-color-danger, #ff4d35); --alarm-medium:var(--tp-color-warning, #ff9500); --alarm-low:var(--tp-color-primary, #1677ff); --alarm-recovered:var(--tp-color-success, #08bf63);
+  box-sizing:border-box; min-height:100vh; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); color:#1d1d1f; background:#F2F2F7; font-size:24rpx; }
+.home-page button { margin:0; padding:0; border:0; border-radius:0; background:transparent; font:inherit; color:inherit; line-height:normal; }
+.home-page button::after { border:0; }
+.home-page button:focus-visible { outline:2rpx solid var(--tp-color-primary, #1677ff); outline-offset:4rpx; }
+.home-header { display:flex; justify-content:space-between; align-items:center; gap:12rpx; padding:calc(30rpx + env(safe-area-inset-top)) 0 30rpx; }
+.page-title { display:block; font-size:44rpx; font-weight:650; line-height:60rpx; }
+.page-subtitle { display:block; color:#73737d; font-size:22rpx; line-height:32rpx; margin-top:6rpx; }
+.header-actions { display:flex; gap:8rpx; flex-shrink:0; }
+.home-page .icon-button { display:flex; align-items:center; justify-content:center; width:72rpx; height:72rpx; }
+.icon-button image { width:44rpx; height:44rpx; }
+.add-circle { display:flex; align-items:center; justify-content:center; width:58rpx; height:58rpx; border-radius:50%; color:#fff; background:var(--tp-color-primary, #1677ff); font-size:44rpx; font-weight:300; }
+.top-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14rpx; }
+.home-page .stat-card { padding:26rpx 14rpx 22rpx; background:var(--home-surface); border:0; border-radius:var(--home-radius); box-shadow:none; min-width:0; text-align:center; }
+.stat-heading { display:flex; align-items:center; justify-content:center; gap:10rpx; min-height:62rpx; }
+.stat-icon { width:54rpx; height:54rpx; display:flex; align-items:center; justify-content:center; flex-shrink:0; border-radius:50%; background:#edf5ff; }
+.stat-online .stat-icon { background:#ebf8f2; }
+.stat-alarm .stat-icon { background:#fff1ef; }
+.stat-icon image { width:32rpx; height:32rpx; }
+.stat-value { font-size:40rpx; font-weight:650; letter-spacing:-1rpx; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.unit { font-size:19rpx; font-weight:500; letter-spacing:0; }
+.stat-label { display:block; color:#51515c; font-size:22rpx; margin-top:12rpx; line-height:32rpx; }
+.stat-note { display:block; color:#73737d; font-size:20rpx; margin-top:20rpx; line-height:28rpx; white-space:nowrap; }
+.alarm-note { color:var(--tp-color-danger, #ff4d35); }
+.stat-rate-track { height:6rpx; margin:31rpx 14rpx 11rpx; background:#eef2ef; border-radius:4rpx; overflow:hidden; }
+.stat-rate-track view { height:100%; background:var(--tp-color-success, #08bf63); border-radius:4rpx; }
+.home-page .error-notice { display:block; text-align:left; width:100%; padding:16rpx; margin-top:16rpx; border-radius:12rpx; background:#fff4ed; color:var(--tp-color-warning, #ff9500); font-size:22rpx; line-height:32rpx; }
+.panel { margin-top:22rpx; padding:14rpx 24rpx 22rpx; background:var(--home-surface); border:0; border-radius:var(--home-radius); box-shadow:none; }
+.section-heading { display:flex; justify-content:space-between; align-items:center; gap:12rpx; min-height:64rpx; }
+.section-title { font-size:28rpx; font-weight:600; }
+.home-page .more { color:#73737d; font-size:20rpx; min-height:64rpx; }
+.more text { font-size:30rpx; margin-left:4rpx; }
+.operation-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:8rpx; }
+.operation-item { display:grid; grid-template-columns:58rpx minmax(0,1fr) auto; align-items:center; gap:12rpx; min-width:0; padding:14rpx 18rpx; border-left:1rpx solid #eeeef2; }
+.operation-item:first-child { border:0; padding-left:0; }
+.operation-item:last-child { padding-right:0; }
+.operation-icon-wrap { width:58rpx; height:58rpx; border-radius:50%; background:#fff4e8; display:flex; align-items:center; justify-content:center; }
+.operation-automation .operation-icon-wrap { background:#f2effb; }
+.operation-icon { width:34rpx; height:34rpx; }
+.operation-value { grid-column:3; grid-row:1; font-size:36rpx; font-weight:600; font-variant-numeric:tabular-nums; }
+.operation-label { grid-column:2; grid-row:1; color:#51515c; font-size:21rpx; line-height:28rpx; }
+.shortcut-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14rpx; margin-top:10rpx; }
+.home-page .shortcut { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12rpx; height:132rpx; background:transparent; border:0; border-radius:var(--home-radius); color:#5f5f6b; font-size:22rpx; }
+.shortcut image { width:44rpx; height:44rpx; }
+/* 常用设备：一行三张。卡片宽 = (panel 内容宽 646rpx - 2×12rpx 间距) / 3 = 207rpx，正好铺满不滑动留白；
+   再窄就放不下「图片 + 名称」，四张会挤到 152rpx 字号掉到 18rpx 以下，所以按三张走。
+   字段与设备列表卡片保持一致：设备图 + 名称 +（接入类型 | 分组）+ 最近上报时间 + 右上状态点。 */
+.common-scroll { width:100%; margin-top:10rpx; white-space:nowrap; }
+.common-row { display:inline-flex; gap:12rpx; padding:2rpx 0 4rpx; }
+/* 正方形卡片 207×207rpx，内容左对齐且**位置固定**：设备图 / 名称 / 类型|分组 / 最近上报时间 四行等距排布。
+   行距写死（8rpx）而不是用 space-between —— 后者会按实际行数均分，缺了「类型|分组」的卡片名称就会被推低，
+   一排卡片对不齐。类型行和时间行都保留固定高度（min-height），没数据时留空位，不挤走下面的内容。
+   内容高 72+8+28+8+26+8+24 = 174rpx，加 32rpx 内边距 = 206rpx，正好落在 207rpx 里。 */
+.home-page .common-card { position:relative; display:flex; flex-direction:column; align-items:flex-start; flex:0 0 207rpx; width:207rpx; height:207rpx; box-sizing:border-box; padding:16rpx; text-align:left; border:1rpx solid #e8edf3; border-radius:var(--home-radius); background:#fff; overflow:hidden; }
+.home-page .common-card:active { background:#f8f9fb; }
+.common-thumb { display:flex; align-items:center; justify-content:center; width:72rpx; height:72rpx; flex-shrink:0; }
+.common-thumb image { width:100%; height:100%; }
+.common-name { display:block; width:100%; margin-top:8rpx; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:19rpx; font-weight:600; line-height:28rpx; }
+.common-dot { position:absolute; right:14rpx; top:14rpx; width:10rpx; height:10rpx; border:3rpx solid #fff; border-radius:50%; background:var(--tp-color-success, #08bf63); }
+.common-dot.status-offline { background:#98a2b3; }
+.common-dot.status-alarming { background:var(--tp-color-danger, #ff4d35); }
+.common-context { display:block; width:100%; min-height:26rpx; margin-top:8rpx; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#98a2b3; font-size:17rpx; line-height:26rpx; }
+.common-meta { display:flex; align-items:center; justify-content:flex-start; gap:6rpx; width:100%; min-height:24rpx; margin-top:8rpx; color:#73737d; font-size:16rpx; line-height:24rpx; }
+.common-clock { width:18rpx; height:18rpx; flex-shrink:0; }
+.common-time { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-variant-numeric:tabular-nums; }
+.home-page .alarm-row { display:flex; align-items:center; gap:12rpx; width:100%; min-height:92rpx; padding:14rpx 0; box-sizing:border-box; text-align:left; border-top:1rpx solid #eeeef2; }
+.alarm-dot { width:12rpx; height:12rpx; border-radius:50%; background:var(--alarm-high); flex-shrink:0; }
+.alarm-dot.recovered { background:var(--alarm-recovered); }
+.alarm-copy { flex:1; min-width:0; }
+.alarm-name { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:23rpx; line-height:32rpx; }
+.alarm-description { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:20rpx; color:#73737d; margin-top:4rpx; }
+.alarm-level { font-size:20rpx; padding:4rpx 10rpx; background:var(--alarm-high); color:#fff; border-radius:6rpx; flex-shrink:0; font-weight:600; }
+.alarm-level.recovered { background:var(--alarm-recovered); }
+.alarm-row.level-medium .alarm-dot { background:var(--alarm-medium); }
+.alarm-row.level-medium .alarm-level { background:var(--alarm-medium); }
+.alarm-row.level-low .alarm-dot { background:var(--alarm-low); }
+.alarm-row.level-low .alarm-level { background:var(--alarm-low); }
+.alarm-time { font-size:20rpx; color:#73737d; flex-shrink:0; font-variant-numeric:tabular-nums; }
+.empty-message { padding:28rpx 4rpx; color:#73737d; font-size:23rpx; }
+.group-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12rpx; margin-top:10rpx; }
+.home-page .group-card { min-width:0; padding:18rpx 12rpx; text-align:left; border:0; border-radius:var(--home-radius); background:transparent; }
+.group-heading { display:flex; align-items:center; gap:8rpx; }
+.group-heading image { width:36rpx; height:36rpx; flex-shrink:0; }
+.group-name { white-space:nowrap; text-overflow:ellipsis; overflow:hidden; font-size:22rpx; }
+.group-status { display:block; color:var(--tp-color-success, #08bf63); font-size:18rpx; margin-top:10rpx; line-height:26rpx; }
+.group-status.warning { color:var(--tp-color-warning, #ff9500); }
+.group-counts { display:block; color:#73737d; font-size:18rpx; margin-top:12rpx; line-height:28rpx; }
+.group-rate { display:flex; align-items:center; gap:6rpx; margin-top:12rpx; font-size:18rpx; color:#51515c; }
+.rate-track { flex:1; height:8rpx; background:#eeeef2; overflow:hidden; border-radius:6rpx; }
+.rate-track view { height:100%; background:var(--tp-color-success, #08bf63); border-radius:6rpx; }
+.group-rate.warning .rate-track view { background:var(--tp-color-warning, #ff9500); }
+@media (max-width:360px) { .stat-heading { gap:6rpx; } .stat-value { font-size:36rpx; } .stat-icon { width:46rpx; height:46rpx; } .operation-item { gap:8rpx; padding-left:12rpx; } }
+@import '@/styles/tab-page-header.scss';
+</style>
+
+<style scoped>
+.custom-home { position:relative; height:calc(100vh - var(--window-bottom, 0px)); }
+.home-preference-loading { padding:35vh 24px; text-align:center; color:#667085; background:#f2f2f7; }
+.home-preference-notice { display:flex; align-items:center; gap:12px; padding:12px; background:#fff5dd; font-size:13px; border-radius:8px; }
+.home-preference-notice text { flex:1; }
+.home-preference-notice button { min-height:44px; margin:0; color:#1677ff; font-size:14px; }
+</style>

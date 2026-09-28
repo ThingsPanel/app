@@ -1,10 +1,6 @@
-import Vue from 'vue'
-import { App } from 'vue';
-import VueI18n from 'vue-i18n'
+import { createI18n } from 'vue-i18n'
 import enUS from './en-US'
 import zhCN from './zh-CN'
-
-Vue.use(VueI18n)
 
 // Define available languages with their display names
 export const AVAILABLE_LANGUAGES = [
@@ -14,34 +10,45 @@ export const AVAILABLE_LANGUAGES = [
 
 const systemLanguage = uni.getSystemInfoSync().language;
 const locale = uni.getStorageSync('language') || systemLanguage || 'zh-CN';
-const i18n = new VueI18n({
+const messages = {
+  'en-US': enUS,
+  'zh-CN': zhCN
+}
+
+const i18n = createI18n({
+  legacy: true,
   locale: locale,
-  messages: {
-    'en-US': enUS,
-    'zh-CN': zhCN
-  }
+  fallbackLocale: 'zh-CN',
+  messages
 })
 
 // Function to update tabBar texts with translation keys
 export const updateTabbarText = () => {
   const tabBar = __uniConfig.tabBar
-  if (tabBar && tabBar.list) {
-    setTimeout(() => {
-      tabBar.list.forEach((tab, index) => {
-        uni.setTabBarItem({
-          index,
-          text: i18n.t(tab.key)
-        })
-      })
-    }, 100)
+  if (!tabBar || !tabBar.list) {
+    return
   }
+
+  const pages = getCurrentPages()
+  const currentRoute = pages.length ? pages[pages.length - 1].route : ''
+  const isTabBarPage = tabBar.list.some(tab => tab.pagePath === currentRoute)
+  if (!isTabBarPage) {
+    return
+  }
+
+  tabBar.list.forEach((tab, index) => {
+    uni.setTabBarItem({
+      index,
+      text: i18n.global.t(tab.key),
+      // 部分平台在页面切换期间可能暂时无法更新 tabBar，失败不影响页面流程。
+      fail: () => {}
+    })
+  })
 }
 
 // Function to change language
 export const changeLanguage = (locale) => {
-  i18n.locale = locale
-  // Force reload messages for the new locale
-  i18n.setLocaleMessage(locale, i18n.messages[locale])
+  i18n.global.locale = locale
   uni.setStorageSync('language', locale)
   updateTabbarText()
 }

@@ -52,6 +52,6 @@ let isLoginType = function() {
 		return userDeatail
 	}
 }
-module.exports = {
+export default {
 	isLoginType: isLoginType
 }

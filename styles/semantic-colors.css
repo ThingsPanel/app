@@ -1,0 +1,8 @@
+/* Shared UI palette. Keep native props, SVG assets and tokens.scss in sync. */
+page,
+:root {
+  --tp-color-primary: #1677ff;
+  --tp-color-danger: #ff4d35;
+  --tp-color-warning: #ff9500;
+  --tp-color-success: #08bf63;
+}

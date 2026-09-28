@@ -1,0 +1,1504 @@
+<template>
+	<view class="tp-box">
+        <app-tab-header :title="$t('pages.devices.pageHeading')" :meta="(overviewState === 'ready' ? deviceTotal : '—') + ' ' + $t('pages.devices.totalUnit')">
+				<view class="header-actions tp-flex tp-flex-a-c">
+					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" role="button" :aria-label="$t('scanActivation.scan')" @click="scanDevice">
+						<image src="/static/icon/home/scan.svg" mode="aspectFit" />
+					</view>
+					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" @click="toNotify">
+						<image src="/static/icon/notify.svg" mode="aspectFit" />
+					</view>
+				</view>
+        </app-tab-header>
+
+		<view class="overview-section">
+			<view class="overview-card" :aria-busy="overviewState === 'loading'">
+				<view class="overview-metrics">
+					<view class="metric-item metric-online">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-online.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? onlineCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.online') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? onlineRate + '%' : '—' }}</text>
+					</view>
+					<view class="metric-item metric-offline">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-offline.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? offlineCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.offline') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? offlineRate + '%' : '—' }}</text>
+					</view>
+					<view class="metric-item metric-alarm">
+						<view class="metric-top"><view class="metric-icon-wrap"><image class="metric-icon" src="/static/icon/device-stat-alarm.svg" mode="aspectFit" aria-hidden="true" /></view><text class="metric-value">{{ overviewState === 'ready' ? alarmCount : '—' }}</text></view>
+						<text class="metric-label">{{ $t('pages.devices.alarmDevices') }}</text>
+						<text class="metric-rate">{{ overviewState === 'ready' ? alarmRate + '%' : '—' }}</text>
+					</view>
+				</view>
+				<view class="overview-footer" v-if="overviewState === 'loading'">{{ $t('pages.devices.statsLoading') }}</view>
+				<button class="overview-footer overview-retry" v-else-if="overviewState !== 'ready'" @click="getOverviewStats">{{ $t('pages.devices.statsRetry') }}</button>
+			</view>
+		</view>
+
+		<view class="device-toolbar">
+            <AppSearch v-model.trim="searchKeyword" :placeholder="$t('pages.devices.searchPlaceholder')" :action-label="$t('pages.devices.filter')" action-icon="/static/icon/device-filter.svg" @search="applyDeviceFilters" @action="toShowNavDrawer" @clear="clearSearch" />
+			<view class="device-view-toolbar">
+				<view class="group-controls">
+					<button class="group-selector" :aria-label="$t('pages.devices.selectGroup')" @click="toShowNavDrawer"><text class="group-name">{{ selectedGroupName || $t('pages.devices.allGroups') }}</text><view class="group-chevron" /></button>
+					<button v-if="selectedGroupId" class="group-reset" :aria-label="$t('pages.devices.clearGroup')" @click="clearSelectedGroup">{{ $t('pages.devices.clear') }}</button>
+				</view>
+				<view class="view-switch">
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'grid' }" :aria-pressed="deviceViewMode === 'grid'" :aria-label="$t('pages.devices.gridView')" @click="setDeviceViewMode('grid')"><image class="view-mode-icon" :src="deviceViewMode === 'grid' ? '/static/icon/device-view-grid-active.svg' : '/static/icon/device-view-grid.svg'" mode="aspectFit" /></button>
+					<button class="view-switch-button" hover-class="none" :class="{ active: deviceViewMode === 'list' }" :aria-pressed="deviceViewMode === 'list'" :aria-label="$t('pages.devices.listView')" @click="setDeviceViewMode('list')"><image class="view-mode-icon" :src="deviceViewMode === 'list' ? '/static/icon/device-view-list-active.svg' : '/static/icon/device-view-list.svg'" mode="aspectFit" /></button>
+				</view>
+			</view>
+			<scroll-view scroll-x class="filter-scroll" :show-scrollbar="false">
+				<view class="filter-row">
+					<view
+						v-for="option in statusFilters"
+						:key="option.key"
+						class="filter-chip"
+						:class="{ active: activeStatusFilter === option.key }"
+						@click="selectStatusFilter(option.key)"
+					>
+						<view v-if="option.dot" class="chip-dot" :class="option.dot" />
+						<text class="chip-label">{{ option.label }}</text>
+						<text v-if="option.count !== undefined" class="chip-count">{{ option.count }}</text>
+					</view>
+				</view>
+			</scroll-view>
+		</view>
+
+		<view class="tp-content">
+			<view class="device-list" :class="{ 'device-list--rows': deviceViewMode === 'list' }">
+				<block v-if="isDeviceLoading && deviceList.length === 0">
+					<view v-for="index in 4" :key="`device-skeleton-${index}`" class="device-skeleton">
+						<view class="skeleton-icon skeleton-shape" />
+						<view class="skeleton-content">
+							<view class="skeleton-name skeleton-shape" />
+							<view class="skeleton-type skeleton-shape" />
+						</view>
+						<view class="skeleton-time skeleton-shape" />
+					</view>
+				</block>
+				<DeviceListItem
+					v-for="item in deviceList"
+					:key="item.id"
+					:device="item"
+					:layout="deviceViewMode"
+					@select="clickDevice"
+				/>
+				<view class="empty-state" v-if="!isDeviceLoading && deviceList.length === 0">
+					<image src="/static/image/device-empty-state-transparent.png" class="empty-illustration" mode="aspectFit" />
+					<text class="empty-title">{{ $t('pages.devices.emptyTitle') }}</text>
+					<text class="empty-description">{{ $t('pages.devices.emptyDescription') }}</text>
+				</view>
+			</view>
+		</view>
+
+		<!-- Components -->
+		<gq-tree
+			ref="gqTree"
+			:range="deviceGroupData"
+			idKey="id"
+			nameKey="name"
+			allKey="value"
+			childKey="children"
+			pidKey="pid"
+			:showSearch="true"
+			:multiple="false"
+			:cascade="false"
+			:selectParent="true"
+			:foldAll="false"
+			:includeAllOption="true"
+			:loading="groupsLoading"
+			:error="groupsError"
+			@retry="getGroupData"
+			confirmColor="#1677ff"
+			cancelColor="#757575"
+			:title="$t('pages.deviceDetail.groupSelection')"
+			titleColor="#333333"
+			@cancel="treeCancel"
+			@confirm="treeConfirm"
+		>
+		</gq-tree>
+
+		<uni-drawer ref="navDrawer" :mask="true" :maskClick="true" :width="300" :drawerTop='topHeight'>
+			<scroll-view scroll-y :style="{ height: height - 80 + 'px' }" style="padding-top: 50rpx;">
+			</scroll-view>
+		</uni-drawer>
+
+		<uni-popup ref="logoPopup" type="bottom" :mask="true" :maskClick="true">
+			<view class="logInfo tp-panel-popup">
+				<view class="info_title">
+					{{ $t('pages.deviceDetail.logTitle') }}
+					<image src="/static/icon/close.png" class="close-popup" @click="$refs.logoPopup.close()" />
+				</view>
+			</view>
+		</uni-popup>
+
+		<app-toast ref="toast" :msg="toast.msg" direction="row" location="top"></app-toast>
+
+		<!-- Scroll to Top Button -->
+		<button class="scroll-to-top" v-if="showScrollTop" :aria-label="$t('pages.devices.backToTop')" hover-class="scroll-to-top--pressed" @click="scrollToTop">
+			<view class="scroll-top-arrow" aria-hidden="true" />
+		</button>
+	</view>
+</template>
+
+<script>
+import AppSearch from '@/components/app-search/index.vue'
+var socketOpen = false;
+var socketMsgQueue = {
+	wid: '',
+	config: {
+		startTs: '0',
+		endTs: '0',
+		latestTime: '10',
+		operator: 'AVG',
+		interval: '15000'
+	}
+};
+var Dissolved_Oxygen1, PH1, temperature1;
+// 密钥不写入源码：统一由 utils/map-config.js 从环境变量读取（见 .env.example）。
+const TENCENT_MAP_SDK_URL = `https://map.qq.com/api/gljs?v=1.exp&libraries=service&key=${TENCENT_MAP_KEY}`
+// 逆地址解析统一走腾讯位置服务，避免设备经纬度发往境外服务。
+const TENCENT_REVERSE_GEOCODER_URL = 'https://apis.map.qq.com/ws/geocoder/v1/'
+let tencentMapSdkPromise = null
+let tencentGeocoder = null
+//
+import {
+	mapState
+} from "vuex";
+import dayjs from 'dayjs';
+import { TENCENT_MAP_KEY } from '@/utils/map-config'
+import {
+	deviceList as deviceListApi,
+	getDeviceOverview,
+	getAlarmDeviceCount
+} from '@/api/modules/device'
+import deviceStatusSocket from '@/services/device-status-socket'
+import DeviceListItem from '@/features/devices/components/device-list-item.vue'
+import { mergeUniqueDevices } from '@/features/devices/utils/device-list'
+import { buildDeviceCard } from '@/features/devices/utils/device-card'
+//
+export default {
+	components: { AppSearch, DeviceListItem },
+	data() {
+		return {
+			isDeviceLoading: true,
+			timer: 0,
+			deviceStatusTimer: 0,
+			activeNotify: false,
+			marginConTop: 0,
+			currentDataIndex: -1,
+			currentD: -1,
+			deviceList: [],
+			currentIndex: 0,
+			// WebSocket相关
+			visibleDeviceIds: [], // 当前可见的设备ID
+			lastVisibleDeviceIds: [], // 上一次可见的设备ID，用于对比
+			viewportSubscribeTimer: null,
+			currentLog: {},
+			currentYw: '',
+			topHeight: 0,
+			height: 0,
+			marginTop: 0,
+			isMore: false,
+			ytName: '',
+			isGetPhone: false,
+			logData: [],
+			userInfo: {
+				isAuth: false,
+				isLogin: false,
+			},
+			isLogin: false,
+			wxData: {
+				iv: '',
+				encryptedData: '',
+			},
+			toast: {
+				msg: ''
+			},
+			ytData: [],
+			currentDashboardId: '', //当前渔场的id
+			ywData: [],
+			statusType: 'more', //分页状态
+			loadMoreShow: true,
+			contentText: {
+				contentdown: this.$t('pages.devices.pullUpForMore'),
+				contentrefresh: this.$t('common.loading'),
+				contentnomore: this.$t('pages.devices.noMoreData')
+			},
+			devicePaginationStatus: 'more', //分页状态
+			showDeviceLoadMore: true,
+			currentGroup: {},
+			ktxStatusHeight: 0,
+			timer: null,
+			statusBarHeight: 0,
+			uiMode: 'popup',
+			funcMode: 'radio',
+			deviceGroupData: [],
+			groupsLoading: false,
+			groupsError: '',
+			selectedGroupId: '' ,// 当前选中的group id
+			selectedGroupName: '',
+			searchKeyword: '',
+			activeStatusFilter: 'all',
+			deviceViewMode: 'grid',
+			overviewState: 'loading',
+			deviceTotal: 0,
+			overviewTotals: { online: 0, offline: 0, alarm: 0 },
+			filterTotals: { total: 0, online: 0, offline: 0, alarm: 0 },
+			statsRequestSequence: 0,
+			deviceListRequestSequence: 0,
+			showScrollTop: false, // 控制回到顶部按钮显示
+			locationAddressCache: {}
+		}
+	},
+	computed: {
+		onlineCount() { return this.overviewTotals.online },
+		offlineCount() { return this.overviewTotals.offline },
+		alarmCount() { return this.overviewTotals.alarm },
+		onlineRate() { return this.deviceTotal ? (this.onlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		offlineRate() { return this.deviceTotal ? (this.offlineCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		alarmRate() { return this.deviceTotal ? (this.alarmCount / this.deviceTotal * 100).toFixed(1) : '0.0' },
+		statusFilters() {
+			return [
+				{ key: 'all', label: this.$t('pages.devices.all'), count: this.filterTotals.total },
+				{ key: 'online', label: this.$t('pages.devices.online'), count: this.filterTotals.online, dot: 'online' },
+				{ key: 'offline', label: this.$t('pages.devices.offline'), count: this.filterTotals.offline, dot: 'offline' },
+				{ key: 'alarm', label: this.$t('pages.devices.alarm'), count: this.filterTotals.alarm, dot: 'alarm' }
+			]
+		}
+	},
+	// 
+	onReady() {
+		const {
+			statusBarHeight,
+			platform
+		} = uni.getSystemInfoSync();
+		//页面的高度
+		uni.setStorageSync('pageHeight', uni.getSystemInfoSync().windowHeight + 'px');
+		// 状态栏高度
+		uni.setStorageSync('statusBarHeight', statusBarHeight);
+		// #ifdef MP-WEIXIN
+		const {
+			top,
+			height
+		} = uni.getMenuButtonBoundingClientRect();
+		// 胶囊按钮高度 一般是32 如果获取不到就使用32
+		uni.setStorageSync('menuButtonHeight', height ? height : 32);
+		// 判断胶囊按钮信息是否成功获取
+		if (top && top !== 0 && height && height !== 0) {
+			const navigationBarHeight = (top - statusBarHeight) * 2 + height;
+			// 导航栏高度
+			uni.setStorageSync('navigationBarHeight', navigationBarHeight);
+		} else {
+			uni.setStorageSync('navigationBarHeight', platform === 'android' ? 48 : 40);
+		}
+		// 导航栏和状态栏高度
+		var navigationBarAndStatusBarHeight = uni.getStorageSync('statusBarHeight') + uni.getStorageSync(
+			'navigationBarHeight') + 'px';
+		this.topHeight = uni.getStorageSync('statusBarHeight') + uni.getStorageSync(
+			'navigationBarHeight') - this.ktxStatusHeight + 100 + 'px';
+		// #endif
+
+		let systemInfo = uni.getSystemInfoSync();
+		this.statusBarHeight = (systemInfo.statusBarHeight || 25) + 'px'
+
+	},
+	//
+	onLoad(options) {
+		this.$store.commit('resetOffset'); //清空日志页码
+		this.$store.commit('resetDevicePage'); //清空设备页码
+
+		let systemInfo = wx.getSystemInfoSync();
+		// px转换到rpx的比例
+		let pxToRpxScale = 750 / systemInfo.windowWidth;
+		// 状态栏的高度
+		let ktxStatusHeight = systemInfo.statusBarHeight * pxToRpxScale;
+		this.ktxStatusHeight = ktxStatusHeight
+		// 导航栏的高度
+		let navigationHeight = 44 * pxToRpxScale;
+		this.marginTop = (ktxStatusHeight || 50) + 'rpx';
+		this.marginConTop = (ktxStatusHeight || 20) + 'rpx'
+		this.isLogin = this.$login.isLoginType().isLogin
+		// 恢复上次选择的设备分组
+		this.restoreSelectedGroup()
+		// this.ywData = []
+		// this.showData()
+
+
+	},
+	onShow() {
+		this.isLogin = this.$login.isLoginType().isLogin
+		this.$store.state.list.devicePage = 1
+		this.ywData = []
+		// 恢复上次选择的设备分组（保持分组选择）
+		this.restoreSelectedGroup()
+		this.showData();
+		if (uni.getStorageSync('dashboard_open_groups')) {
+			uni.removeStorageSync('dashboard_open_groups')
+			this.$nextTick(() => this.toShowNavDrawer())
+		}
+		//this.checkNotify()
+		this.$nextTick(() => {
+			setTimeout(() => {
+				uni.setNavigationBarTitle({
+					title: this.$t('pages.deviceList')
+				})
+			}, 100)
+		})
+	},
+	// 监听页面滚动
+	onPageScroll(e) {
+		// 当滚动超过300px时显示回到顶部按钮
+		this.showScrollTop = e.scrollTop > 300;
+		// 滚动停止后再订阅，避免频繁重连
+		this.scheduleViewportSubscription();
+	},
+	// 上拉加载更多,onReachBottom上拉触底函数
+	onReachBottom() {
+		// if (this.statusType == 'more') {
+		// 	this.toLoadMore();
+		// }
+		if (this.devicePaginationStatus == 'more') {
+			this.loadMoreDevices()
+		}
+	},
+	mounted() {
+		uni.getSystemInfo({
+			success: res => {
+				// #ifdef H5
+				this.height = res.screenHeight + 45;
+				// #endif
+				// #ifdef MP-WEIXIN
+				this.height = res.screenHeight - 200;
+				// #endif
+				// #ifdef APP
+				this.height = res.screenHeight
+				// #endif
+			}
+		});
+	},
+	onHide() {
+		this.clearDeviceStatusTimer()
+		if (this.viewportSubscribeTimer) {
+			clearTimeout(this.viewportSubscribeTimer)
+			this.viewportSubscribeTimer = null
+		}
+		deviceStatusSocket.close()
+	},
+	beforeUnmount() {
+		// 清除定时器
+		clearInterval(this.timer)
+		// 清除在线/离线状态定时器
+		this.clearDeviceStatusTimer()
+		if (this.viewportSubscribeTimer) {
+			clearTimeout(this.viewportSubscribeTimer)
+			this.viewportSubscribeTimer = null
+		}
+		// 关闭WebSocket连接
+		deviceStatusSocket.close()
+	},
+	// onLoad(options) {
+	// 	this.$store.commit('resetOffset'); //清空日志页码
+	// 	this.$store.commit('resetDevicePage'); //清空设备页码
+	// },
+	//
+	methods: {
+		loadTencentMapSdk() {
+			if (window.TMap?.service?.Geocoder) return Promise.resolve(window.TMap)
+			if (tencentMapSdkPromise) return tencentMapSdkPromise
+
+			tencentMapSdkPromise = new Promise((resolve, reject) => {
+				const script = document.createElement('script')
+				script.src = TENCENT_MAP_SDK_URL
+				script.onload = () => window.TMap?.service?.Geocoder ? resolve(window.TMap) : reject(new Error('Geocoder unavailable'))
+				script.onerror = reject
+				document.head.appendChild(script)
+			})
+			return tencentMapSdkPromise
+		},
+		resolveLocationAddress(location) {
+			if (!location) return Promise.resolve('')
+			if (this.locationAddressCache[location]) return Promise.resolve(this.locationAddressCache[location])
+
+			const [longitudeText, latitudeText] = String(location).split(',')
+			const longitude = Number(longitudeText)
+			const latitude = Number(latitudeText)
+			if (!Number.isFinite(longitude) || !Number.isFinite(latitude)) return Promise.resolve(String(location))
+
+			// #ifdef H5
+			return this.loadTencentMapSdk()
+				.then(TMap => {
+					tencentGeocoder ||= new TMap.service.Geocoder()
+					return tencentGeocoder.getAddress({ location: new TMap.LatLng(latitude, longitude) })
+				})
+				.then(response => {
+					const address = response?.result?.address || ''
+					if (address) this.locationAddressCache[location] = address
+					return address
+				})
+				.catch(() => '')
+			// #endif
+
+			// #ifndef H5
+			// 逆地址解析同样走腾讯位置服务（与 H5 端共用同一把密钥），不再把设备经纬度发往境外服务。
+			// 注意：腾讯 WebService 按「来源域名」鉴权，需在控制台为本密钥配置来源域名；
+			// 小程序端为 servicewechat.com，App 端无固定来源，取不到地址时会优雅降级为空。
+			return new Promise(resolve => {
+				if (!TENCENT_MAP_KEY) { resolve(''); return }
+				uni.request({
+					url: TENCENT_REVERSE_GEOCODER_URL,
+					data: {
+						// 腾讯接口要求「纬度,经度」顺序。
+						location: `${latitude},${longitude}`,
+						key: TENCENT_MAP_KEY,
+						get_poi: 0
+					},
+					success: response => {
+						const result = response.data?.status === 0 ? response.data.result : null
+						const component = result?.address_component
+						const parts = [
+							component?.province,
+							component?.city,
+							component?.district
+						].filter((part, index, values) => part && values.indexOf(part) === index)
+						const address = parts.join('') || result?.address || ''
+						if (address) this.locationAddressCache[location] = address
+						resolve(address)
+					},
+					fail: () => resolve('')
+				})
+			})
+			// #endif
+		},
+		async resolveDeviceAddresses(devices) {
+			await Promise.all(devices.map(async device => {
+				device.display_address = await this.resolveLocationAddress(device.location)
+			}))
+		},
+		getSelectedGroupStorageKey() {
+			return 'device_list_selected_group'
+		},
+		persistSelectedGroup() {
+			const key = this.getSelectedGroupStorageKey()
+			if (this.selectedGroupId) {
+				uni.setStorageSync(key, {
+					id: this.selectedGroupId,
+					name: this.selectedGroupName || ''
+				})
+			} else {
+				uni.removeStorageSync(key)
+			}
+		},
+		restoreSelectedGroup() {
+			const key = this.getSelectedGroupStorageKey()
+			const legacyKey = 'fishery_monitor_selected_group'
+			const saved = uni.getStorageSync(key) || uni.getStorageSync(legacyKey)
+			if (saved && saved.id) {
+				this.selectedGroupId = saved.id
+				this.selectedGroupName = saved.name || ''
+				// 保留升级前的用户选择，并在读取后迁移到新的领域命名键。
+				uni.setStorageSync(key, saved)
+				uni.removeStorageSync(legacyKey)
+			}
+		},
+
+		// WebSocket相关方法
+		// 初始化WebSocket连接
+		initWebSocket() {
+			deviceStatusSocket.init({
+				onMessage: (data) => {
+					this.updateDeviceStatus(data);
+				},
+				onError: (err) => {
+					console.error('WebSocket error:', err);
+				},
+				onClose: () => {
+					console.log('WebSocket closed');
+				}
+			});
+		},
+
+		// 更新设备状态
+		updateDeviceStatus(statusData) {
+			const { device_id, is_online, latest_temp } = statusData;
+
+			// 查找并更新对应设备
+			const device = this.deviceList.find(d => d.id === device_id);
+			if (device) {
+				device.is_online = is_online;
+				if (latest_temp) {
+					device.ts = latest_temp;
+					device.latest_ts_name = dayjs(latest_temp).format('YYYY-MM-DD HH:mm:ss');
+				}
+				this.$forceUpdate();
+			}
+		},
+
+		// 滚动停止后再做可见区域计算 + 订阅（防抖）
+		scheduleViewportSubscription() {
+			if (this.viewportSubscribeTimer) {
+				clearTimeout(this.viewportSubscribeTimer)
+			}
+			this.viewportSubscribeTimer = setTimeout(() => {
+				this.viewportSubscribeTimer = null
+				this.updateVisibleDevices()
+			}, 400)
+		},
+
+		// 更新可见设备（视窗化订阅）
+		updateVisibleDevices() {
+			if (this.deviceList.length === 0) {
+				return;
+			}
+
+			// 注意：boundingClientRect 的 top/bottom 是相对于“视口”的坐标
+			// 所以这里不能再用 scrollTop 做比较，否则会出现滚动后订阅错位
+			const windowHeight = uni.getSystemInfoSync().windowHeight;
+			const bufferPx = 200; // 上下缓冲像素（预加载区域）
+			const prefetchCount = 10; // 前后各取 N 条，避免滚动停下后漏订阅
+
+			uni.createSelectorQuery().selectAll('.device-card').boundingClientRect((rects) => {
+				if (!rects || rects.length === 0) {
+					return;
+				}
+
+				const visibleIndices = [];
+				rects.forEach((rect, index) => {
+					if (!rect) return;
+					// 视口坐标系：可见范围是 [-bufferPx, windowHeight + bufferPx]
+					if (rect.bottom > -bufferPx && rect.top < (windowHeight + bufferPx)) {
+						visibleIndices.push(index);
+					}
+				});
+
+				if (visibleIndices.length === 0) {
+					return;
+				}
+
+				let minIndex = Math.min.apply(null, visibleIndices);
+				let maxIndex = Math.max.apply(null, visibleIndices);
+
+				// 扩大订阅范围：可见区前后各 prefetchCount 条
+				minIndex = Math.max(0, minIndex - prefetchCount);
+				maxIndex = Math.min(this.deviceList.length - 1, maxIndex + prefetchCount);
+
+				const subscribeIds = this.deviceList
+					.slice(minIndex, maxIndex + 1)
+					.map(d => d && d.id)
+					.filter(Boolean);
+
+				const norm = (arr) => (arr || []).slice().sort().join(',');
+				const idsChanged = norm(subscribeIds) !== norm(this.lastVisibleDeviceIds);
+
+				if (idsChanged && subscribeIds.length > 0) {
+					this.visibleDeviceIds = subscribeIds;
+					this.lastVisibleDeviceIds = [...subscribeIds];
+
+					// 重新连接并订阅新的可见设备
+					this.reconnectAndSubscribe();
+				}
+			}).exec();
+		},
+
+		// 重新连接并订阅（每次订阅都重新连接）
+		reconnectAndSubscribe() {
+			deviceStatusSocket.reconnectAndSubscribe(this.visibleDeviceIds, {
+				onMessage: (data) => {
+					this.updateDeviceStatus(data);
+				},
+				onError: (err) => {
+					console.error('WebSocket error:', err);
+				},
+				onClose: () => {
+					console.log('WebSocket closed');
+				}
+			});
+		},
+
+		// 滚动到顶部
+		scrollToTop() {
+			uni.pageScrollTo({
+				scrollTop: 0,
+				duration: 300 // 动画持续时间，单位ms
+			});
+		},
+		checkNotify() {
+			this.API.apiRequest('/api/v1/alarm/info/history', {
+				page: 1,
+				page_size: 10
+			}, 'get').then(res => {
+				clearInterval(this.timer)
+				if (res.code === 200) {
+					this.activeNotify = !!res.data.data.length
+					if (this.activeNotify) {
+						this.timer = setInterval(() => {
+							this.activeNotify = !this.activeNotify
+						}, 500)
+					}
+				}
+			})
+		},
+		toNotify() {
+			uni.navigateTo({
+				url: '../alarms/index'
+			})
+		},
+		showData() {
+			this.deviceList = []
+			this.getOverviewStats()
+			this.getFilteredDeviceStats()
+			this.getDeviceList()
+		},
+		getOverviewStats() {
+			this.overviewState = 'loading'
+			return Promise.all([
+				getDeviceOverview(),
+				getAlarmDeviceCount()
+			]).then(([deviceOverview, alarmOverview]) => {
+				if (deviceOverview?.code !== 200 || alarmOverview?.code !== 200 || !deviceOverview.data || !alarmOverview.data) {
+					throw new Error('Device overview request failed')
+				}
+				// 告警接口返回设备数，不能展示为待处理事件条数。
+				const total = Number(deviceOverview.data.device_total ?? NaN)
+				const online = Number(deviceOverview.data.device_on ?? NaN)
+				const offline = Number(deviceOverview?.data?.device_offline ?? Math.max(total - online, 0))
+				const alarm = Number(alarmOverview.data.alarm_device_total ?? NaN)
+				if (![total, online, offline, alarm].every(value => Number.isFinite(value) && value >= 0)) {
+					throw new Error('Invalid device overview counts')
+				}
+				this.overviewTotals = { online, offline, alarm }
+				this.deviceTotal = total
+				this.overviewState = 'ready'
+			}).catch(error => {
+				this.overviewState = 'error'
+				console.warn('Failed to load device overview statistics:', error)
+			})
+		},
+		getFilteredDeviceStats() {
+			const requestSequence = ++this.statsRequestSequence
+			const baseFilters = {
+				group_id: this.selectedGroupId,
+				search: this.searchKeyword,
+				page: 1,
+				page_size: 1
+			}
+			Promise.all([
+				deviceListApi(baseFilters),
+				deviceListApi({ ...baseFilters, is_online: 1 }),
+				deviceListApi({ ...baseFilters, is_online: 0 }),
+				deviceListApi({ ...baseFilters, warn_status: 'Y' })
+			]).then(([allResponse, onlineResponse, offlineResponse, alarmResponse]) => {
+				if (requestSequence !== this.statsRequestSequence) return
+				const total = Number(allResponse?.data?.total ?? 0)
+				const online = Number(onlineResponse?.data?.total ?? 0)
+				const offline = Number(offlineResponse?.data?.total ?? 0)
+				const alarm = Number(alarmResponse?.data?.total ?? 0)
+				this.filterTotals = { total, online, offline, alarm }
+			}).catch(error => {
+				console.warn('Failed to load device overview statistics:', error)
+			})
+		},
+		applyDeviceFilters() {
+			this.$store.state.list.devicePage = 1
+			this.deviceList = []
+			deviceStatusSocket.close()
+			this.getFilteredDeviceStats()
+			this.getDeviceList()
+		},
+		clearSearch() {
+			this.searchKeyword = ''
+			this.applyDeviceFilters()
+		},
+		selectStatusFilter(filter) {
+			if (this.activeStatusFilter === filter) return
+			this.activeStatusFilter = filter
+			this.applyDeviceFilters()
+		},
+		setDeviceViewMode(mode) {
+			if (!['grid', 'list'].includes(mode) || this.deviceViewMode === mode) return
+			this.deviceViewMode = mode
+			// 切换布局会改变可见设备范围，沿用现有的视口订阅逻辑。
+			this.$nextTick(() => this.scheduleViewportSubscription())
+		},
+		scanDevice() {
+			// #ifdef H5
+			uni.showToast({ title: this.$t('scanActivation.appOnly'), icon: 'none' })
+			// #endif
+			// #ifndef H5
+			uni.scanCode({
+				success: ({ result }) => {
+					if (!result || !String(result).trim()) {
+						uni.showToast({ title: this.$t('scanActivation.empty'), icon: 'none' })
+						return
+					}
+					uni.navigateTo({ url: '/pages/devices/create?code=' + encodeURIComponent(result), fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) })
+				},
+				fail: error => {
+					if (!/cancel/i.test(error.errMsg || '')) uni.showToast({ title: this.$t('dashboard.scanFailed'), icon: 'none' })
+				}
+			})
+			// #endif
+		},
+		changeIndex(item, i, iIndex) {
+			item.currentIndex = iIndex
+			this.$forceUpdate()
+		},
+		// 点击设备
+		clickDevice(data, dataIndex) {
+			uni.setStorageSync('device_detail_preview', { ...data })
+			uni.navigateTo({
+				url: `/pages/devices/detail?device_id=${encodeURIComponent(data.id || '')}`
+			});
+		},
+		// 日志详情
+		logInfo(log, index) {
+			this.currentLog = log
+			this.currentIndex = index
+			this.$refs.logoPopup.open()
+		},
+		// 点击设备分组
+		toClickEquip(yw, equip) {
+			uni.setStorageSync('ywId', yw.id)
+			uni.setStorageSync('ywName', yw.name)
+			uni.setStorageSync('currentGroup', equip)
+			this.$store.state.list.devicePage = 1
+			this.ywData = []
+			this.showData();
+			this.currentGroup = equip
+			this.$refs.navDrawer.close()
+		},
+		// 展示分组
+		toShowNavDrawer() {
+			this.$refs.gqTree._show()
+			return this.getGroupData()
+		},
+		clearSelectedGroup() {
+			this.selectedGroupId = ''
+			this.selectedGroupName = ''
+			this.persistSelectedGroup()
+			this.applyDeviceFilters()
+		},
+		// 改变设备开关
+		/*changSwitch(dev, sw) {
+			var stateNum;
+			if (sw.state == 0) {
+				stateNum = 1
+			} else if (sw.state == 1) {
+				stateNum = 0
+			var values = {
+				[sw.name]: stateNum
+			}
+			uni.showLoading({
+				title: this.$t('common.loading'),
+				mask: true
+			});
+			this.API.apiRequest('/api/device/operating_device', {
+				device_id: dev.device_id,
+				values: values
+			}, 'post').then(res => {
+				if (res.code === 200) {
+					this.toast.msg = '修改状态成功';
+					this.$refs.toast.show();
+					this.getContorl(dev, sw)
+				}
+				// uni.hideLoading()
+			}).finally(() => { });
+			setTimeout(() => {
+				uni.hideLoading()
+			}, 1000);
+		},*/
+		/*formatGroupData(data) {
+			// 处理数据使其适应next-tree组件
+			return data.map(group => {
+			  const formattedGroup = {
+				id: group.group.id,
+				label: group.group.name,
+				children: group.children ? this.formatGroupData(group.children) : [],
+			  };
+			  return formattedGroup;
+			});
+		},*/
+		formatGroupData(data, parentId) {
+			// 树接口存在包装节点和直接节点两种形式；null children 是合法叶子。
+			const list = data == null ? [] : Array.isArray(data) ? data : data.list
+			if (list == null && data && Object.prototype.hasOwnProperty.call(data, 'list')) return []
+			if (!Array.isArray(list)) throw new Error('Invalid device group tree')
+			return list.map(node => {
+				const group = node?.group || node
+				if (!group || group.id == null || !String(group.id).trim() || typeof group.name !== 'string') throw new Error('Invalid device group node')
+				const id = String(group.id)
+				return {
+					id,
+					name: group.name,
+					isGqAddChecked: id === String(this.selectedGroupId),
+					pid: parentId,
+					children: this.formatGroupData(node.children ?? group.children ?? [], id)
+				}
+			})
+		},
+		getGroupData() {
+			if (this.groupsLoading) return
+			this.groupsLoading = true
+			this.groupsError = ''
+			return this.API.apiRequest('/api/v1/device/group/tree', {}, 'get').then(res => {
+				if (res?.code !== 200) throw new Error('Device groups request failed')
+				this.deviceGroupData = this.formatGroupData(res.data)
+			}).catch(error => {
+				console.warn('Failed to load device groups:', error)
+				this.deviceGroupData = []
+				this.groupsError = this.$t('pages.devices.groupsLoadFailed')
+			}).finally(() => {
+				this.groupsLoading = false
+			})
+		},
+		treeConfirm(e) {
+			const selected = e?.[0]
+			this.selectedGroupId = selected?.id ?? ''
+			this.selectedGroupName = selected?.name ?? ''
+			this.persistSelectedGroup()
+			this.applyDeviceFilters()
+		},
+		treeCancel() {
+			// 处理树形选择器取消事件
+			// 可以在这里添加取消时的逻辑，比如关闭抽屉等
+			// this.$refs.navDrawer.close()
+		},
+		changeVerify: function(current, chooseList) {
+			console.log('当前变化的数据', current)
+			console.log('已选择的数据', chooseList)
+			if(chooseList && chooseList.length > 4) {
+
+				return this.$t('pages.devices.maxFourNode')
+			}
+		},
+		//获取操作日志
+		getWarningList() {
+
+			this.API.apiRequest('/api/conditions/log/index', {
+				current_page: this.$store.state.list.offset,
+				per_page: 10
+			}, 'post').then(res => {
+				if (res.code === 200) {
+					var data = res.data.data;
+					var lastTableData = [];
+					if (data.length > 0) {
+						let pauArry = data;
+						/* 分页 */
+						let pageSize = 10;
+						if (pageSize == data.length) {
+							this.statusType = 'more';
+							this.loadMoreShow = true;
+						} else {
+							this.statusType = 'noMore';
+						}
+						let newTableData = this.logData.concat(pauArry);
+						lastTableData = newTableData;
+					} else {
+						this.statusType = 'noMore';
+						lastTableData = this.logData.concat([]);
+					}
+					this.logData = lastTableData;
+
+				} else {
+					this.loadMoreShow = false;
+					this.statusType = 'noMore';
+					this.toast.msg = res.msg;
+					this.$refs.toast.show();
+				}
+			});
+			setTimeout(() => {
+
+			}, 1000)
+		},
+		// 加载更多
+		toLoadMore() {
+			// 还有数据
+			if (this.statusType == 'more') {
+				this.$store.commit('incrementOffset');
+				this.getWarningList();
+			} else if (this.statusType == 'noMore') { }
+		},
+		loadMoreDevices() {
+			// 还有数据
+			if (!this.isDeviceLoading && this.devicePaginationStatus == 'more') {
+				this.$store.commit('incrementDevicePage');
+				this.getDeviceList();
+			} else if (this.devicePaginationStatus == 'noMore') { }
+		},
+		loadMoreModels() {
+			// 还有数据
+			if (this.modelPaginationStatus == 'more') {
+				this.$store.commit('incrementModelPage');
+				this.getDetail();
+			} else if (this.modelPaginationStatus == 'noMore') { }
+		},
+		//添加设备
+		addEqp() {
+			uni.navigateTo({ url: './create?groupId=' + (this.currentGroup.id || '') })
+		},
+		//查看更多鱼塘
+		toMore() {
+			this.isMore = true
+		},
+		// 获取设备列表
+		getDeviceList() {
+			clearInterval(this.timer)
+			const requestSequence = ++this.deviceListRequestSequence
+			this.isDeviceLoading = true
+			const filters = {
+				group_id: this.selectedGroupId,
+				search: this.searchKeyword,
+				page: this.$store.state.list.devicePage,
+				page_size: 20
+			}
+			if (this.activeStatusFilter === 'online') filters.is_online = 1
+			if (this.activeStatusFilter === 'offline') filters.is_online = 0
+			if (this.activeStatusFilter === 'alarm') filters.warn_status = 'Y'
+			deviceListApi(filters).then(res => {
+				// 切换分组、搜索词或状态后，旧请求可能比新请求更晚返回；旧结果不能污染当前列表。
+				if (requestSequence !== this.deviceListRequestSequence) return
+				if (res.code !== 200) {
+					this.showDeviceLoadMore = false
+					this.devicePaginationStatus = 'noMore'
+					this.toast.msg = res.msg
+					this.$refs.toast.show()
+					return
+				}
+
+				const pageSize = 20
+				const newDevices = (res.data?.list || []).map(item => ({
+					...buildDeviceCard(item),
+					currentIndex: 0,
+					chart_data: {}
+				}))
+				this.devicePaginationStatus = newDevices.length === pageSize ? 'more' : 'noMore'
+				this.showDeviceLoadMore = newDevices.length === pageSize
+				// 同一页被重复返回或后端意外包含重复行时，也只展示一个设备卡片。
+				this.deviceList = mergeUniqueDevices(this.deviceList, newDevices)
+				this.$nextTick(() => {
+					setTimeout(() => this.scheduleViewportSubscription(), 300)
+				})
+			}).catch(() => {
+				if (requestSequence !== this.deviceListRequestSequence) return
+				this.toast.msg = this.$t('common.loadFailed')
+				this.$refs.toast.show()
+			}).finally(() => {
+				if (requestSequence === this.deviceListRequestSequence) this.isDeviceLoading = false
+			})
+		},
+		// 插件查询
+		getDetail(device) {
+
+			this.API.apiRequest('/api/device/model/list', {
+				id: device.type,
+				current_page: 1,
+				per_page: 1
+			}, 'post').then(res => {
+				if (res.code === 200) {
+					if (res.data.data.length > 0) {
+						var data = res.data.data[0];
+						device.valuesNew = []
+						device.controlData = []
+						device.chart_data = JSON.parse(data.chart_data)
+						// 
+						if (device.chart_data.chart.length > 0) {
+							device.chart_data.chart.forEach(ch => {
+								if (ch.controlType == 'dashboard') {
+									if (ch.mapping && ch.mapping.length > 0) {
+										ch.mapping.forEach(map => {
+											var obj = {
+												name: map,
+												value: '',
+												unit: ''
+											}
+											device.valuesNew.push(obj)
+										})
+									}
+								}
+								if (ch.controlType == 'control') {
+									var obj = {
+										name: ch.series[0].mapping.value,
+										typeName: ch.name,
+										state: '',
+										disabled: ch.disabled
+									}
+									device.controlData.push(obj)
+								}
+							})
+						}
+
+						if (device.valuesNew.length > 0) {
+							device.valuesNew.forEach(va => {
+								for (let key in device.values) {
+									if (va.name == key) {
+										va.value = device.values[key]
+									}
+								}
+							})
+						}
+						if (device.chart_data.tsl.properties && device.chart_data.tsl.properties.length > 0) {
+							device.chart_data.tsl.properties.forEach(d => {
+								if (device.valuesNew && device.valuesNew.length > 0) {
+									device.valuesNew.forEach(i => {
+										if (d.name == i.name) {
+											i.unit = d.unit
+										}
+									})
+								}
+							})
+						}
+						if (device.controlData.length > 0) {
+							device.controlData.forEach(va => {
+								for (let key in device.values) {
+									if (va.name == key) {
+										va.state = device.values[key]
+									}
+								}
+								this.getContorl(device, va)
+							})
+						}
+						this.$forceUpdate()
+					}
+				} else {
+					this.toast.msg = res.msg;
+					this.$refs.toast.show();
+				}
+				setTimeout(() => {
+
+				}, 1000);
+			})
+		},
+		// 定时获取开关
+		getContorl(device, con) {
+			const delayTime = 60 * 1000
+			this.getDevieceKv(device, con)
+			// 清除定时器
+			clearInterval(this.timer)
+			this.timer = setInterval(() => {
+				this.getContorl(device, con)
+			}, delayTime)
+		},
+		// 获取设备的开关状态
+		getDevieceKv(device, con) {
+			var newArry = []
+			newArry.push(con.name)
+			// uni.showLoading({
+			// 	title: '加载中'
+			// });
+			this.API.apiRequest('/api/kv/current', {
+				entity_id: device.device_id,
+				attribute: newArry
+			}, 'post').then(res => {
+				if (res.code === 200) {
+					// uni.hideLoading()
+					if (res.data && res.data.length > 0) {
+						for (let key in res.data[0]) {
+							if (con.name == key && res.data[0][key]) {
+								con.state = res.data[0][key]
+							}
+						}
+						this.$forceUpdate()
+					}
+				}
+			});
+		},
+		// 时间格式转化
+		formatDate(shijianchuo) {
+			//shijianchuo是整数，否则要parseInt转换
+			var time = new Date(shijianchuo / 1000);
+			var y = time.getFullYear();
+			var m = time.getMonth() + 1;
+			var d = time.getDate();
+			var h = time.getHours();
+			var mm = time.getMinutes();
+			var s = time.getSeconds();
+			return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this
+				.add0(s);
+		},
+		add0(m) {
+			return m < 10 ? '0' + m : m
+		},
+		TimeDifference(time1, time2) {
+			//判断开始时间是否大于结束日期
+			if (time1 > time2) {
+				return false;
+			}
+
+			//截取字符串，得到日期部分"2009-12-02",用split把字符串分隔成数组
+			var begin1 = time1.substr(0, 10).split("-");
+			var end1 = time2.substr(0, 10).split("-");
+
+			//将拆分的数组重新组合，并实例成化新的日期对象
+			var date1 = new Date(begin1[1] + - +begin1[2] + - +begin1[0]);
+			var date2 = new Date(end1[1] + - +end1[2] + - +end1[0]);
+
+			//得到两个日期之间的差值m，以分钟为单位
+			//Math.abs(date2-date1)计算出以毫秒为单位的差值
+			//Math.abs(date2-date1)/1000得到以秒为单位的差值
+			//Math.abs(date2-date1)/1000/60得到以分钟为单位的差值
+			var m = parseInt(Math.abs(date2 - date1) / 1000 / 60);
+
+			//小时数和分钟数相加得到总的分钟数
+			//time1.substr(11,2)截取字符串得到时间的小时数
+			//parseInt(time1.substr(11,2))*60把小时数转化成为分钟
+			var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2));
+			var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2));
+
+			//两个分钟数相减得到时间部分的差值，以分钟为单位
+			//time1.substr(11,2)截取字符串得到时间的小时数
+			//parseInt(time1.substr(11,2))*60把小时数转化成为分钟
+			var min1 = parseInt(time1.substr(11, 2)) * 60 + parseInt(time1.substr(14, 2));
+			var min2 = parseInt(time2.substr(11, 2)) * 60 + parseInt(time2.substr(14, 2));
+
+			//两个分钟数相减得到时间部分的差值，以分钟为单位
+			var n = min2 - min1;
+
+			//将日期和时间两个部分计算出来的差值相加，即得到两个时间相减后的分钟数
+			var minutes = m + n;
+			return minutes
+		},
+		clearDeviceStatusTimer() {
+			if (this.deviceStatusTimer > 0) {
+				clearInterval(this.deviceStatusTimer)
+				this.deviceStatusTimer = 0
+			}
+		},
+		formatData(data) {
+		  return data.map(item => ({ ...item, children: item.children || [] }));
+		},
+		handleGroupSelect(groupItem) {
+		  this.selectedGroupId = groupItem.group.id; // 更新选中的group id
+		  console.log('Selected group:', groupItem);
+		  this.$refs.navDrawer.close(); // 关闭drawer
+		}
+	}
+}
+</script>
+
+<style lang="scss" scoped>
+.tp-box {
+	--page-gutter: 28rpx;
+	--radius-card: 10rpx;
+	--radius-control: 10rpx;
+	--radius-chip: 8rpx;
+	width: 100%;
+	min-height: 100vh;
+	background: #f7f8fa;
+	position: relative;
+	color: #1d1d1f;
+	font-size: 28rpx;
+}
+
+.tp-header {
+	position: relative;
+	padding: calc(env(safe-area-inset-top) + 30rpx) var(--page-gutter) 8rpx;
+	background: #ffffff;
+}
+
+.header-main { margin-bottom: 6rpx; }
+
+.page-title {
+	color: #1d1d1f;
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 30px;
+}
+.page-subtitle { margin-top: 4px; color: #73737d; font-size: 12px; line-height: 18px; }
+
+.notify-action { width: 66rpx; height: 66rpx; }
+.notify-action image { width: 36rpx; height: 36rpx; }
+
+.device-toolbar {
+	padding: 0 var(--page-gutter);
+	/* 渐变终点与设备区一致，避免筛选栏下出现白灰硬边界。 */
+	background: linear-gradient(180deg, #ffffff 0%, #fbfcfe 42%, #f7f8fa 100%);
+}
+.search-row { display: flex; gap: 14rpx; }
+
+.device-search {
+	display: flex;
+	align-items: center;
+	height: 56rpx;
+	flex: 1;
+	background: rgba(255,255,255,.82);
+	border: 1rpx solid #dce4ee;
+	border-radius: var(--radius-control);
+	box-sizing: border-box;
+}
+
+.search-icon {
+	width: 26rpx;
+	height: 26rpx;
+	margin-left: 18rpx;
+	opacity: 0.55;
+}
+
+.search-input {
+	min-width: 0;
+	height: 52rpx;
+	padding: 0 14rpx;
+	flex: 1;
+	color: #1d1d1f;
+	font-size: 22rpx;
+}
+
+.search-clear {
+	padding: 12rpx;
+	color: #82928d;
+	font-size: 34rpx;
+}
+
+.filter-button { min-width: 112rpx; height: 56rpx; padding: 0 14rpx; gap: 8rpx; box-sizing: border-box; color: #1d1d1f; background: #fff; border: 2rpx solid #dfe4eb; border-radius: var(--radius-control); font-size: 22rpx; }
+.filter-icon { width: 26rpx; height: 26rpx; }
+
+.filter-scroll {
+	width: 100%;
+	white-space: nowrap;
+}
+
+.filter-row {
+	display: inline-flex;
+	gap: 14rpx;
+	padding: 4rpx 0 0;
+}
+
+.filter-chip {
+	display: flex; align-items: center;
+	padding: 7rpx 14rpx;
+	color: #667085;
+	background: rgba(255,255,255,.72);
+	border: 1rpx solid #dce4ee;
+	border-radius: var(--radius-chip);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
+	font-size: 22rpx;
+	line-height: 31rpx;
+
+	&.active {
+		color: var(--tp-color-primary, #1677ff);
+		background: rgba(233,242,255,.88);
+		border-color: #a9cafa;
+		box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+	}
+}
+/* 不支持背景模糊的平台仍使用上方半透明底色与连续渐变。 */
+@supports (backdrop-filter: blur(8px)) {
+	.filter-chip, .device-search { -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+}
+.chip-dot { width: 10rpx; height: 10rpx; margin-right: 9rpx; border-radius: 50%; background: #aab1bc; }
+.chip-dot.online { background: var(--tp-color-success, #08bf63); }.chip-dot.alarm { background: var(--tp-color-danger, #ff4d35); }
+.chip-count { margin-left: 8rpx; color: #7d8799; }.filter-chip.active .chip-count { color: var(--tp-color-primary, #1677ff); }
+
+/* Content */
+.tp-content { padding: 22rpx var(--page-gutter) calc(52px + env(safe-area-inset-bottom) + 32rpx); }
+
+.overview-section { padding: 18rpx var(--page-gutter) 14rpx; background: #fff; }
+.overview-card { padding: 18rpx 26rpx 14rpx; background: var(--tp-color-primary, #1677ff); color: #fff; border-radius: var(--radius-card); }
+.overview-heading { display: flex; align-items: center; justify-content: space-between; color: #e4eeff; font-size: 21rpx; line-height: 28rpx; margin-bottom: 12rpx; }
+.overview-scope { color: #c8dcfa; font-size: 18rpx; }
+.overview-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.metric-item { min-width: 0; padding-left: 26rpx; border-left: 1rpx solid rgba(255,255,255,.18); }
+.metric-item:first-child { padding-left: 0; border: 0; }
+.metric-label { display: flex; align-items: center; gap: 7rpx; color: #deebff; font-size: 21rpx; line-height: 30rpx; white-space: nowrap; }
+.metric-value { display: block; color: #fff; font-size: 46rpx; font-weight: 600; line-height: 60rpx; font-variant-numeric: tabular-nums; letter-spacing: -.5rpx; }
+.overview-alarm-dot { width: 8rpx; height: 8rpx; flex-shrink: 0; border-radius: 50%; background: #ffbc82; }
+.overview-footer { display: flex; align-items: center; gap: 18rpx; min-height: 30rpx; margin-top: 12rpx; padding-top: 10rpx; border-top: 1rpx solid rgba(255,255,255,.18); color: #deebff; font-size: 19rpx; line-height: 28rpx; }
+.online-rate-track { flex: 1; height: 5rpx; background: rgba(255,255,255,.2); border-radius: 4rpx; overflow: hidden; }
+.online-rate-fill { height: 100%; background: #a5d2ff; }
+.online-rate-value { color: #fff; font-size: 21rpx; font-weight: 500; font-variant-numeric: tabular-nums; }
+.overview-retry { width: 100%; border-radius: 0; background: transparent; padding-right: 0; padding-left: 0; }
+.device-view-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; margin-top: 8rpx; }
+.group-controls { display: flex; align-items: center; min-width: 0; flex: 1; }
+.group-selector { display: flex; align-items: center; gap: 12rpx; min-width: 0; max-width: 100%; min-height: 44px; margin: 0; padding: 0 8rpx 0 0; background: none; color: #51515c; border-radius: 0; font-size: 22rpx; line-height: 34rpx; }
+.group-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.group-chevron { flex-shrink: 0; width: 10rpx; height: 10rpx; border-right: 2rpx solid #8090a5; border-bottom: 2rpx solid #8090a5; transform: rotate(45deg); margin: -5rpx 5rpx 0 0; }
+.group-reset { flex-shrink: 0; min-height: 44px; padding: 0 12rpx; margin: 0; background: transparent; color: var(--tp-color-primary, #1677ff); font-size: 20rpx; line-height: 44px; }
+.view-switch { display: flex; gap: 0; flex-shrink: 0; margin-right: -14px; }
+.view-switch-button { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; margin: 0; background: transparent; border-radius: 8rpx; color: #7b899d; }
+.view-switch-button.active { color: var(--tp-color-primary, #1677ff); background: transparent; }
+.group-selector::after, .group-reset::after, .view-switch-button::after, .overview-retry::after { border: none; }
+.view-grid-icon, .view-list-icon { width: 16px; height: 16px; flex-shrink: 0; box-sizing: border-box; }
+.view-switch .view-grid-icon { transform: translateX(12px); }
+.view-grid-icon { display: grid; grid-template-columns: repeat(2, 6px); grid-template-rows: repeat(2, 6px); gap: 4px; }
+.view-grid-icon view { width: 6px; height: 6px; border: 1.5px solid currentColor; border-radius: 1px; box-sizing: border-box; }
+.view-list-icon { display: flex; flex-direction: column; justify-content: space-between; }
+.view-list-icon view { position: relative; height: 1.5px; flex-shrink: 0; margin-left: 5px; border-radius: 1px; background: currentColor; }
+.view-list-icon view::before { position: absolute; left: -5px; top: 0; width: 1.5px; height: 1.5px; border-radius: 1px; content: ''; background: currentColor; }
+
+/* Device List */
+.device-list {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12rpx;
+}
+.device-list--rows { grid-template-columns: minmax(0, 1fr); gap: 0; background: #fff; border: 1rpx solid #e8edf3; border-radius: var(--radius-card); overflow: hidden; }
+.device-list--rows .device-skeleton { border-radius: 0; border-width: 0 0 1rpx; }
+
+.device-skeleton {
+	display: grid;
+	grid-template-columns: 88rpx minmax(0, 1fr);
+	grid-template-rows: 94rpx minmax(30rpx, 1fr);
+	column-gap: 14rpx;
+	height: 170rpx;
+	padding: 15rpx 15rpx 12rpx;
+	background: #fff;
+	border: 2rpx solid #edf0f3;
+	border-radius: var(--radius-card);
+	box-sizing: border-box;
+	overflow: hidden;
+}
+.skeleton-shape {
+	background: linear-gradient(100deg, #eef1f5 20%, #f8f9fb 38%, #eef1f5 56%);
+	background-size: 220% 100%;
+	animation: device-skeleton-shimmer 1.35s ease-in-out infinite;
+}
+.skeleton-icon { grid-column: 1; grid-row: 1; align-self: center; width: 76rpx; height: 76rpx; margin-left: 6rpx; border-radius: 20rpx; }
+.skeleton-content { grid-column: 2; grid-row: 1; align-self: center; min-width: 0; }
+.skeleton-name { width: 76%; height: 22rpx; border-radius: 8rpx; }
+.skeleton-type { width: 54%; height: 16rpx; margin-top: 14rpx; border-radius: 6rpx; }
+.skeleton-time { grid-column: 2; grid-row: 2; align-self: end; width: 86%; height: 15rpx; border-radius: 6rpx; }
+
+@keyframes device-skeleton-shimmer {
+	0% { background-position: 100% 0; }
+	100% { background-position: -100% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.skeleton-shape { animation: none; }
+}
+
+.empty-state {
+	grid-column: 1 / -1;
+	min-height: 420rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding-bottom: 40rpx;
+	box-sizing: border-box;
+}
+.empty-illustration { width: 330rpx; height: 286rpx; margin-bottom: 4rpx; }
+.empty-title { color: #667085; font-size: 26rpx; font-weight: 400; line-height: 38rpx; }
+.empty-description { margin-top: 4rpx; color: #98a2b3; font-size: 20rpx; font-weight: 400; line-height: 30rpx; }
+
+/* Utilities */
+.text-ellipsis {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.tp-flex { display: flex; }
+.tp-flex-col { flex-direction: column; }
+.tp-flex-row { flex-direction: row; }
+.tp-flex-j-s { justify-content: space-between; }
+.tp-flex-j-c { justify-content: center; }
+.tp-flex-a-c { align-items: center; }
+.tp-flex-a-e { align-items: flex-end; }
+.tp-flex-1 { flex: 1; }
+.tp-overflow-hidden { overflow: hidden; }
+
+/* Popup Styles */
+.tp-panel-popup {
+	background: #ffffff;
+	border-radius: 8rpx 8rpx 0 0;
+	border-top: 6rpx solid var(--tp-color-primary, #1677ff);
+	padding: 40rpx;
+	color: #18332f;
+}
+
+.info_title {
+	font-size: 32rpx;
+	font-weight: 600;
+	margin-bottom: 30rpx;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	color: #18332f;
+
+	.close-popup {
+		width: 32rpx;
+		height: 32rpx;
+		opacity: 0.5;
+	}
+}
+
+.device-img {
+	width: 100%;
+	height: 100%;
+}
+
+/* Scroll to Top Button */
+.scroll-to-top {
+	position: fixed;
+	right: var(--page-gutter);
+	bottom: calc(52px + env(safe-area-inset-bottom) + 16px);
+	width: 44px;
+	height: 44px;
+	margin: 0;
+	padding: 0;
+	background: #fff;
+	color: var(--tp-color-primary, #1677ff);
+	border-radius: var(--radius-control);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #dce6f3;
+	box-shadow: none;
+	z-index: 999;
+	&::after { border: none; }
+	&:active, &.scroll-to-top--pressed { background: #edf4ff; }
+}
+.scroll-top-arrow {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	&::before { content: ''; position: absolute; left: 4px; top: 4px; width: 10px; height: 10px; border-top: 2px solid currentColor; border-left: 2px solid currentColor; transform: rotate(45deg); }
+	&::after { content: ''; position: absolute; left: 9px; top: 3px; width: 2px; height: 16px; background: currentColor; }
+}
+
+/* Shared surface tokens keep summary cards and device cards visually consistent. */
+.tp-box {
+  background:#F2F2F7;
+  --radius-card:16rpx;
+  --radius-control:14rpx;
+  --device-glass-surface:#ffffff;
+  --device-card-radius:12rpx;
+  --device-glass-shadow:none;
+}
+.tp-header, .overview-section, .device-toolbar { background:transparent; }
+.notify-action { width:72rpx; height:72rpx; }
+.notify-action image { width:44rpx; height:44rpx; }
+.header-title-group { display:flex; align-items:baseline; gap:16rpx; min-width:0; flex-wrap:wrap; }
+.header-device-count { color:#73737d; font-size:22rpx; line-height:32rpx; font-weight:400; }
+.overview-section { padding:0 var(--page-gutter) 22rpx; }
+.overview-card { position:relative; padding:24rpx 0; background:var(--device-glass-surface); border-radius:var(--device-card-radius); box-shadow:none; }
+.overview-heading, .overview-metrics, .overview-footer { position:relative; z-index:1; }
+.overview-heading { color:#73737d; margin-bottom:20rpx; gap:12rpx; flex-wrap:wrap; }
+.overview-metrics { grid-template-columns:repeat(3,minmax(0,1fr)); gap:0; }
+.metric-item, .metric-item:first-child { position:relative; display:flex; flex-direction:column; overflow:hidden; padding:0 20rpx; border:0; border-radius:0; background:transparent; box-shadow:none; }
+.metric-item + .metric-item::before { content:''; position:absolute; left:0; top:6rpx; bottom:6rpx; width:1rpx; background:rgba(119,143,174,.18); }
+.metric-top { display:flex; align-items:center; gap:10rpx; min-height:62rpx; }
+.metric-icon-wrap { display:flex; align-items:center; justify-content:center; flex-shrink:0; width:58rpx; height:58rpx; border-radius:50%; background:#eaf2ff; }
+.metric-offline .metric-icon-wrap { background:#edf0f4; }
+.metric-alarm .metric-icon-wrap { background:#fff1e4; }
+.metric-icon { width:36rpx; height:36rpx; }
+.metric-label { color:#475467; margin:18rpx 0 0; font-size:21rpx; line-height:30rpx; white-space:normal; }
+.metric-rate { color:#66758a; margin-top:8rpx; font-size:20rpx; line-height:28rpx; font-variant-numeric:tabular-nums; }
+.metric-alarm .metric-rate { color:var(--tp-color-warning, #ff9500); }
+.metric-value { min-width:0; color:#1d1d1f; line-height:52rpx; font-size:40rpx; font-weight:650; letter-spacing:-1rpx; }
+.overview-footer { color:#73737d; border:0; padding-left:20rpx; padding-right:20rpx; }
+.device-search, .filter-button { background:var(--device-glass-surface); border:0; box-shadow:none; -webkit-backdrop-filter:none; backdrop-filter:none; }
+.search-input { background:transparent; border:0; border-radius:0; }
+.search-icon, .filter-icon { width:24rpx; height:24rpx; flex-shrink:0; }
+.filter-chip { position:relative; padding:10rpx 6rpx 16rpx; background:transparent; border:0; border-radius:0; box-shadow:none; backdrop-filter:none; }
+.filter-chip.active { background:transparent; box-shadow:none; font-weight:600; }
+.filter-chip.active::after { content:''; position:absolute; bottom:0; left:6rpx; width:26rpx; height:4rpx; border-radius:2rpx; background:var(--tp-color-primary, #1677ff); }
+.view-switch { margin-right:0; }
+.view-switch-button { width:44rpx; min-width:32px; height:44px; justify-content:flex-end; }
+.view-mode-icon { width:32rpx; height:32rpx; }
+.device-list--rows { background:var(--device-glass-surface); box-shadow:none; border:0; border-radius:var(--device-card-radius); overflow:hidden; }
+.device-skeleton { background:#fff; border:0; }
+
+.pagehome, .device-page, .tp-box { background: #F2F2F7; }
+@import '@/styles/tab-page-header.scss';
+</style>
