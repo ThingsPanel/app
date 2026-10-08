@@ -20,15 +20,17 @@ page, :root {
   border-bottom:1rpx solid var(--sheet-divider) !important;
   font-family: inherit;
 }
-.app-sheet-header > :first-child,.app-sheet-header > :last-child {
+/* WXSS 词法器不接受组合符后直接跟裸伪类（`> :first-child` 报 error at token `:`），
+   所以这里一律用挂点类定位左/中/右三栏，位置语义由 6 个使用处的模板保证。 */
+.app-sheet-header>.app-sheet-start,.app-sheet-header>.app-sheet-end {
   display:flex !important; align-items:center; min-height:88rpx !important;
   margin:0 !important; padding:0 !important; font-size:26rpx !important;
   line-height:36rpx !important; font-weight:400 !important; font-family:inherit;
   background:transparent !important; border-radius:0 !important;
 }
-.app-sheet-header > :first-child { justify-content:flex-start !important; color:var(--sheet-muted) !important; }
-.app-sheet-header > :last-child { justify-content:flex-end !important; color:var(--sheet-accent); }
-.app-sheet-header > :nth-child(2) { text-align:center !important; font-size:28rpx !important; line-height:40rpx !important; font-weight:500 !important; min-width:0; overflow-wrap:anywhere; color:var(--sheet-text); }
+.app-sheet-header>.app-sheet-start { justify-content:flex-start !important; color:var(--sheet-muted) !important; }
+.app-sheet-header>.app-sheet-end { justify-content:flex-end !important; color:var(--sheet-accent); }
+.app-sheet-header>.app-sheet-center { text-align:center !important; font-size:28rpx !important; line-height:40rpx !important; font-weight:500 !important; min-width:0; overflow-wrap:anywhere; color:var(--sheet-text); }
 .app-sheet-header .tree-bar-title { font-size:28rpx; font-weight:500; }
 .uni-popup .uni-popup__wrapper.bottom {
   border-radius:0 !important;

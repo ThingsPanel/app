@@ -9,9 +9,9 @@
     <view class="time-sheet-mask" @tap="close" />
     <view class="time-sheet app-sheet-surface" @tap.stop>
       <view class="time-header app-sheet-header">
-        <text class="time-action" @tap="close">{{ $t('common.cancel') }}</text>
-        <text class="time-title">{{ title || $t('pages.sceneAutomationEditor.selectTime') }}</text>
-        <text class="time-action confirm" @tap="confirm">{{ $t('common.confirm') }}</text>
+        <text class="time-action app-sheet-start" @tap="close">{{ $t('common.cancel') }}</text>
+        <text class="time-title app-sheet-center">{{ title || $t('pages.sceneAutomationEditor.selectTime') }}</text>
+        <text class="time-action confirm app-sheet-end" @tap="confirm">{{ $t('common.confirm') }}</text>
       </view>
       <picker-view class="time-picker" :value="pickerValue" indicator-style="height:48px" @change="onPickerChange">
         <picker-view-column v-if="!minuteOnly">

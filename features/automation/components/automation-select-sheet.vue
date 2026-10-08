@@ -9,9 +9,9 @@
     <view class="automation-sheet-mask" @tap="cancel" />
     <view class="automation-sheet app-sheet-surface" @tap.stop>
       <view class="sheet-header app-sheet-header">
-        <text class="sheet-action" @tap="cancel">取消</text>
-        <text class="sheet-title">{{ title || placeholder }}</text>
-        <text class="sheet-action sheet-confirm" @tap="confirm">确定</text>
+        <text class="sheet-action app-sheet-start" @tap="cancel">取消</text>
+        <text class="sheet-title app-sheet-center">{{ title || placeholder }}</text>
+        <text class="sheet-action sheet-confirm app-sheet-end" @tap="confirm">确定</text>
       </view>
       <view v-if="searchable" class="sheet-search-area"><AppSearch v-model.trim="keyword" placeholder="搜索" /></view>
       <text v-if="isTruncated" class="sheet-hint">请输入名称搜索，当前显示前 {{ maxVisibleOptions }} 项</text>
