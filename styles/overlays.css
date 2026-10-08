@@ -20,7 +20,8 @@ page, :root {
   border-bottom:1rpx solid var(--sheet-divider) !important;
   font-family: inherit;
 }
-/* WXSS 词法器不接受组合符后直接跟裸伪类（`> :first-child` 报 error at token `:`），
+/* WXSS 词法器不接受「组合符后直接跟裸伪类」（冒号紧跟在 `>` 和空白之后），
+   报 `./app.wxss(3148:21): error at token`，且整份 wxss 作废。
    所以这里一律用挂点类定位左/中/右三栏，位置语义由 6 个使用处的模板保证。 */
 .app-sheet-header>.app-sheet-start,.app-sheet-header>.app-sheet-end {
   display:flex !important; align-items:center; min-height:88rpx !important;
