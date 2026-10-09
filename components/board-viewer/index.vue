@@ -169,6 +169,13 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
       this.statusMessage = message || '看板加载失败，请重试'
     },
     async reload() {
+      // #ifdef MP-WEIXIN
+      // The iframe/renderjs bridge below only exists on App and H5.
+      // Do not start a handshake that cannot complete on this platform.
+      this.dispose(); this.phase = 'empty'; this.warning = ''
+      this.statusMessage = '此看板暂未适配微信小程序，请在 App 中查看'
+      return
+      // #endif
       this.loadStartedAt = Date.now(); this.loadStages = new Set()
       this.dispose(); this.phase = 'loading'; this.warning = ''; this.statusMessage = '正在加载看板…'; this.interactive = false; this.operationTip = false
       if (!this.boardId) { this.phase = 'error'; this.statusMessage = '缺少看板 ID'; return }

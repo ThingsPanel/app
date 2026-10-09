@@ -13,6 +13,7 @@
 
 <script>
 import pages from '@/pages.json'
+import { TAB_BAR_ITEMS } from '@/utils/tab-bar-items'
 
 // 非一级页面的底部导航复用原生 TabBar 的配置，不能另设菜单、图标或跳转地址。
 export default {
@@ -35,7 +36,10 @@ export default {
       const source = `url(/${item.pagePath === this.activePath ? item.selectedIconPath : item.iconPath})`
       return { width: this.config.iconWidth, height: this.config.iconWidth, maskImage: source, WebkitMaskImage: source }
     },
-    label(item) { return item.key ? this.$t(item.key) : item.text },
+    label(item) {
+      const key = TAB_BAR_ITEMS.find(tab => tab.pagePath === item.pagePath)?.key
+      return key ? this.$t(key) : item.text
+    },
     open(item) {
       if (this.immersive && item.pagePath === this.activePath) return
       uni.switchTab({ url: '/' + item.pagePath, fail: () => uni.showToast({ title: '无法打开页面，请重试', icon: 'none' }) })

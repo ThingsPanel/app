@@ -88,6 +88,7 @@
 import BoardLoading from '@/components/board-loading/index.vue'
 import BoardTabDeck from '@/components/board-tab-deck/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
+import { navigateToPage } from '@/utils/navigation'
 import dayjs from 'dayjs'
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
 import { alarmHistory } from '@/api/modules/alarm'
@@ -217,18 +218,18 @@ export default {
       this.updatedAt = this.errors.length ? '' : dayjs().format('HH:mm')
       this.loading = false
     },
-    navigate(url) { uni.navigateTo({ url, fail: () => uni.showToast({ title: this.$t('dashboard.openFailed'), icon: 'none' }) }) },
-    openDevices() { uni.switchTab({ url: '/pages/devices/index' }) },
+    navigate(url) { navigateToPage(url, this.$t('dashboard.openFailed')) },
+    openDevices() { this.navigate('/pages/devices/index') },
     openGroup(group) { uni.setStorageSync('device_list_selected_group', { id: group.id, name: group.name }); this.openDevices() },
     openGroupPicker() { uni.setStorageSync('dashboard_open_groups', true); this.openDevices() },
     openShortcut(key) {
       if (key === 'devices') return this.openDevices()
-      if (key === 'boards') return uni.switchTab({ url: '/pages/dashboard/boards' })
+      if (key === 'boards') return this.navigate('/pages/dashboard/boards')
       if (key === 'groups') return this.openGroupPicker()
-      if (key === 'account') return uni.switchTab({ url: '/pages/account/index' })
+      if (key === 'account') return this.navigate('/pages/account/index')
       if (key === 'automation' || key === 'scenes') {
         uni.setStorageSync('dashboard_automation_tab', key === 'scenes' ? '场景管理' : '场景联动')
-        return uni.switchTab({ url: '/pages/automation/index' })
+        return this.navigate('/pages/automation/index')
       }
       const routes = { alarms: '/pages/alarms/index', rules: '/pages/alarm-rules/index', add: '/pages/devices/create' }
       if (routes[key]) this.navigate(routes[key])
