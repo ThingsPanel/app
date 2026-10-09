@@ -204,35 +204,30 @@
 		"list": [
 			{
 				"pagePath": "pages/dashboard/index",
-				"key": "pages.dashboardTitle",
 				"text": "%pages.dashboardTitle%",
 				"iconPath": "static/tabbar/dashboard.png",
 				"selectedIconPath": "static/tabbar/dashboard-selected.png"
 			},
 			{
 				"pagePath": "pages/dashboard/boards",
-				"key": "pages.boardsTitle",
 				"text": "%pages.boardsTitle%",
 				"iconPath": "static/tabbar/boards.png",
 				"selectedIconPath": "static/tabbar/boards-selected.png"
 			},
 			{
 				"pagePath": "pages/devices/index",
-				"key": "pages.deviceList",
 				"text": "%pages.deviceList%",
 				"iconPath": "static/tabbar/devices.png",
 				"selectedIconPath": "static/tabbar/devices-selected.png"
 			},
 			{
 				"pagePath": "pages/automation/index",
-				"key": "pages.automationTitle",
 				"text": "%pages.automationTitle%",
 				"iconPath": "static/tabbar/automation.png",
 				"selectedIconPath": "static/tabbar/automation-selected.png"
 			},
 			{
 				"pagePath": "pages/account/index",
-				"key": "pages.myAccount",
 				"text": "%pages.myAccount%",
 				"iconPath": "static/tabbar/account.png",
 				"selectedIconPath": "static/tabbar/account-selected.png"

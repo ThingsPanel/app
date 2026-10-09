@@ -9,9 +9,9 @@
     <view class="datetime-sheet-mask" @tap="close" />
     <view class="datetime-sheet app-sheet-surface" @tap.stop>
       <view class="sheet-header app-sheet-header">
-        <text class="sheet-action" @tap="close">取消</text>
-        <text class="sheet-title">{{ title }}</text>
-        <text class="sheet-action confirm" @tap="confirm">确定</text>
+        <text class="sheet-action app-sheet-start" @tap="close">取消</text>
+        <text class="sheet-title app-sheet-center">{{ title }}</text>
+        <text class="sheet-action confirm app-sheet-end" @tap="confirm">确定</text>
       </view>
       <view class="selection-labels">
         <text>日期</text>

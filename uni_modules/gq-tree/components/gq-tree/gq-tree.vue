@@ -3,11 +3,11 @@
     <view class="tree-mask" @tap="_maskClick" @touchmove.stop.prevent></view>
     <view class="tree-cnt" role="dialog" :aria-label="title" aria-modal="true">
       <view class="tree-bar app-sheet-header">
-        <button class="tree-action app-sheet-cancel" @tap="_cancel">{{ $t('common.cancel') }}</button>
-        <view class="tree-heading">
+        <button class="tree-action app-sheet-cancel app-sheet-start" @tap="_cancel">{{ $t('common.cancel') }}</button>
+        <view class="tree-heading app-sheet-center">
           <text class="tree-bar-title">{{ title }}</text>
         </view>
-        <button class="tree-action" :disabled="!canConfirm" @tap="_confirm">{{ $t('common.ok') }}</button>
+        <button class="tree-action app-sheet-end" :disabled="!canConfirm" @tap="_confirm">{{ $t('common.ok') }}</button>
       </view>
       <view v-if="showSearch" class="tree-search-area"><AppSearch :model-value="keyWord" :disabled="loading || !!error" :placeholder="$t('pages.devices.groupSearchPlaceholder')" @input="filterOp" /></view>
       <scroll-view class="tree-view-sc app-sheet-scroll" :scroll-y="true" :show-scrollbar="false" :style="{ height: listHeight * 2 + 'rpx' }">

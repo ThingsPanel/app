@@ -18,9 +18,9 @@
     <view class="range-sheet-mask" @tap="close" />
     <view class="range-sheet app-sheet-surface" @tap.stop>
       <view class="range-header app-sheet-header">
-        <text class="range-action" @tap="close">取消</text>
-        <text class="range-title">时间范围</text>
-        <text class="range-action confirm" @tap="confirm">确定</text>
+        <text class="range-action app-sheet-start" @tap="close">取消</text>
+        <text class="range-title app-sheet-center">时间范围</text>
+        <text class="range-action confirm app-sheet-end" @tap="confirm">确定</text>
       </view>
 
       <view class="range-tabs">

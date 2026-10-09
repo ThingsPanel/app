@@ -1,6 +1,7 @@
 import { createI18n } from 'vue-i18n'
 import enUS from './en-US'
 import zhCN from './zh-CN'
+import { TAB_BAR_ITEMS } from '@/utils/tab-bar-items'
 
 // Define available languages with their display names
 export const AVAILABLE_LANGUAGES = [
@@ -24,19 +25,17 @@ const i18n = createI18n({
 
 // Function to update tabBar texts with translation keys
 export const updateTabbarText = () => {
-  const tabBar = __uniConfig.tabBar
-  if (!tabBar || !tabBar.list) {
-    return
-  }
+  // tabBar 项的 pagePath + 语言包 key 统一取自 utils/tab-bar-items.js（pages.json 不带 key，见该文件注释）
+  const items = TAB_BAR_ITEMS
 
   const pages = getCurrentPages()
   const currentRoute = pages.length ? pages[pages.length - 1].route : ''
-  const isTabBarPage = tabBar.list.some(tab => tab.pagePath === currentRoute)
+  const isTabBarPage = items.some(tab => tab.pagePath === currentRoute)
   if (!isTabBarPage) {
     return
   }
 
-  tabBar.list.forEach((tab, index) => {
+  items.forEach((tab, index) => {
     uni.setTabBarItem({
       index,
       text: i18n.global.t(tab.key),

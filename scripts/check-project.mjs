@@ -1,5 +1,13 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import { pathToFileURL } from 'node:url'
+
+// 语言包是纯数据 ESM 文件，直接 import 会触发 MODULE_TYPELESS_PACKAGE_JSON 重解析告警，
+// 与本脚本的结论无关，这里只保留其它告警。
+process.removeAllListeners('warning')
+process.on('warning', (warning) => {
+  if (warning.code !== 'MODULE_TYPELESS_PACKAGE_JSON') console.warn(warning.message)
+})
 
 const root = process.cwd()
 // tmp / output 都是 .gitignore 里的临时产物目录（草稿、预览、构建中间物），
@@ -127,11 +135,69 @@ function findRenderjsCollisions(source) {
   return collisions
 }
 
+/**
+ * 微信 WXSS 的词法器不接受「组合符后直接跟裸伪类」（`.a > :first-child`），
+ * 编译时报 `./app.wxss(line:col): error at token` 并让**整个 wxss 文件作废**，
+ * 全局样式一起丢失。带简单选择器的写法不受影响（`.a > view:first-child`、`.a > .b:first-child`），
+ * 现成产物里就有编译通过的先例。所以这里静态拦一道：只扫选择器位置，不碰声明。
+ */
+function findWxssUnsafeSelectors(source) {
+  const css = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+  const offenders = []
+  for (const block of css.matchAll(/([^{};]*)\{/g)) {
+    for (const bad of block[1].matchAll(/[>+~][ \t\n]*:[a-z-]+/gi)) {
+      offenders.push(bad[0].replace(/\s+/g, ' ').trim())
+    }
+  }
+  return offenders
+}
+
 const pagesConfig = JSON.parse(stripJsonComments(fs.readFileSync(path.join(root, 'pages.json'), 'utf8')))
 const registeredRoutes = new Set((pagesConfig.pages ?? []).map((page) => page.path))
 for (const page of pagesConfig.pages ?? []) {
   if (!fs.existsSync(path.join(root, `${page.path}.vue`))) {
     errors.push(`Missing route component: ${page.path}.vue`)
+  }
+}
+
+// tabBar 的语言包 key 只存在 utils/tab-bar-items.js 里：pages.json 的 tabBar.list 一旦带自定义字段，
+// uni-app 会原样透传进小程序 app.json，而微信的 schema 只认 4 个字段，启动时就会刷
+// 「无效的 app.json tabBar.list[0]["key"]、…」。镜像的 pagePath 顺序又直接决定 uni.setTabBarItem
+// 按 index 定位的结果，所以两头都要锁死。
+const tabBarList = pagesConfig.tabBar?.list ?? []
+const mpTabBarFields = new Set(['pagePath', 'text', 'iconPath', 'selectedIconPath'])
+const tabBarStrayFields = [...new Set(tabBarList
+  .flatMap((tab) => Object.keys(tab))
+  .filter((field) => !mpTabBarFields.has(field)))]
+if (tabBarStrayFields.length) {
+  errors.push(`pages.json tabBar.list 含小程序 app.json 不认的字段: ${tabBarStrayFields.join(', ')}（会被透传进 app.json 报错，语言包 key 请写进 utils/tab-bar-items.js）`)
+}
+const mirrorSource = fs.readFileSync(path.join(root, 'utils/tab-bar-items.js'), 'utf8')
+const tabBarMirror = [...mirrorSource.matchAll(/pagePath:\s*'([^']+)',\s*key:\s*'([^']+)'/g)]
+  .map((match) => ({ pagePath: match[1], key: match[2] }))
+if (JSON.stringify(tabBarMirror.map((tab) => tab.pagePath)) !== JSON.stringify(tabBarList.map((tab) => tab.pagePath))) {
+  errors.push('tabBar mirror drifted: utils/tab-bar-items.js 与 pages.json 的 tabBar.list 顺序或 pagePath 不一致')
+}
+for (const locale of ['zh-CN', 'en-US']) {
+  const messages = (await import(pathToFileURL(path.join(root, 'lang', `${locale}.js`)).href)).default
+  for (const tab of tabBarMirror) {
+    const translated = tab.key.split('.').reduce((carrier, segment) => carrier?.[segment], messages)
+    if (typeof translated !== 'string' || !translated) {
+      errors.push(`tabBar key 在 ${locale} 里取不到: ${tab.key}（小程序 tabBar 会直接显示 key 字面量）`)
+    }
+  }
+}
+
+// walk() 刻意跳过 uni_modules（第三方组件不参与项目结构校验），但 HBuilderX 会重写这些目录。
+// 树形选择面板借用了全局的 .app-sheet-header 三栏头，挂点类打在了 gq-tree 的模板上：
+// 一旦被还原成上游版本，样式会静默失效（不报错），所以这里单独钉住这一处。
+const gqTreePath = path.join(root, 'uni_modules/gq-tree/components/gq-tree/gq-tree.vue')
+if (fs.existsSync(gqTreePath)) {
+  const gqTreeSource = fs.readFileSync(gqTreePath, 'utf8')
+  for (const hook of ['app-sheet-start', 'app-sheet-center', 'app-sheet-end']) {
+    if (!gqTreeSource.includes(hook)) {
+      errors.push(`uni_modules/gq-tree 丢了挂点类 ${hook}（HBuilderX 覆盖回上游版本了？树形面板三栏头样式会失效）`)
+    }
   }
 }
 
@@ -147,6 +213,17 @@ for (const file of walk(root)) {
   }
 
   const source = fs.readFileSync(file, 'utf8')
+
+  // 只校验会进 wxss 的样式：.css/.scss 整份，.vue 只取 <style> 块（.js 不参与，避免把代码里的 > 当成选择器）。
+  const fileExtension = path.extname(file)
+  const styleBlocks = fileExtension === '.vue'
+    ? [...source.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style>/g)].map((match) => match[1])
+    : ['.css', '.scss'].includes(fileExtension) ? [source] : []
+  for (const block of styleBlocks) {
+    for (const offender of findWxssUnsafeSelectors(block)) {
+      errors.push(`Bare pseudo-class after combinator in ${relativePath}: ${offender}（WXSS 会整份 wxss 编译失败、全局样式丢失，请给选择器补上类名或标签）`)
+    }
+  }
 
   const collisions = findRenderjsCollisions(source)
   if (collisions.length) {
