@@ -1,32 +1,42 @@
 <script>
 	import { reportAppError } from '@/services/app-errors'
+	import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
 	export default {
 		onError(error) { reportAppError(error, 'runtime') },
 		onUnhandledRejection(event) { reportAppError(event?.reason, 'promise') },
 		onLaunch: async function() {
+			logPushDebug('app.launch', pushDebugContext());
 			uni.onPushMessage(async (res) => {
-				console.log('收到推送消息==>:', res);
+				logPushDebug('message.' + res.type, { alarmId: res.data?.payload?.alarm_id, hasTitle: Boolean(res.data?.title), hasContent: Boolean(res.data?.content) });
 				if (res.type == 'receive') {  
 					uni.createPushMessage({  
 						title: res.data.title,  
 						content: res.data.content,  
-						payload: res.data.payload,  
+						payload: res.data.payload,
+						success: () => logPushDebug('notification.created'),
+						fail: error => logPushDebug('notification.failed', pushDebugError(error), 'error'),
 					})
 				} else if (res.type == 'click') {
-					const { alarm_id } = res.data.payload;
+					let payload = res.data?.payload;
+					if (typeof payload === 'string') {
+						try { payload = JSON.parse(payload); } catch { logPushDebug('click.invalid-payload', {}, 'error'); return; }
+					}
+					const alarm_id = payload?.alarm_id;
+					if (!alarm_id) { logPushDebug('click.missing-alarm-id', {}, 'warn'); return; }
 					const headers = {
 						'Authorization': `Bearer ${uni.getStorageSync("access_token")}`
 					};
 					const apiUrl = `/api/v1/alarm/info/history/${alarm_id}`;
 					try {
 						const { code, data } = await this.fetchAlarmInfo(apiUrl, headers);
+						logPushDebug('alarm.response', { alarmId: alarm_id, code });
 						if (code === 200) {
 							this.navigateToDetail(data);
 						} else {
 							console.error('API request failed with code:', code);
 						}
 					} catch (error) {
-						console.error('API request failed:', error);
+						logPushDebug('alarm.failed', pushDebugError(error), 'error');
 					}
 				}
 			});
