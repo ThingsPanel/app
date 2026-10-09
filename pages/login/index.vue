@@ -71,6 +71,7 @@ import login from "../../store/login";
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 import BoardLoading from '@/components/board-loading/index.vue'
 import { restoreSession } from '@/features/auth/restore-session'
+import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
 // 
 export default {
 	components: {
@@ -115,6 +116,7 @@ export default {
 		if (!this.restoringSession) return;
 		try {
 			const result = await restoreSession();
+			logPushDebug('session.restore', { ...pushDebugContext(), result, note: '恢复登录不会重新绑定 CID；需要验证绑定时请手动重新登录' });
 			if (this.loginPageHidden) return;
 			if (result === 'valid' || result === 'unavailable') {
 				await new Promise((resolve, reject) => uni.switchTab({ url: '/pages/dashboard/index', success: resolve, fail: reject }));
@@ -288,23 +290,30 @@ export default {
 					uni.setStorageSync('email', this.email)
 					uni.setStorageSync('password', this.password)
 					uni.setStorageSync('access_token', res.data.token)
-					// Get push ID
+					logPushDebug('cid.request', pushDebugContext());
 					uni.getPushClientId({
-						success: (res) => {
-							cid = res.cid;
-							this.API.apiRequest('/api/v1/message_push', {
-								deviceType: "" + uni.getSystemInfoSync().platform,
-								pushId: cid
-							}, 'post').then(res => {
-								if (res.statusCode === 200) {
+						success: (pushResult) => {
+							cid = pushResult.cid;
+							logPushDebug('cid.success', { cid });
+							if (!cid) {
+								logPushDebug('cid.empty', {}, 'error');
+								return;
+							}
+							const binding = { deviceType: '' + uni.getSystemInfoSync().platform, pushId: cid };
+							logPushDebug('bind.request', { ...pushDebugContext(), path: '/api/v1/message_push', ...binding });
+							this.API.apiRequest('/api/v1/message_push', binding, 'post').then(result => {
+								if (Number(result?.code) === 200) {
 									uni.setStorageSync('push_id', cid);
+									logPushDebug('bind.success', { cid, code: result.code, message: result.message });
+								} else {
+									logPushDebug('bind.rejected', { cid, code: result?.code, message: result?.message }, 'error');
 								}
-							}).catch(err => {
-								uni.setStorageSync('push_id', cid);
-							})
+							}).catch(error => {
+								logPushDebug('bind.failed', { cid, ...pushDebugError(error) }, 'error');
+							});
 						},
-						fail(err) {
-							console.log(err)
+						fail(error) {
+							logPushDebug('cid.failed', pushDebugError(error), 'error');
 						},
 					});
 					uni.switchTab({
