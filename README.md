@@ -29,21 +29,21 @@ ThingsPanel App 2.0.1 界面预览，依次展示首页、设备、自动化规�
     <th align="center">设备</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://assets.thingspanel.cn/web/thingspanel-mobile-2.0.1/thingspanel-app-home.jpg" alt="ThingsPanel App 首页" width="280"></td>
-    <td align="center"><img src="https://assets.thingspanel.cn/web/thingspanel-mobile-2.0.1/thingspanel-app-devices.jpg" alt="ThingsPanel App 设备列表" width="280"></td>
+    <td align="center"><img src="./github/thingspanel-app-home.jpg" alt="ThingsPanel App 首页" width="280"></td>
+    <td align="center"><img src="./github/thingspanel-app-devices.jpg" alt="ThingsPanel App 设备列表" width="280"></td>
   </tr>
   <tr>
     <th align="center">自动化规则</th>
     <th align="center">告警规则</th>
   </tr>
   <tr>
-    <td align="center"><img src="https://assets.thingspanel.cn/web/thingspanel-mobile-2.0.1/thingspanel-app-automation-rules.jpg" alt="ThingsPanel App 自动化规则" width="280"></td>
-    <td align="center"><img src="https://assets.thingspanel.cn/web/thingspanel-mobile-2.0.1/thingspanel-app-alarm-rules.jpg" alt="ThingsPanel App 告警规则" width="280"></td>
+    <td align="center"><img src="./github/thingspanel-app-automation-rules.jpg" alt="ThingsPanel App 自动化规则" width="280"></td>
+    <td align="center"><img src="./github/thingspanel-app-alarm-rules.jpg" alt="ThingsPanel App 告警规则" width="280"></td>
   </tr>
   <tr>
     <th colspan="2" align="center">可视化看板</th>
   </tr>
   <tr>
-    <td colspan="2" align="center"><img src="https://assets.thingspanel.cn/web/thingspanel-mobile-2.0.1/thingspanel-app-dashboards.jpg" alt="ThingsPanel App 可视化看板" width="280"></td>
+    <td colspan="2" align="center"><img src="./github/thingspanel-app-dashboards.jpg" alt="ThingsPanel App 可视化看板" width="280"></td>
   </tr>
 </table>
