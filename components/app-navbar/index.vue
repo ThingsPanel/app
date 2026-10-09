@@ -44,12 +44,19 @@
 			let userDeatail = this.$login.isLoginType();
 		},
 		onReady() {
+			let systemInfo;
+			// #ifdef MP-WEIXIN
+			systemInfo = { ...uni.getWindowInfo(), ...uni.getDeviceInfo() };
+			// #endif
+			// #ifndef MP-WEIXIN
+			systemInfo = uni.getSystemInfoSync();
+			// #endif
 			const {
 				statusBarHeight,
 				platform
-			} = uni.getSystemInfoSync();
+			} = systemInfo;
 			//页面的高度
-			uni.setStorageSync('pageHeight', uni.getSystemInfoSync().windowHeight + 'px');
+			uni.setStorageSync('pageHeight', systemInfo.windowHeight + 'px');
 			// 状态栏高度
 			uni.setStorageSync('statusBarHeight', statusBarHeight);
 			// #ifdef MP-WEIXIN
@@ -77,11 +84,16 @@
 			// #endif
 		},
 		mounted() {
+			// #ifdef MP-WEIXIN
+			this.height = uni.getWindowInfo().screenHeight;
+			// #endif
+			// #ifndef MP-WEIXIN
 			uni.getSystemInfo({
 				success: res => {
 					this.height = res.screenHeight;
 				}
 			});
+			// #endif
 		},
 		methods: {
 			clickLeftBtn(){

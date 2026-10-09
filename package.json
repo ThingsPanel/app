@@ -4,7 +4,8 @@
     "private": true,
     "description": "ThingsPanel IoT mobile application built with Vue 3 and uni-app",
     "scripts": {
-        "check": "node scripts/check-project.mjs"
+        "check": "node scripts/check-project.mjs && node scripts/compile-mp-locales.mjs --check",
+        "locales:mp": "node scripts/compile-mp-locales.mjs"
     },
     "keywords": ["iot", "thingspanel", "uni-app", "vue3"],
     "dependencies": {

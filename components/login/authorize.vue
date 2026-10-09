@@ -1,15 +1,15 @@
 <template>
 	<view>
 		<view class="authorizeBtn">
-			<view class="authorizetitle"><image src="../../static/icon/product-wordmark.png"/></view>
+			<view class="authorizetitle"><image class="authorize-image" src="../../static/icon/product-wordmark.png"/></view>
 			<view class="authorizeInfo">{{ $t('components.authorize.info') }}</view>
-			<button @click="toCancel" class="cancel">{{ $t('components.authorize.cancelBtn') }}</button>
+			<button @click="toCancel" class="authorize-button cancel">{{ $t('components.authorize.cancelBtn') }}</button>
 			<!-- #ifdef MP-WEIXIN -->
-			<button @click="getuserinfo">{{ $t('components.authorize.getAuthBtn') }}</button>
+			<button class="authorize-button" @click="getuserinfo">{{ $t('components.authorize.getAuthBtn') }}</button>
 			<!-- #endif -->
 			<!-- #ifdef MP-ALIPAY -->
 			<button
-				size="default"
+				class="authorize-button" size="default"
 				scope="userInfo"
 				@click="getuserinfo"
 			>
@@ -56,7 +56,7 @@ export default {
 		height: 75rpx;
 		margin-top: 55rpx;
 		margin-bottom: 30rpx;
-		image{
+		.authorize-image{
 			width: 155rpx;
 			height: 75rpx;
 			margin: 0 auto;
@@ -69,7 +69,7 @@ export default {
 		color: #333333;
 		margin-top: 30rpx;
 	}
-	button {
+	.authorize-button {
 		margin-top: 78rpx;
 		width: 218rpx;
 		height: 73rpx;
@@ -84,7 +84,7 @@ export default {
 		display: inline-block;
 		
 	}
-	button.cancel{
+	.authorize-button.cancel{
 		width: 218rpx;
 		height: 73rpx;
 		background: #F2F2F2;

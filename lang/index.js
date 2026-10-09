@@ -1,6 +1,11 @@
 import { createI18n } from 'vue-i18n'
+// #ifndef MP-WEIXIN
 import enUS from './en-US'
 import zhCN from './zh-CN'
+// #endif
+// #ifdef MP-WEIXIN
+import mpMessages from './mp-messages'
+// #endif
 import { TAB_BAR_ITEMS } from '@/utils/tab-bar-items'
 
 // Define available languages with their display names
@@ -9,12 +14,24 @@ export const AVAILABLE_LANGUAGES = [
   { code: 'en-US', label: 'English' }
 ];
 
-const systemLanguage = uni.getSystemInfoSync().language;
-const locale = uni.getStorageSync('language') || systemLanguage || 'zh-CN';
-const messages = {
+let systemLanguage
+let messages
+// #ifdef MP-WEIXIN
+systemLanguage = uni.getAppBaseInfo().language
+messages = mpMessages
+// #endif
+// #ifndef MP-WEIXIN
+systemLanguage = uni.getSystemInfoSync().language
+messages = {
   'en-US': enUS,
   'zh-CN': zhCN
 }
+// #endif
+const preferredLanguage = uni.getStorageSync('language') || systemLanguage || 'zh-CN'
+let locale = preferredLanguage
+// #ifdef MP-WEIXIN
+locale = /^en\b/i.test(preferredLanguage) ? 'en-US' : 'zh-CN'
+// #endif
 
 const i18n = createI18n({
   legacy: true,
