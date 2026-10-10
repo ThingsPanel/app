@@ -393,7 +393,12 @@ export default {
 	justify-content: flex-start;
 	gap: 40rpx;
 	min-height: 100vh;
-  background-image: url('/static/image/bg.png');
+  /* #ifndef MP-WEIXIN */
+  background-image: url('../../assets/original-images/bg.png');
+  /* #endif */
+  /* #ifdef MP-WEIXIN */
+  background-image: url('/static/mp-weixin/images/bg.jpg');
+  /* #endif */
 	background-size: cover;
 	background-position: top center;
 	background-repeat: no-repeat;

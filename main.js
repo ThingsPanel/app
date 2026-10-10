@@ -26,6 +26,11 @@ export function createApp() {
     app.use(store)
     app.use(i18n)
     app.mixin({
+        // #ifdef MP-WEIXIN
+        onReady() {
+            this.$nextTick(() => updateTabbarText())
+        },
+        // #endif
         onShow() {
             updateCurrentPageTitle(i18n)
             updateTabbarText()

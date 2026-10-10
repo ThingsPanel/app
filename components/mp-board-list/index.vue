@@ -21,9 +21,9 @@ import { createBoardsClient } from '@/api/modules/boards'
 export default {
   components: { AppSearch },
   data() { return { boardDefaultCover, keyword: '', rows: [], total: 0, page: 0, totalPages: 0, loading: false, error: '', generation: 0, disposed: false } },
-  onLoad() { this.load(true) },
-  onUnload() { this.disposed = true; this.generation++; clearTimeout(this.timer) },
-  onReachBottom() { this.load(false) },
+  mounted() { this.load(true) },
+  beforeUnmount() { this.disposed = true; this.generation++; clearTimeout(this.timer) },
+
   methods: {
     searchLater() { clearTimeout(this.timer); this.generation++; this.rows = []; this.page = 0; this.total = 0; this.totalPages = 0; this.error = ''; this.loading = true; this.timer = setTimeout(() => this.search(), 300) },
     search() { clearTimeout(this.timer); this.load(true) },
@@ -61,19 +61,13 @@ export default {
       await Promise.all(Array.from({ length: Math.min(4, queue.length) }, worker))
     },
     date(value) { if (!value) return ''; const date = new Date(value); return Number.isNaN(date.getTime()) ? '' : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` },
-    openBoard(board) {
-      let path = '/pages/dashboard/detail'
-      // #ifdef MP-WEIXIN
-      path = '/pages/dashboard/mp-viewer'
-      // #endif
-      uni.navigateTo({ url: path + '?id=' + encodeURIComponent(board.id) + '&name=' + encodeURIComponent(board.name) })
-    }
+    openBoard(board) { uni.navigateTo({ url: '/pages/dashboard/mp-viewer?id=' + encodeURIComponent(board.id) + '&name=' + encodeURIComponent(board.name) }) }
   }
 }
 </script>
 <style scoped>
-.search-page { min-height:100vh; box-sizing:border-box; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); background:#f2f2f7; color:#1d1d1f; }
-.search-header { position:sticky; top:0; z-index:1; padding:22rpx 0 18rpx; background:#f2f2f7; }
+.search-page { min-height:100%; box-sizing:border-box; padding:0 28rpx calc(36rpx + env(safe-area-inset-bottom)); background:#f2f2f7; color:#1d1d1f; }
+.search-header { position:sticky; top:0; z-index:1; padding:8rpx 0 18rpx; background:#f2f2f7; }
 .results-label { display:block; padding:8rpx 0 18rpx; font-size:22rpx; color:#73737d; }
 .search-page button { margin:0; border:0; border-radius:0; background:transparent; font-family:inherit; }
 .search-page button::after { border:0; }

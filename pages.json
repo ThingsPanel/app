@@ -16,7 +16,8 @@
 				"navigationStyle": "custom"
 			}
 		},
-		{
+		// #ifndef MP-WEIXIN
+{
 			"path": "pages/alarms/index",
 			"style": {
 				"navigationBarTitleText": "告警信息",
@@ -24,7 +25,9 @@
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
-		{
+        // #endif
+		// #ifndef MP-WEIXIN
+{
 			"path": "pages/alarms/detail",
 			"style": {
 				"navigationBarTitleText": "告警详情",
@@ -32,6 +35,7 @@
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
+        // #endif
 		{
 			"path": "pages/devices/index",
 			"style": {
@@ -66,6 +70,16 @@
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
+        // #ifdef MP-WEIXIN
+        {
+            "path": "pages/dashboard/mp-viewer",
+            "style": {
+                "navigationBarTitleText": "看板",
+                "navigationStyle": "default",
+                "navigationBarBackgroundColor": "#F2F2F7"
+            }
+        },
+        // #endif
 		{
 			"path": "pages/dashboard/index",
 			"style": {
@@ -111,7 +125,8 @@
 				"navigationStyle": "default"
 			}
 		},
-		{
+		// #ifndef MP-WEIXIN
+{
 			"path": "pages/web-view/index",
 			"style": {
 				"navigationBarTitleText": "设备详情",
@@ -130,6 +145,7 @@
 				}
 			}
 		},
+        // #endif
 		{
 			"path": "pages/devices/create",
 			"style": {
@@ -139,7 +155,8 @@
 				"navigationStyle": "default"
 			}
 		},
-		{
+		// #ifndef MP-WEIXIN
+{
 			"path": "pages/alarm-rules/index",
 			"style": {
 				"navigationBarTitleText": "告警规则",
@@ -157,7 +174,9 @@
 				}
 			}
 		},
-		{
+        // #endif
+		// #ifndef MP-WEIXIN
+{
 			"path": "pages/alarm-rules/editor",
 			"style": {
 				"navigationBarTitleText": "告警规则",
@@ -165,6 +184,7 @@
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
+        // #endif
 		{
 			"path": "pages/automation/rule",
 			"style": {
@@ -186,7 +206,103 @@
         { "path": "pages/dashboard/search", "style": { "navigationBarTitleText": "搜索看板", "navigationBarBackgroundColor": "#FFFFFF" } },
         { "path": "pages/account/home-preference", "style": { "navigationBarTitleText": "App 首页", "navigationBarBackgroundColor": "#F2F2F7" } }
 	],
-	"globalStyle": {
+	// #ifdef MP-WEIXIN
+    "subPackages": [
+    {
+        "root": "pages/alarms",
+        "pages": [
+            {
+                "path": "index",
+                "style": {
+                    "navigationBarTitleText": "告警信息",
+                    "enablePullDownRefresh": true,
+                    "navigationBarBackgroundColor": "#F2F2F7"
+                }
+            },
+            {
+                "path": "detail",
+                "style": {
+                    "navigationBarTitleText": "告警详情",
+                    "enablePullDownRefresh": false,
+                    "navigationBarBackgroundColor": "#F2F2F7"
+                }
+            }
+        ]
+    },
+    {
+        "root": "pages/alarm-rules",
+        "pages": [
+            {
+                "path": "index",
+                "style": {
+                    "navigationBarTitleText": "告警规则",
+                    "enablePullDownRefresh": false,
+                    "navigationBarBackgroundColor": "#F2F2F7",
+                    "h5": {
+                        "titleNView": {
+                            "buttons": [
+                                {
+                                    "text": "＋",
+                                    "float": "right",
+                                    "fontSize": "26px",
+                                    "width": "44px",
+                                    "color": "#1677ff"
+                                }
+                            ]
+                        }
+                    },
+                    "app-plus": {
+                        "titleNView": {
+                            "buttons": [
+                                {
+                                    "text": "＋",
+                                    "float": "right",
+                                    "fontSize": "26px",
+                                    "width": "44px",
+                                    "color": "#1677ff"
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "path": "editor",
+                "style": {
+                    "navigationBarTitleText": "告警规则",
+                    "enablePullDownRefresh": false,
+                    "navigationBarBackgroundColor": "#F2F2F7"
+                }
+            }
+        ]
+    },
+    {
+        "root": "pages/web-view",
+        "pages": [
+            {
+                "path": "index",
+                "style": {
+                    "navigationBarTitleText": "设备详情",
+                    "navigationBarBackgroundColor": "#F2F2F7",
+                    "pageOrientation": "auto",
+                    "app-plus": {
+                        "titleNView": {
+                            "buttons": [
+                                {
+                                    "float": "right",
+                                    "iconPath": "/static/icon/device-rotate.png",
+                                    "width": "50px"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+],
+    // #endif
+    "globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "新增场景",
 		"navigationBarBackgroundColor": "#F2F2F7",
@@ -204,31 +320,56 @@
 		"list": [
 			{
 				"pagePath": "pages/dashboard/index",
-				"text": "%pages.dashboardTitle%",
+				// #ifdef MP-WEIXIN
+                "text": "首页",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "text": "%pages.dashboardTitle%",
+                // #endif
 				"iconPath": "static/tabbar/dashboard.png",
 				"selectedIconPath": "static/tabbar/dashboard-selected.png"
 			},
 			{
 				"pagePath": "pages/dashboard/boards",
-				"text": "%pages.boardsTitle%",
+				// #ifdef MP-WEIXIN
+                "text": "看板",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "text": "%pages.boardsTitle%",
+                // #endif
 				"iconPath": "static/tabbar/boards.png",
 				"selectedIconPath": "static/tabbar/boards-selected.png"
 			},
 			{
 				"pagePath": "pages/devices/index",
-				"text": "%pages.deviceList%",
+				// #ifdef MP-WEIXIN
+                "text": "设备",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "text": "%pages.deviceList%",
+                // #endif
 				"iconPath": "static/tabbar/devices.png",
 				"selectedIconPath": "static/tabbar/devices-selected.png"
 			},
 			{
 				"pagePath": "pages/automation/index",
-				"text": "%pages.automationTitle%",
+				// #ifdef MP-WEIXIN
+                "text": "自动化",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "text": "%pages.automationTitle%",
+                // #endif
 				"iconPath": "static/tabbar/automation.png",
 				"selectedIconPath": "static/tabbar/automation-selected.png"
 			},
 			{
 				"pagePath": "pages/account/index",
-				"text": "%pages.myAccount%",
+				// #ifdef MP-WEIXIN
+                "text": "我的",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "text": "%pages.myAccount%",
+                // #endif
 				"iconPath": "static/tabbar/account.png",
 				"selectedIconPath": "static/tabbar/account-selected.png"
 			}

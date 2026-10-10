@@ -1,6 +1,6 @@
 <template>
 	<view class="tp-box">
-        <app-tab-header :title="$t('pages.devices.pageHeading')" :meta="(overviewState === 'ready' ? deviceTotal : '—') + ' ' + $t('pages.devices.totalUnit')">
+        <app-tab-header meta-below :title="$t('pages.devices.pageHeading')" :meta="(overviewState === 'ready' ? deviceTotal : '—') + ' ' + $t('pages.devices.totalUnit')">
 				<view class="header-actions tp-flex tp-flex-a-c">
 					<view class="notify-action tp-flex tp-flex-j-c tp-flex-a-c" role="button" :aria-label="$t('scanActivation.scan')" @click="scanDevice">
 						<image src="/static/icon/home/scan.svg" mode="aspectFit" />
@@ -84,7 +84,7 @@
 					@select="clickDevice"
 				/>
 				<view class="empty-state" v-if="!isDeviceLoading && deviceList.length === 0">
-					<image src="/static/image/device-empty-state-transparent.png" class="empty-illustration" mode="aspectFit" />
+					<image :src="deviceEmptyState" :webp="true" class="empty-illustration" mode="aspectFit" />
 					<text class="empty-title">{{ $t('pages.devices.emptyTitle') }}</text>
 					<text class="empty-description">{{ $t('pages.devices.emptyDescription') }}</text>
 				</view>
@@ -142,6 +142,7 @@
 </template>
 
 <script>
+import { deviceEmptyState } from '@/utils/image-assets'
 import AppSearch from '@/components/app-search/index.vue'
 var socketOpen = false;
 var socketMsgQueue = {
@@ -181,6 +182,7 @@ export default {
 	components: { AppSearch, DeviceListItem },
 	data() {
 		return {
+            deviceEmptyState,
 			isDeviceLoading: true,
 			timer: 0,
 			deviceStatusTimer: 0,

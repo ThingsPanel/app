@@ -3,10 +3,10 @@
     <!-- #ifdef MP-WEIXIN -->
     <view class="mp-heading-row">
       <text class="mp-heading-title">{{ title }}</text>
-      <text v-if="meta" class="mp-heading-meta">{{ meta }}</text>
+      <text v-if="meta && !metaBelow" class="mp-heading-meta">{{ meta }}</text>
     </view>
-    <view v-if="subtitle || $slots.default" class="mp-heading-toolbar">
-      <text class="mp-heading-subtitle">{{ subtitle }}</text>
+    <view v-if="subtitle || (metaBelow && meta) || $slots.default" class="mp-heading-toolbar">
+      <text class="mp-heading-subtitle">{{ subtitle || (metaBelow ? meta : '') }}</text>
       <view class="tab-heading-actions"><slot /></view>
     </view>
     <!-- #endif -->
@@ -56,7 +56,8 @@ export default {
     title: { type: String, required: true },
     subtitle: { type: String, default: '' },
     meta: { type: String, default: '' },
-    inset: Boolean
+    inset: Boolean,
+    metaBelow: Boolean
   }
 }
 </script>

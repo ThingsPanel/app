@@ -103,7 +103,13 @@ export default {
   components: { BoardTabDeck, BoardLoading },
   data() {
     return {
-      homeResolving: true, homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,
+      // #ifndef MP-WEIXIN
+      homeResolving: true,
+      // #endif
+      // #ifdef MP-WEIXIN
+      homeResolving: false,
+      // #endif
+      homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,
       loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false, isTenantAdmin: null,
       shortcuts: [
         { key: 'devices', icon: '/static/icon/home/device.svg' },
@@ -123,6 +129,14 @@ export default {
   onBackPress() { return Boolean(this.$refs.homeViewer?.handleBack()) },
   methods: {
     async openHome() {
+      // #ifdef MP-WEIXIN
+      this.homeResolving = false
+      this.selectedHome = null
+      this.homePreferenceError = ''
+      uni.showTabBar({ animation: false })
+      this.refresh()
+      return
+      // #endif
       const generation = ++this.homeGeneration
       this.homeResolving = true; this.homePreferenceError = ''; this.selectedHome = null
       try {

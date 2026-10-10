@@ -17,6 +17,7 @@ const ignoredDirectories = new Set([
   'node_modules',
   'unpackage',
   'uni_modules',
+  'unused-modules',
   'uniCloud-aliyun',
   'tmp',
   'output'
@@ -154,6 +155,9 @@ function findWxssUnsafeSelectors(source) {
 
 const pagesConfig = JSON.parse(stripJsonComments(fs.readFileSync(path.join(root, 'pages.json'), 'utf8')))
 const registeredRoutes = new Set((pagesConfig.pages ?? []).map((page) => page.path))
+for (const group of pagesConfig.subPackages ?? []) {
+  for (const page of group.pages ?? []) registeredRoutes.add(`${group.root}/${page.path}`)
+}
 for (const page of pagesConfig.pages ?? []) {
   if (!fs.existsSync(path.join(root, `${page.path}.vue`))) {
     errors.push(`Missing route component: ${page.path}.vue`)

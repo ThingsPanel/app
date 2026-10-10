@@ -6,8 +6,17 @@ import BoardDeck from '@/components/board-deck/index.vue'
 export default {
   components: { BoardDeck },
   data() { return { boardId: '', name: '看板', visible: false } },
-  onLoad(options) { this.boardId = options.id || ''; this.name = options.name || '看板' },
-  onShow() { this.visible = true },
+  onLoad(options) {
+    this.boardId = options.id || ''; this.name = options.name || '看板'
+    // #ifdef MP-WEIXIN
+    uni.redirectTo({ url: '/pages/dashboard/mp-viewer?id=' + encodeURIComponent(this.boardId) + '&name=' + encodeURIComponent(this.name) })
+    // #endif
+  },
+  onShow() {
+    // #ifndef MP-WEIXIN
+    this.visible = true
+    // #endif
+  },
   onHide() { this.visible = false },
   onBackPress(event) { return event.from !== 'navigateBack' && Boolean(this.$refs.viewer?.handleBack()) },
   methods: { goBack() { uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/dashboard/boards' }) }) } }

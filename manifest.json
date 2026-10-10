@@ -113,6 +113,10 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
+        "lazyCodeLoading" : "requiredComponents",
+        "optimization" : {
+            "subPackages" : true
+        },
         "appid" : "wxa3a2fa163a7a57f4",
         "setting" : {
             "urlCheck" : true,
