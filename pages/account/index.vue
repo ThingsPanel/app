@@ -19,8 +19,13 @@
             </view>
         </view>
         <view class="section-title">{{ $t('account.preferences') }}</view>
+        <!-- #ifdef APP-PLUS -->
+        <NotificationGuide />
+        <!-- #endif -->
         <view class="info-card">
+            <!-- #ifndef MP-WEIXIN -->
             <view v-if="$login.isLoginType().isLogin" class="info-row" @click="openHomeSettings"><text class="row-label">App 首页</text><text class="row-value">{{ appHomeName }}</text><view class="chevron" /></view>
+            <!-- #endif -->
             <view class="info-row"><text class="row-label">{{ $t('account.edit.timezone') }}</text><text class="row-value">{{ userWxInfo.timezone || $t('account.notSet') }}</text></view>
             <view class="info-row"><text class="row-label">{{ $t('account.edit.defaultLanguage') }}</text><text class="row-value">{{ userWxInfo.default_language || $t('account.notSet') }}</text></view>
             <view class="info-row" @click="showLanguagePopup"><text class="row-label">{{ $t('account.appLanguage') }}</text><text class="row-value">{{ currentLanguage }}</text><view class="chevron" /></view>
@@ -49,6 +54,7 @@
   <app-action-sheet ref="appActionSheet" />
 </template>
 <script>
+import NotificationGuide from '@/components/notification-guide/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
 	//
 	import {
@@ -60,7 +66,7 @@ import { openHomePreference } from '@/services/dashboard-home'
 	import ConfirmationModal from '@/components/confirmation-modal/index.vue'
 	// 
 	export default {
-		components: { ConfirmationModal },
+		components: { ConfirmationModal, NotificationGuide },
 		// 
 		data() {
 			return {
@@ -118,6 +124,9 @@ import { openHomePreference } from '@/services/dashboard-home'
 	onLoad() {
 	},
 	onShow() {
+		// #ifdef APP-PLUS
+		this.$nextTick(() => uni.$emit('notification-permission-refresh'))
+		// #endif
         this.refreshAppHome()
 		this.addressConfigured = this.resolveAddressConfigured()
 		this.getUserInfo()
@@ -136,6 +145,9 @@ import { openHomePreference } from '@/services/dashboard-home'
             },
             openHomeSettings() { uni.navigateTo({ url: '/pages/account/home-preference' }) },
             async refreshAppHome() {
+                // #ifdef MP-WEIXIN
+                return
+                // #endif
                 this.appHomeName = '读取中…'
                 try { const preference = await openHomePreference(); this.appHomeName = preference.read()?.name || '系统默认首页' }
                 catch { this.appHomeName = '点击查看' }
@@ -154,25 +166,29 @@ import { openHomePreference } from '@/services/dashboard-home'
 				this.logoutConfirmVisible = true
 			},
 			//退出登录
-			toQuitLogin() {
+			async toQuitLogin() {
+				const pushId = uni.getStorageSync('push_id');
+				if (pushId) {
+					try {
+						const result = await this.API.apiRequest('/api/v1/message_push/logout', { pushId }, 'post');
+						if (Number(result?.code) === 200) {
+							uni.removeStorageSync('push_id');
+							console.log('unregister push id success');
+						} else {
+							console.warn('unregister push id rejected', result?.code, result?.message);
+						}
+					} catch (error) {
+						console.warn('unregister push id failed', error);
+					}
+				}
 				this.API.apiRequest('/api/v1/user/logout', {}, 'get').then(res => {
 					if (res.code != 200) {
 						uni.showToast({ title: this.$t('account.logoutFailed'), icon: 'none' })
 						return
 					}
-					const push_id = uni.getStorageSync('push_id');
-					console.log('get push id from storage: ', push_id);
 					uni.removeStorageSync('access_token')
 					uni.removeStorageSync('wx_code')
 					uni.removeStorageSync('ywId')
-					this.API.apiRequest('/api/v1/push-id/logout', {
-						push_id: push_id
-					}, 'post').then(res => {
-						uni.removeStorageSync('push_id');
-						console.log(res.code == 200 ? 'unregister push id success' : 'unregister push id failed');
-					}).catch(error => {
-						console.warn('unregister push id failed', error)
-					})
 					uni.reLaunch({
 						url: '../login/index'
 					})

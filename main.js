@@ -5,6 +5,7 @@ import store from './store'
 import i18n, { updateTabbarText } from './lang/index'
 import login from '@/store/login'
 
+// #ifndef MP-WEIXIN
 //授权提示框
 import Authorize from '@/components/login/authorize.vue';
 //消息提示框
@@ -15,6 +16,7 @@ import AppNavbar from '@/components/app-navbar/index.vue';
 import AppTabHeader from '@/components/app-tab-header/index.vue';
 import AppPicker from '@/components/app-picker/index.vue';
 import AppActionSheet from '@/components/app-action-sheet/index.vue';
+// #endif
 //接口访问请求
 import api from '@/api/request'
 import { updateCurrentPageTitle } from '@/utils/page-title'
@@ -36,12 +38,14 @@ export function createApp() {
             updateTabbarText()
         }
     })
+    // #ifndef MP-WEIXIN
     app.component('authorize', Authorize)
     app.component('app-toast', AppToast)
     app.component('app-navbar', AppNavbar)
     app.component('app-tab-header', AppTabHeader)
     app.component('app-picker', AppPicker)
     app.component('app-action-sheet', AppActionSheet)
+    // #endif
     app.config.globalProperties.$login = login
     app.config.globalProperties.API = api
 

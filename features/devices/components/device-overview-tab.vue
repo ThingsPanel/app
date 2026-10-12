@@ -66,7 +66,13 @@ export default {
 			this.phase = 'loading'
 			this.statusMessage = '正在加载设备可视化…'
 			this.streamMessage = ''
-			// #ifndef APP-PLUS || H5
+			// #ifdef MP-WEIXIN
+			// Keep the native device data view available; App's renderjs iframe cannot run here.
+			this.phase = 'empty'
+			this.statusMessage = ''
+			return
+			// #endif
+			// #ifndef APP-PLUS || H5 || MP-WEIXIN
 			this.phase = 'error'
 			this.statusMessage = '当前平台不支持内嵌设备可视化，请使用 Android、iOS 或 Web 版'
 			return

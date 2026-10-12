@@ -1,7 +1,7 @@
 <template>
 	<view v-if="restoringSession" style="position:fixed;inset:0;z-index:10"><BoardLoading background="#f7f8fc" /></view>
 	<view v-show="!restoringSession" class="tp-login-box login-layout">
-		<view class="login-header">
+		<view class="login-header" :style="loginHeaderStyle">
 			<view class="lang-switch tp-flex tp-flex-row tp-flex-a-c" @tap="showLanguagePopup">
 				<text class="lang-label">{{ currentLanguage }}</text>
 				<view class="lang-arrow" aria-hidden="true"></view>
@@ -72,6 +72,7 @@ import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 import BoardLoading from '@/components/board-loading/index.vue'
 import { restoreSession } from '@/features/auth/restore-session'
 import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
+import { canRegisterPushAutomatically } from '@/services/notification-permission'
 // 
 export default {
 	components: {
@@ -80,6 +81,7 @@ export default {
 	},
 	data() {
 		return {
+			loginHeaderStyle: {},
 			restoringSession: Boolean(uni.getStorageSync('access_token')),
 			disabled: true,
 			loading: false,
@@ -128,6 +130,15 @@ export default {
 	onHide() { this.loginPageHidden = true; },
 	onUnload() { this.loginPageHidden = true; },
 	onShow() {
+		// #ifdef MP-WEIXIN
+		const windowInfo = uni.getWindowInfo()
+		let capsule = {}
+		try { capsule = uni.getMenuButtonBoundingClientRect() || {} } catch {}
+		this.loginHeaderStyle = {
+			top: (capsule.top || (windowInfo.statusBarHeight || 20) + 6) + 'px',
+			height: (capsule.height || 32) + 'px'
+		}
+		// #endif
 		this.loginPageHidden = false;
 		try {
 			uni.setNavigationBarTitle({
@@ -254,11 +265,7 @@ export default {
 				return;
 			}
 			// #ifdef MP-WEIXIN
-			if (uni.getStorageSync('isAuth') == '1') {
-				this.toLogin()
-			} else {
-				this.$refs.authPopup.open()
-			}
+			this.toLogin()
 			// #endif
 			// #ifdef APP-PLUS
 			this.toLogin()
@@ -290,6 +297,7 @@ export default {
 					uni.setStorageSync('email', this.email)
 					uni.setStorageSync('password', this.password)
 					uni.setStorageSync('access_token', res.data.token)
+					if (canRegisterPushAutomatically()) {
 					logPushDebug('cid.request', pushDebugContext());
 					uni.getPushClientId({
 						success: (pushResult) => {
@@ -316,6 +324,7 @@ export default {
 							logPushDebug('cid.failed', pushDebugError(error), 'error');
 						},
 					});
+					}
 					uni.switchTab({
 						url: '../dashboard/index'
 					});
@@ -413,6 +422,19 @@ export default {
 .lang-switch:active {
 	opacity: 0.62;
 }
+
+/* #ifdef MP-WEIXIN */
+.login-header {
+	left: 50rpx;
+	right: auto;
+	width: auto;
+	justify-content: flex-start;
+}
+.login-header .lang-switch {
+	min-height: 32px;
+	padding: 0 12rpx;
+}
+/* #endif */
 
 .lang-label {
 	font-weight: 500;

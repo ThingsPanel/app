@@ -1,4 +1,8 @@
 <template>
+  <!-- #ifdef MP-WEIXIN -->
+  <view />
+  <!-- #endif -->
+  <!-- #ifndef MP-WEIXIN -->
   <view class="preference-page">
     <text class="intro">选择打开 App 和点击“首页”时显示的内容。</text>
     <view v-if="loading" class="state">正在读取首页设置…</view>
@@ -17,6 +21,7 @@
     </template>
     <BoardPicker ref="picker" title="选择首页看板" :current-id="home?.id || ''" @select="select" />
   </view>
+  <!-- #endif -->
 </template>
 <script>
 import BoardPicker from '@/components/board-picker/index.vue'
@@ -24,7 +29,13 @@ import { openHomePreference } from '@/services/dashboard-home'
 export default {
   components: { BoardPicker },
   data() { return { home: null, loading: true, error: '' } },
-  onLoad() { this.load() },
+  onLoad() {
+    // #ifdef MP-WEIXIN
+    uni.switchTab({ url: '/pages/account/index' })
+    return
+    // #endif
+    this.load()
+  },
   onUnload() { this.disposed = true },
   onBackPress() { if (this.$refs.picker?.opened) { this.$refs.picker.close(); return true } return false },
   methods: {

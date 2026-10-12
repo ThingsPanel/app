@@ -44,6 +44,9 @@
 			// 推送 ID 由登录流程获取并绑定；启动时不为日志重复请求连接。
 		},
 		onShow: function() {
+			// #ifdef APP-PLUS
+			uni.$emit('notification-permission-refresh');
+			// #endif
 			// console.log('App Show')
 		},
 		methods: {

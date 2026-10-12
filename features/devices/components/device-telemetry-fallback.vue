@@ -88,7 +88,7 @@ export default {
 			this.reconnectTimer = null
 			const socket = this.socket
 			this.socket = null
-			socket?.close({})
+			socket?.close({ code: 1000 })
 		},
 		async load() {
 			this.dispose()
@@ -175,17 +175,17 @@ export default {
 				if (this.socket !== socket || event.data === 'ping' || event.data === 'pong') return
 				try { this.applyMessage(JSON.parse(event.data)) } catch { this.streamState = '实时数据解析异常' }
 			})
-			const reconnect = () => {
+			const reconnect = (alreadyClosed = false) => {
 				if (this.socket !== socket) return
 				this.socket = null
 				clearInterval(this.heartbeat)
-				socket.close({})
+				if (!alreadyClosed) socket.close({ code: 1000 })
 				this.streamState = '实时数据重连中'
 				clearTimeout(this.reconnectTimer)
 				this.reconnectTimer = setTimeout(() => this.connect(), 3000)
 			}
-			socket.onError(reconnect)
-			socket.onClose(reconnect)
+			socket.onError(() => reconnect())
+			socket.onClose(() => reconnect(true))
 		},
 		displayValue(value) {
 			if (value === undefined || value === null || value === '') return '--'

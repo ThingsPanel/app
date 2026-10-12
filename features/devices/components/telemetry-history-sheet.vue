@@ -6,23 +6,23 @@
       <view class="heading"><text>{{ field.name }} · {{ mode === 'trend' ? '趋势' : '历史列表' }}</text><button @click="$refs.popup.close()">关闭</button></view>
       <scroll-view scroll-y :show-scrollbar="false" class="body app-sheet-scroll">
         <view class="filters">
-<app-picker :range="ranges" range-key="label" :value="rangeIndex" @change="rangeIndex = Number($event.detail.value)"><view class="filter">{{ ranges[rangeIndex].label }} ▾</view></app-picker>
+          <app-picker :range="ranges" range-key="label" :value="rangeIndex" @change="onRangeChange"><view class="filter">{{ ranges[rangeIndex].label }} ▾</view></app-picker>
           <template v-if="mode === 'trend'">
-            <app-picker :range="windows" range-key="label" :value="windowIndex" @change="windowIndex = Number($event.detail.value)"><view class="filter">{{ windows[windowIndex].label }} ▾</view></app-picker>
-            <app-picker v-if="windowIndex" :range="aggregates" :value="aggregateIndex" @change="aggregateIndex = Number($event.detail.value)"><view class="filter">{{ aggregates[aggregateIndex] }} ▾</view></app-picker>
-            <app-picker :range="['折线图', '柱状图', '散点图']" :value="chartIndex" @change="chartIndex = Number($event.detail.value); draw()"><view class="filter">{{ ['折线图', '柱状图', '散点图'][chartIndex] }} ▾</view></app-picker>
+            <app-picker :range="windows" range-key="label" :value="windowIndex" @change="onWindowChange"><view class="filter">{{ windows[windowIndex].label }} ▾</view></app-picker>
+            <app-picker v-if="windowIndex" :range="aggregates" :value="aggregateIndex" @change="onAggregateChange"><view class="filter">{{ aggregates[aggregateIndex] }} ▾</view></app-picker>
+            <app-picker :range="['折线图', '柱状图', '散点图']" :value="chartIndex" @change="onChartChange"><view class="filter">{{ ['折线图', '柱状图', '散点图'][chartIndex] }} ▾</view></app-picker>
           </template>
-          <button :disabled="loading" @click="load(true)">查询</button>
           <button v-if="mode === 'history'" :disabled="exporting" @click="exportData">{{ exporting ? '导出中' : '导出' }}</button>
         </view>
         <view v-if="rangeIndex === 0" class="dates">
           <view v-for="side in ['start', 'end']" :key="side" class="date-row">
             <text>{{ side === 'start' ? '开始' : '结束' }}</text>
-            <picker mode="date" :value="dates[side]" @change="dates[side] = $event.detail.value"><view>{{ dates[side] }} ▾</view></picker>
-            <picker mode="time" :value="times[side]" @change="times[side] = $event.detail.value"><view>{{ times[side] }} ▾</view></picker>
+            <picker mode="date" :value="dates[side]" @change="changeDateTime('dates', side, $event)"><view>{{ dates[side] }} ▾</view></picker>
+            <picker mode="time" :value="times[side]" @change="changeDateTime('times', side, $event)"><view>{{ times[side] }} ▾</view></picker>
           </view>
         </view>
         <text v-if="error" class="state error">{{ error }}</text>
+        <button v-if="error && !loading" @click="load(true)">重试</button>
         <text v-if="loading" class="state">加载中…</text>
         <template v-else-if="!error">
           <text v-if="!rows.length" class="state">所选时间范围内暂无数据</text>
@@ -77,6 +77,25 @@ export default {
   mounted() { this.$refs.popup.open(); this.load(true) },
   beforeUnmount() { this.requestId++ },
   methods: {
+    onRangeChange(event) { this.changeFilter('rangeIndex', event) },
+    onWindowChange(event) { this.changeFilter('windowIndex', event) },
+    onAggregateChange(event) { this.changeFilter('aggregateIndex', event) },
+    onChartChange(event) {
+      this.chartIndex = Number(event.detail.value)
+      this.draw()
+    },
+    changeFilter(key, event) {
+      const value = Number(event.detail.value)
+      if (this[key] === value) return
+      this[key] = value
+      this.load(true)
+    },
+    changeDateTime(key, side, event) {
+      const value = event.detail.value
+      if (this[key][side] === value) return
+      this[key][side] = value
+      this.load(true)
+    },
     onChartError(event) {
       if (event?.requestId !== this.requestId) return
       reportAppError(new Error(), 'chart')

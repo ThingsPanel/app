@@ -53,6 +53,7 @@
             },
             /* ios打包配置 */
             "ios" : {
+                "pushRegisterMode" : "manual",
                 "dSYMs" : false
             },
             /* SDK配置 */

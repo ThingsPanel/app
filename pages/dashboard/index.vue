@@ -12,6 +12,10 @@
       </view>
     </app-tab-header>
 
+
+    <!-- #ifdef APP-PLUS -->
+    <NotificationGuide compact />
+    <!-- #endif -->
     <view class="top-stats">
       <button class="stat-card stat-device" @click="openDevices">
         <view class="stat-heading"><view class="stat-icon"><image src="/static/icon/home/device.svg" /></view><text class="stat-value">{{ device.total ?? '—' }}</text></view>
@@ -85,6 +89,7 @@
 </template>
 
 <script>
+import NotificationGuide from '@/components/notification-guide/index.vue'
 import BoardLoading from '@/components/board-loading/index.vue'
 import BoardTabDeck from '@/components/board-tab-deck/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
@@ -100,7 +105,7 @@ import { buildDeviceCard } from '@/features/devices/utils/device-card'
 import { formatAlarmTime } from '@/utils/datetime'
 
 export default {
-  components: { BoardTabDeck, BoardLoading },
+  components: { BoardTabDeck, BoardLoading, NotificationGuide },
   data() {
     return {
       // #ifndef MP-WEIXIN
@@ -123,11 +128,17 @@ export default {
       ]
     }
   },
-  onShow() { this.homeVisible = true; this.openHome() },
+  onShow() {
+    this.homeVisible = true; this.openHome()
+    // #ifdef APP-PLUS
+    this.$nextTick(() => uni.$emit('notification-permission-refresh'))
+    // #endif
+  },
   onHide() { this.homeVisible = false; this.homeGeneration++ },
   onUnload() { this.homeVisible = false; this.homeGeneration++ },
   onBackPress() { return Boolean(this.$refs.homeViewer?.handleBack()) },
   methods: {
+
     async openHome() {
       // #ifdef MP-WEIXIN
       this.homeResolving = false

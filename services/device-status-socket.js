@@ -188,6 +188,7 @@ class DeviceWebSocketManager {
 
 		if (this.webSocketTask) {
 			this.webSocketTask.close({
+                code: 1000,
 				success: () => {
 					console.log('[DeviceWebSocket] Closed successfully');
 				}

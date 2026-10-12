@@ -1,4 +1,5 @@
 export default {
+  notificationGuide: {"title": "开启告警通知", "enabledTitle": "通知提醒", "description": "设备触发告警时，通过系统通知及时提醒你。", "permission": "系统通知权限", "enabled": "已开启", "disabled": "未开启", "undetermined": "尚未授权", "unknown": "无法确认", "later": "暂不开启", "continue": "继续", "settings": "去系统设置", "manage": "管理系统通知", "test": "测试本机通知", "note": "告警接收范围由平台通知组配置决定。本机测试仅检查通知显示，不验证后端告警发送。", "settingsFailed": "无法打开通知设置，请在手机系统设置中管理通知。", "testContent": "这是一条本机通知测试，请检查通知栏。", "testCreated": "已创建测试通知，请检查通知栏。", "testFailed": "创建通知失败，请重试。"},
   scanActivation: { scan: '扫码添加设备', appOnly: '请在 App 中使用扫码添加设备', empty: '未识别到设备编号，请重新扫码', missing: '缺少设备编号，请返回设备列表重新扫码', failed: '设备激活失败，请重试' },
   dashboard: {
     "title": "首页",

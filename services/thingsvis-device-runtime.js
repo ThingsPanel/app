@@ -57,18 +57,18 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
     let heartbeat, reconnecting = false
     const socket = uni.connectSocket({ url: `${addresses.thingsPanelApiBase.replace(/^http/, 'ws')}/${path}`, complete() {} })
     sockets.add(socket)
-    const reconnect = () => {
+    const reconnect = (alreadyClosed = false) => {
       if (reconnecting || stopped) return
       reconnecting = true
       clearInterval(heartbeat); timers.delete(heartbeat)
       sockets.delete(socket)
-      socket.close({})
+      if (!alreadyClosed) socket.close({ code: 1000 })
       state('warning', '实时连接中断，正在重连')
       const timer = setTimeout(() => { timers.delete(timer); connect(path, statusOnly) }, 3000)
       timers.add(timer)
     }
     socket.onOpen(() => {
-      if (stopped) { socket.close({}); return }
+      if (stopped) { socket.close({ code: 1000 }); return }
       socket.send({ data: JSON.stringify({ device_id: deviceId, token }), fail: reconnect })
       // 首次连接复用启动时的首值；断线重连后再补读可能错过的属性。
       if (!statusOnly) {
@@ -89,8 +89,8 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
         } else push(normalizeDeviceValues(value))
       } catch { state('warning', '收到无法解析的实时数据') }
     })
-    socket.onError(reconnect)
-    socket.onClose(reconnect)
+    socket.onError(() => reconnect())
+    socket.onClose(() => reconnect(true))
   }
   async function start() {
     state('loading', '正在加载设备可视化')
@@ -240,7 +240,7 @@ export function createDeviceRuntime({ device, deviceId, addresses, onMessage, on
   function stop() {
     stopped = true
     timers.forEach(timer => { clearTimeout(timer); clearInterval(timer) }); timers.clear()
-    sockets.forEach(socket => socket.close({})); sockets.clear(); writes.clear()
+    sockets.forEach(socket => socket.close({ code: 1000 })); sockets.clear(); writes.clear()
     historyCache.clear(); historyPending.clear(); historyVersions.clear(); initialHistory.clear()
   }
   return { start, handleMessage, stop }

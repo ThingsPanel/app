@@ -203,8 +203,8 @@
 				"navigationBarBackgroundColor": "#F2F2F7"
 			}
 		},
-        { "path": "pages/dashboard/search", "style": { "navigationBarTitleText": "搜索看板", "navigationBarBackgroundColor": "#FFFFFF" } },
-        { "path": "pages/account/home-preference", "style": { "navigationBarTitleText": "App 首页", "navigationBarBackgroundColor": "#F2F2F7" } }
+        { "path": "pages/dashboard/search", "style": { "navigationBarTitleText": "搜索看板", "navigationBarBackgroundColor": "#FFFFFF" } }
+        ,{ "path": "pages/account/home-preference", "style": { "navigationBarTitleText": "App 首页", "navigationBarBackgroundColor": "#F2F2F7" } }
 	],
 	// #ifdef MP-WEIXIN
     "subPackages": [
@@ -302,6 +302,9 @@
     }
 ],
     // #endif
+    // #ifdef MP-WEIXIN
+    "easycom": { "autoscan": true, "custom": {"^authorize$": "@/components/login/authorize.vue", "^app-toast$": "@/components/toast/index.vue", "^app-navbar$": "@/components/app-navbar/index.vue", "^app-tab-header$": "@/components/app-tab-header/index.vue", "^app-picker$": "@/components/app-picker/index.vue", "^app-action-sheet$": "@/components/app-action-sheet/index.vue"} },
+    // #endif
     "globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "新增场景",
@@ -326,8 +329,18 @@
                 // #ifndef MP-WEIXIN
                 "text": "%pages.dashboardTitle%",
                 // #endif
-				"iconPath": "static/tabbar/dashboard.png",
-				"selectedIconPath": "static/tabbar/dashboard-selected.png"
+				// #ifdef MP-WEIXIN
+                "selectedIconPath": "static/mp-weixin/tabbar/dashboard-selected.png",
+                // #endif
+                // #ifdef MP-WEIXIN
+                "iconPath": "static/mp-weixin/tabbar/dashboard.png",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "iconPath": "static/tabbar/dashboard.png",
+                // #endif
+				// #ifndef MP-WEIXIN
+                "selectedIconPath": "static/tabbar/dashboard-selected.png"
+                // #endif
 			},
 			{
 				"pagePath": "pages/dashboard/boards",
@@ -337,8 +350,18 @@
                 // #ifndef MP-WEIXIN
                 "text": "%pages.boardsTitle%",
                 // #endif
-				"iconPath": "static/tabbar/boards.png",
-				"selectedIconPath": "static/tabbar/boards-selected.png"
+				// #ifdef MP-WEIXIN
+                "selectedIconPath": "static/mp-weixin/tabbar/boards-selected.png",
+                // #endif
+                // #ifdef MP-WEIXIN
+                "iconPath": "static/mp-weixin/tabbar/boards.png",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "iconPath": "static/tabbar/boards.png",
+                // #endif
+				// #ifndef MP-WEIXIN
+                "selectedIconPath": "static/tabbar/boards-selected.png"
+                // #endif
 			},
 			{
 				"pagePath": "pages/devices/index",
@@ -348,8 +371,18 @@
                 // #ifndef MP-WEIXIN
                 "text": "%pages.deviceList%",
                 // #endif
-				"iconPath": "static/tabbar/devices.png",
-				"selectedIconPath": "static/tabbar/devices-selected.png"
+				// #ifdef MP-WEIXIN
+                "selectedIconPath": "static/mp-weixin/tabbar/devices-selected.png",
+                // #endif
+                // #ifdef MP-WEIXIN
+                "iconPath": "static/mp-weixin/tabbar/devices.png",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "iconPath": "static/tabbar/devices.png",
+                // #endif
+				// #ifndef MP-WEIXIN
+                "selectedIconPath": "static/tabbar/devices-selected.png"
+                // #endif
 			},
 			{
 				"pagePath": "pages/automation/index",
@@ -359,8 +392,18 @@
                 // #ifndef MP-WEIXIN
                 "text": "%pages.automationTitle%",
                 // #endif
-				"iconPath": "static/tabbar/automation.png",
-				"selectedIconPath": "static/tabbar/automation-selected.png"
+				// #ifdef MP-WEIXIN
+                "selectedIconPath": "static/mp-weixin/tabbar/automation-selected.png",
+                // #endif
+                // #ifdef MP-WEIXIN
+                "iconPath": "static/mp-weixin/tabbar/automation.png",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "iconPath": "static/tabbar/automation.png",
+                // #endif
+				// #ifndef MP-WEIXIN
+                "selectedIconPath": "static/tabbar/automation-selected.png"
+                // #endif
 			},
 			{
 				"pagePath": "pages/account/index",
@@ -370,8 +413,18 @@
                 // #ifndef MP-WEIXIN
                 "text": "%pages.myAccount%",
                 // #endif
-				"iconPath": "static/tabbar/account.png",
-				"selectedIconPath": "static/tabbar/account-selected.png"
+				// #ifdef MP-WEIXIN
+                "selectedIconPath": "static/mp-weixin/tabbar/account-selected.png",
+                // #endif
+                // #ifdef MP-WEIXIN
+                "iconPath": "static/mp-weixin/tabbar/account.png",
+                // #endif
+                // #ifndef MP-WEIXIN
+                "iconPath": "static/tabbar/account.png",
+                // #endif
+				// #ifndef MP-WEIXIN
+                "selectedIconPath": "static/tabbar/account-selected.png"
+                // #endif
 			}
 		]
 	}
