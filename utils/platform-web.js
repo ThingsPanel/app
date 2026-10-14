@@ -10,7 +10,7 @@ export function getPlatformWebBase() {
     return String(webViewBase).replace(/\/$/, '')
   }
 
-  const server = uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn'
+  const server = uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn'
 
   // 本地 API（如 localhost:8000）通常不含最新 H5，开发时默认走 Vite dev server
   if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(String(server))) {

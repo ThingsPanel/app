@@ -139,7 +139,7 @@ export default {
       try {
         const result = await requestDeviceApi('telemetry/datas/history/pagination', { ...this.filters(), page: 1, page_size: 20, export_excel: true })
         if (!result?.filePath) throw new Error('未返回导出文件')
-        const server = String(uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn').replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
+        const server = String(uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn').replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
         const url = /^https?:\/\//.test(result.filePath) ? result.filePath : `${server}/${result.filePath.replace(/^\/+/, '')}`
         // #ifdef H5
         const link = document.createElement('a'); link.href = url; link.download = ''; link.click()

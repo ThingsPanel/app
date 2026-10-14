@@ -19,10 +19,10 @@
             </view>
         </view>
         <view class="section-title">{{ $t('account.preferences') }}</view>
-        <!-- #ifdef APP-PLUS -->
-        <NotificationGuide />
-        <!-- #endif -->
         <view class="info-card">
+            <!-- #ifdef APP-PLUS -->
+            <NotificationGuide entry />
+            <!-- #endif -->
             <!-- #ifndef MP-WEIXIN -->
             <view v-if="$login.isLoginType().isLogin" class="info-row" @click="openHomeSettings"><text class="row-label">App 首页</text><text class="row-value">{{ appHomeName }}</text><view class="chevron" /></view>
             <!-- #endif -->

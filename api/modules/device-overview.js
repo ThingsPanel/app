@@ -2,7 +2,7 @@ import api from '@/api/request'
 
 // 详情页接口统一使用完整 API 基址，兼容服务器设置中带 /api/v1 的地址。
 export async function requestDeviceApi(path, data, method = 'GET') {
-  const server = String(uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn')
+  const server = String(uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn')
     .replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
   const response = await api.apiRequest(`${server}/api/v1/${path.replace(/^\/+/, '')}`, data, method)
   if (response?.code !== 200) {

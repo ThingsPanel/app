@@ -1,4 +1,4 @@
-const DEFAULT_SERVER = 'https://demo.thingspanel.cn'
+const DEFAULT_SERVER = 'https://cloud.thingspanel.cn'
 export const THINGSVIS_SETTINGS_KEY = 'thingsvisDeploymentSettings'
 
 function storageOrDefault(storage) {

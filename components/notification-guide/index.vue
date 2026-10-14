@@ -1,28 +1,31 @@
 <template>
   <view v-if="native && loggedIn" class="notification-guide">
-    <view v-if="!compact || showGuide" class="notification-card">
-      <view class="notification-copy"><text class="notification-title">{{ $t('notificationGuide.' + (authorized ? 'enabledTitle' : 'title')) }}</text><text class="notification-description">{{ $t('notificationGuide.description') }}</text></view>
-      <view v-if="!compact" class="notification-status"><text>{{ $t('notificationGuide.permission') }}</text><text>{{ $t('notificationGuide.' + statusKey) }}</text></view>
-      <view class="notification-actions">
-        <button v-if="compact" class="notification-later" @click="dismiss">{{ $t('notificationGuide.later') }}</button>
-        <button v-if="authorized && !compact" :disabled="busy" class="notification-primary" @click="testNotification">{{ $t('notificationGuide.test') }}</button>
-        <button v-else :disabled="busy" class="notification-primary" @click="openSettings">{{ $t('notificationGuide.' + (permission === 'not determined' ? 'continue' : 'settings')) }}</button>
+    <button v-if="entry" class="notification-row entry-row" @click="openDetail">
+      <text class="row-label">{{ $t('notificationGuide.pageTitle') }}</text>
+      <text class="row-value" :class="{ actionable: !authorized }">{{ $t('notificationGuide.' + statusKey) }}</text>
+      <view class="chevron" />
+    </button>
+    <view v-else class="notification-detail">
+      <view class="notification-group">
+        <button class="notification-row" :disabled="busy" @click="openSettings">
+          <text>{{ $t('notificationGuide.permission') }}</text>
+          <text class="row-value" :class="{ actionable: !authorized }">{{ $t('notificationGuide.' + statusKey) }}</text>
+          <view class="chevron" />
+        </button>
       </view>
-      <button v-if="authorized && !compact" class="notification-settings" :disabled="busy" @click="openSettings">{{ $t('notificationGuide.manage') }}</button>
+      <text class="notification-note">{{ $t('notificationGuide.permissionHint') }}</text>
       <text v-if="feedback" class="notification-feedback" role="status">{{ feedback }}</text>
-      <text v-if="!compact" class="notification-note">{{ $t('notificationGuide.note') }}</text>
     </view>
   </view>
 </template>
 <script>
 import { notificationPermission, enableNotifications, registerNotificationDevice, logNotificationError } from '@/services/notification-permission'
 export default {
-  props: { compact: Boolean },
-  data() { return { native: false, permission: 'unknown', loggedIn: false, dismissed: false, busy: false, feedback: '' } },
+  props: { entry: Boolean },
+  data() { return { native: false, permission: 'unknown', loggedIn: false, busy: false, feedback: '' } },
   computed: {
     authorized() { return this.permission === 'authorized' },
-    statusKey() { return { authorized: 'enabled', denied: 'disabled', 'not determined': 'undetermined' }[this.permission] || 'unknown' },
-    showGuide() { return !this.dismissed && ['denied', 'not determined'].includes(this.permission) }
+    statusKey() { return { authorized: 'enabled', denied: 'disabled', 'not determined': 'disabled' }[this.permission] || 'unknown' }
   },
   mounted() {
     // #ifdef APP-PLUS
@@ -36,48 +39,33 @@ export default {
     refresh() {
       this.loggedIn = Boolean(uni.getStorageSync('access_token'))
       this.permission = notificationPermission()
-      this.dismissed = Boolean(uni.getStorageSync('notification-guide-dismissed'))
       if (this.loggedIn && this.permission === 'authorized') {
         registerNotificationDevice().catch(logNotificationError)
       }
     },
-    dismiss() { uni.setStorageSync('notification-guide-dismissed', true); this.dismissed = true },
+    openDetail() { uni.navigateTo({ url: '/pages/account/notifications' }) },
     async openSettings() {
       if (this.busy) return
       this.busy = true; this.feedback = ''
       try { await enableNotifications() }
       catch (error) { logNotificationError(error); this.feedback = this.$t('notificationGuide.settingsFailed') }
       finally { this.busy = false; this.refresh() }
-    },
-    testNotification() {
-      if (this.busy) return
-      this.refresh()
-      if (!this.authorized) return
-      this.busy = true; this.feedback = ''
-      const finish = () => { this.busy = false }
-      try { uni.createPushMessage({
-        title: 'ThingsPanel', content: this.$t('notificationGuide.testContent'), payload: { notification_test: true },
-        success: () => { this.feedback = this.$t('notificationGuide.testCreated'); finish() },
-        fail: error => { logNotificationError(error); this.feedback = this.$t('notificationGuide.testFailed') + ' ' + (error?.errMsg || error?.message || ''); finish() }
-      }) } catch (error) { logNotificationError(error); this.feedback = this.$t('notificationGuide.testFailed'); finish() }
     }
+
   }
 }
 </script>
 <style scoped>
-.notification-card { margin:16px 0; padding:20px 16px; border-radius:12px; background:#fff; color:#1d1d1f; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-.notification-copy { display:flex; flex-direction:column; gap:8px; }
-.notification-title { font-size:17px; font-weight:600; line-height:24px; }
-.notification-description { font-size:14px; line-height:21px; color:#73737d; }
-.notification-status { display:flex; justify-content:space-between; gap:12px; padding:16px 0; margin-top:8px; border-bottom:1px solid #edf1f6; font-size:14px; }
-.notification-actions { display:flex; align-items:center; justify-content:flex-end; gap:12px; margin-top:16px; }
-.notification-actions button,.notification-settings { margin:0; min-height:44px; padding:0 18px; font-size:15px; line-height:44px; font-family:inherit; border-radius:10px; }
-.notification-actions button::after,.notification-settings::after { border:0; }
-.notification-primary { background:var(--tp-color-primary,#1677ff); color:white; }
-.notification-later,.notification-settings { background:transparent; color:var(--tp-color-primary,#1677ff); }
-.notification-settings { display:block; margin:8px auto 0; }
-.notification-note,.notification-feedback { display:block; margin-top:14px; color:#73737d; font-size:12px; line-height:19px; }
-.notification-feedback { color:var(--tp-color-primary,#1677ff); font-size:14px; }
+.notification-row { display:flex; align-items:center; gap:16rpx; width:100%; min-height:88rpx; margin:0; padding:20rpx 24rpx; box-sizing:border-box; background:#fff; color:#1d1d1f; text-align:left; font-family:inherit; font-size:26rpx; line-height:38rpx; border-radius:12rpx; }
+.notification-row::after { border:0; }
+.entry-row { padding:18rpx 0; min-height:84rpx; font-size:24rpx; line-height:36rpx; border-radius:0; border-bottom:1rpx solid #edf1f6; }
+.row-label { color:#5f5f6b; }
+.row-value { flex:1; min-width:0; text-align:right; color:#73737d; }
+.actionable { color:var(--tp-color-primary,#1677ff); }
+.chevron { width:5px; height:5px; border-top:1.5px solid #9ba8ba; border-right:1.5px solid #9ba8ba; transform:rotate(45deg); margin-left:auto; margin-right:2px; flex-shrink:0; }
+.notification-group { overflow:hidden; border-radius:12rpx; background:#fff; }
+.notification-note,.notification-feedback { display:block; margin:14rpx 24rpx 0; color:#73737d; font-size:24rpx; line-height:36rpx; }
+.notification-feedback { color:var(--tp-color-primary,#1677ff); }
 button:focus-visible { outline:2px solid var(--tp-color-primary,#1677ff); outline-offset:2px; }
 button[disabled] { opacity:.5; }
 </style>

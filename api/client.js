@@ -1,4 +1,4 @@
-const DEFAULT_SERVER_URL = 'https://demo.thingspanel.cn'
+const DEFAULT_SERVER_URL = 'https://cloud.thingspanel.cn'
 
 function getServerUrl() {
   const configuredServer = uni.getStorageSync('serverAddress')

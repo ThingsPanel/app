@@ -251,7 +251,7 @@ export default {
 
 
 			const serverUrl = uni.getStorageSync('serverAddress');
-			const baseUrl = serverUrl || 'https://demo.thingspanel.cn';
+			const baseUrl = serverUrl || 'https://cloud.thingspanel.cn';
 			const token = uni.getStorageSync('access_token');
 
 			uni.uploadFile({

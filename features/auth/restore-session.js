@@ -5,8 +5,8 @@ import { clearSessionStorage } from './session'
 export async function restoreSession({ storage = uni, request = httpClient.request } = {}) {
   const token = storage.getStorageSync('access_token')
   if (!token) return 'missing'
-  const server = storage.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn'
-  const current = () => storage.getStorageSync('access_token') === token && (storage.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn') === server
+  const server = storage.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn'
+  const current = () => storage.getStorageSync('access_token') === token && (storage.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn') === server
   try {
     const base = String(server).replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
     const response = await request({ url: `${base}/api/v1/user/detail`, header: { 'x-token': token }, timeout: 10000 })

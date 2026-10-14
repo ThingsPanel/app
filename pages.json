@@ -8,6 +8,15 @@
 				"navigationStyle": "custom"
 			}
 		},
+        // #ifdef APP-PLUS
+        {
+            "path": "pages/account/notifications",
+            "style": {
+                "navigationBarTitleText": "通知设置",
+                "navigationBarBackgroundColor": "#F2F2F7"
+            }
+        },
+        // #endif
 		{
 			"path": "pages/login/register",
 			"style": {

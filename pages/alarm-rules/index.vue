@@ -27,6 +27,11 @@
       </view>
     </view>
 
+    <view v-else-if="loadError" class="state-block empty-state" role="alert">
+      <text class="empty-title">{{ $t('pages.alarmRules.loadFailed') }}</text>
+      <text class="empty-description">{{ loadError }}</text>
+      <button class="empty-action" @click="refresh">重试</button>
+    </view>
     <view v-else-if="!rules.length" class="state-block empty-state">
       <view class="empty-mark"><image src="/static/icon/home/bell.svg" mode="aspectFit" /></view>
       <text class="empty-title">{{ $t('pages.alarmRules.emptyTitle') }}</text>
@@ -55,6 +60,16 @@
           <view class="rule-status">
             <text>{{ $t(rule.enabled === 'Y' ? 'pages.alarmRules.active' : 'pages.alarmRules.inactive') }}</text>
           </view>
+          <!-- #ifdef MP-WEIXIN -->
+          <view class="mp-rule-switch-slot">
+            <button class="mp-rule-switch" :class="{ 'mp-rule-switch--on': rule.enabled === 'Y' }"
+              role="switch" :aria-checked="rule.enabled === 'Y'" :aria-label="$t('common.status')"
+              @click="toggleRule(rule, { detail: { value: rule.enabled !== 'Y' } })">
+              <view class="mp-rule-switch-thumb" />
+            </button>
+          </view>
+          <!-- #endif -->
+          <!-- #ifndef MP-WEIXIN -->
           <switch
             class="rule-switch"
             :checked="rule.enabled === 'Y'"
@@ -62,6 +77,7 @@
             :aria-label="$t('common.status')"
             @change="toggleRule(rule, $event)"
           />
+          <!-- #endif -->
         </view>
       </view>
     </view>
@@ -90,6 +106,7 @@ export default {
       alarmLevel: '',
       enabled: '',
       loading: false,
+      loadError: '',
       page: 1,
       pageSize: 20,
       total: 0,
@@ -137,19 +154,22 @@ export default {
         this.rules = []
       }
       this.loading = true
+      this.loadError = ''
       try {
-        const response = await getAlarmRules({
+        const params = {
           page: this.page,
-          page_size: this.pageSize,
-          name: this.keyword || undefined,
-          alarm_level: this.alarmLevel || undefined,
-          enabled: this.enabled || undefined
-        })
-        if (response.code !== 200) throw new Error(response.message || 'load failed')
+          page_size: this.pageSize
+        }
+        if (this.keyword) params.name = this.keyword
+        if (this.alarmLevel) params.alarm_level = this.alarmLevel
+        if (this.enabled) params.enabled = this.enabled
+        const response = await getAlarmRules(params)
+        if (Number(response?.code) !== 200) throw new Error(response?.message || '规则请求失败')
         const data = response.data || {}
         this.total = Number(data.total || 0)
         this.rules = reset ? (data.list || []) : this.rules.concat(data.list || [])
       } catch (error) {
+        this.loadError = error.message || error.errMsg || '请检查网络、服务器地址和登录账号后重试'
         uni.showToast({ title: this.$t('pages.alarmRules.loadFailed'), icon: 'none' })
       } finally {
         this.loading = false
@@ -397,6 +417,15 @@ export default {
 
 .rule-status { margin-left:auto; color:#73737d; font-size:22rpx; line-height:30rpx; white-space:nowrap; }
 .rule-switch { flex-shrink:0; }
+/* #ifdef MP-WEIXIN */
+/* Reserve the scaled width so the status label keeps the same spacing as H5. */
+.mp-rule-switch-slot { display:flex; align-items:center; justify-content:flex-end; flex:0 0 44px; width:44px; height:44px; }
+.page .mp-rule-switch { position:relative; flex:none; width:36px; min-width:36px; height:20px; min-height:20px; margin:0; padding:0; border:1px solid #e5e5ea; border-radius:10px; box-sizing:border-box; background:#f5f5f7; line-height:20px; }
+.page .mp-rule-switch::after { border:0; }
+.page .mp-rule-switch--on { background:#1677ff; border-color:#1677ff; }
+.mp-rule-switch-thumb { position:absolute; left:0; top:0; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.15); transition:transform .15s; }
+.mp-rule-switch--on .mp-rule-switch-thumb { transform:translateX(16px); }
+/* #endif */
 /* H5 原生开关默认是 52×32px；直接调整轨道和滑块，避免缩放后仍占用原始宽度。 */
 /* #ifdef H5 */
 .rule-switch { display:flex; align-items:center; justify-content:flex-end; min-width:44px; min-height:44px; margin-left:-12rpx; }

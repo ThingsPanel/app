@@ -100,7 +100,7 @@ export default {
 	},
 	computed: {
 		displayServer() {
-			return String(this.server || 'https://demo.thingspanel.cn')
+			return String(this.server || 'https://cloud.thingspanel.cn')
 				.replace(/^https?:\/\//i, '')
 				.replace(/\/+$/, '');
 		}
@@ -151,7 +151,12 @@ export default {
 		// 同步语言标签
 		this.syncLanguageLabel();
 
-		this.server = uni.getStorageSync('serverAddress') || '';
+		const savedServer = String(uni.getStorageSync('serverAddress') || '').trim();
+		// The former bundled demo address should not override the new login default.
+		// Keep custom servers intact; persist the selected server when login is submitted.
+		this.server = /^https?:\/\/demo\.thingspanel\.cn\/?$/i.test(savedServer)
+			? 'https://cloud.thingspanel.cn'
+			: savedServer;
 		// 回填上次成功登录的账号密码，但不自动提交，避免会话过期后闪回首页。
 		this.email = uni.getStorageSync('email') || '';
 		this.password = uni.getStorageSync('password') || '';
@@ -159,7 +164,7 @@ export default {
 	},
 	methods: {
 		startServerEdit() {
-			this.server = this.server || 'https://demo.thingspanel.cn';
+			this.server = this.server || 'https://cloud.thingspanel.cn';
 			this.serverEditing = true;
 		},
 		finishServerEdit() {
@@ -281,7 +286,7 @@ export default {
 			if (this.server) {
 				uni.setStorageSync('serverAddress', this.server)
 			} else {
-				uni.setStorageSync('serverAddress', 'https://demo.thingspanel.cn')
+				uni.setStorageSync('serverAddress', 'https://cloud.thingspanel.cn')
 			}
 
 			let data = {
@@ -370,7 +375,7 @@ export default {
 			if (this.server) {
 				uni.setStorageSync('serverAddress', this.server)
 			} else {
-				uni.setStorageSync('serverAddress', 'https://demo.thingspanel.cn')
+				uni.setStorageSync('serverAddress', 'https://cloud.thingspanel.cn')
 			}
 			uni.navigateTo({
 				url: './register'

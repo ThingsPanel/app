@@ -7,7 +7,7 @@ export function logPushDebug(stage, details = {}, level = 'info') {
 
 export function pushDebugContext() {
   return {
-    server: uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn',
+    server: uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn',
     email: uni.getStorageSync('email') || '',
     hasToken: Boolean(uni.getStorageSync('access_token')),
     cachedPushId: uni.getStorageSync('push_id') || ''

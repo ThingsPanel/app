@@ -136,7 +136,7 @@ export default {
 			const path = this.device.image_url || this.device.device_config?.image_url
 			if (!path || this.imageLoadFailed) return '/static/image/default-device-hub.png'
 			if (/^https?:\/\//i.test(path)) return path
-			const server = String(uni.getStorageSync('serverAddress') || 'https://demo.thingspanel.cn').replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
+			const server = String(uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn').replace(/\/+$/, '').replace(/\/api\/v1$/i, '')
 			return `${server}/${String(path).replace(/^\/+/, '')}`
 		},
 		deviceTypeLabel() {
