@@ -41,6 +41,9 @@
             </view>
         </template>
         <button class="logout-button" @click="showLogoutConfirm" v-if="$login.isLoginType().isLogin">{{ $t('account.logout') }}</button>
+        <!-- #ifdef MP-WEIXIN || APP-PLUS -->
+        <view class="version-footer"><text selectable>ThingsPanel · {{ versionLabel }}</text></view>
+        <!-- #endif -->
         <app-toast ref="toast" :msg="toast.msg" location="top" />
         <ConfirmationModal
             v-model="logoutConfirmVisible"
@@ -56,6 +59,7 @@
 <script>
 import NotificationGuide from '@/components/notification-guide/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
+import { getAppVersionLabel } from '@/utils/app-version'
 	//
 	import {
 		mapState
@@ -70,6 +74,7 @@ import { openHomePreference } from '@/services/dashboard-home'
 		// 
 		data() {
 			return {
+				versionLabel: '',
 				appHomeName: '系统默认首页',
 				isLogin: false,
                 loadError: false,
@@ -124,6 +129,7 @@ import { openHomePreference } from '@/services/dashboard-home'
 	onLoad() {
 	},
 	onShow() {
+		this.versionLabel = getAppVersionLabel()
 		// #ifdef APP-PLUS
 		this.$nextTick(() => uni.$emit('notification-permission-refresh'))
 		// #endif
@@ -364,6 +370,7 @@ import { openHomePreference } from '@/services/dashboard-home'
 .password-label { flex:1; min-width:0; font-size:24rpx; line-height:36rpx; }
 .logout-button { margin-top:24rpx; height:84rpx; line-height:84rpx; border:0; border-radius:var(--account-radius); background:var(--account-surface); color:#5f5f6b; font-size:24rpx; font-weight:400; box-shadow:none; }
 .load-error { color:var(--tp-color-warning, #ff9500); background:#fff7ed; padding:12px; margin-bottom:12px; font-size:13px; border-radius:6px; }
+.version-footer { padding:24px 0 8px; text-align:center; color:#73737d; font-size:12px; line-height:20px; }
 
 .account-page { background: #F2F2F7; }
 @import '@/styles/tab-page-header.scss';

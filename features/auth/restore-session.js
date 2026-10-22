@@ -2,7 +2,12 @@ import httpClient from '@/api/client'
 import { clearSessionStorage } from './session'
 
 // Validate saved credentials without invoking the global login-expired modal.
-export async function restoreSession({ storage = uni, request = httpClient.request } = {}) {
+export async function restoreSession({ storage, request = httpClient.request } = {}) {
+  // Keep uni calls in the function body: the MP compiler skips parameter initializers.
+  storage = storage || {
+    getStorageSync: key => uni.getStorageSync(key),
+    removeStorageSync: key => uni.removeStorageSync(key)
+  }
   const token = storage.getStorageSync('access_token')
   if (!token) return 'missing'
   const server = storage.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn'

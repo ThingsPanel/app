@@ -289,6 +289,14 @@
         "root": "pages/web-view",
         "pages": [
             {
+                "path": "legal",
+                "style": {
+                    "navigationBarTitleText": "用户服务协议",
+                    "navigationBarBackgroundColor": "#F2F2F7",
+                    "backgroundColor": "#ffffff"
+                }
+            },
+            {
                 "path": "index",
                 "style": {
                     "navigationBarTitleText": "设备详情",

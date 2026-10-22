@@ -4,6 +4,7 @@ export function isSessionExpiredCode(code) {
   return Number(code) === 401
 }
 
-export function clearSessionStorage(storage = uni) {
+export function clearSessionStorage(storage) {
+  storage = storage || { removeStorageSync: key => uni.removeStorageSync(key) }
   SESSION_STORAGE_KEYS.forEach(key => storage.removeStorageSync(key))
 }

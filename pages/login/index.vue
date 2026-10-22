@@ -40,6 +40,9 @@
 				<text class="server-change" @tap="startServerEdit">{{ $t('pages.login.changeServer') }}</text>
 			</view>
 
+			<!-- #ifdef MP-WEIXIN -->
+			<AuthAgreement v-model="agreementAccepted" />
+			<!-- #endif -->
 			<view class="btn-group">
 				<button class="tp-btn primary" :loading="loading"
 					@tap="doLoginSubmit">{{ $t('pages.login.loginButton') }}</button>
@@ -73,14 +76,22 @@ import BoardLoading from '@/components/board-loading/index.vue'
 import { restoreSession } from '@/features/auth/restore-session'
 import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
 import { canRegisterPushAutomatically } from '@/services/notification-permission'
+// #ifdef MP-WEIXIN
+import AuthAgreement from '@/components/auth-agreement/index.vue'
+import { hasMpConsent, requireMpConsent } from '@/features/auth/mp-consent'
+// #endif
 // 
 export default {
 	components: {
+		// #ifdef MP-WEIXIN
+		AuthAgreement,
+		// #endif
 		BoardLoading,
 		uniIcons
 	},
 	data() {
 		return {
+			agreementAccepted: false,
 			loginHeaderStyle: {},
 			restoringSession: Boolean(uni.getStorageSync('access_token')),
 			disabled: true,
@@ -115,16 +126,20 @@ export default {
 		}
 	},
 	async onReady() {
+		// #ifdef MP-WEIXIN
+		if (!hasMpConsent()) { this.restoringSession = false; return; }
+		// #endif
 		if (!this.restoringSession) return;
 		try {
 			const result = await restoreSession();
-			logPushDebug('session.restore', { ...pushDebugContext(), result, note: '恢复登录不会重新绑定 CID；需要验证绑定时请手动重新登录' });
+			try { logPushDebug('session.restore', { result }); } catch { /* Login must not depend on diagnostics. */ }
 			if (this.loginPageHidden) return;
 			if (result === 'valid' || result === 'unavailable') {
 				await new Promise((resolve, reject) => uni.switchTab({ url: '/pages/dashboard/index', success: resolve, fail: reject }));
 			}
-		} catch {
-			uni.showToast({ title: '进入首页失败，请重试登录', icon: 'none' });
+		} catch (error) {
+			logPushDebug('session.restore.failed', pushDebugError(error), 'error');
+			if (!this.loginPageHidden) uni.showToast({ title: '自动登录未完成，请点击登录重试', icon: 'none' });
 		} finally { this.restoringSession = false; }
 	},
 	onHide() { this.loginPageHidden = true; },
@@ -281,6 +296,9 @@ export default {
 		},
 		// 
 		toLogin() {
+            // #ifdef MP-WEIXIN
+            if (!requireMpConsent(this.agreementAccepted)) return;
+            // #endif
             if (this.loading) return;
             this.loading = true;
 			if (this.server) {

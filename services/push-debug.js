@@ -1,8 +1,12 @@
 /** 推送排查日志：不记录密码、token 或完整通知内容。 */
 export function logPushDebug(stage, details = {}, level = 'info') {
-  const logger = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log
   // HBuilderX can hide subsequent console arguments behind its error overlay.
-  logger(`[PushDebug] ${stage} ${JSON.stringify({ time: new Date().toISOString(), ...details })}`)
+  try {
+    const message = `[PushDebug] ${stage} ${JSON.stringify({ time: new Date().toISOString(), ...details })}`
+    if (level === 'error') console.error(message)
+    else if (level === 'warn') console.warn(message)
+    else console.log(message)
+  } catch { /* Diagnostics must never interrupt login or startup. */ }
 }
 
 export function pushDebugContext() {

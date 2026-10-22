@@ -30,10 +30,22 @@ values = { password: 'remembered' }
 assert.equal(await restoreSession({ storage, request: () => { throw new Error('must not request') } }), 'missing')
 console.log('Session restore passed: saved token, expiry, network failure, credential preservation and stale sessions.')
 
-let outcome = 'valid', jumps = 0, toasts = 0
+const defaultRestore = vm.runInNewContext(read('features/auth/restore-session.js').replace(/^import .*$/gm, '').replace('export async function', 'async function') + '; restoreSession', {
+  clearSessionStorage,
+  uni: storage,
+  httpClient: { request: async () => ({ statusCode: 200, data: { code: 200 } }) }
+})
+reset()
+assert.equal(await defaultRestore(), 'valid', 'startup uses a method-based storage adapter')
+assert.ok(!read('features/auth/restore-session.js').includes('storage = uni'), 'do not pass the whole uni namespace through the compiler')
+
+let outcome = 'valid', jumps = 0, toasts = 0, consent = true, restores = 0
 const loginScript = read('pages/login/index.vue').match(/<script>([\s\S]*?)<\/script>/)[1].replace(/import\s+[\s\S]*?\sfrom\s+['"][^'"]+['"];?/g, '')
 const login = vm.runInNewContext(loginScript.replace('export default', 'const page =') + '; page', {
-  uniIcons: {}, BoardLoading: {}, restoreSession: async () => outcome,
+  uniIcons: {}, BoardLoading: {}, AuthAgreement: {}, hasMpConsent: () => consent,
+  requireMpConsent: accepted => accepted === true,
+  restoreSession: async () => { restores++; return outcome },
+  logPushDebug() {}, pushDebugError: error => ({ message: error?.message }),
   uni: { switchTab(options) { jumps++; assert.equal(options.url, '/pages/dashboard/index'); options.success() }, showToast() { toasts++ } }
 })
 for (const result of ['valid', 'unavailable', 'expired', 'missing', 'stale']) {
@@ -49,4 +61,46 @@ await login.onReady.call({ restoringSession: true, loginPageHidden: true })
 await login.onReady.call({ restoringSession: false })
 assert.equal(jumps, before, 'hidden or signed-out page cannot auto-navigate')
 assert.equal(toasts, 0)
+consent = false
+const priorRestores = restores
+const unconsentedPage = { restoringSession: true, loginPageHidden: false }
+await login.onReady.call(unconsentedPage)
+assert.equal(restores, priorRestores, 'no session request before consent')
+assert.equal(unconsentedPage.restoringSession, false)
+login.methods.toLogin.call({ agreementAccepted: false, API: { apiRequest() { throw Error('login request before consent') } } })
 console.log('Login lifecycle passed: one-time ready restoration, no background redirects and no expired-session login loop.')
+
+// Run against the actual MP output with no global uni. Source-only tests cannot
+// catch APIs missed by the uni-app compiler in default parameter expressions.
+const mpOutput = process.argv[2]
+if (mpOutput) {
+  const loadCompiled = (file, dependencies) => {
+    const exports = {}
+    vm.runInNewContext(fs.readFileSync(`${mpOutput}/${file}`, 'utf8'), {
+      exports,
+      require: name => {
+        assert.ok(name in dependencies, `unexpected dependency: ${name}`)
+        return dependencies[name]
+      }
+    })
+    return exports
+  }
+  const vendor = { index: storage }
+  const session = loadCompiled('features/auth/session.js', { '../../common/vendor.js': vendor })
+  let code = 200
+  const compiled = loadCompiled('features/auth/restore-session.js', {
+    '../../common/vendor.js': vendor,
+    '../../api/client.js': { httpClient: { request: async () => ({ data: { code } }) } },
+    './session.js': session
+  })
+  reset()
+  assert.equal(await compiled.restoreSession(), 'valid')
+  code = 401
+  assert.equal(await compiled.restoreSession(), 'expired')
+  assert.equal(values.access_token, undefined)
+  reset()
+  session.clearSessionStorage()
+  assert.equal(values.access_token, undefined)
+  assert.equal(values.password, 'remembered')
+  console.log('Compiled MP passed without global uni: startup restoration, expiry and logout.')
+}

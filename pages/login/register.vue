@@ -66,6 +66,9 @@
 					</view>
 					<text class="error-tip" v-if="errors.confirmPwd">{{errors.confirmPwd}}</text>
 				</view>
+				<!-- #ifdef MP-WEIXIN -->
+				<AuthAgreement v-model="agreementAccepted" />
+				<!-- #endif -->
 				<view class="btn-group">
 					<button class="tp-btn primary" type="primary" @tap="handleSubmit" :disabled="!isFormValid || loading"
 						:loading="loading">
@@ -89,8 +92,15 @@ import {
 	registerByEmail
 } from '@/api/modules/auth'
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
+// #ifdef MP-WEIXIN
+import AuthAgreement from '@/components/auth-agreement/index.vue'
+import { requireMpConsent } from '@/features/auth/mp-consent'
+// #endif
 
 export default {
+	// #ifdef MP-WEIXIN
+	components: { AuthAgreement },
+	// #endif
 	onShow() {
 		this.$nextTick(() => {
 			setTimeout(() => {
@@ -109,6 +119,7 @@ export default {
 	},
 	data() {
 		return {
+			agreementAccepted: false,
 			formData: {
 				email: '',
 				code: '',
@@ -301,6 +312,9 @@ export default {
 
 		// 获取验证码
 		async handleSmsCode() {
+			// #ifdef MP-WEIXIN
+			if (!requireMpConsent(this.agreementAccepted)) return
+			// #endif
 			if (!this.validateEmail()) return
 
 			this.loading = true
@@ -329,6 +343,9 @@ export default {
 
 		// 提交表单
 		async handleSubmit() {
+			// #ifdef MP-WEIXIN
+			if (!requireMpConsent(this.agreementAccepted)) return
+			// #endif
 			if (!this.validateForm() || this.loading) return
 			this.loading = true
 			try {

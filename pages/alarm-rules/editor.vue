@@ -59,7 +59,7 @@
 
 <script>
 import { createAlarmRule, getAlarmRules, updateAlarmRule } from '@/api/modules/alarm'
-import { getNotificationGroups } from '@/api/modules/notification'
+import { getNotificationGroups } from './api/notification'
 
 export default {
   data() {

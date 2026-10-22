@@ -1,10 +1,16 @@
 <script>
 	import { reportAppError } from '@/services/app-errors'
+	// #ifdef MP-WEIXIN
+	import { initMpUpdate, setMpUpdateForeground } from '@/services/mp-update'
+	// #endif
 	import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
 	export default {
 		onError(error) { reportAppError(error, 'runtime') },
 		onUnhandledRejection(event) { reportAppError(event?.reason, 'promise') },
 		onLaunch: async function() {
+			// #ifdef MP-WEIXIN
+			initMpUpdate();
+			// #endif
 			logPushDebug('app.launch', pushDebugContext());
 			uni.onPushMessage(async (res) => {
 				logPushDebug('message.' + res.type, { alarmId: res.data?.payload?.alarm_id, hasTitle: Boolean(res.data?.title), hasContent: Boolean(res.data?.content) });
@@ -44,6 +50,9 @@
 			// 推送 ID 由登录流程获取并绑定；启动时不为日志重复请求连接。
 		},
 		onShow: function() {
+			// #ifdef MP-WEIXIN
+			setMpUpdateForeground(true);
+			// #endif
 			// #ifdef APP-PLUS
 			uni.$emit('notification-permission-refresh');
 			// #endif
@@ -68,6 +77,9 @@
 			}
 		},
 		onHide: function() {
+			// #ifdef MP-WEIXIN
+			setMpUpdateForeground(false);
+			// #endif
 			// console.log('App Hide')
 		}
 	}
