@@ -1,0 +1,12 @@
+{
+  "name": "push-message-v2",
+  "version": "2.0.0",
+  "extensions": {
+    "uni-cloud-push": {}
+  },
+  "cloudfunction-config": {
+    "path": "/push-message-v2",
+    "timeout": 15,
+    "memorySize": 256
+  }
+}

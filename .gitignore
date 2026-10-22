@@ -11,3 +11,5 @@ output/
 
 .workbuddy-ai/
 tmp/
+
+/uniCloud-aliyun/cloudfunctions/push-message-v2/config.private.json

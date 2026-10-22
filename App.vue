@@ -1,4 +1,6 @@
 <script>
+	import { registerNotificationDevice, canRegisterPushAutomatically, logNotificationError } from '@/services/notification-permission'
+	import { acceptsNotification, parseNotificationPayload } from '@/services/push-routing'
 	import { reportAppError } from '@/services/app-errors'
 	// #ifdef MP-WEIXIN
 	import { initMpUpdate, setMpUpdateForeground } from '@/services/mp-update'
@@ -13,6 +15,9 @@
 			// #endif
 			logPushDebug('app.launch', pushDebugContext());
 			uni.onPushMessage(async (res) => {
+                const notificationPayload = parseNotificationPayload(res.data?.payload);
+                if (!acceptsNotification(notificationPayload, uni.getStorageSync('push_binding'), `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`)) { logPushDebug('message.ignored', { reason: 'account_scope_mismatch', type: res.type }); return; }
+
 				logPushDebug('message.' + res.type, { alarmId: res.data?.payload?.alarm_id, hasTitle: Boolean(res.data?.title), hasContent: Boolean(res.data?.content) });
 				if (res.type == 'receive') {  
 					uni.createPushMessage({  
@@ -32,7 +37,8 @@
 					const headers = {
 						'Authorization': `Bearer ${uni.getStorageSync("access_token")}`
 					};
-					const apiUrl = `/api/v1/alarm/info/history/${alarm_id}`;
+					const recordType = payload.alarm_kind === 'info' ? 'info' : 'history';
+                    const apiUrl = `/api/v1/alarm/info/history/${encodeURIComponent(alarm_id)}?recordType=${recordType}`;
 					try {
 						const { code, data } = await this.fetchAlarmInfo(apiUrl, headers);
 						logPushDebug('alarm.response', { alarmId: alarm_id, code });
@@ -55,6 +61,7 @@
 			// #endif
 			// #ifdef APP-PLUS
 			uni.$emit('notification-permission-refresh');
+            if (canRegisterPushAutomatically()) registerNotificationDevice().catch(logNotificationError);
 			// #endif
 			// console.log('App Show')
 		},

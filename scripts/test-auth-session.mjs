@@ -11,9 +11,12 @@ assert.equal(isSessionExpiredCode(403), false)
 
 const removed = []
 clearSessionStorage({ removeStorageSync: key => removed.push(key) })
-assert.deepEqual(removed, ['access_token', 'userWxInfo', 'isAuth', 'wx_code', 'push_id'])
+assert.deepEqual(removed, ['access_token', 'userWxInfo', 'isAuth', 'wx_code', 'push_id', 'push_binding'])
 assert.equal(removed.includes('email'), false)
 assert.equal(removed.includes('serverAddress'), false)
 assert.equal(removed.includes('language'), false)
 
 console.log('Auth session redirect tests passed')
+
+assert.equal(isSessionExpiredCode(40102), true)
+assert.equal(isSessionExpiredCode(40101), true)

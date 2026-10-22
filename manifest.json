@@ -62,7 +62,7 @@
                 "push" : {
                     "unipush" : {
                         "version" : "2",
-                        "offline" : false,
+                        "offline" : true,
                         "icons" : {
                             "small" : {
                                 "ldpi" : ""

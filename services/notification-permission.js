@@ -17,11 +17,17 @@ export function canRegisterPushAutomatically() {
   return true
 }
 
-let boundSession = '', binding = null
+let boundSession = '', boundAt = 0, binding = null
+export function resetNotificationBinding() { boundSession = ''; boundAt = 0; uni.removeStorageSync('push_binding') }
+function installationId() {
+ let id = uni.getStorageSync('push_installation_id')
+ if (!id) { id = `install-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`; uni.setStorageSync('push_installation_id', id) }
+ return id
+}
 export async function registerNotificationDevice() {
   const session = `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`
-  if (!uni.getStorageSync('access_token') || boundSession === session) return
-  if (binding) { await binding; if (boundSession === session) return }
+  if (!uni.getStorageSync('access_token') || boundSession === session && Date.now() - boundAt < 60000) return
+  if (binding) { await binding; if (boundSession === session && Date.now() - boundAt < 60000) return }
   binding = new Promise((resolve, reject) => uni.getPushClientId({
       async success(result) {
         try {
@@ -29,12 +35,15 @@ export async function registerNotificationDevice() {
           if (session !== `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`) return resolve()
           if (result.cid && uni.getStorageSync('access_token')) {
             const response = await api.apiRequest('/api/v1/message_push', {
-              pushId: result.cid, deviceType: uni.getSystemInfoSync().platform
+              pushId: result.cid, deviceType: uni.getSystemInfoSync().platform, appId: '__UNI__71E31D5', installationId: installationId()
             }, 'post')
             if (Number(response?.code) !== 200) throw new Error(response?.message || 'Push binding failed')
+            if (session !== `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`) return resolve()
+            if (!response.data?.bindingId || !response.data?.userId || !response.data?.tenantId) throw new Error('Server does not support session-bound App notifications')
             uni.setStorageSync('push_id', result.cid)
-            logPushDebug('bind.success', { cid: result.cid })
-            boundSession = session
+            uni.setStorageSync('push_binding', { ...response.data, session })
+            logPushDebug('bind.success', { bindingId: response.data?.bindingId })
+            boundSession = session; boundAt = Date.now()
           }
           resolve()
         } catch (error) { reject(error) }

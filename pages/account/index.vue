@@ -57,6 +57,7 @@
   <app-action-sheet ref="appActionSheet" />
 </template>
 <script>
+import { resetNotificationBinding } from '@/services/notification-permission'
 import NotificationGuide from '@/components/notification-guide/index.vue'
 import { openHomePreference } from '@/services/dashboard-home'
 import { getAppVersionLabel } from '@/utils/app-version'
@@ -192,7 +193,9 @@ import { getAppVersionLabel } from '@/utils/app-version'
 						uni.showToast({ title: this.$t('account.logoutFailed'), icon: 'none' })
 						return
 					}
-					uni.removeStorageSync('access_token')
+					resetNotificationBinding();
+                    uni.removeStorageSync('push_id');
+                    uni.removeStorageSync('access_token')
 					uni.removeStorageSync('wx_code')
 					uni.removeStorageSync('ywId')
 					uni.reLaunch({

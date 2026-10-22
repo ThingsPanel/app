@@ -75,7 +75,7 @@ import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 import BoardLoading from '@/components/board-loading/index.vue'
 import { restoreSession } from '@/features/auth/restore-session'
 import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
-import { canRegisterPushAutomatically } from '@/services/notification-permission'
+import { canRegisterPushAutomatically, registerNotificationDevice, logNotificationError } from '@/services/notification-permission'
 // #ifdef MP-WEIXIN
 import AuthAgreement from '@/components/auth-agreement/index.vue'
 import { hasMpConsent, requireMpConsent } from '@/features/auth/mp-consent'
@@ -320,34 +320,7 @@ export default {
 					uni.setStorageSync('email', this.email)
 					uni.setStorageSync('password', this.password)
 					uni.setStorageSync('access_token', res.data.token)
-					if (canRegisterPushAutomatically()) {
-					logPushDebug('cid.request', pushDebugContext());
-					uni.getPushClientId({
-						success: (pushResult) => {
-							cid = pushResult.cid;
-							logPushDebug('cid.success', { cid });
-							if (!cid) {
-								logPushDebug('cid.empty', {}, 'error');
-								return;
-							}
-							const binding = { deviceType: '' + uni.getSystemInfoSync().platform, pushId: cid };
-							logPushDebug('bind.request', { ...pushDebugContext(), path: '/api/v1/message_push', ...binding });
-							this.API.apiRequest('/api/v1/message_push', binding, 'post').then(result => {
-								if (Number(result?.code) === 200) {
-									uni.setStorageSync('push_id', cid);
-									logPushDebug('bind.success', { cid, code: result.code, message: result.message });
-								} else {
-									logPushDebug('bind.rejected', { cid, code: result?.code, message: result?.message }, 'error');
-								}
-							}).catch(error => {
-								logPushDebug('bind.failed', { cid, ...pushDebugError(error) }, 'error');
-							});
-						},
-						fail(error) {
-							logPushDebug('cid.failed', pushDebugError(error), 'error');
-						},
-					});
-					}
+					if (canRegisterPushAutomatically()) registerNotificationDevice().catch(logNotificationError);
 					uni.switchTab({
 						url: '../dashboard/index'
 					});

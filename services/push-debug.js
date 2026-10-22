@@ -1,5 +1,6 @@
 /** 推送排查日志：不记录密码、token 或完整通知内容。 */
 export function logPushDebug(stage, details = {}, level = 'info') {
+  if (process.env.NODE_ENV !== 'development') return
   // HBuilderX can hide subsequent console arguments behind its error overlay.
   try {
     const message = `[PushDebug] ${stage} ${JSON.stringify({ time: new Date().toISOString(), ...details })}`

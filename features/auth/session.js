@@ -1,7 +1,7 @@
-export const SESSION_STORAGE_KEYS = ['access_token', 'userWxInfo', 'isAuth', 'wx_code', 'push_id']
+export const SESSION_STORAGE_KEYS = ['access_token', 'userWxInfo', 'isAuth', 'wx_code', 'push_id', 'push_binding']
 
 export function isSessionExpiredCode(code) {
-  return Number(code) === 401
+  return [401, 40100, 40101, 40102].includes(Number(code))
 }
 
 export function clearSessionStorage(storage) {
