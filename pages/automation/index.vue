@@ -332,44 +332,9 @@
       },
       //登录
       toLogin() {
-        let that = this
-        if (!that.$login.isLoginType().isAuth) {
-          that.$refs.authPopup.open()
-        } else {
-          // 获取用户信息
-          uni.login({
-            success(res) {
-              uni.setStorageSync('wx_code', res.code)
-              let url = "/auth/login";
-              let data = {
-                login_type: 'wechatmini',
-                business_id: '92a00bb5-f28e-4849-baa5-f1edd85649e6',
-                wx_code: uni.getStorageSync('wx_code'),
-                iv: that.wxData.iv,
-                encryptedData: that.wxData.encryptedData,
-                name: JSON.parse(uni.getStorageSync('userWxInfo')).nickName,
-              };
-
-              that.API.apiRequest(url, data, 'post').then(res => {
-                if (res.code == 200) {
-
-                  uni.setStorageSync('access_token', res.data.access_token)
-                  that.userInfo = that.$login.isLoginType()
-                  that.isLogin = true
-                  that.$forceUpdate()
-                  that.getDataList()
-                } else {
-                  that.toast.msg = res.msg;
-                  that.$refs.toast.show();
-                }
-
-              });
-            }
-          });
-
-        }
-      },
-      //关闭
+ uni.reLaunch({ url: '/pages/login/index' });
+ },
+ //关闭
       toCloseLogin() {
         this.$refs.authPopup.close()
       },

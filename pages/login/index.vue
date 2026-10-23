@@ -16,14 +16,18 @@
 		<view class="login-container">
 			<view class="login-title">{{ $t('pages.login.heading') }}</view>
 
-			<view class="form-area">
+			<view v-if="pendingBinding" class="binding-notice" role="status">
+ <text>微信尚未绑定账号。请填写已有账号和密码，确认后绑定到 {{ pendingBinding.label }}。</text>
+ <button size="mini" :disabled="loading" @tap="pendingBinding = null">取消绑定</button>
+ </view>
+ <view class="form-area">
 				<view class="tp-ipt">
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.emailPlaceholder')"
-						v-model="email" />
+						v-model="email" :disabled="loading" />
 				</view>
 				<view class="tp-ipt password-field">
 					<input type="text" placeholder-class="tp-plc" :placeholder="$t('pages.login.passwordPlaceholder')"
-						:password="!passwordVisible" v-model="password" />
+						:password="!passwordVisible" v-model="password" :disabled="loading" />
 					<view class="password-toggle" @tap="passwordVisible = !passwordVisible">
 						<uni-icons :type="passwordVisible ? 'eye-slash' : 'eye'" size="22" color="#8e97ad" />
 					</view>
@@ -45,7 +49,10 @@
 			<!-- #endif -->
 			<view class="btn-group">
 				<button class="tp-btn primary" :loading="loading"
-					@tap="doLoginSubmit">{{ $t('pages.login.loginButton') }}</button>
+					@tap="doLoginSubmit">{{ pendingBinding ? '登录并绑定微信' : $t('pages.login.loginButton') }}</button>
+ <!-- #ifdef MP-WEIXIN -->
+ <button v-for="provider in miniProviders" :key="provider.id" class="tp-btn" :disabled="loading" @tap="signInWeChat(provider)">{{ provider.label }}</button>
+ <!-- #endif -->
 			</view>
 
 			<view class="foot-tip center">
@@ -73,6 +80,9 @@ import uniIcons from "@/uni_modules/uni-icons/components/uni-icons/uni-icons.vue
 import login from "../../store/login";
 import { AVAILABLE_LANGUAGES, changeLanguage } from '@/lang/index.js'
 import BoardLoading from '@/components/board-loading/index.vue'
+import httpClient from '@/api/client'
+import { createMiniAuth } from '@/features/auth/mini-auth'
+import { clearSessionStorage } from '@/features/auth/session'
 import { restoreSession } from '@/features/auth/restore-session'
 import { logPushDebug, pushDebugContext, pushDebugError } from '@/services/push-debug'
 import { canRegisterPushAutomatically, registerNotificationDevice, logNotificationError } from '@/services/notification-permission'
@@ -92,6 +102,8 @@ export default {
 	data() {
 		return {
 			agreementAccepted: false,
+ miniProviders: [],
+ pendingBinding: null,
 			loginHeaderStyle: {},
 			restoringSession: Boolean(uni.getStorageSync('access_token')),
 			disabled: true,
@@ -118,6 +130,7 @@ export default {
 	},
 	// 
 	watch: {
+ agreementAccepted(value) { if (value) this.loadMiniProviders(); },
 		email() {
 			this.onBtnChange();
 		},
@@ -155,6 +168,9 @@ export default {
 		}
 		// #endif
 		this.loginPageHidden = false;
+ // #ifdef MP-WEIXIN
+ if (hasMpConsent()) this.loadMiniProviders();
+ // #endif
 		try {
 			uni.setNavigationBarTitle({
 				title: this.$t('pages.loginTitle')
@@ -174,17 +190,24 @@ export default {
 			: savedServer;
 		// 回填上次成功登录的账号密码，但不自动提交，避免会话过期后闪回首页。
 		this.email = uni.getStorageSync('email') || '';
-		this.password = uni.getStorageSync('password') || '';
+		this.password = '';
+ uni.removeStorageSync('password');
 		this.passwordVisible = false;
 	},
 	methods: {
 		startServerEdit() {
+ if (this.loading) return;
 			this.server = this.server || 'https://cloud.thingspanel.cn';
 			this.serverEditing = true;
 		},
 		finishServerEdit() {
 			this.server = String(this.server || '').trim();
 			this.serverEditing = false;
+ this.pendingBinding = null; this.miniProviders = [];
+ const old = uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn';
+ if (old !== this.server) clearSessionStorage();
+ uni.setStorageSync('serverAddress', this.server || 'https://cloud.thingspanel.cn');
+ if (this.agreementAccepted) this.loadMiniProviders();
 		},
 		serverChange(v) {
 			console.log("serverChange", v.detail.value)
@@ -295,48 +318,63 @@ export default {
 			// #endif
 		},
 		// 
-		toLogin() {
+        miniAuth() {
+            return createMiniAuth({ request: httpClient.request,
+                login: () => new Promise((resolve, reject) => uni.login({ provider: 'weixin', success: resolve, fail: reject })),
+                getServer: () => this.server || uni.getStorageSync('serverAddress') || 'https://cloud.thingspanel.cn', storage: uni });
+        },
+        async loadMiniProviders() {
+            // #ifdef MP-WEIXIN
+            try { this.miniProviders = await this.miniAuth().providers(); } catch { this.miniProviders = []; }
+            // #endif
+        },
+        async signInWeChat(provider) {
+            // #ifdef MP-WEIXIN
+            if (!requireMpConsent(this.agreementAccepted) || this.loading) return;
+            this.loading = true;
+            try {
+                uni.setStorageSync('serverAddress', this.server || 'https://cloud.thingspanel.cn');
+                const result = await this.miniAuth().signIn(provider.id);
+                if (result.status === 'binding_required') { this.pendingBinding = provider; return; }
+                await this.finishAuthentication(result);
+            } catch { this.handleError('微信登录未完成，请检查网络或稍后重试'); }
+            finally { this.loading = false; }
+            // #endif
+        },
+        async finishAuthentication(session) {
+            await this.miniAuth().accept(session);
+            this.password = ''; this.pendingBinding = null;
+            if (canRegisterPushAutomatically()) registerNotificationDevice().catch(logNotificationError);
+            await new Promise((resolve, reject) => uni.switchTab({ url: '/pages/dashboard/index', success: resolve, fail: reject }));
+        },
+        async toLogin() {
             // #ifdef MP-WEIXIN
             if (!requireMpConsent(this.agreementAccepted)) return;
             // #endif
             if (this.loading) return;
             this.loading = true;
-			if (this.server) {
-				uni.setStorageSync('serverAddress', this.server)
-			} else {
-				uni.setStorageSync('serverAddress', 'https://cloud.thingspanel.cn')
-			}
+            const server = this.server || 'https://cloud.thingspanel.cn';
+            const binding = this.pendingBinding;
+            let session;
+            try {
+                uni.setStorageSync('serverAddress', server);
+                const response = await httpClient.request({ url: server.replace(/\/+$/, '') + '/api/v1/login', method: 'POST',
+                    data: { email: this.email, password: this.password } });
+                if (response.data?.code !== 200 || !response.data.data?.token) throw new Error('账号或密码错误');
+                session = response.data.data;
+                if (server !== (this.server || 'https://cloud.thingspanel.cn')) throw new Error('服务器已切换');
+                if (binding) await this.miniAuth().bind(binding.id, session.token, this.password);
+                await this.finishAuthentication(session);
+                uni.setStorageSync('email', this.email);
+            } catch (error) {
+                // A failed bind must not leave its temporary password-login session active.
+                if (session?.token) {
+                    try { await httpClient.request({ url: server.replace(/\/+$/, '') + '/api/v1/user/logout', header: { 'x-token': session.token } }); } catch {}
+                }
+                this.handleError(binding ? '绑定未完成，请检查账号密码后重试；也可以取消绑定' : '登录未完成，请检查账号密码和网络');
+            } finally { this.loading = false; }
+        },
 
-			let data = {
-				email: this.email,
-				password: this.password
-			};
-			let cid = '';
-			this.API.apiRequest('/api/v1/login', {
-				email: this.email,
-				password: this.password
-			}, 'post').then(res => {
-				if (res.code == 200) {
-					uni.setStorageSync('email', this.email)
-					uni.setStorageSync('password', this.password)
-					uni.setStorageSync('access_token', res.data.token)
-					if (canRegisterPushAutomatically()) registerNotificationDevice().catch(logNotificationError);
-					uni.switchTab({
-						url: '../dashboard/index'
-					});
-
-				} else {
-					// 翻译服务器返回的错误消息
-					const translatedMessage = this.translateErrorMessage(res.message);
-					this.handleError(translatedMessage);
-				}
-			}).catch(err => {
-				this.handleError(this.$t('pages.login.networkError')); // 处理网络错误
-			}).finally(() => {
-                this.loading = false;
-
-			})
-		},
 		handleError(message) {
 			this.toast.msg = message;
 			//this.$refs.toast.show();
@@ -377,6 +415,9 @@ export default {
 </script>
 
 <style>
+.binding-notice { margin-bottom: 24rpx; padding: 24rpx; border: 1px solid #cbd5e1; border-radius: 8px; line-height: 1.6; }
+.binding-notice button { margin-top: 16rpx; }
+.btn-group .tp-btn + .tp-btn { margin-top: 20rpx; }
 .login-layout {
 	--login-primary: #1677ff;
 	--login-ink: #111a2c;
