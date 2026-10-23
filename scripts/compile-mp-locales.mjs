@@ -32,7 +32,8 @@ ${Object.entries(locales).map(([locale, code]) => `  ${JSON.stringify(locale)}: 
 `
 const target = path.join(root, 'lang', 'mp-messages.js')
 if (process.argv.includes('--check')) {
-  if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8') !== output) {
+  // Git may check out CRLF on Windows; line endings do not make translations stale.
+  if (!fs.existsSync(target) || fs.readFileSync(target, 'utf8').replace(/\r\n/g, '\n') !== output.replace(/\r\n/g, '\n')) {
     throw new Error('Mini program locales are stale. Run node scripts/compile-mp-locales.mjs')
   }
 } else {
