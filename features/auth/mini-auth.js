@@ -22,8 +22,9 @@ export function createMiniAuth({ request, login, getServer, storage }) {
   }
   return {
     async providers() {
-      const result = await call(context(), '/api/v1/auth/external/providers')
-      return Array.isArray(result) ? result.filter(p => p.kind === 'wechat-mini') : []
+      const result = await call(context(), '/api/v1/auth/login-options?channel=mp-weixin')
+      return result?.external?.enabled && Array.isArray(result.external.providers)
+        ? result.external.providers.filter(p => p.kind === 'wechat-mini') : []
     },
     async signIn(provider) {
       const ctx = context()

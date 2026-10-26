@@ -18,6 +18,11 @@ await api.bind('mini', 'platform-token', 'password')
 assert.notEqual(calls[0].data.code, calls[1].data.code, 'binding must obtain a fresh code')
 assert.equal(calls[1].header.Authorization, 'Bearer platform-token')
 assert.equal(saved.has('wx_code'), false)
+response = { data: { code: 200, data: { password: { enabled: true }, external: { enabled: false, providers: [] } } } }
+assert.deepEqual(await api.providers(), [], 'disabled external auth must expose no mini-program buttons')
+assert.match(calls.at(-1).url, /\/auth\/login-options\?channel=mp-weixin$/)
+response.data.data.external = { enabled: true, providers: [{ id: 'mini', kind: 'wechat-mini' }, { id: 'web', kind: 'oidc' }] }
+assert.deepEqual(await api.providers(), [{ id: 'mini', kind: 'wechat-mini' }], 'only mini-program methods can be displayed')
 response = { data: { code: 503 } }
 await assert.rejects(api.accept({ token: 'new-token', expires_in: 3600 }))
 assert.equal(saved.has('access_token'), false, 'detail failure must not persist a token')
