@@ -8,6 +8,23 @@ output/
 .env
 .env.*
 !.env.example
+!.env.mqtt.example
+
+# Signing material and packaged builds stay outside version control.
+*.p8
+*.p12
+*.pfx
+*.pem
+*.key
+*.keystore
+*.jks
+*.mobileprovision
+*.provisionprofile
+*.ipa
+*.apk
+*.wgt
+**/config.private.json
+device-simulator/*.log
 
 .workbuddy-ai/
 tmp/

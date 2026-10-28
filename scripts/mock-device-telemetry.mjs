@@ -11,7 +11,7 @@
  * 直接 node 运行即可，无需 npm install。
  *
  * 用法：
- *   node scripts/mock-device-telemetry.mjs                     # 默认每 5 秒上报一次，持续运行
+ *   node --env-file=.env.mqtt.local scripts/mock-device-telemetry.mjs # 默认每 5 秒上报一次，持续运行
  *   node scripts/mock-device-telemetry.mjs --interval 2        # 每 2 秒上报一次
  *   node scripts/mock-device-telemetry.mjs --count 10          # 只上报 10 条后退出
  *   node scripts/mock-device-telemetry.mjs --once              # 只上报 1 条（连通性自检）
@@ -26,14 +26,14 @@ import tls from 'node:tls';
 import process from 'node:process';
 
 // ────────────────────────────────────────────────────────────
-// 默认配置（来自 ThingsPanel 设备接入页的凭证与连接信息）
+// 连接信息必须通过环境变量或命令行提供，不能在源码中保存设备凭证。
 // ────────────────────────────────────────────────────────────
 const DEFAULTS = {
-  host: '47.115.210.16',
+  host: '',
   port: 1883,
-  username: 'd0bb6295-5999-a182-743',
-  password: '5dce61a',
-  clientId: 'mqtt_e1984989-2c6',
+  username: '',
+  password: '',
+  clientId: '',
   topic: 'devices/telemetry',
   interval: 5,          // 上报间隔（秒）
   count: 0,             // 上报条数上限，0 = 不限
@@ -85,11 +85,11 @@ if (opts.help) {
   console.log(`
 ThingsPanel 设备模拟器 —— 持续上报温度 / 湿度
 
-  --host <ip>           MQTT 接入地址         (默认 ${DEFAULTS.host})
+  --host <ip>           MQTT 接入地址         (必填，或 MQTT_HOST)
   --port <port>         MQTT 端口             (默认 ${DEFAULTS.port})
-  --username <str>      MQTT Username         (默认 ${DEFAULTS.username})
-  --password <str>      MQTT Password         (默认 ${DEFAULTS.password})
-  --clientId <str>      MQTT ClientID         (默认 ${DEFAULTS.clientId})
+  --username <str>      MQTT Username         (必填，或 MQTT_USERNAME)
+  --password <str>      MQTT Password         (必填，或 MQTT_PASSWORD，建议使用环境变量)
+  --clientId <str>      MQTT ClientID         (必填，或 MQTT_CLIENT_ID)
   --topic <str>         上报主题              (默认 ${DEFAULTS.topic})
   --deviceId <str>      在 payload 中附加 device_id
   --interval <秒>       上报间隔              (默认 ${DEFAULTS.interval})
@@ -113,6 +113,12 @@ for (const [envKey, optKey] of [
   ['MQTT_CLIENT_ID', 'clientId'], ['MQTT_TOPIC', 'topic'],
 ]) {
   if (process.env[envKey]) opts[optKey] = envKey === 'MQTT_PORT' ? Number(process.env[envKey]) : process.env[envKey];
+}
+
+const missing = ['host', 'username', 'password', 'clientId'].filter(key => !opts[key]);
+if (missing.length) {
+  console.error(`缺少 MQTT 连接配置：${missing.join(', ')}。请参考 .env.mqtt.example 配置 .env.mqtt.local，并使用 node --env-file=.env.mqtt.local 运行。`);
+  process.exit(2);
 }
 
 if (opts.uniqueClientId) opts.clientId = `${opts.clientId}_${Math.random().toString(16).slice(2, 8)}`;

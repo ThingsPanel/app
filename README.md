@@ -14,6 +14,12 @@
 - **多语言支持**：提供中文和英文界面。
 - **跨平台开发**：基于 Vue 3 和 uni-app，可面向 Android、iOS、小程序及 H5 构建，具体功能以各平台适配情况为准。
 
+## 本地配置与凭据
+
+- 地图：复制 `.env.example` 为 `.env`，设置 `VITE_TENCENT_MAP_KEY` 后重新编译。App/H5 使用腾讯 GL JS 地图，小程序使用内置地图，不依赖 App 原生 Maps 模块。
+- 设备模拟器：复制 `.env.mqtt.example` 为 `.env.mqtt.local`，填写设备连接信息，使用 `node --env-file=.env.mqtt.local scripts/mock-device-telemetry.mjs` 运行（需要支持 `--env-file` 的 Node.js）。
+- `.env`、本地推送配置、签名证书、私钥和安装包均不应提交。前端地图 Key 编译后对客户端可见，还应在腾讯控制台限制来源和额度。
+
 ## 演示
 
 - 安卓 [中文官网（扫码下载）](http://thingspanel.cn) 

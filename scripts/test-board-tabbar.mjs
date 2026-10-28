@@ -48,13 +48,25 @@ function component(path, globals) {
   const script = read(path).match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm, '')
   return vm.runInNewContext(script.replace('export default', 'globalThis.result =') + '; result', globals)
 }
-const config = JSON.parse(read('pages.json')).tabBar
+const config = JSON.parse(read('pages.json').replace(/^\s*\/\/.*$/gm, '')).tabBar
 let switched = ''
 const bar = component('components/app-tabbar.vue', { pages: { tabBar: config }, uni: { switchTab({ url }) { switched = url } } })
 const ctx = { ...bar.data(), activePath: config.list[0].pagePath, immersive: true, dark: true }
 assert.equal(bar.methods.itemColor.call(ctx, config.list[0]), '#67dff0')
-assert.equal(bar.methods.iconStyle.call(ctx, config.list[0]).maskImage, `url(/${config.list[0].selectedIconPath})`)
-assert.match(read('components/app-tabbar.vue'), /background-color:currentColor/)
+for (const item of config.list) {
+  for (const selected of [false, true]) {
+    ctx.activePath = selected ? item.pagePath : 'another/tab'
+    const source = bar.methods.iconSource.call(ctx, item)
+    assert.ok(fs.existsSync(new URL('..' + source, import.meta.url)), `Bundled dark icon missing: ${source}`)
+    assert.equal(source, `/static/tabbar/dark/${item.iconPath.split('/').pop().replace(/\.png$/, selected ? '-selected.png' : '.png')}`)
+    ctx.dark = false
+    assert.equal(bar.methods.iconSource.call(ctx, item), '/' + (selected ? item.selectedIconPath : item.iconPath))
+    ctx.dark = true
+  }
+}
+ctx.activePath = config.list[0].pagePath
+assert.match(read('components/app-tabbar.vue'), /<image :src="iconSource\(item\)"/)
+assert.doesNotMatch(read('components/app-tabbar.vue'), /maskImage|mask-image/)
 bar.methods.open.call(ctx, config.list[0]); assert.equal(switched, '')
 bar.methods.open.call(ctx, config.list[2]); assert.equal(switched, '/' + config.list[2].pagePath)
 // Device detail uses this component too: tapping its active tab must still return to the list.
