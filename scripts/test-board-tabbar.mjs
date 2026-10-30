@@ -34,8 +34,20 @@ const shared = manager()
 const first = shared.acquire(() => {})
 await tick(); shared.finish()
 first(); const secondState = []; const second = shared.acquire(v => secondState.push(v))
-await tick(); assert.equal(shared.calls.length, 0); assert.deepEqual(secondState, [true])
+await tick(); assert.equal(shared.finish(), 'hide', 'incoming page reasserts native hide without showing it first')
+assert.deepEqual(secondState, [true])
 second(); await tick(); assert.equal(shared.finish(), 'show')
+
+// Incoming home while an outgoing fullscreen hide is still in flight.
+const overlap = manager()
+const outgoing = overlap.acquire()
+await tick()
+outgoing(); const homeState = []; const incoming = overlap.acquire(v => homeState.push(v))
+overlap.finish(); await tick()
+assert.equal(overlap.finish(), 'hide', 'new native page is checked after the pending hide completes')
+assert.equal(homeState.at(-1), true)
+assert.equal(overlap.calls.length, 0, 'handoff never queues a native show beneath the custom bar')
+incoming(); await tick(); assert.equal(overlap.finish(), 'show')
 
 // Unsupported native hide keeps the native bar, never adds a duplicate custom bar.
 const failed = manager(), failures = []
@@ -75,12 +87,15 @@ bar.methods.open.call(ctx, config.list[0]); assert.equal(switched, '/' + config.
 assert.equal(bar.computed.barStyle.call(ctx).backgroundColor, config.backgroundColor)
 
 const nativeCalls = []
-const viewer = component('components/board-viewer/index.vue', { BoardLoading: {}, uni: { hideTabBar() { nativeCalls.push('hide') }, showTabBar() { nativeCalls.push('show') } }, plus: { screen: { lockOrientation() {} } } })
+const viewer = component('components/board-viewer/index.vue', { BoardLoading: {}, acquireBoardTabbar() { nativeCalls.push('hide'); return () => nativeCalls.push('show') }, plus: { screen: { lockOrientation() {} } } })
 viewer.methods.applyFullscreen.call({ managedTabbar: true }, true)
 viewer.methods.applyFullscreen.call({ managedTabbar: true }, false)
 assert.deepEqual(nativeCalls, [])
-viewer.methods.applyFullscreen.call({ managedTabbar: false }, true)
-viewer.methods.applyFullscreen.call({ managedTabbar: false }, false)
+const standalone = { managedTabbar: false }
+viewer.methods.applyFullscreen.call(standalone, true)
+viewer.methods.applyFullscreen.call(standalone, true)
+viewer.methods.applyFullscreen.call(standalone, false)
+viewer.methods.applyFullscreen.call(standalone, false)
 assert.deepEqual(nativeCalls, ['hide', 'show'])
 assert.match(read('components/board-tab-deck/index.vue'), /customTabs && !fullscreen/)
 assert.match(read('components/app-tabbar.vue'), /env\(safe-area-inset-bottom\)/)

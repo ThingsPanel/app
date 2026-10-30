@@ -3,6 +3,7 @@ const owners = new Map()
 let hidden = false
 let busy = false
 let queued = false
+let refresh = false
 function schedule() {
   if (queued) return
   queued = true
@@ -11,20 +12,24 @@ function schedule() {
 function reconcile() {
   if (busy) return
   const desired = owners.size > 0
-  if (desired === hidden) { owners.forEach(notify => notify(hidden)); return }
+  const recheck = refresh; refresh = false
+  // Native tab pages may show/resize their bar when they become visible again.
+  // Reassert hide for each incoming owner rather than trusting the cached state.
+  if (desired === hidden && !(desired && recheck)) { owners.forEach(notify => notify(hidden)); return }
   busy = true
   const success = () => { hidden = desired; owners.forEach(notify => notify(hidden)) }
   const fail = () => { owners.forEach(notify => notify(false)) }
-  const complete = () => { busy = false; if ((owners.size > 0) !== desired) schedule() }
+  const complete = () => { busy = false; if (refresh || (owners.size > 0) !== desired) schedule() }
   try {
     const options = { animation: false, success, fail, complete }
     if (desired) uni.hideTabBar(options)
     else uni.showTabBar(options)
   } catch { fail(); complete() }
 }
-export function acquireBoardTabbar(notify) {
+export function acquireBoardTabbar(notify = () => {}) {
   const owner = Symbol('board-tabbar')
   owners.set(owner, notify)
+  refresh = true
   schedule()
   return () => { owners.delete(owner); schedule() }
 }

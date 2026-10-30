@@ -2,7 +2,7 @@
   <view class="board-detail" :class="{ 'board-detail--fullscreen': fullscreen, 'board-detail--dark': darkCanvas, 'board-detail--home': homeMode && !fullscreen }" :style="{ '--board-background': background }">
     <view v-if="!fullscreen && !homeMode" class="board-nav" @touchstart="startSwipe" @touchend="endSwipe" :style="{ paddingTop: statusBarHeight + 'px' }">
       <button v-if="showBack" class="nav-action" aria-label="返回" @click="goBack"><view class="back-icon" /></button>
-      <view class="board-title"><text>{{ title }}</text></view>
+      <view class="board-title"><text class="board-title__text">{{ title }}</text></view>
       <view class="board-nav-end">
         <text v-if="deckMode" class="page-position">{{ pageIndex + 1 }} / {{ pageCount }}</text>
         <button class="nav-action" aria-label="查看全部看板" @click="openSearch"><image class="toolbar-icon" src="/static/icon/board-search.svg" mode="aspectFit" /></button>
@@ -26,20 +26,14 @@
       </view>
       <view v-if="fullscreen" class="fullscreen-actions">
         <button aria-label="返回" @click="fullscreenBack">返回</button>
-        <button aria-label="退出横屏" @click="toggleFullscreen">退出横屏</button>
+        <button :aria-label="homeMode ? '退出全屏' : '退出横屏'" @click="toggleFullscreen">{{ homeMode ? '退出全屏' : '退出横屏' }}</button>
       </view>
-      <view v-if="!homeMode && ['ready', 'loaded'].includes(phase)" class="side-tools">
+      <view v-if="(!homeMode || !isGrid) && ['ready', 'loaded'].includes(phase)" class="side-tools">
         <button v-if="!fullscreen" aria-label="横屏查看" @click="toggleFullscreen"><image src="/static/icon/device-rotate.svg" /><text>横屏</text></button>
-        <button :class="{ selected: isHome }" :disabled="savingHome" :aria-pressed="isHome" @click="setAsHome"><image :src="isHome ? '/static/icon/board-check.svg' : '/static/icon/board-home.svg'" /><text>{{ isHome ? '已设首页' : '设为首页' }}</text></button>
-        <button :class="{ selected: interactive }" :aria-pressed="interactive" :disabled="!['ready', 'loaded'].includes(phase)" @click="toggleInteractive"><image :src="interactive ? '/static/icon/board-check.svg' : '/static/icon/board-touch.svg'" /><text>{{ interactive ? '完成操作' : '操作看板' }}</text></button>
+        <button v-if="!homeMode" :class="{ selected: isHome }" :disabled="savingHome" :aria-label="isHome ? '已设为首页' : '设为首页'" :aria-pressed="isHome" @click="setAsHome"><image :src="isHome ? '/static/icon/board-check.svg' : '/static/icon/board-home.svg'" /><text>首页</text></button>
+        <button :class="{ selected: interactive }" :aria-label="interactive ? '完成看板操作' : '操作看板'" :aria-pressed="interactive" :disabled="!['ready', 'loaded'].includes(phase)" @click="toggleInteractive"><image :src="interactive ? '/static/icon/board-check.svg' : '/static/icon/board-touch.svg'" /><text>{{ interactive ? '完成' : '操作' }}</text></button>
       </view>
-      <text v-if="operationTip" class="operation-tip" role="status">可点击控件、拖动图表，点“完成操作”后继续滑动</text>
-      <view v-if="showZoomGuide" class="zoom-guide">
-        <view class="zoom-guide__pill">
-          <text class="zoom-guide__copy" role="status">双指缩放 · 放大后拖动 · 双击还原</text>
-          <button class="zoom-guide__close" aria-label="关闭缩放提示" @touchstart.stop @touchend.stop @click.stop="dismissZoomGuide"><view class="zoom-guide__cross" aria-hidden="true" /></button>
-        </view>
-      </view>
+      <text v-if="operationTip" class="operation-tip" role="status">可点击控件、拖动图表，点“完成”后继续滑动</text>
     </view>
   </view>
 </template>
@@ -49,6 +43,7 @@ import BoardLoading from '@/components/board-loading/index.vue'
 import { reportAppError } from '@/services/app-errors'
 import { createBoardRuntime } from '@/services/thingsvis-board-runtime'
 import { openHomePreference } from '@/services/dashboard-home'
+import { acquireBoardTabbar } from '@/services/board-tabbar'
 let sequence = 0
 // 45 秒内未收到 tv:render-ready 时原本会提示「未收到组件渲染完成通知，如内容缺失请刷新或检查
 // ThingsVis 服务版本」。老版本 ThingsVis 本就不发该事件，属误报，暂时隐藏。
@@ -63,19 +58,14 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
     this.failBoard('看板显示异常，请重新加载')
     return false
   },
-  data() { return { zoomed: false, zoomGuidePending: false, revealing: false, renderReadySupported: false, boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: this.initialFullscreen, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
+  data() { return { zoomed: false, revealing: false, renderReadySupported: false, boardId: '', title: '看板', frameId: `board-viewer-${++sequence}`, frameState: null, messagePacket: null, command: null, phase: 'loading', statusMessage: '正在加载看板…', warning: '', background: '#ffffff', fullscreen: this.initialFullscreen, interactive: false, isGrid: false, statusBarHeight: 0, session: 0, guidePending: false, operationTip: false, isHome: false, savingHome: false } },
   computed: { darkCanvas() {
     const color = this.background || ''
     const hex = color.match(/^#([a-f0-9]{6}|[a-f0-9]{3})$/i)
     const rgb = hex ? (hex[1].length === 3 ? hex[1].split('').map(v => parseInt(v + v, 16)) : [0, 2, 4].map(i => parseInt(hex[1].slice(i, i + 2), 16))) : color.match(/[\d.]+/g)?.slice(0, 3).map(Number)
     return rgb?.length === 3 && rgb[0] * .2126 + rgb[1] * .7152 + rgb[2] * .0722 < 140
-  }, showSwipeGuide() { return !this.homeMode && !this.zoomed && this.guidePending && this.deckMode && this.pageCount > 1 && !this.interactive && !this.fullscreen && ['ready', 'loaded'].includes(this.phase) },
-  showZoomGuide() { return !this.homeMode && !this.interactive && this.zoomGuidePending && !this.showSwipeGuide && ['ready', 'loaded'].includes(this.phase) } },
+  }, showSwipeGuide() { return !this.homeMode && !this.zoomed && this.guidePending && this.deckMode && this.pageCount > 1 && !this.interactive && !this.fullscreen && ['ready', 'loaded'].includes(this.phase) } },
   watch: {
-    showZoomGuide(visible) {
-      clearTimeout(this.zoomGuideTimer)
-      if (visible) this.zoomGuideTimer = setTimeout(() => this.dismissZoomGuide(), 8000)
-    },
     showSwipeGuide(visible) {
       clearTimeout(this.guideTimer)
       if (visible) this.guideTimer = setTimeout(() => this.dismissSwipeGuide(), 6000)
@@ -90,7 +80,8 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
     this.loadPreferences()
   },
   beforeUnmount() {
-    this.disposed = true; clearTimeout(this.zoomGuideTimer); clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose()
+    this.disposed = true; clearTimeout(this.guideTimer); clearTimeout(this.operationTimer); this.dispose()
+    this.releaseFullscreenTabs?.()
     // Deck owns fullscreen across page switches and restores portrait when the deck itself closes.
     if (!this.deckMode) this.restorePortrait()
   },
@@ -107,16 +98,11 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
         this.preference = preference
         this.isHome = preference.read()?.id === this.boardId
         this.guidePending = !preference.guideSeen('swipe')
-        this.zoomGuidePending = !preference.guideSeen('zoom')
       } catch { /* Preference failure must not prevent viewing. */ }
     },
     dismissSwipeGuide() {
       this.guidePending = false
       try { this.preference?.finishGuide('swipe') } catch { /* Can retry next visit. */ }
-    },
-    dismissZoomGuide() {
-      clearTimeout(this.zoomGuideTimer); this.zoomGuidePending = false
-      try { this.preference?.finishGuide('zoom') } catch { /* Can retry next visit. */ }
     },
     requestPage(direction) {
       if (this.homeMode || this.interactive || this.zoomed) return
@@ -202,6 +188,11 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
         const image = typeof canvasImage === 'string' && /^(https?:\/\/|\/|data:image\/(png|jpeg|webp|gif);)/i.test(canvasImage.trim()) ? canvasImage.trim() : ''
         this.$emit('appearance', { color: this.background, dark: this.darkCanvas, image })
         this.isGrid = result.canvas.mode === 'grid'; this.interactive = this.homeMode || (!this.deckMode && this.isGrid)
+        // A fixed canvas used as home must not inherit the previous page's portrait lock.
+        // Keep widget interaction enabled, with explicit rotation/browse controls available.
+        // #ifdef APP-PLUS
+        if (this.homeMode && !this.isGrid && !this.fullscreen) plus.screen.unlockOrientation()
+        // #endif
         if (result.empty) { clearTimeout(this.loadDeadline); this.phase = 'empty'; this.statusMessage = '看板尚未添加内容'; return }
         this.frameState = { id: this.frameId, session, ...result, paging: !this.homeMode && this.deckMode && this.pageCount > 1, browse: !this.homeMode && this.deckMode, interactive: this.interactive }
         this.readyTimer = setTimeout(() => {
@@ -248,11 +239,12 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
     },
     applyFullscreen(enabled) {
       if (!this.managedTabbar) {
-        if (enabled) uni.hideTabBar({ animation: false, fail() {} })
-        else uni.showTabBar({ animation: false, fail() {} })
+        if (enabled && !this.releaseFullscreenTabs) this.releaseFullscreenTabs = acquireBoardTabbar()
+        if (!enabled) { this.releaseFullscreenTabs?.(); this.releaseFullscreenTabs = null }
       }
       // #ifdef APP-PLUS
-      plus.screen.lockOrientation(enabled ? 'landscape-primary' : 'portrait-primary')
+      if (!enabled && this.homeMode) plus.screen.unlockOrientation()
+      else plus.screen.lockOrientation(enabled ? 'landscape-primary' : 'portrait-primary')
       // #endif
     },
     toggleFullscreen() {
@@ -263,6 +255,9 @@ props: { managedTabbar: { type: Boolean, default: false }, initialId: { type: St
     },
     restorePortrait() {
       if (this.fullscreen) this.applyFullscreen(false)
+      // #ifdef APP-PLUS
+      if (this.homeMode) plus.screen.lockOrientation('portrait-primary')
+      // #endif
       this.fullscreen = false
       this.$emit('fullscreen-change', false)
     },
@@ -454,7 +449,7 @@ export default {
 .board-detail .board-title { display:flex; align-items:center; justify-content:flex-start; padding:8px 8px; gap:8px; background:transparent; flex:1; min-width:0; text-align:center; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:30rpx; font-weight:500; }
 .board-detail .nav-action { flex:0 0 40px; width:40px; height:44px; padding:0; display:flex; align-items:center; justify-content:center; background:transparent; }
 .back-icon { width:12px; height:12px; border-left:1.5px solid currentColor; border-bottom:1.5px solid currentColor; transform:rotate(45deg); }
-.board-title text:first-child { overflow:hidden; text-overflow:ellipsis; }
+.board-title__text { display:block; flex:1; min-width:0; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; line-height:22px; }
 .board-nav-end { display:flex; align-items:center; flex-shrink:0; gap:2px; }
 .toolbar-icon { width:18px; height:18px; }
 .board-stage { position:relative; flex:1; min-height:0; overflow:hidden; }
@@ -478,15 +473,6 @@ export default {
 .fullscreen-actions { position:absolute; top:env(safe-area-inset-top,0px); left:env(safe-area-inset-left,0px); right:env(safe-area-inset-right,0px); display:flex; justify-content:space-between; pointer-events:none; }
 .board-detail .fullscreen-actions button { pointer-events:auto; background:rgba(20,29,44,.9); }
 .operation-tip { position:absolute; bottom:70px; left:16px; right:80px; color:#51515c; background:rgba(242,242,247,.94); padding:6px 8px; font-size:12px; line-height:1.6; pointer-events:none; }
-.zoom-guide { position:absolute; bottom:calc(20px + env(safe-area-inset-bottom)); left:16px; right:16px; display:flex; justify-content:center; pointer-events:none; }
-.zoom-guide__pill { display:flex; align-items:center; max-width:100%; box-sizing:border-box; padding-left:14px; border:1px solid rgba(120,130,145,.12); border-radius:12px; color:#51515c; background:rgba(248,249,251,.96); box-shadow:0 3px 12px rgba(20,29,44,.06); }
-.zoom-guide__copy { min-width:0; padding:10px 0; font-size:12px; line-height:20px; text-align:center; }
-.board-detail .zoom-guide__close { display:flex; align-items:center; justify-content:center; flex:0 0 44px; width:44px; height:44px; min-height:44px; padding:0; border-radius:12px; background:transparent; color:inherit; pointer-events:auto; }
-.zoom-guide__close:focus-visible { outline:2px solid var(--tp-color-primary,#1677ff); outline-offset:-4px; }
-.zoom-guide__cross { position:relative; width:12px; height:12px; opacity:.7; }
-.zoom-guide__cross::before,.zoom-guide__cross::after { content:''; position:absolute; left:5px; top:0; width:1.5px; height:12px; border-radius:1px; background:currentColor; transform:rotate(45deg); }
-.zoom-guide__cross::after { transform:rotate(-45deg); }
-.board-detail--dark .zoom-guide__pill { color:#e4e7ee; background:rgba(31,39,52,.96); border-color:rgba(220,226,235,.12); box-shadow:none; }
 .swipe-guide { position:absolute; left:50%; bottom:110px; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:8px; color:#fff; text-shadow:0 1px 3px #000; font-size:13px; white-space:nowrap; pointer-events:none; }
 .swipe-demo { height:80px; width:36px; position:relative; }
 .swipe-demo::before { content:'↑'; position:absolute; top:0; left:11px; font-size:26px; }

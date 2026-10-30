@@ -86,19 +86,7 @@ standalone.doubleTap(); assert.equal(standalone.position.zoom, 1); standalone.de
 
 const script = source.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm, '')
 const component = vm.runInNewContext(script.replace('export default', 'const component =') + '; component', { BoardLoading: {}, clearTimeout })
-const guide = { homeMode: false, interactive: false, zoomGuidePending: true, showSwipeGuide: false, phase: 'ready' }
-assert.equal(component.computed.showZoomGuide.call(guide), true)
-for (const override of [{ homeMode: true }, { interactive: true }, { showSwipeGuide: true }, { phase: 'error' }, { phase: 'loading' }]) {
-  assert.equal(component.computed.showZoomGuide.call({ ...guide, ...override }), false)
-}
 let paged = false
 component.methods.requestPage.call({ zoomed: true, $emit() { paged = true } }, 1)
 assert.equal(paged, false, 'header swipe also respects zoom lock')
-let finishedGuide
-const dismissed = { zoomGuidePending: true, preference: { finishGuide(kind) { finishedGuide = kind } } }
-component.methods.dismissZoomGuide.call(dismissed)
-assert.equal(dismissed.zoomGuidePending, false)
-assert.equal(finishedGuide, 'zoom', 'close persists the existing per-account guide preference')
-assert.match(source, /aria-label="关闭缩放提示"/)
-assert.match(source, /@click.stop="dismissZoomGuide"/)
-console.log('Board zoom passed: pinch/pan, page isolation, double-tap, limits, cancellation, mode switching, rotated preview, home and guide scope.')
+console.log('Board zoom passed: pinch/pan, page isolation, double-tap, limits, cancellation, mode switching, rotated preview and home.')

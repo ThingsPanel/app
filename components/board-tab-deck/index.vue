@@ -42,7 +42,7 @@ export default {
 }
 </script>
 <style scoped>
-.board-tab-shell { height:calc(100vh - var(--window-bottom, 0px)); display:flex; flex-direction:column; overflow:hidden; background-size:cover; background-position:center bottom; background-repeat:no-repeat; }
-.board-tab-shell--custom { height:100vh; }
+.board-tab-shell { position:fixed; top:0; left:0; right:0; bottom:var(--window-bottom, 0px); display:flex; flex-direction:column; overflow:hidden; background-size:cover; background-position:center bottom; background-repeat:no-repeat; }
+.board-tab-shell--custom { bottom:0; }
 .board-tab-content { position:relative; flex:1; min-height:0; }
 </style>
