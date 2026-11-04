@@ -61,7 +61,7 @@
 				<view class="tab-content" :aria-label="`${activeTabLabel}内容区域`" role="tabpanel">
 					<view v-if="detailLoading && !detailLoaded" class="detail-state">正在加载设备信息…</view>
 					<template v-else-if="detailLoaded && pageVisible">
-						<device-overview-tab v-if="activeTab === 'overview'" :device="device" :device-id="deviceId" />
+						<device-overview-tab v-if="activeTab === 'overview'" :device="device" :device-id="deviceId" @history="openHistory" />
 						<device-automation-tab v-else-if="activeTab === 'automation'" :key="refreshKey" :device="device" :device-id="deviceId" />
 						<device-alarm-tab v-else-if="activeTab === 'alarm'" :key="refreshKey" :device="device" :device-id="deviceId" />
 						<device-information-tab v-else :key="refreshKey" :device="device" :device-id="deviceId" @saved="loadDevice" />
@@ -71,6 +71,8 @@
 		</scroll-view>
 
 		<app-tabbar active-path="pages/devices/index" />
+		<!-- Keep overlays beside the page scroll view, never inside its clipped device panel. -->
+		<telemetry-history-sheet v-if="historyField" :device-id="deviceId" :field="historyField" :mode="historyMode" @close="historyField = null" />
 		<ConfirmationModal v-model="editingName" title="设备名称" confirm-text="保存" :loading="savingName" :auto-close="false" @confirm="saveName">
             <template #text>
                 <input v-model="nameDraft" class="app-dialog-input" maxlength="255" placeholder="请输入设备名称" aria-label="设备名称" :disabled="savingName" @confirm="saveName" />
@@ -89,11 +91,12 @@ import DeviceOverviewTab from '@/features/devices/components/device-overview-tab
 import DeviceAutomationTab from '@/features/devices/components/device-automation-tab.vue'
 import DeviceAlarmTab from '@/features/devices/components/device-alarm-tab.vue'
 import DeviceInformationTab from '@/features/devices/components/device-information-tab.vue'
+import TelemetryHistorySheet from '@/features/devices/components/telemetry-history-sheet.vue'
 
 const DEVICE_SNAPSHOT_KEY = 'device_detail_preview'
 
 export default {
-	components: { ConfirmationModal, AppTabbar, DeviceOverviewTab, DeviceAutomationTab, DeviceAlarmTab, DeviceInformationTab },
+	components: { ConfirmationModal, AppTabbar, DeviceOverviewTab, DeviceAutomationTab, DeviceAlarmTab, DeviceInformationTab, TelemetryHistorySheet },
 	data() {
 		return {
 			device: {},
@@ -104,6 +107,8 @@ export default {
 			detailLoaded: false,
 			detailError: '',
 			pageVisible: false,
+			historyField: null,
+			historyMode: 'history',
 			refreshKey: 0,
 			requestVersion: 0,
 			editingName: false,
@@ -178,13 +183,19 @@ export default {
 	},
 	onHide() {
 		this.pageVisible = false
+		this.historyField = null
 		this.requestVersion += 1
 	},
 	onUnload() {
 		this.pageVisible = false
+		this.historyField = null
 		this.requestVersion += 1
 	},
 	methods: {
+		openHistory({ field, mode }) {
+			this.historyField = field
+			this.historyMode = mode
+		},
 		async loadDevice() {
 			const version = ++this.requestVersion
 			this.detailError = ''

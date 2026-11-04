@@ -1,16 +1,16 @@
 <template>
   <!-- App renderjs needs a persistent element root, even while uni-popup is closed. -->
   <view class="telemetry-history-host">
-  <uni-popup ref="popup" type="bottom" background-color="#fff" @change="onPopupChange">
+  <uni-popup ref="popup" type="bottom" background-color="#fff" :safe-area="false" @change="onPopupChange">
     <view class="sheet" @click.stop>
       <view class="heading"><text>{{ field.name }} · {{ mode === 'trend' ? '趋势' : '历史列表' }}</text><button @click="$refs.popup.close()">关闭</button></view>
       <scroll-view scroll-y :show-scrollbar="false" class="body app-sheet-scroll">
         <view class="filters">
-          <app-picker :range="ranges" range-key="label" :value="rangeIndex" @change="onRangeChange"><view class="filter">{{ ranges[rangeIndex].label }} ▾</view></app-picker>
+          <button class="filter" @click="openFilter('rangeIndex')">{{ ranges[rangeIndex].label }} ▾</button>
           <template v-if="mode === 'trend'">
-            <app-picker :range="windows" range-key="label" :value="windowIndex" @change="onWindowChange"><view class="filter">{{ windows[windowIndex].label }} ▾</view></app-picker>
-            <app-picker v-if="windowIndex" :range="aggregates" :value="aggregateIndex" @change="onAggregateChange"><view class="filter">{{ aggregates[aggregateIndex] }} ▾</view></app-picker>
-            <app-picker :range="['折线图', '柱状图', '散点图']" :value="chartIndex" @change="onChartChange"><view class="filter">{{ ['折线图', '柱状图', '散点图'][chartIndex] }} ▾</view></app-picker>
+            <button class="filter" @click="openFilter('windowIndex')">{{ windows[windowIndex].label }} ▾</button>
+            <button v-if="windowIndex" class="filter" @click="openFilter('aggregateIndex')">{{ aggregates[aggregateIndex] }} ▾</button>
+            <button class="filter" @click="openFilter('chartIndex')">{{ chartTypes[chartIndex] }} ▾</button>
           </template>
           <button v-if="mode === 'history'" :disabled="exporting" @click="exportData">{{ exporting ? '导出中' : '导出' }}</button>
         </view>
@@ -41,21 +41,26 @@
       </scroll-view>
     </view>
   </uni-popup>
+  <!-- A sibling overlay stays outside the sheet's transform and scroll clipping on WKWebView. -->
+  <app-picker ref="filterPicker" triggerless :range="filterOptions" :range-key="filterRangeKey" :value="filterValue" @change="confirmFilter" />
   </view>
 </template>
 
 <script>
 import dayjs from 'dayjs'
+import AppPicker from '@/components/app-picker/index.vue'
 import { reportAppError } from '@/services/app-errors'
 import { requestDeviceApi } from '@/api/modules/device-overview'
 import { rowsOf, normalizeHistoryRows } from '@/utils/thingsvis-device-schema'
 let sequence = 0
 export default {
+  components: { AppPicker },
   props: { deviceId: String, field: Object, mode: String },
   emits: ['close'],
   data() {
     return {
       chartId: `telemetry-trend-${++sequence}`, chartData: null, chartIndex: 0,
+      chartTypes: ['折线图', '柱状图', '散点图'], activeFilter: 'rangeIndex',
       rows: [], total: 0, page: 0, loading: false, exporting: false, error: '', requestId: 0,
       rangeIndex: this.mode === 'trend' ? 1 : 2,
       ranges: [{ label: '自定义时间', hours: 0 }, { label: '最近1小时', hours: 1 }, { label: '最近24小时', hours: 24 }, { label: '最近7天', hours: 168 }, { label: '最近30天', hours: 720 }],
@@ -67,6 +72,11 @@ export default {
     }
   },
   computed: {
+    filterOptions() {
+      return { rangeIndex: this.ranges, windowIndex: this.windows, aggregateIndex: this.aggregates, chartIndex: this.chartTypes }[this.activeFilter]
+    },
+    filterRangeKey() { return ['rangeIndex', 'windowIndex'].includes(this.activeFilter) ? 'label' : '' },
+    filterValue() { return this[this.activeFilter] },
     stats() {
       const values = normalizeHistoryRows(this.rows).map(row => row.value)
       if (!values.length) return { min: '--', max: '--', avg: '--' }
@@ -77,6 +87,14 @@ export default {
   mounted() { this.$refs.popup.open(); this.load(true) },
   beforeUnmount() { this.requestId++ },
   methods: {
+    openFilter(key) {
+      this.activeFilter = key
+      this.$nextTick(() => this.$refs.filterPicker.open())
+    },
+    confirmFilter(event) {
+      if (this.activeFilter === 'chartIndex') this.onChartChange(event)
+      else this.changeFilter(this.activeFilter, event)
+    },
     onRangeChange(event) { this.changeFilter('rangeIndex', event) },
     onWindowChange(event) { this.changeFilter('windowIndex', event) },
     onAggregateChange(event) { this.changeFilter('aggregateIndex', event) },
@@ -215,17 +233,16 @@ export default {
 <!-- #endif -->
 
 <style scoped>
-.sheet { padding:0 20px calc(20px + env(safe-area-inset-bottom)); font-family:inherit; color:#202938; }
-.heading { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:56px; border-bottom:1px solid #f0f2f6; font-size:15px; }
+.sheet { display:flex; flex-direction:column; max-height:calc(100vh - env(safe-area-inset-top) - 12px); box-sizing:border-box; padding:0 20px calc(20px + env(safe-area-inset-bottom)); font-family:inherit; color:#202938; }
+.heading { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:56px; border-bottom:1px solid #f0f2f6; font-size:15px; }
 .heading text { overflow-wrap:anywhere; }
-.body { height:65vh; }
+.body { height:65vh; min-height:0; flex-shrink:1; }
 button { margin:0; padding:0 8px; background:transparent; color:var(--tp-color-primary, #1677ff); font-family:inherit; font-size:12px; line-height:44px; border-radius:0; }
 button::after { border:0; }
 .filters,.date-row,.stats { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
 .filters { padding:16rpx 0; flex-wrap:nowrap; gap:8rpx; }
-.filters > .app-picker { flex:0 1 auto; }
 .filters button { flex-shrink:0; padding:0 8rpx; font-size:22rpx; white-space:nowrap; }
-.filter { padding:20rpx 10rpx; background:#fafbfe; font-size:22rpx; white-space:nowrap; }
+.filters .filter { flex:0 1 auto; min-width:0; min-height:44px; padding:0 10rpx; background:#fafbfe; color:inherit; font-size:22rpx; line-height:44px; white-space:nowrap; }
 .date-row { justify-content:space-between; min-height:44px; font-size:12px; }
 .record { display:flex; justify-content:space-between; gap:16px; padding:14px 0; border-bottom:1px solid #f0f2f6; font-size:12px; line-height:20px; }
 .record text:last-child { text-align:right; overflow-wrap:anywhere; min-width:0; flex:1; }

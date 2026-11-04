@@ -33,7 +33,6 @@
 				</view>
 			</view>
 		</view>
-		<telemetry-history-sheet v-if="selectedField" :device-id="deviceId" :field="selectedField" :mode="historyMode" @close="selectedField = null" />
 	</view>
   <ConfirmationModal ref="deleteDialog" danger confirm-text="删除" />
   <app-action-sheet ref="appActionSheet" />
@@ -45,18 +44,16 @@ import dayjs from 'dayjs'
 import { requestDeviceApi } from '@/api/modules/device-overview'
 import { resolveThingsVisAddresses } from '@/utils/thingsvis-address'
 import { rowsOf } from '@/utils/thingsvis-device-schema'
-import TelemetryHistorySheet from './telemetry-history-sheet.vue'
 
 export default {
-	components: { ConfirmationModal, TelemetryHistorySheet },
+	components: { ConfirmationModal },
+	emits: ['history'],
 	props: {
 		device: { type: Object, required: true },
 		deviceId: { type: String, required: true }
 	},
 	data() {
 		return {
-			selectedField: null,
-			historyMode: 'history',
 			items: [],
 			fieldMeta: {},
 			loading: true,
@@ -67,7 +64,7 @@ export default {
 	mounted() { this.load() },
 	beforeUnmount() { this.dispose() },
 	methods: {
-		openHistory(item, mode) { this.selectedField = item; this.historyMode = mode },
+		openHistory(field, mode) { this.$emit('history', { field, mode }) },
 		more(item) {
 			this.$refs.appActionSheet.open({ itemList: ['删除遥测字段'], destructiveIndex: 0, success: result => {
 				if (result.tapIndex !== 0) return

@@ -1,8 +1,8 @@
 <template>
   <view class="app-picker">
-    <view role="button" :aria-label="title" :aria-disabled="disabled" tabindex="0" @click.stop="open" @keydown.enter.prevent="open" @keydown.space.prevent="open"><slot /></view>
+    <view v-if="!triggerless" role="button" :aria-label="title" :aria-disabled="disabled" tabindex="0" @click.stop="open" @keydown.enter.prevent="open" @keydown.space.prevent="open"><slot /></view>
     <uni-popup ref="popup" type="bottom" background-color="#fff" :safe-area="false" @change="popupChanged">
-      <view class="app-choice" role="dialog" :aria-label="title" @click.stop>
+      <view class="app-choice" role="dialog" aria-modal="true" :aria-label="title" @click.stop>
         <view class="app-choice__header app-sheet-header">
           <button class="app-choice__action app-choice__button app-sheet-start" @click="cancel">取消</button>
           <text class="app-choice__title app-sheet-center">{{ title }}</text>
@@ -28,6 +28,8 @@ export default {
     rangeKey: { type: String, default: '' },
     value: { type: [Number, String], default: 0 },
     disabled: Boolean,
+    // Lets a page host the overlay outside scroll views and animated popups.
+    triggerless: Boolean,
     title: { type: String, default: '请选择' },
     mode: { type: String, default: 'selector' }
   },
@@ -61,12 +63,12 @@ export default {
 
 <style scoped>
 .app-picker { min-width:0; }
-.app-choice { padding-bottom:calc(24rpx + env(safe-area-inset-bottom)); color:var(--sheet-text); font-family: inherit; }
-.app-choice__header { display:grid; grid-template-columns:120rpx minmax(0,1fr) 120rpx; align-items:center; min-height:104rpx; padding:0 24rpx; border-bottom:2rpx solid var(--sheet-divider); }
+.app-choice { width:100%; box-sizing:border-box; padding-bottom:calc(24rpx + env(safe-area-inset-bottom)); color:var(--sheet-text); font-family: inherit; }
+.app-choice__header { display:grid; grid-template-columns:64px minmax(0,1fr) 64px !important; align-items:center; min-height:48px; box-sizing:border-box; padding-left:calc(12px + env(safe-area-inset-left)) !important; padding-right:calc(12px + env(safe-area-inset-right)) !important; border-bottom:2rpx solid var(--sheet-divider); }
 .app-choice__title { font-size:32rpx; font-weight:600; text-align:center; }
 .app-choice .app-choice__button { margin:0; border:0; border-radius:0; background:transparent; font-family:inherit; box-shadow:none; }
 .app-choice .app-choice__button::after { border:0; }
-.app-choice__action { padding:0; font-size:28rpx; line-height:96rpx; color:var(--sheet-muted); }
+.app-choice__action { width:100%; min-height:44px !important; box-sizing:border-box; padding:0; font-size:28rpx; line-height:96rpx; white-space:nowrap; color:var(--sheet-muted); }
 .app-choice__confirm { color:var(--sheet-accent); font-weight:600; }
 .app-choice__confirm.is-disabled { color:#98a2b3; }
 .app-choice__list { max-height:45vh; }

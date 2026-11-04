@@ -100,6 +100,9 @@ import { count, responseData, onlineRate, todayRange, recentDevices } from '@/fe
 import { isNormalUser, isTenantAdmin } from '@/features/auth/utils/role'
 import { buildDeviceCard } from '@/features/devices/utils/device-card'
 import { formatAlarmTime } from '@/utils/datetime'
+// #ifdef MP-WEIXIN
+import { prepareShareImage, SHARE_IMAGES } from '@/services/mp-share'
+// #endif
 
 export default {
   components: { BoardTabDeck, BoardLoading, AppTabHeader },
@@ -112,6 +115,9 @@ export default {
       homeResolving: false,
       // #endif
       homeVisible: false, selectedHome: null, homePreferenceError: '', homeGeneration: 0,
+      // #ifdef MP-WEIXIN
+      shareImagePaths: { ...SHARE_IMAGES },
+      // #endif
       loading: false, updatedAt: '', errors: [], device: {}, alarmDevices: null, todayAlarms: null, automationTotal: null, alarms: [], groups: [], commonDevices: [], isNormalUser: false, isTenantAdmin: null,
       shortcuts: [
         { key: 'devices', icon: '/static/icon/home/device.svg' },
@@ -127,10 +133,32 @@ export default {
   },
   onShow() {
     this.homeVisible = true; this.openHome()
+    // #ifdef MP-WEIXIN
+    uni.showShareMenu({ menus: ['shareAppMessage', 'shareTimeline'] })
+    Object.keys(SHARE_IMAGES).forEach(kind => {
+      prepareShareImage(kind).then(path => { this.shareImagePaths[kind] = path })
+    })
+    // #endif
     // #ifdef APP-PLUS
     this.$nextTick(() => uni.$emit('notification-permission-refresh'))
     // #endif
   },
+  // #ifdef MP-WEIXIN
+  onShareAppMessage() {
+    return {
+      title: 'ThingsPanel 物联网平台',
+      path: '/pages/dashboard/index',
+      imageUrl: this.shareImagePaths.message
+    }
+  },
+  onShareTimeline() {
+    return {
+      title: 'ThingsPanel 物联网平台',
+      query: '',
+      imageUrl: this.shareImagePaths.timeline
+    }
+  },
+  // #endif
   onHide() { this.homeVisible = false; this.homeGeneration++ },
   onUnload() { this.homeVisible = false; this.homeGeneration++ },
   onBackPress() { return Boolean(this.$refs.homeViewer?.handleBack()) },

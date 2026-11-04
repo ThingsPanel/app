@@ -37,7 +37,9 @@ records[0].count = 0
 assert.equal(diagnostics.getAppErrors()[0].count, 100)
 
 function component(path, globals = {}) {
-  const script = read(path).match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm, '')
+  // This harness exercises App/H5 recovery; exclude the early-return mini-program branch.
+  const source = read(path).replace(/\/\/ #ifdef MP-WEIXIN[\s\S]*?\/\/ #endif/g, '')
+  const script = source.match(/<script>([\s\S]*?)<\/script>/)[1].replace(/^import .*$/gm, '')
   return vm.runInNewContext(script.replace('export default', 'const component =') + '; component', { ...context, ...globals })
 }
 let stopped = 0, resolveStart

@@ -1,7 +1,7 @@
 <template>
 	<view class="device-overview">
 		<device-visualization-skeleton v-if="phase === 'loading'" />
-		<device-telemetry-fallback v-if="phase === 'empty'" :device="device" :device-id="deviceId" />
+		<device-telemetry-fallback v-if="phase === 'empty'" :device="device" :device-id="deviceId" @history="$emit('history', $event)" />
 		<view v-if="phase === 'error'" class="overview-state overview-state--error" role="status">
 			<text>{{ statusMessage }}</text>
 			<button v-if="phase === 'error'" size="mini" @click="reload">重新加载</button>
@@ -33,6 +33,7 @@ let frameSequence = 0
 
 export default {
 	components: { DeviceVisualizationSkeleton, DeviceTelemetryFallback },
+	emits: ['history'],
 	props: {
 		device: { type: Object, required: true },
 		deviceId: { type: String, required: true }
