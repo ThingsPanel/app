@@ -8,6 +8,7 @@
 <script>
 import { createBoardsClient } from '@/api/modules/boards'
 import { buildMpBoardViewerUrl } from '@/utils/mp-board-viewer'
+import { checkMiniDeviceEntry } from '@/utils/mp-device-url'
 export default {
   data() { return { id: '', name: '看板', url: '', error: '', generation: 0, disposed: false } },
   onLoad(options) {
@@ -31,7 +32,10 @@ export default {
         if (this.disposed || generation !== this.generation) return
         this.name = preview.dashboard?.name || this.name
         this.applyTitle()
-        this.url = buildMpBoardViewerUrl(this.id, preview)
+        const url = buildMpBoardViewerUrl(this.id, preview)
+        await checkMiniDeviceEntry(url, options => uni.request(options))
+        if (this.disposed || generation !== this.generation) return
+        this.url = url
       } catch (error) {
         if (!this.disposed && generation === this.generation) this.error = error.message || '无法打开看板，请重试'
       }
