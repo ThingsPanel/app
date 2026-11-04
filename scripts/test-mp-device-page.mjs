@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { buildMiniDeviceUrl } from '../utils/mp-device-url.js'
+import { buildMiniDeviceUrl, checkMiniDeviceEntry } from '../utils/mp-device-url.js'
 
 const options={deviceId:'device a',token:'test-only',platformWebBase:'https://example.test',thingsPanelApiBase:'https://example.test/api/v1'}
 const url=new URL(buildMiniDeviceUrl(options))
@@ -11,6 +11,18 @@ assert.equal(JSON.parse(new URLSearchParams(url.hash.slice(1)).get('launch')).de
 assert.throws(()=>buildMiniDeviceUrl({...options,token:''}),/登录/)
 assert.throws(()=>buildMiniDeviceUrl({...options,platformWebBase:'http://example.test'}),/HTTPS/)
 assert.throws(()=>buildMiniDeviceUrl({...options,platformWebBase:'https://other.test'}),/同一服务/)
+
+let probe
+const deviceHtml = '<div id="mp-device"></div><script>window.__mpDeviceLaunch = location.hash.slice(1)</script>'
+await checkMiniDeviceEntry(url.href, request => { probe=request; request.success({ statusCode:200, data:deviceHtml }) })
+assert.equal(new URL(probe.url).hash, '')
+assert.equal(new URL(probe.url).pathname, '/mp-device/index.html')
+assert.ok(!probe.url.includes('test-only'))
+assert.deepEqual(probe.header, { Accept:'text/html' })
+for (const response of [{statusCode:200,data:'<div id="app"></div>'},{statusCode:404,data:deviceHtml},{statusCode:200,data:{code:401}}]) {
+  await assert.rejects(checkMiniDeviceEntry(url.href, request => request.success(response)), /尚未更新/)
+}
+await assert.rejects(checkMiniDeviceEntry(url.href, request => request.fail()), /网络/)
 
 function preprocess(source, platform) {
   const stack=[true]

@@ -12,3 +12,26 @@ export function buildMiniDeviceUrl({ deviceId, token, platformWebBase, thingsPan
   const launch = { deviceId: String(deviceId), token: String(token), lang }
   return `${base}/mp-device/index.html#launch=${encodeURIComponent(JSON.stringify(launch))}`
 }
+
+// A missing static entry can return HTTP 200 with the admin SPA instead of a 404.
+// Probe without the launch fragment or credentials before creating the web-view.
+export function checkMiniDeviceEntry(launchUrl, request) {
+  const pageUrl = launchUrl.split('#')[0]
+  return new Promise((resolve, reject) => {
+    request({
+      url: `${pageUrl}${pageUrl.includes('?') ? '&' : '?'}mp_entry_check=${Date.now()}`,
+      method: 'GET',
+      dataType: 'text',
+      responseType: 'text',
+      timeout: 10000,
+      header: { Accept: 'text/html' },
+      success(response) {
+        const html = typeof response.data === 'string' ? response.data : ''
+        const isDevicePage = /\bid\s*=\s*["']mp-device["']/.test(html) && html.includes('window.__mpDeviceLaunch')
+        if (response.statusCode === 200 && isDevicePage) resolve()
+        else reject(new Error('服务器尚未更新设备详情页面，请稍后重试'))
+      },
+      fail() { reject(new Error('无法连接设备详情页面，请检查网络后重试')) }
+    })
+  })
+}
