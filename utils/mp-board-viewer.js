@@ -7,6 +7,6 @@ export function buildMpBoardViewerUrl(id, preview) {
   return buildMiniPageUrl({
     platformWebBase: preview.addresses?.platformWebBase,
     thingsPanelApiBase: preview.addresses?.thingsPanelApiBase,
-    launch: { kind: 'board', boardId: String(id), token: preview.platformToken, visToken: preview.token, lang: 'zh-CN' }
+    launch: { kind: 'board', boardId: String(id), title: preview.dashboard?.name || '看板', token: preview.platformToken, visToken: preview.token, lang: 'zh-CN' }
   })
 }
