@@ -1,4 +1,8 @@
 <template>
+	<!-- #ifdef MP-WEIXIN -->
+  <mp-device-page :device-id="deviceId" />
+	<!-- #endif -->
+	<!-- #ifndef MP-WEIXIN -->
 	<view class="device-detail-page">
 		<view v-if="detailError" class="detail-notice" role="alert">
 			<text>{{ detailError }}</text>
@@ -80,6 +84,7 @@
             </template>
         </ConfirmationModal>
 	</view>
+	<!-- #endif -->
 </template>
 
 <script>
@@ -92,11 +97,18 @@ import DeviceAutomationTab from '@/features/devices/components/device-automation
 import DeviceAlarmTab from '@/features/devices/components/device-alarm-tab.vue'
 import DeviceInformationTab from '@/features/devices/components/device-information-tab.vue'
 import TelemetryHistorySheet from '@/features/devices/components/telemetry-history-sheet.vue'
+// #ifdef MP-WEIXIN
+import MpDevicePage from '@/components/mp-device-page/index.vue'
+// #endif
 
 const DEVICE_SNAPSHOT_KEY = 'device_detail_preview'
 
 export default {
-	components: { ConfirmationModal, AppTabbar, DeviceOverviewTab, DeviceAutomationTab, DeviceAlarmTab, DeviceInformationTab, TelemetryHistorySheet },
+	components: { ConfirmationModal, AppTabbar, DeviceOverviewTab, DeviceAutomationTab, DeviceAlarmTab, DeviceInformationTab, TelemetryHistorySheet,
+		// #ifdef MP-WEIXIN
+		MpDevicePage,
+		// #endif
+	},
 	data() {
 		return {
 			device: {},
@@ -176,6 +188,9 @@ export default {
 		}
 	},
 	onShow() {
+		// #ifdef MP-WEIXIN
+		return
+		// #endif
 		this.detailLoaded = false
 		this.pageVisible = true
 		this.refreshKey += 1

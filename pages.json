@@ -134,6 +134,12 @@
 				"navigationStyle": "default"
 			}
 		},
+        // #ifdef MP-WEIXIN
+        {
+            "path": "pages/devices/mp-export",
+            "style": { "navigationBarTitleText": "导出数据", "navigationBarBackgroundColor": "#F2F2F7" }
+        },
+        // #endif
 		// #ifndef MP-WEIXIN
 {
 			"path": "pages/web-view/index",
