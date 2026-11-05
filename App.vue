@@ -1,6 +1,7 @@
 <script>
 	import { registerNotificationDevice, canRegisterPushAutomatically, logNotificationError } from '@/services/notification-permission'
 	import { acceptsNotification, parseNotificationPayload } from '@/services/push-routing'
+	import { loadAlarmDetail } from '@/services/alarm-detail'
 	import { reportAppError } from '@/services/app-errors'
 	// #ifdef MP-WEIXIN
 	import { initMpUpdate, setMpUpdateForeground } from '@/services/mp-update'
@@ -38,17 +39,14 @@
 						'Authorization': `Bearer ${uni.getStorageSync("access_token")}`
 					};
 					const recordType = payload.alarm_kind === 'info' ? 'info' : 'history';
-                    const apiUrl = `/api/v1/alarm/info/history/${encodeURIComponent(alarm_id)}?recordType=${recordType}`;
 					try {
-						const { code, data } = await this.fetchAlarmInfo(apiUrl, headers);
-						logPushDebug('alarm.response', { alarmId: alarm_id, code });
-						if (code === 200) {
-							this.navigateToDetail(data);
-						} else {
-							console.error('API request failed with code:', code);
-						}
+						const data = await loadAlarmDetail((url, body, method) => this.API.apiRequest(url, body, method, headers), alarm_id, recordType);
+						if (!acceptsNotification(payload, uni.getStorageSync('push_binding'), `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`)) return;
+						logPushDebug('alarm.response', { alarmId: alarm_id, code: 200 });
+						this.navigateToDetail(data);
 					} catch (error) {
 						logPushDebug('alarm.failed', pushDebugError(error), 'error');
+						uni.showToast({ title: '告警详情加载失败，请稍后重试', icon: 'none' });
 					}
 				}
 			});
@@ -66,12 +64,6 @@
 			// console.log('App Show')
 		},
 		methods: {
-			async fetchAlarmInfo(url, headers) {
-				const response = await this.API.apiRequest(url, null, 'get', headers);
-				return response && typeof response.then === 'function' 
-					? await response 
-					: response;
-			},
 			navigateToDetail(data) {
 				uni.navigateTo({
 					url: '/pages/alarms/detail',
