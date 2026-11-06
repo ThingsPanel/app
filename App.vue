@@ -1,6 +1,6 @@
 <script>
 	import { registerNotificationDevice, canRegisterPushAutomatically, logNotificationError } from '@/services/notification-permission'
-	import { acceptsNotification, parseNotificationPayload } from '@/services/push-routing'
+	import { acceptsNotification, parseNotificationMessage, notificationRejectionReason } from '@/services/push-routing'
 	import { loadAlarmDetail } from '@/services/alarm-detail'
 	import { reportAppError } from '@/services/app-errors'
 	// #ifdef MP-WEIXIN
@@ -16,23 +16,34 @@
 			// #endif
 			logPushDebug('app.launch', pushDebugContext());
 			uni.onPushMessage(async (res) => {
-                const notificationPayload = parseNotificationPayload(res.data?.payload);
-                if (!acceptsNotification(notificationPayload, uni.getStorageSync('push_binding'), `${uni.getStorageSync('serverAddress')}|${uni.getStorageSync('access_token')}`)) { logPushDebug('message.ignored', { reason: 'account_scope_mismatch', type: res.type }); return; }
+                const message = parseNotificationMessage(res.data);
+                const notificationPayload = message?.payload;
+                const pushBinding = uni.getStorageSync('push_binding');
+                const pushServer = uni.getStorageSync('serverAddress');
+                const pushToken = uni.getStorageSync('access_token');
+                const reason = notificationRejectionReason(notificationPayload, pushBinding, `${pushServer}|${pushToken}`);
+                if (reason) {
+                    const separator = typeof pushBinding?.session === 'string' ? pushBinding.session.indexOf('|') : -1;
+                    logPushDebug('message.ignored', {
+                        reason, type: res.type, dataType: typeof res.data,
+                        hasToken: Boolean(pushToken), hasBindingSession: separator >= 0,
+                        serverMatches: separator >= 0 && pushBinding.session.slice(0, separator) === pushServer,
+                        tokenMatches: separator >= 0 && pushBinding.session.slice(separator + 1) === pushToken
+                    });
+                    return;
+                }
 
-				logPushDebug('message.' + res.type, { alarmId: res.data?.payload?.alarm_id, hasTitle: Boolean(res.data?.title), hasContent: Boolean(res.data?.content) });
+				logPushDebug('message.' + res.type, { alarmId: notificationPayload.alarm_id, hasTitle: Boolean(message.title), hasContent: Boolean(message.content) });
 				if (res.type == 'receive') {  
 					uni.createPushMessage({  
-						title: res.data.title,  
-						content: res.data.content,  
-						payload: res.data.payload,
+						title: message.title,
+						content: message.content,
+						payload: notificationPayload,
 						success: () => logPushDebug('notification.created'),
 						fail: error => logPushDebug('notification.failed', pushDebugError(error), 'error'),
 					})
 				} else if (res.type == 'click') {
-					let payload = res.data?.payload;
-					if (typeof payload === 'string') {
-						try { payload = JSON.parse(payload); } catch { logPushDebug('click.invalid-payload', {}, 'error'); return; }
-					}
+					const payload = notificationPayload;
 					const alarm_id = payload?.alarm_id;
 					if (!alarm_id) { logPushDebug('click.missing-alarm-id', {}, 'warn'); return; }
 					const headers = {

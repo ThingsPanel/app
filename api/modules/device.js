@@ -1,3 +1,4 @@
+import { alarmDeviceCount, alarmHistory } from './alarm'
 import api from '@/api/request'
 
 // 获取设备分组
@@ -62,7 +63,7 @@ export const getDeviceGroup = (params) => {
 
   // 获取当前租户处于告警状态的设备数量
   export const getAlarmDeviceCount = () => {
-    return api.apiRequest('/api/v1/alarm/device/counts', null, 'GET');
+    return alarmDeviceCount();
   };
   
   // 删除某个设备
@@ -97,7 +98,7 @@ export const getDeviceGroup = (params) => {
   
   // 获取设备告警历史
   export const deviceAlarmHistory = (params) => {
-    return api.apiRequest('/api/v1/alarm/info/history', params, 'GET');
+    return alarmHistory(params);
   };
   
   // 获取设备告警配置列表

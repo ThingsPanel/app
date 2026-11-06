@@ -488,7 +488,7 @@ export default {
       },
       alarmStatus: '告警状态',
       alarmStatuses: {
-        N: '正常',
+        N: '已恢复',
         L: '低级报警',
         M: '中级报警',
         H: '高级报警',

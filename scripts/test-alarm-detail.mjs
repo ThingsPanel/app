@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
-const source = await readFile(new URL('../services/alarm-detail.js', import.meta.url), 'utf8')
+let source = await readFile(new URL('../services/alarm-detail.js', import.meta.url), 'utf8')
+const reading = await readFile(new URL('../services/alarm-reading.js', import.meta.url), 'utf8')
+source = source.replace("'./alarm-reading.js'", JSON.stringify(`data:text/javascript;base64,${Buffer.from(reading).toString('base64')}`))
 const { loadAlarmDetail } = await import(`data:text/javascript;base64,${Buffer.from(source).toString('base64')}`)
 const calls = []
 const responses = {

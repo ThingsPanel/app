@@ -69,11 +69,13 @@
 </template>
 
 <script>
+import { alarmDetail } from '@/api/modules/alarm'
 import dayjs from 'dayjs'
 
 export default {
 	data() {
 		return {
+			detailRequest: 0,
 			detail: {
 				alarm_device_list: [],
 				created_at: ''
@@ -126,6 +128,7 @@ export default {
 						alarm_device_list: [],
 						...data.item
 					};
+					this.refreshDetail(data.item.id)
 				} else {
 					console.error('Invalid data received:', data);
 				}
@@ -134,7 +137,17 @@ export default {
 			console.error('Failed to get event channel');
 		}
 	},
+	onUnload() { this.detailRequest++ },
 	methods: {
+		async refreshDetail(id) {
+			const version = ++this.detailRequest
+			try {
+				const detail = await alarmDetail(id)
+				if (version === this.detailRequest) this.detail = detail
+			} catch (error) {
+				if (version === this.detailRequest) uni.showToast({ title: error.message || '告警详情查询失败', icon: 'none' })
+			}
+		},
 		formatDate(date) {
 			if (!date && date !== 0) {
 				return '--'

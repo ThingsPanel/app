@@ -1,4 +1,13 @@
 import api from '@/api/request'
+import { readAlarmHistory, readAlarmDeviceCount, readAlarmOccurrenceCount, scopedAlarmRequest } from '@/services/alarm-reading'
+import { loadAlarmDetail } from '@/services/alarm-detail'
+
+function requestForSession() {
+  return scopedAlarmRequest(api.apiRequest, () => JSON.stringify([uni.getStorageSync('serverAddress'), uni.getStorageSync('access_token')]))
+}
+export const alarmOccurrenceCount = (range) => readAlarmOccurrenceCount(requestForSession(), range)
+export const alarmDeviceCount = () => readAlarmDeviceCount(requestForSession())
+export const alarmDetail = (id) => loadAlarmDetail(requestForSession(), id)
 
 /** 创建告警规则 */
 export const createAlarmRule = (params) => {
@@ -27,7 +36,7 @@ export const deleteAlarmRule = (id) => {
 
   /** 告警历史列表 */
   export const alarmHistory = (params) => {
-    return api.apiRequest('/api/v1/alarm/info/history', params, 'GET');
+    return readAlarmHistory(requestForSession(), params);
   };
 
   /** 告警信息处理 */

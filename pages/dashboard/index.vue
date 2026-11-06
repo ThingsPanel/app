@@ -93,7 +93,7 @@ import { openHomePreference } from '@/services/dashboard-home'
 import { navigateToPage } from '@/utils/navigation'
 import dayjs from 'dayjs'
 import { getDeviceOverview, getAlarmDeviceCount, getDeviceGroup, deviceList } from '@/api/modules/device'
-import { alarmHistory } from '@/api/modules/alarm'
+import { alarmHistory, alarmOccurrenceCount } from '@/api/modules/alarm'
 import { sceneAutomationsGet } from '@/api/modules/automation'
 import { getGroupStatistics, getUserProfile } from '@/api/modules/dashboard'
 import { count, responseData, onlineRate, todayRange, recentDevices } from '@/features/dashboard/metrics'
@@ -226,9 +226,7 @@ export default {
         ['alarmDevices', async () => { this.alarmDevices = null; this.alarmDevices = count(responseData(await getAlarmDeviceCount()).alarm_device_total) }],
         ['todayAlarms', async () => {
           this.todayAlarms = null
-          // 历史表还包含恢复记录（N）；仅累计 H/M/L，避免将恢复算作新告警。
-          const results = await Promise.all(['H', 'M', 'L'].map(alarm_status => alarmHistory({ page: 1, page_size: 1, ...todayRange(now), alarm_status })))
-          this.todayAlarms = results.reduce((sum, result) => sum + count(responseData(result).total), 0)
+          this.todayAlarms = await alarmOccurrenceCount(todayRange(now))
         }],
         ['automationRules', async () => { this.automationTotal = null; this.automationTotal = count(responseData(await sceneAutomationsGet({ page: 1, page_size: 1 })).total) }],
         ['alarmActivity', async () => { this.alarms = []; const d = responseData(await alarmHistory({ page: 1, page_size: 3 })); if (!Array.isArray(d.list)) throw new Error('告警列表无效'); this.alarms = d.list }],

@@ -142,6 +142,7 @@
 </template>
 
 <script>
+import { alarmHistory } from '@/api/modules/alarm'
 import { deviceEmptyState } from '@/utils/image-assets'
 import AppSearch from '@/components/app-search/index.vue'
 var socketOpen = false;
@@ -625,13 +626,13 @@ export default {
 			});
 		},
 		checkNotify() {
-			this.API.apiRequest('/api/v1/alarm/info/history', {
+			alarmHistory({
 				page: 1,
 				page_size: 10
-			}, 'get').then(res => {
+			}).then(res => {
 				clearInterval(this.timer)
 				if (res.code === 200) {
-					this.activeNotify = !!res.data.data.length
+					this.activeNotify = !!res.data.list.length
 					if (this.activeNotify) {
 						this.timer = setInterval(() => {
 							this.activeNotify = !this.activeNotify

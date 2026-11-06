@@ -478,7 +478,7 @@ export default {
       },
       alarmStatus: 'Alert Status',
       alarmStatuses: {
-        N: 'Normal',
+        N: 'Recovered',
         L: 'Low Alert',
         M: 'Intermediate Alert',
         H: 'High Alert',

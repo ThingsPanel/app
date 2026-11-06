@@ -10,10 +10,11 @@
 				<text class="rule-entry-arrow">›</text>
 			</view>
 			<!-- Empty State -->
-			<view class="empty-state" v-if="!loading && !list.length">
+			<view class="empty-state" v-if="!loading && !list.length && !loadError">
 				<text class="empty-text">{{$t('pages.alarms.noAlerts')}}</text>
 			</view>
 
+			<view v-if="loadError" class="empty-state" @click="getList(true)"><text class="empty-text">{{ loadError }} · 点击重试</text></view>
 			<!-- Alert List -->
 			<view class="panel">
 				<view
@@ -50,6 +51,7 @@
 </template>
 
 <script>
+import { alarmHistory } from '@/api/modules/alarm'
 import NotifyDialog from '@/components/notify-dialog'
 import { formatAlarmTime } from '@/utils/datetime'
 
@@ -61,6 +63,8 @@ export default {
 			pageSize: 10,
 			loadEnd: false,
 			loading: false,
+			loadError: '',
+			loadVersion: 0,
 			list: [],
 			showDialog: false,
 			handleInfo: {
@@ -71,6 +75,9 @@ export default {
 		}
 	},
 	onShow() {
+		this.page = 1
+		this.loadEnd = false
+		this.getList(true)
 		this.$nextTick(() => {
 			setTimeout(() => {
 				uni.setNavigationBarTitle({
@@ -167,33 +174,39 @@ export default {
 			// })
 		},
 		getList(reset = false) {
-			if (this.loading) return
+			if (this.loading && !reset) return
+			const version = ++this.loadVersion
+			if (reset) { this.page = 1; this.list = []; this.loadEnd = false }
+			this.loadError = ''
 			this.loading = true
-			this.API.apiRequest('/api/v1/alarm/info/history', {
+			alarmHistory({
 				page: this.page,
 				page_size: this.pageSize
-			}, 'get').then(res => {
+			}).then(res => {
+				if (version !== this.loadVersion) return
 				if (res.code === 200) {
 					const list = res.data.list || []
 					this.list = reset ? list : this.list.concat(list)
-					if (list.length < this.pageSize) {
+					if (this.list.length >= res.data.total) {
 						this.loadEnd = true
 					}
 				} else {
 					throw new Error('alarm history load failed')
 				}
-			}).catch(() => {
+			}).catch(error => {
+				if (version !== this.loadVersion) return
+				this.loadError = error.message || '告警查询失败'
 				if (!reset && this.page > 1) this.page--
 				uni.showToast({ title: this.$t('account.edit.loadFailed'), icon: 'none' })
 			}).finally(() => {
+				if (version !== this.loadVersion) return
 				this.loading = false
 				uni.stopPullDownRefresh()
 			})
 		}
 	},
-	onLoad() {
-		this.getList()
-	},
+
+	onUnload() { this.loadVersion++ },
 	onReachBottom() {
 		if (!this.loadEnd && !this.loading) {
 			this.page++

@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const src=fs.readFileSync('services/alarm-reading.js','utf8').replace(/export /g,'');
+const c={};vm.runInNewContext(src,c);
+(async()=>{
+ const calls=[];let mode='native';
+ const request=async(path,data)=>{calls.push({path,data});if(path.endsWith('/runtime'))return {code:200,data:{mode}};if(path.endsWith('/alarm-history'))return {total:205,active_devices:2,alarms:[{id:'a',policy_id:'p',subject_id:'d',level:'H',state:'cleared',opened_at:'2026-11-06T01:00:00Z'}]};if(path.endsWith('/rules/p'))return{name:'Temperature'};if(path==='/api/v1/alarm/info/history')return{code:200,data:{list:[],total:0}};throw Error(path)};
+ let r=await c.readAlarmHistory(request,{page:21,page_size:10,device_id:'d',alarm_status:'N',start_time:'2026-11-01T00:00:00Z'});
+ assert.equal(r.data.total,205);assert.equal(r.data.list[0].alarm_status,'N');assert.equal(r.data.list[0].name,'Temperature');
+ const query=calls.find(x=>x.path.endsWith('/alarm-history')).data;
+ assert.equal(query.page,21);assert.equal(query.subject_id,'d');assert.equal(query.state,'cleared');assert.equal(query.level,'');assert.equal(query.start_time,'2026-11-01T00:00:00Z');
+ assert.equal((await c.readAlarmDeviceCount(request)).data.alarm_device_total,2);
+ calls.length=0;mode='legacy';await c.readAlarmHistory(request,{page:2});assert(calls.some(x=>x.path==='/api/v1/alarm/info/history'));assert(!calls.some(x=>x.path.startsWith('/automation-core')));
+ mode='native';let legacyCalled=false;
+ await assert.rejects(c.readAlarmHistory(async(path)=>{if(path.endsWith('/runtime'))return{code:200,data:{mode}};if(path.startsWith('/api/v1/alarm'))legacyCalled=true;throw Error('unavailable')}),/unavailable/);assert.equal(legacyCalled,false);
+ await assert.rejects(c.readAlarmHistory(async()=>({code:503})),/无法确认/);
+ await assert.rejects(c.readAlarmHistory(async(path)=>path.endsWith('/runtime')?{code:200,data:{mode}}:{alarms:[]}),/查询失败/);
+ let scope='server1|token1';const guarded=c.scopedAlarmRequest(async()=>{scope='server2|token2';return{code:200}},()=>scope);await assert.rejects(guarded('/test'),/已切换/);await assert.rejects(guarded('/test'),/已切换/);
+ mode='native';assert.equal(await c.readAlarmOccurrenceCount(request,{start_time:'2026-11-06T00:00:00Z'}),205);
+ mode='legacy';let levels=[];assert.equal(await c.readAlarmOccurrenceCount(async(path,data)=>path.endsWith('/runtime')?{code:200,data:{mode}}:(levels.push(data.alarm_status),{code:200,data:{total:2}}),{}),6);assert.equal(levels.join(','),'H,M,L');
+ let changed=false;await assert.rejects(c.readAlarmHistory(async(path)=>{if(path.endsWith('/runtime'))return{code:200,data:{mode:'native'}};if(path.endsWith('/alarm-history'))return{total:1,alarms:[{policy_id:'p'}]};const err=Error('changed');err.code='ALARM_SESSION_CHANGED';throw err}),/changed/);
+ const d=c.mapAlarmEpisode({id:'a',state:'active',level:'H',last_evidence:JSON.stringify({reasons:[{key:'temperature',actual:0,expected:10}]})},{name:'Rule'});assert.match(d.content,/0/);
+ console.log('PASS native/legacy alarm reads, pagination/filter mapping, recovery, counts, failure handling and account isolation');
+})().catch(e=>{console.error(e);process.exitCode=1});

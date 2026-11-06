@@ -37,7 +37,7 @@
 import { computed, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import DeviceAutomationTab from './device-automation-tab.vue'
-import { requestDeviceApi } from '@/api/modules/device-overview'
+import { alarmHistory } from '@/api/modules/alarm'
 import { useDeviceList } from '@/features/devices/utils/use-device-list'
 const props = defineProps({ device: { type: Object, default: () => ({}) }, deviceId: { type: String, required: true } })
 const tab = ref('history')
@@ -58,14 +58,14 @@ function confirmDateRange() {
 }
 function selectPreset(value) { preset.value = value; startDate.value = dayjs().subtract(value === '24h' ? 1 : 7, 'day').format('YYYY-MM-DD'); endDate.value = dayjs().format('YYYY-MM-DD') }
 const statusIndex = ref(0)
-const statuses = [{ label: '全部状态', value: '' }, { label: '高告警', value: 'H' }, { label: '中级告警', value: 'M' }, { label: '低告警', value: 'L' }, { label: '正常', value: 'N' }]
+const statuses = [{ label: '全部状态', value: '' }, { label: '高告警', value: 'H' }, { label: '中级告警', value: 'M' }, { label: '低告警', value: 'L' }, { label: '已恢复', value: 'N' }]
 function filters() {
   // 24 小时使用滚动时间范围，不能按两个自然日查询。
   const now = dayjs()
   return { start_time: preset.value === '24h' ? now.subtract(24, 'hour').format() : dayjs(startDate.value).startOf('day').format(), end_time: preset.value === '24h' ? now.format() : dayjs(endDate.value).endOf('day').format(), alarm_status: statuses[statusIndex.value].value }
 }
 let appliedFilters = filters()
-const { items, loading, error, total, load } = useDeviceList(page => requestDeviceApi('alarm/info/history', { device_id: props.deviceId, page, page_size: 10, ...appliedFilters }))
+const { items, loading, error, total, load } = useDeviceList(async page => (await alarmHistory({ device_id: props.deviceId, page, page_size: 10, ...appliedFilters })).data)
 watch(() => props.deviceId, () => { if (props.deviceId) load(true) }, { immediate: true })
 function search() {
   if (startDate.value > endDate.value) { uni.showToast({ title: '开始日期不能晚于结束日期', icon: 'none' }); return }
